@@ -1,0 +1,1144 @@
+GIT
+
+GIT
+
+廖雪峰的 Git 在线教程
+
+http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000
+
+Git 的基础内容的学习
+
+http://jlord.us/git-it/
+
+安装GIT
+
+在终端输入git version查看是否安装了GIT
+
+首先在自己的电脑上安装Git，通过git --version是否显示Git版本号，判断本机Git是否安装成功。然后，配置用户名和邮箱信息（git config）
+
+设置用户名和邮箱
+
+$ git config --global user.name "Your Name"
+$ git config --global user.email "email@example.com"
+
+查看用户名和邮箱
+
+git config --global user.name
+git config --global user.email
+
+因为Git是分布式版本控制系统，所以，每个机器都必须自报家门：你的名字和Email地址。你也许会担心，如果有人故意冒充别人怎么办？这个不必担心，首先我们相信大家都是善良无知的群众，其次，真的有冒充的也是有办法可查的。
+
+注意git config命令的--global参数，用了这个参数，表示你这台机器上所有的Git仓库都会使用这个配置，当然也可以对某个仓库指定不同的用户名和Email地址。
+
+检查已有的配置信息
+
+git config --list
+
+Git安装及钥匙的生成
+
+https://blog.csdn.net/u011645059/article/details/20999005
+
+查看是否设置密钥
+
+$ cd ~/.ssh
+
+如没设置则会出现not such file,cd后有一个空格
+
+ $ ls
+
+出现后查看文件列表
+
+id_rsa
+
+id_rsa.pub
+
+cat id_rsa.pub
+
+查看密码
+
+Mac下git通过SSH进行免密码安全连接github
+
+https://blog.csdn.net/phunxm/article/details/45083335
+
+创建版本库
+
+意义
+
+版本库又名仓库，英文名repository,，每个文件的修改、删除，Git都能跟踪，以便任何时刻都可以追踪历史，或者在将来某个时刻可以“还原”。
+
+创建版本库
+
+$ mkdir hello-world （创建文件夹）
+$ cd hello-world （进入文件夹）
+$ pwd （显示当前目录路径）
+/Users/michael/hello-world
+
+如果你使用Windows系统，为了避免遇到各种莫名其妙的问题，请确保目录名（包括父目录）不包含中文。
+
+git init
+
+作用
+
+把这个目录变成Git可以管理的仓库,告诉GIT初始化你现在所在的资料夹，开始追踪。查看文件所在的路径,
+
+为资料夹加上git功能。
+
+$ git init
+Initialized empty Git repository in /Users/michael/hellow-world/.git/
+
+如果你没有看到.git目录，那是因为这个目录默认是隐藏的，用ls -ah命令就可以看见。
+
+把文件添加到版本库
+
+编写文件、放到git目录下
+
+git add
+
+$ git add readme.txt
+
+git commit
+
+$ git commit -m "wrote a readme file" （注意空格）
+[master (root-commit) eaadf4e] wrote a readme file
+ 1 file changed, 2 insertions(+)
+ create mode 100644 readme.txt
+
+含义解释
+
+-m
+
+面输入的是本次提交的说明，可以输入任意内容，当然最好是有意义的，这样你就能从历史记录里方便地找到改动记录。
+
+git commit -m"created readme"
+
+1 file changed
+
+1个文件被改动（我们新添加的readme.txt文件）
+
+2 insertions
+
+插入了两行内容（readme.txt有两行内容）。
+
+commit可以一次提交很多文件
+
+$ git add file1.txt
+$ git add file2.txt file3.txt
+$ git commit -m "add 3 files."
+
+(1). 返回上一级目录：cd .. (cd 与 .. 之间有一空格)。
+
+(2). 进入某一目录：cd git (进入 git 目录)。
+
+(3). 显示当前路径：pwd
+
+文件创建修改和删除
+
+版本回退
+
+git log
+
+查看历史记录、显示从最近到最远的提交日志
+
+可以查看提交历史，以便确定要回退到哪个版本
+
+git log --pretty=oneline
+
+显示简化版参数
+
+
+
+git reset
+
+git reset --hard commit_id
+
+$ git reset --hard HEAD^
+
+HEAD
+
+表示当前版本，也就是最新的提交
+
+HEAD^
+
+上一个版本就是
+
+HEAD^^
+
+上上一个版本就是
+
+HEAD~100
+
+往上100个版本
+
+回退后反悔了怎么办
+
+只要上面的命令行窗口还没有被关掉
+
+到那个add twoline的commit id是96a56811......
+
+$ git reset --hard 1094a
+HEAD is now at 83b0afe append GPL
+
+git reflog
+
+查看命令历史，以便确定要回到未来的哪个版本
+
+
+
+工作区和暂存区
+
+工作区（Working Directory）
+
+电脑里能看到的目录
+
+版本库（Repository）
+
+工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库。
+
+版本库里存了很多东西，其中最重要的就是称为stage（或者叫index）的暂存区，还有Git为我们自动创建的第一个分支master，以及指向master的一个指针叫HEAD。
+
+
+
+git diff
+
+比较的是工作区文件与暂存区文件的区别（上次git add 的内容）
+
+git diff --cached 
+
+比较的是暂存区的文件与仓库分支里（上次git commit 后的内容）的区别
+
+git diff --staged
+
+git diff比较的是工作目录中当前文件和暂存区域快照之间的差异， 也就是修改之后还没有暂存起来的变化内容。若要查看已暂存的将要添加到下次提交里的内容，可以用 git diff --cached 命令。
+
+请注意，git diff 本身只显示尚未暂存的改动，而不是自上次提交以来所做的所有改动。 所以有时候你一下子暂存了所有更新过的文件后，运行 git diff 后却什么也没有，就是这个原因。
+
+管理修改
+
+每次修改，如果不用git add到暂存区，那就不会加入到commit中。
+
+撤销修改
+
+git checkout -- file
+
+在工作区的修改全部撤销
+
+撤销后的两种情况
+
+一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+
+一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+
+总之，就是让这个文件回到最近一次git commit或git add时的状态。
+
+git reset HEAD <file>
+
+把暂存区的修改撤销掉（unstage），重新放回工作区
+
+场景1：当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout -- file。
+
+场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD <file>，就回到了场景1，第二步按场景1操作。
+
+场景3：已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退一节，不过前提是没有推送到远程库。
+
+删除文件
+
+$ rm test.txt，并且git commit
+
+文件就从版本库中被删除了
+
+先手动删除文件，然后使用git rm <file>和git add<file>效果是一样的。
+
+$ git checkout -- test.txt
+
+git checkout其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原”。
+
+如果一个文件已经被提交到版本库，那么你永远不用担心误删，但是要小心，你只能恢复文件到最新版本，你会丢失最近一次提交后你修改的内容。
+
+远程仓库
+
+相关理解
+
+readme （讀我檔案）通常是用來解釋一個程式的功用、使用方法以及如何貢獻程式碼（但有時候這部份也會另外用一個 CONTRIBUTING.md 來說明）。
+
+.gitignore 則是要忽略的檔案清單，這是用來告訴 Git，當在做版本控制記錄的時候，不要理會這些檔案。例如，當某個檔案中包含密碼的時候，我們就不希望 Git 記錄它們下來。
+
+License（著作權聲明）是用來聲明一個程式可以、或不可以被怎麼樣的使用。你可以到choosealicense.com 參考一些範例。
+
+如何关联远程库
+
+两种情况关联远程库
+
+也可以把一个已有的本地仓库与之关联，然后，把本地仓库的内容推送push到GitHub仓库
+
+从这个仓库克隆出新的仓库,GITHUB克隆到本地
+
+远程库的名字就是origin，是Git默认的叫法，也可以改成别的
+
+push关联远程库
+
+第一步：$ git remote add origin git@github.com:michaelliao/learngit.git
+
+第二步 
+
+把本地库的所有内容推送到远程库上
+
+git push命令
+
+实际上是把当前分支master推送到远程。
+
+$ git push -u origin master
+
+由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令。
+
+出现的问题
+
+没有在目录下创建远程仓库
+
+You have to actually cd into the directory first:
+
+
+
+typo
+
+C要大写！！！！！！！！
+
+
+
+廖雪峰的教程和gitit教程内容有点区分，在关联远程库的时候gitit使用的是http,而廖雪峰用的是ssh，我先弄得廖雪峰的然后弄得gitit，导致仓库一直不能关联，搜了一下午的教程，设置了ssh密钥等等，最后把url链接换成ssh，通过密钥后关联了仓库。真是哭了，用了一天的时间。
+
+https://blog.csdn.net/u011645059/article/details/20999005 （设置成功
+
+
+
+Changing a remote's URL SSH-HTTP
+
+https://help.github.com/en/articles/changing-a-remotes-url
+
+从远程库克隆
+
+从零开发，那么最好的方式是先创建远程库，然后，从远程库克隆。
+
+登陆GitHub，创建一个新的仓库
+
+$ git clone git@github.com:michaelliao/gitskills.git
+
+SSH警告
+
+ssh 密钥设置 都回车空格了
+
+$ makdir ~/hello-world    //创建一个项目hello-world
+$ cd ~/hello-world    //打开这个项目
+$ git init    //初始化 
+$ touch README
+$ git add README   //更新README文件
+$ git commit -m 'first commit'//提交更新，并注释信息“first commit” 
+$ git remote add origin git@github.com:defnngj/hello-world.git   //连接远程github项目  
+$ git push -u origin master   //将本地项目更新到github项目上去
+
+ssh 和 https 地址区别
+
+GitHub给出的地址不止一个，还可以用https://github.com/michaelliao/gitskills.git这样的地址。实际上，Git支持多种协议，默认的git://使用ssh，但也可以使用https等其他协议。
+
+使用https除了速度慢以外，还有个最大的麻烦是每次推送都必须输入口令，但是在某些只开放http端口的公司内部就无法使用ssh协议而只能用https。但通过ssh支持的原生git协议速度最快。
+
+分支管理
+
+创建与合并分支
+
+Git鼓励大量使用分支，因为创建、合并和删除分支非常快，所以Git鼓励你使用分支完成某个任务，合并后再删掉分支，这和直接在master分支上工作效果是一样的，但过程更安全。
+
+git branch命令会列出所有分支，当前分支前面会标一个*号。
+
+$ git branch
+* dev
+  master
+
+查看分支：git branch
+
+查看远程名和分支名 ： git branch -r
+
+创建分支：git branch <name>
+
+切换分支：git checkout <name>
+
+创建+切换分支：git checkout -b <name>
+
+$ git checkout -b dev
+Switched to a new branch 'dev'
+
+相当于以下两条命令：
+$ git branch dev
+$ git checkout dev
+Switched to branch 'dev'
+
+合并某分支到当前分支：git merge <name>
+
+删除分支：git branch -d <name>
+
+$ git branch -d dev
+Deleted branch dev (was b17d20e).
+
+大概流程：创建分支、切换到新创建的分支、在新的分支上进行修改提交、切换回master分支、新的分支和master合并、删除新分支留下master分支、修改依然保存。
+
+
+
+$ git checkout gh-pages(分支名；首先，切換到想要 合併merge 進去的 分支branch，也就是 'gh-pages' 想要合并到那个分支就先去到那个分支的路径里。
+
+$ git merge <BRANCHNAME>
+
+告訴 Git 你想要 合併merge 那個 分支branch 進來，也就是你的 功能feature 分支branch，名字是 'add-username'。
+
+$ git branch -d <BRANCHNAME>
+
+把剛剛已經 合併merged 的 功能feature 分支branch 刪掉。（删除本地分支
+
+$ git push <REMOTENAME> --delete <BRANCHNAME>
+
+删除remote的分支
+
+$ git pull <REMOTENAME> <BRANCHNAME>
+
+從 遠端remote 分支branch 收取Pull
+
+解决冲突
+
+大概内容
+
+1. 创建新分支，在featurel1 分支上修改readme.txt 文件，并提交
+2. 切换分支，在master 分支上 修改 readme.txt文件，并提交
+3. 合并，出现冲突
+4. 直接打开readme.txt 文件，可以直接查看冲突原因，解决冲突，再次进行合并，在master分支下
+5. 最后删除 featurel1 分支
+
+git status
+
+查看冲突的文件
+
+git log --graph命令
+
+可以看到分支合并图
+
+$ git log --graph --pretty=oneline --abbrev-commit
+
+可以看到简化的分支合并图
+
+小结
+
+当Git无法自动合并分支时，就必须首先解决冲突。解决冲突后，再提交，合并完成。
+
+解决冲突就是把Git合并失败的文件手动编辑为我们希望的内容，再提交。
+
+用git log --graph命令可以看到分支合并图。
+
+分支管理策略
+
+git merge方式
+
+Fast forward 模式
+
+这种模式下，删除分支后，会丢掉分支信息。
+
+--no-ff 模式
+
+Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。
+
+表示禁用Fast forward
+
+$ git merge --no-ff -m "merge with no-ff" dev
+
+小结
+
+合并分支时，加上--no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而fast forward合并就看不出来曾经做过合并。
+
+bug分支
+
+工作只进行到一半，还没法提交，预计完成还需1天时间。但是，必须在两个小时内修复该bug，怎么办
+
+stash功能
+
+$ git stash
+
+把当前工作现场“储藏”起来，等以后恢复现场后继续工作
+
+1. $ git stash 把当前工作现场“储藏”起来，等以后恢复现场后继续工作
+2. 用git status查看工作区，就是干净的（除非有没有被Git管理的文件），因此可以放心地创建分支来修复bug。
+3. 首先确定要在哪个分支上修复bug，假定需要在master分支上修复，就从master创建临时分支
+4. 修复完成后，切换到master分支，并完成合并，最后删除issue-101分支：
+5. git stash list命令 ，查看原本的工作现场
+
+6. 工作现场恢复方式
+
+git stash apply 恢复
+
+但是恢复后，stash内容并不删除，你需要用git stash drop来删除
+
+git stash pop 恢复
+
+恢复的同时把stash内容也删了
+
+7. 再用git stash list查看，就看不到任何stash内容了
+
+8. 恢复的时候，先用git stash list查看，然后恢复指定的stash，用命令 $ git stash apply stash@{0}
+
+分支强制删除
+
+添加一个新功能时，你肯定不希望因为一些实验性质的代码，把主分支搞乱了，所以，每添加一个新功能，最好新建一个feature分支，在上面开发，完成后，合并，最后，删除该feature分支。
+
+开发一个新feature，最好新建一个分支；
+
+如果要丢弃一个没有被合并过的分支，可以通过git branch -D <name>强行删除。
+
+多人协作
+
+查看远程库的信息
+
+git remote
+
+查看远程库的信息
+
+git remote -v
+
+查看远程库的更详细的信息
+
+如果没有推送权限，就看不到push的地址。
+显示了可以fetch抓取和推送push的origin的地址
+
+在收取更新前先检查remote是否有变动
+
+git fetch --dry-run
+
+推送分支
+
+推送到自己的仓库
+
+含义
+
+把该分支上的所有本地提交推送到远程库。推送时，要指定本地分支，这样，Git就会把该分支推送到远程库对应的远程分支上
+
+命令
+
+$ git push origin master
+
+$ git push origin dev
+
+(推送其他分支
+
+本地和远程分支的名称最好一致
+
+抓取分支
+
+git pull
+
+把最新的提交从origin/dev抓下来
+
+pull requests
+
+當你修改或改善 複本的forked 專案時，通常會想把這些修改發給原本的維護者，希望原作者 收取pull 你的 要求request，讓大家都可以從更新中受益──這就是 收取要求Pull Request。
+
+常 GitHub 會偵測你有 推送push 了新 分支branch 到 複本fork，然後在原專案的上方放上特別的提示。如果有看到提示的話，提示內容應該是以你名字 'add-username' 的 分支branch。這樣的話就可以直接按 'Compare & pull request' 來建立 收取要求Pull Request 
+
+接著你會看到一頁有著 收取要求pull request 資訊的頁面,這一頁會顯示你的 收取要求pull request 和原本 'gh-pages' 分支branch 相比的 提要commits 和變動。
+
+若原本的 程式庫repository 有一份 貢獻contributing 說明 的話，GitHub 會顯示這個文件的連結。這份文件是 程式庫repository 原作者所撰寫，說明這個專案最佳的貢獻方式
+
+按 'Create pull request'
+針對修改的內容，輸入標題與描述，用來建議原作者為什麼要收取這個 收取要求pull request。
+按 'Send pull request'!
+
+There is no tracking information for the current branch.
+
+原因是没有指定本地dev分支与远程origin/dev分支的链接，根据提示，设置dev和origin/dev的链接
+
+git branch --set-upstream-to=origin/<branch> dev
+
+因此，多人协作的工作模式通常是这样：
+
+首先，可以试图用git push origin <branch-name>推送自己的修改；
+
+如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+
+如果合并有冲突，则解决冲突，并在本地提交；
+
+没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送就能成功！
+
+如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>
+
+fork
+
+當你 複製fork 一個 程式庫repository 時，實際上是複製了一份 程式庫repository 到自己的 GitHub 帳號下，換句話說，你的 fork 成為了一個 遠端remote 程式庫repository。通常我們透過 複本forks 用來建立自己所需使用的修改版本，或是協助原始專案修正錯誤、新增功能。
+
+當你成功 複製forked 專案後，便可以從 GitHub 將它 下載clone 到你的電腦上。這樣一來就可以在沒有網路連線狀況下，修改電腦裡的專案內容。
+
+git it pic
+
+找到想要fork的仓库，点击fork,你的仓库会自动出现一份副本。把右边侧栏的https clone url 复制一份
+
+在终端机bash clone repository 到你的电脑上，他会自动替仓库建立一个新的资料夹。
+
+note:要注意要离开就文件夹所属的位置，回到git本身的大文件夹中
+
+如果fork的原始仓库的内容有所改变，你会希望能够pull这些变更。我们则需要另外一个remote连接到原始的仓库。意思就是新建一个远程仓库，通常命名为upstream
+
+git remote add upstream 仓库地址
+
+小结
+
+在本地创建和远程分支对应的分支，使用git checkout -b branch-name origin/branch-name，本地和远程分支的名称最好一致；
+
+$ git checkout -b dev origin/dev
+
+建立本地分支和远程分支的关联，使用git branch --set-upstream-to= branch-name origin/branch-name；
+
+$ git branch --set-upstream-to=origin/dev dev
+
+本地新建的分支如果不推送到远程，对其他人就是不可见的；
+
+rebase
+
+rebase操作可以把本地未push的分叉提交历史整理成直线；
+
+rebase的目的是使得我们在查看历史提交的变化时更容易，因为分叉的提交需要三方对比。
+
+标签管理
+
+创建标签
+
+1. 创建标签需要切换到需要打标签的分支上
+2. git tag <name> 敲击命令  创建标签
+3. git tag 查看所有标签
+
+默认标签是打在最新提交的commit
+
+需要在旧commit上创建标签
+
+方法是找到历史提交的commit id，后使用命令
+
+$ git tag v0.9 f52c633
+
+
+
+创建带有说明的标签
+
+$ git tag -a v0.1 -m "version 0.1 released" 1094adb
+
+用-a指定标签名，-m指定说明文字
+
+标签不是按时间顺序列出，而是按字母排序的
+
+git show <tagname>
+
+查看标签信息
+
+注意：标签总是和某个commit挂钩。如果这个commit既出现在master分支，又出现在dev分支，那么在这两个分支上都可以看到这个标签。
+
+操作标签
+
+删除一个本地标签
+
+$ git tag -d v0.1
+
+推送某个标签到远程
+
+git push origin <tagname>
+
+一次性推送全部尚未推送到远程的本地标签
+
+$ git push origin --tags
+
+删除已被推送到远程的标签
+
+git push origin :refs/tags/<tagname>
+
+先从本地删除
+
+$ git tag -d v0.9
+
+后从远程删除
+
+$ git push origin :refs/tags/v0.9
+
+因为创建的标签都只存储在本地，不会自动推送到远程。所以，打错的标签可以在本地安全删除。
+
+自定义git
+
+配置别名
+
+$ git config --global alias.st status
+
+git st就表示git status
+
+co表示checkout，ci表示commit，br表示branch
+
+--global参数是全局参数，也就是这些命令在这台电脑的所有Git仓库下都有用。
+
+配置文件
+
+加上--global是针对当前用户起作用的，如果不加，那只针对当前的仓库起作用。
+
+配置文件的位置
+
+每个仓库的Git配置文件都放在.git/config文件中
+
+当前用户的Git配置文件放在用户主目录下的一个隐藏文件.gitconfig中
+
+配置别名也可以直接修改这个文件，如果改错了，可以删掉文件重新通过命令配置
+
+代码整洁
+
+5S 原则
+
+整理：命名的规范
+
+整顿：把你的代码放在它应该在的地方
+
+清楚：整洁代码
+
+清洁：代码风格、实践手段
+
+身美：不断改进
+
+小驼峰法 
+
+除第一个单词之外，其他单词首字母大写
+
+大驼峰法 
+
+所有单词的首字母都大写
+
+class BaseUser{}
+
+常量名
+
+每个单词的所有字母都大写，单词与单词之间用 _ 连接
+
+const BASE_USER = ''
+
+命名规范
+
+名副其实
+
+不需要被注释也应该被理解、看懂
+
+避免误导
+
+（I 、O），这到底是 I 还是 1,是 O 还是 0
+
+做有意义的区分
+
+简洁不废话
+
+student 就不要再写成 studentInfo 或者 studentData
+
+不要使用 a1、a2、a3
+
+使用读得出来的名称
+
+使用可搜索的名称
+
+不要使用硬编码，尽量使用常量替代
+
+一致的命名规则
+
+查找都用 find**
+
+不要使用双关语
+
+整洁函数的特点
+
+短小
+
+一个函数不应该超过20行代码，如果超过需要考虑抽取函数
+
+每一个函数/方法应该只干一件
+
+这样做也更加有利于命名，当我们看到函数名的时候就可以知道这个方法的功能是什么
+
+函数参数
+
+一元参数：有输入应该也有输出
+
+二元参数：尽量不要使用，除非参数是有序组成的(new Point(x,y))
+
+如果参数个数超过两个，考虑下把参数封装一下在传过去
+
+不重复
+
+在程序中如果有两个位置用到了相同的代码，那么就要考虑下把相同的代码提取出来在调用这个抽取出来的方法
+
+注释
+
+好的注释
+
+法律信息
+
+提供信息的注释（时间格式...）
+
+对意图的解释
+
+警告
+
+TODO
+
+公共 API
+
+坏的注释
+
+对代码过多的注释其实是在增加我们的编码量
+
+Command Line 
+
+基本文件和目录操作
+
+零碎
+
+$ mv dir1 Desktop/dir1
+
+移动文件目录
+
+$ mv file1 file2
+
+重命名文件目录
+
+$ rm file
+
+$ rm -r dir
+
+-f 表示强制删除，不显示提示信息。
+
+$ mkdir dir
+
+新建文件夹
+
+$ touch file
+
+新建文件
+
+$ >file
+
+？
+
+$ vim file
+
+？
+
+vi + 文件名
+
+编辑文件
+
+按Esc键以确保您退出编辑模式，然后:wq（冒号W Q，才能保存成功
+
+具体步骤
+
+（1）vi+文件名，新建一个文件并进入编辑状态（如果文件已存在，则直接进入编辑状态） 
+
+（2）在命令模式下，我们可以直接按 i ,此时就会切换到编辑模式，如下图，下方有个insert，此时可以直接修改文本内容。 
+
+（3）在编辑模式下，按 esc 就可以切换到命令模式。 ：wq 
+
+在按enter键就返回主界面 
+
+$ cat file # 
+
+查看文件内容，适合比较短的文件
+
+$ less file # 
+
+查看文件内容，有快捷键，可以看比较长的文件
+
+$ file file1
+
+查看文件类型 fiie
+
+$ du -k file
+
+查看文件大小
+
+$ du -m file
+
+查看文件大小
+
+$ pwd
+
+查看当前目录
+
+$ cd Desktop
+
+切换目录
+
+cd ..(有空格
+
+返回上一级目录
+
+进入D盘
+
+$ cd D:
+
+
+
+复制结束，按esc后，输入:q!退出vim。
+
+
+
+通配符
+
+命令
+
+mkdir – Create directories
+
+mkdir directory...
+
+当有三个圆点跟在一个命令的参数后面， 这意味着那个参数可以重复
+
+这个没明白
+
+mkdir dir1 dir2 dir3
+
+会创建三个目录，名为 dir1, dir2, dir3
+
+mv – Move/rename files and directories
+
+mv item1 item2
+
+mv item... directory
+
+把一个或多个条目从一个目录移动到另一个目录中。
+
+mv file1 file2 dir1
+
+移动 file1 和 file2 到目录 dir1 中。dir1 必须已经存在。
+
+当前目录单个(不是所有)文件移动到上一级目录的命令是？？？？？？？
+
+cp – Copy files and directories
+
+cp item1 item2
+
+复制单个文件或目录”item1”到文件或目录”item2”
+
+cp item... directory
+
+复制多个项目（文件或目录）到一个目录下。
+
+rm – Remove files and directories
+
+rm item...
+
+
+
+Be Careful With rm!
+
+ln – Create hard and symbolic links
+
+ln file link
+
+创建硬链接
+
+ln -s item link
+
+创建符号链接
+
+ls - 查看当前文件夹内的文件list
+
+ls -l 可查看当前文件夹文件的文件名创建时间等等
+
+重定向
+
+管道线
+
+command1 | command2
+
+$ ls -l /usr/bin | less
+
+$ ls /bin /usr/bin | sort | less
+
+cat － 连接文件
+
+cat [file]
+
+cat 命令读取一个或多个文件，然后复制它们到标准输出,显示简短的文本文件
+
+名字很长但有顺序的多文件
+
+movie.mpeg.001 movie.mpeg.002 … movie.mpeg.099
+
+cat movie.mpeg.0* > movie.mpeg
+
+Ctrl-d
+
+在标准输入中， 它已经到达文件末尾（EOF )
+
+没有起作用
+
+ > 
+
+输入内容
+
+cat > lazy_dog.txt
+
+Ctrl-d
+
+结束输入
+
+<
+
+sort － 排序文本行
+
+uniq － 报道或省略重复行
+
+$ ls /bin /usr/bin | sort | uniq | less
+
+$ ls /bin /usr/bin | sort | uniq -d | less
+
+看到 重复的数据列表
+
+grep － 打印匹配行
+
+grep pattern [file...]
+
+pattern 指的是单词
+
+$ ls /bin /usr/bin | sort | uniq | grep zip
+
+”-i”使得 grep 在执行搜索时忽略大小写（通常，搜索是大小写 敏感的）
+
+，”-v”选项会告诉 grep 只打印不匹配的行。
+
+wc － 打印文件中换行符，字，和字节个数
+
+$ wc ls-output.txt
+
+会出现三个数字，包含行数，单词数和字节数
+
+$ ls /bin /usr/bin | sort | uniq | wc -l
+
+”-l”选项限制命令输出只能 报道行数
+
+head － 输出文件第一部分
+
+head 命令打印文件的前十行（默认情况下
+
+通过”-n”选项来调整命令打印的行数。
+
+$ head -n 5 ls-output.txt
+
+$ ls /usr/bin | tail -n 5
+
+tail - 输出文件最后一部分
+
+打印文件的后十行。默认情况下
+
+通过”-n”选项来调整命令打印的行数。
+
+$ head -n 5 ls-output.txt
+
+$ ls /usr/bin | tail -n 5
+
+$ tail -f /var/log/messages
+
+允许你实时地浏览文件，使用”-f”选项，tail 命令继续监测这个文件，当新的内容添加到文件后，它们会立即 出现在屏幕上。这会一直继续下去直到你输入 Ctrl-c。
+
+tee - 从标准输入读取数据，并同时写到标准输出和文件
+
+$ ls /usr/bin | tee ls.txt | grep zip
+
+在 grep 过滤管道线的内容之前，来捕捉整个目录列表到文件 ls.txt：
+
+权限
+
+id – 显示用户身份号
+
+文件模式和文件类型
+
+表明文件类型的字符
+
+
+
+文件模式
+
+剩下的九个字符叫做文件模式，代表着文件所有者、文件组所有者和其他人的读、写和执行权限。
+
+权限属性
+
+权限属性示例
+
+chmod – 更改文件模式
+
+注意只有文件的所有者或者超级用户才 能更改文件或目录的模式
+
+八进制数字表示法
+
+符号表示法
+
+umask – 设置默认的文件权限
+
+su – 以另一个用户的身份来运行 shell
+
+sudo – 以另一个用户的身份来执行命令
+
+chown – 更改文件所有者
+
+chgrp – 更改文件组所有权
+
+passwd – 更改用户密码
+
+进程
+
+ps – 报告当前进程快照
+
+TTY 栏“?” ，表示没有控制终端
+
+$ ps x
+
+出现 STAT 栏，STAT 是 “state” 的简写，它揭示了进程当前状态
+
+
+
+$ ps aux
+
+能够显示属于每个用户的进程信息
+
+
+
+top – 显示任务
+
+top 程序以进程活动顺序显示连续更新的系统进程列表。（默认情况下，每三秒钟更新一次）
+
+top 程序接受一系列从键盘输入的命令。两个最有趣的命令是 h 和 q。h，显示程序的帮助屏幕，q， 退出 top 程序。
+
+jobs – 列出活跃的任务
+
+bg – 把一个任务放到后台执行
+
+fg – 把一个任务放到前台执行
+
+kill – 给一个进程发送信号
+
+Ctrl-c ，会发送一个叫做 INT（Interrupt,中断）的信号
+
+ Ctrl-z，TSTP（Terminal Stop,终端停止）的信号
+
+kill [-signal] PID...
+
+killall – 杀死指定名字的进程
+
+和 kill 命令一样，你必须拥有超级用户权限才能给不属于你的进程发送信号
+
+killall [-u user] [-signal] name...
+
+给多个进程发送信号
+
+shutdown – 关机或重启系统
+
+
+
+
+
+
+
+问题
+
+每次处理git都会出现很多问题
+
+如果有安装github for mac/windows,GIT初始化的时候就会直接设定了一个叫做origin的remote，所以不需要新增remote，只需要设定‘origin’remote的位置就好。
+
+git remote set-url origin 仓库地址

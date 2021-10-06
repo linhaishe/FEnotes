@@ -1,0 +1,42 @@
+<script type="text/javascript">
+// 简单的原型链的讲解，表慌
+// 这个例子，不涉及到方法的调用，只是函数对象之间的关系
+
+function Base(){}
+
+function Sub1(){}
+Sub1.prototype = new Base(); //prototype，原型继承
+Sub1.prototype.constructor = Sub1; //补全Sub1的原型链
+
+// 自定义属性
+Sub1.superCalss = Base.prototype; 
+//Sub1.superCalss的值，是Base的constructor
+
+function Sub2(){}
+Sub2.prototype = new Sub1(); //prototype，原型继承
+Sub2.prototype.constructor = Sub2; //补全Sub2的原型链
+
+// 自定义属性
+Sub2.superCalss = Sub1.prototype;
+
+console.log( Sub2.prototype.constructor );//function Sub2(){}
+console.log( Sub2.superCalss.constructor ); //function Sub1(){}
+/*
+为什么呢？
+Sub2.superCalss.constructor，换算等于，
+Sub1.prototype.constructor;
+所以结果是，function Sub1(){}
+*/
+
+console.log( Sub2.superCalss.constructor.superCalss.constructor );
+//function Base(){}
+
+/*
+为什么呢？
+Sub2.superCalss.constructor.superCalss.constructor，换算等于，
+Sub1.prototype.constructor.superCalss.constructor，换算等于，
+Sub1.superCalss.constructor，换算等于，
+Base.prototype.constructor，结果，自然就是Base
+*/
+
+</script>
