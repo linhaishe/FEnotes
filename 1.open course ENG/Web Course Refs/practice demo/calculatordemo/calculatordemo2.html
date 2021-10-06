@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="calculatordemo2.js"></script>
+    <link rel="stylesheet" type="text/css" href="calculatordemo2.css">
+    <title>html css javas calculator</title>
+</head>
+<body>
+    <!--onclick="get(this.value);"-->
+    <!--表示这些按钮绑定了点击事件,每当这些按钮被点击，就回去执行处理函数get(),this就表示当前的按钮元素-->
+    <h3>html css javas calculator</h3>
+    <!--<form>...</form>标签，我们把计算器的显示页面都放在form中-->
+    <form>
+        <input type="button" id="clear" class="btn other" value="C">
+        <input type="button" id="delete" class="btn other" value="D">
+        <!--显示框(id为display)，相当于计算器的显示屏。用于显示的计算过程-->
+        <input type="text" id="display">
+        <br>
+        <input type="button" class="btn number" value="7" onclick="get(this.value);">
+        <input type="button" class="btn number" value="8" onclick="get(this.value);">
+        <input type="button" class="btn number" value="9" onclick="get(this.value);">
+        <input type="button" class="btn operator" value="+" onclick="get(this.value);">
+        <br>
+        <input type="button" class="btn number" value="4" onclick="get(this.value);">
+        <input type="button" class="btn number" value="5" onclick="get(this.value);">
+        <input type="button" class="btn number" value="6" onclick="get(this.value);">
+        <input type="button" class="btn operator" value="*" onclick="get(this.value);">
+        <br>
+        <input type="button" class="btn number" value="1" onclick="get(this.value);">
+        <input type="button" class="btn number" value="2" onclick="get(this.value);">
+        <input type="button" class="btn number" value="3" onclick="get(this.value);">
+        <input type="button" class="btn operator" value="-" onclick="get(this.value);">
+        <br>
+        <input type="button" class="btn number" value="0" onclick="get(this.value);">
+        <input type="button" class="btn operator" value="." onclick="get(this.value);">
+        <input type="button" class="btn operator" value="/" onclick="get(this.value);">
+        <input type="button" class="btn other" id="cal" value="=">
+    </form>
+    <p text-align ="center" id="time"></p>
+</body>
+</html>

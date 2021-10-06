@@ -1,0 +1,104 @@
+<style type="text/css">
+    div {
+        margin: 5px;
+        border: 1px solid #f00;
+        width: 100px;
+        height: 20px;
+    }
+</style>
+<input type='text' id='n1' />
+<input type='text' id='n2' />
+<div id='result'></div>
+
+<input type='button' id='add' value="加" />
+<input type='button' id='mins' value="减" />
+<input type='button' id='ride' value="乘" />
+<input type='button' id='except' value="除" />
+
+<script type="text/javascript">
+    //即使getDomFn在原型对象中，也可以调用同名函数，因为构造器constructor是相同的，指向同一个函数
+    function CounterFn(_configObj) {
+        for (var i = 0; i < _configObj.length; i++) {
+            //通过for循环的方式，添加dom节点,将数组转化键值对形式
+            //https://blog.csdn.net/weixin_40687883/article/details/81096715
+            this[_configObj[i]] = this.getDomFn(_configObj[i]);
+        }
+        this.init(_configObj);
+    }
+    CounterFn.prototype = {
+        constructor: CounterFn,
+        init: function (_n) {
+            var _self = this;
+            _self.addFn();
+            _self.minsFn();
+            _self.rideFn();
+            _self.exceptFn();
+        },
+        getDomFn: function (_doms) {
+            var _self = this;
+            return document.getElementById(_doms)
+        },
+        getValFn: function () {
+            var _self = this;
+            var _arr = [];
+            var _n1 = parseFloat(_self.n1.value);
+            var _n2 = parseFloat(_self.n2.value);
+
+            _arr.push(_n1);
+            _arr.push(_n2);
+            return _arr;
+        },
+        addFn: function () {
+            var _self = this;
+            _self.add.onclick = function () {
+                var _temp = _self.getValFn();
+                var _result = 0;
+                for (var i = 0; i < _temp.length; i++) {
+                    _result += _temp[i];
+                }
+                _self.result.innerHTML = _result;
+            }
+        },
+        minsFn: function () {
+            var _self = this;
+            _self.mins.onclick = function () {
+                var _temp = _self.getValFn();
+                var _result = 0;
+                for (var i = 0; i < _temp.length; i++) {
+                    _result = _temp[0] - _temp[1];
+                }
+                _self.result.innerHTML = _result;
+            }
+        },
+
+        rideFn: function () {
+            var _self = this;
+            _self.ride.onclick = function () {
+                var _temp = _self.getValFn();
+                var _result = 0;
+                for (var i = 0; i < _temp.length; i++) {
+                    _result = _temp[0] * _temp[1];
+                }
+                _self.result.innerHTML = _result;
+            }
+        },
+        exceptFn: function () {
+            var _self = this;
+            _self.except.onclick = function () {
+                var _temp = _self.getValFn();
+                var _result = 0;
+                //想在for循环里加判断， 判断被除数为0的情况，但输出失败。。
+                for (var i = 0; i < _temp.length; i++) {
+                    _result = _temp[0] / _temp[_temp.length-1];
+                }
+                _self.result.innerHTML = _result
+            }
+        }
+    }
+
+    var _counterObj = new CounterFn([
+        'n1', 'n2', 'result', 'add', 'mins', 'ride', 'except'
+    ]);
+
+    console.log(_counterObj)
+</script>

@@ -1,0 +1,158 @@
+<meta charset='utf-8' />
+
+<style type="text/css">
+	* {
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	ul,
+	ol,
+	li {
+		list-style: none;
+	}
+
+	#wrapId {
+		width: 200px;
+		height: 100px;
+		position: relative;
+		overflow: hidden;
+		margin: 10px auto;
+	}
+
+	#wrapId label,
+	#wrapId span {
+		width: 30px;
+		height: 30px;
+		background: #c0e91e;
+		display: block;
+		position: absolute;
+		top: 40px;
+		z-index: 5;
+		cursor: pointer;
+	}
+
+	#wrapId label {
+		left: 5px;
+	}
+
+	#wrapId span {
+		right: 5px;
+	}
+
+	#wrapId ul {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100px;
+		width: 800px;
+	}
+
+	#wrapId ul li {
+		width: 200px;
+		height: 100px;
+		float: left;
+		font-size: 26px;
+		text-align: center;
+		line-height: 100px;
+		color: #fff;
+	}
+
+	#wrapId ul li.bg1 {
+		background: #f00;
+	}
+
+	#wrapId ul li.bg2 {
+		background: #f0f;
+	}
+
+	#wrapId ul li.bg3 {
+		background: #0f0;
+	}
+
+	#wrapId ul li.bg4 {
+		background: #00f;
+	}
+</style>
+
+<div id='wrapId'>
+	<label id='leftBtnId'></label>
+	<ul id='ulWrapId'>
+		<li class='bg1'>11111</li>
+		<li class='bg2'>2222</li>
+		<li class='bg3'>333</li>
+		<li class='bg4'>4444</li>
+	</ul>
+	<span id='rightBtnId'></span>
+</div>
+
+<script type="text/javascript" src='common.js'></script>
+
+<script type="text/javascript">
+	// 构造器
+	function SlideObjFn(_configObj) {
+		// console.log( _configObj );
+		for (var i in _configObj) {
+			//this指向对象的键，this[i]=值
+			this[i] = _configObj[i]
+		}
+		this.inx = 0;
+		this.init();
+		// console.log( this )
+	}
+
+	// 添加各路方法
+	SlideObjFn.prototype = {
+		constructor: SlideObjFn,
+		//入口文件
+		init: function () {
+			var _self = this;
+
+			_self.leftBtnEvent();
+			_self.rightBtnEvent();
+		},
+		leftBtnEvent: function () {
+			var _self = this;
+
+			_self.leftBtnId.onclick = function () {
+				if (_self.inx < 3) {
+					_self.inx++;
+				} else {
+					_self.inx = 0;
+				}
+				// console.log( _self.inx )
+				// _self.ulWrapId.style.left = -(200 * _self.inx) + 'px';
+				_self.ulMoveFn();
+			}
+		},
+		rightBtnEvent: function () {
+			var _self = this;
+
+			_self.rightBtnId.onclick = function () {
+				if (_self.inx > 0) {
+					_self.inx--;
+				} else {
+					_self.inx = 3;
+				}
+				// _self.ulWrapId.style.left = -(200 * _self.inx) + 'px';
+				_self.ulMoveFn();
+			}
+		},
+		ulMoveFn: function () {
+			var _self = this;
+
+			_self.ulWrapId.style.left = -(200 * _self.inx) + 'px';
+		}
+	}
+
+	new SlideObjFn({
+		wrapId: gId('wrapId'),
+		leftBtnId: gId('leftBtnId'),
+		rightBtnId: gId('rightBtnId'),
+		ulWrapId: gId('ulWrapId')
+	});
+
+// console.log(new SlideObjFn())
+// console.log( gId('leftBtnId') )
+</script>
