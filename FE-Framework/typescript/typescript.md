@@ -15,11 +15,12 @@
     - [2.11 Never 类型](#211-never-类型)
     - [2.12 字面量](#212-字面量)
     - [2.13 object, function](#213-object-function)
-  - [三、TypeScript 断言](#三typescript-断言)
+- [三、TypeScript 断言](#三typescript-断言)
     - [3.1 “尖括号” 语法](#31-尖括号-语法)
     - [3.2 as 语法](#32-as-语法)
-  - [四、类型的别名](#四类型的别名)
+- [四、类型的别名](#四类型的别名)
     - [&,|,type](#type)
+
 
 ps:
 
@@ -599,7 +600,7 @@ d1 = function (n1: number, n2: number): number {
 
 
 
-### 三、TypeScript 断言
+## 三、TypeScript 断言
 
 有时候你会遇到这样的情况，你会比 TypeScript 更了解某个值的详细信息。通常这会发生在你清楚地知道一个实体具有比它现有类型更确切的类型。
 
@@ -645,7 +646,7 @@ function 3fn(num){
 
 
 
-### 四、类型的别名
+## 四、类型的别名
 
 #### &,|,type
 
