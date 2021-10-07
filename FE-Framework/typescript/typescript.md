@@ -1,3 +1,7 @@
+- [一、TypeScript 是什么](#一typescript-是什么)
+  - [1.1 TypeScript 与 JavaScript 的区别](#11-typescript-与-javascript-的区别)
+  - [1.2 获取 TypeScript](#12-获取-typescript)
+- [二、TypeScript 基础类型](#二typescript-基础类型)
 ## 一、TypeScript 是什么
 
 [TypeScript](https://link.segmentfault.com/?url=https%3A%2F%2Fwww.typescriptlang.org%2F) 是一种由微软开发的自由和开源的编程语言。它是 JavaScript 的一个超集，而且本质上向这个语言添加了可选的静态类型和基于类的面向对象编程。
@@ -37,7 +41,7 @@ $ tsc helloworld.ts
 
 当然，对于刚入门 TypeScript 的小伙伴，也可以不用安装 `typescript`，而是直接使用线上的 [TypeScript Playground](https://link.segmentfault.com/?url=https%3A%2F%2Fwww.typescriptlang.org%2Fplay%2F) 来学习新的语法或新特性。
 
-## 二、
+## 二、TypeScript 基础类型
 
 ts 传入了不是规定的数据类型，还是可以进行编译，如果没有对编译器进行配置的话。
 
