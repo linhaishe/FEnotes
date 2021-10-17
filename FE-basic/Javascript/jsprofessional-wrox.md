@@ -3868,7 +3868,7 @@ let message = {
 }
 
 message.regularFunction();
-massgae.arrowFunction();
+message.arrowFunction();
 cnosole.log(this.name)//empty string
 cnosole.log(this) // window object
 ```
