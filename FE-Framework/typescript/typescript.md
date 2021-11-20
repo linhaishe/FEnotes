@@ -34,8 +34,6 @@ ps:
 
 TypeScript 提供最新的和不断发展的 JavaScript 特性，包括那些来自 2015 年的 ECMAScript 和未来的提案中的特性，比如异步功能和 Decorators，以帮助建立健壮的组件。下图显示了 TypeScript 与 ES5、ES2015 和 ES2016 之间的关系：
 
-![typescript-scope-new.png](https://segmentfault.com/img/bVbH9l8)
-
 ### 1.1 TypeScript 与 JavaScript 的区别
 
 |                   TypeScript                   |                 JavaScript                 |
@@ -65,7 +63,7 @@ $ tsc helloworld.ts
 # helloworld.ts => helloworld.js
 ```
 
-当然，对于刚入门 TypeScript 的小伙伴，也可以不用安装 `typescript`，而是直接使用线上的 [TypeScript Playground](https://link.segmentfault.com/?url=https%3A%2F%2Fwww.typescriptlang.org%2Fplay%2F) 来学习新的语法或新特性。
+当然，对于刚入门 TypeScript 的小伙伴，也可以不用安装 `typescript`，而是直接使用线上的 [TypeScript Playground](https://www.typescriptlang.org/play) 来学习新的语法或新特性。
 
 ## 二、TypeScript 基础类型
 

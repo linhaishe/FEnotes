@@ -1,6 +1,6 @@
 # vue-typescript issues
 
-## 1.问题1
+## 1. 问题1
 
 **Type string trivially inferred from a string literal, remove type annotation (no-inferrable-types)**
 
@@ -59,6 +59,39 @@ Setters do not support specifying a return type.
 set fullName(val) {
     const arr = val.split(' ');
     this.firstName = arr[0];
+  }
+```
+
+## 4. 问题4
+
+```
+115:11 Type 'IUser | undefined' is not assignable to type 'IUser'.
+        Type 'undefined' is not assignable to type 'IUser'.
+```
+
+  > 113 | 
+  > 114 |   addAge(id: number): void {
+  >
+  > 115 |     const user: IUser = this.userList.find((user) => user.id === id);
+  > 	   |         		 ^
+  > 116 |     user.userAge++;
+  > 117 |   }
+  > 118 | 
+
+```js
+//解决方式：加上非空断言
+addAge(id: number): void {
+    const user: IUser | undefined = this.userList.find(
+      (user) => user.id === id
+    );
+    user!.userAge++;
+  }
+```
+
+```ts
+  addAge(id: number): void {
+    const user: IUser = this.userList.find((user) => user.id === id)!;
+    user.userAge++;
   }
 ```
 
