@@ -325,6 +325,8 @@ value[0][1]; // Error
 
 #### 2.8 Tuple 类型
 
+元组
+
 众所周知，数组一般由同种类型的值组成，但有时我们需要在单个变量中存储不同类型的值，这时候我们就可以使用元组。在 JavaScript 中是没有元组的，元组是 TypeScript 中特有的类型，其工作方式类似于数组。
 
 元组可用于定义具有有限数量的未命名属性的类型。每个属性都有一个关联的类型。使用元组时，必须提供每个属性的值。为了更直观地理解元组的概念，我们来看一个具体的例子：
@@ -626,6 +628,7 @@ type Vehicle = Motorcycle | Car | Truck;
 
 ```typescript
 const EVALUATION_FACTOR = Math.PI; 
+
 function evaluatePrice(vehicle: Vehicle) {
   return vehicle.capacity * EVALUATION_FACTOR;
 }
@@ -812,6 +815,7 @@ function add(a: number, b: number): number;
 function add(a: string, b: string): string;
 function add(a: string, b: number): string;
 function add(a: number, b: string): string;
+
 function add(a: Combinable, b: Combinable) {
   if (typeof a === "string" || typeof b === "string") {
     return a.toString() + b.toString();
@@ -901,9 +905,13 @@ let { name, ...rest } = person;
 
 ### 十、TypeScript 接口
 
+interface 用于定义一个类中包含哪些属性和方法，也可以当成生命类型
+
 在面向对象语言中，接口是一个很重要的概念，它是对行为的抽象，而具体如何行动需要由类去实现。
 
 TypeScript 中的接口是一个非常灵活的概念，除了可用于[对类的一部分行为进行抽象](https://link.segmentfault.com/?url=https%3A%2F%2Fts.xcatliu.com%2Fadvanced%2Fclass-and-interfaces.html%23%E7%B1%BB%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3)以外，也常用于对「对象的形状（Shape）」进行描述。
+
+接口在定义类的时候可以去限制类的结构，接口中的所有属性不能有实际的值。接口只定义对象的结构，而不考虑实际值。
 
 #### 10.1 对象的形状
 
@@ -911,6 +919,7 @@ TypeScript 中的接口是一个非常灵活的概念，除了可用于[对类�
 interface Person {
   name: string;
   age: number;
+  sayHello()?:void;
 }
 
 let Semlinker: Person = {
@@ -938,6 +947,32 @@ ro.push(5); // error!
 ro.length = 100; // error!
 a = ro; // error!
 ```
+
+#### 类实现接口
+
+定义类时，可以使类去实现一个接口
+
+实现接口就是使类满足接口的要求
+
+```js
+interface myInter{
+name: string;
+sayHello():void;
+}
+
+class MyClass implements myInter{
+name:string;
+constructor(name:string){
+this.name = name;
+}
+
+sayHello(){
+console.log('hello');
+}
+}
+```
+
+
 
 ### 十一、TypeScript 类
 
