@@ -1,4 +1,4 @@
-# Typescript 课程讲稿
+# Typescript Pre
 
 ## 入门讲解
 
@@ -97,6 +97,205 @@ let height: string = age as string;
 |                   |                       |
 
 ### 11. never
+
+----
+
+## 枚举和断言
+
+### 枚举
+
+枚举在数据库中使用的非常广泛。那么我们通过例子来看下
+
+```js
+//定义一个用户
+let user = {
+name: 'yang',
+//gender 表示的不是很明确，魔鬼数字
+gender: 1
+}
+
+enum genderType {
+	male = 0,
+	female = 1
+}
+
+enum genderType {
+	male,
+	female
+}
+
+//一般枚举要么都是字符串，要么都是数字
+enum genderType {
+	male = '男',
+	female = '女'
+}
+
+//所以有类似的场景的时候就定义一个枚举，可以更清晰的语意去表达你的内容
+
+
+```
+
+### 断言
+
+意思我理解为 我说了算
+
+### 泛型 generics
+
+指的是宽泛的类型，我们先看中文描述，型--指的就是类型，就是说他最终还是一个类型，还是通过一个类型去约束我们的程序。泛---指的是宽泛的不确定的，也就是说这个类型是不确定的。
+
+```js
+//什么是确定的类型，我们只能写入字符串，因为我们类型已经严格限定了。
+
+let city: string = 'chengdu';
+```
+
+泛型也是控制类型，使用方式和类型一样，只不过这个类型是我们动态去指定的。
+
+```js
+function city(name) {
+	return name
+}
+
+function city(name: string): string {
+	return name
+}
+
+function city(name: boolean): boolean {
+	return name
+}
+
+function city<T>(name: T): T {
+	return name
+}
+
+console.log(city<string>('chengdu'))
+
+//函数可以接受参数，name就是参数，形参，那么<T>中T也是形参的意思。
+//可以理解为类型的参数，类型也可以接受参数，function city(name: string): string，表示我们把string传递给了t。
+//这样我们就动态的传递了类型。
+
+function city<T>(name: T): T {
+	return name
+}
+
+//会自动推断，可以不写类型参数
+console.log(city('chengdu'))
+```
+
+### generics 的 继承 extends
+
+```js
+function getLength(arg) {
+  return arg.length
+}
+
+console.log(getLength('hahaha'));
+console.log(getLength([1, 2]));
+console.log(getLength(19));
+
+
+//那么我们就可以使用刚才的泛型进行处理
+function getLength<T>(arg: T): number {
+  return arg.length
+}
+
+
+//Property 'length' does not exist on type 'T'.
+//T是我们动态传入的类型，可以传入字符串可以传入数字，number类型下是没有length属性的。我们也可以这么理解，在目前我们的T里，它没有任何的规范。
+//可以通过继承来解决这个问题
+
+interface LengthInterface {
+  length: number
+}
+
+function getLength<T extends LengthInterface>(arg: T): number {
+  return arg.length
+}
+
+//继承之后得到的是一个类型
+//那么数值类型是不满足这个约定的，那么就会报错。
+//这个约定是这个借口
+
+interface LengthInterface {
+  length: number
+}
+console.log(getLength(19));
+
+//这个概念类似于
+
+type stype = {length: number}
+let a: stype = 'shdfihsfusdf';
+a = 23;
+
+interface LengthInterface {length: number}
+let a: LengthInterface = 'shdfihsfusdf';
+//数字没有length类型，不满足类型约束，就报错了；
+a = 23;
+
+function getLength<T extends string | any[]>(arg: T): number {
+  return arg.length
+}
+
+//T就用来约定数组的类型，数组是有length属性的，就不会报错
+function getLength<T>(arg: T[]): number {
+  return arg.length
+}
+
+1. t没有类型约束，他的类型是你传递过来的类型
+2. 使用extends保证传递过来的参数这个类型都有length属性，这个时候就不会报错
+
+```
+
+### 泛型与类
+
+```js
+class collectionNumber {
+  data: number[] = [];
+	public push(...items: number[]) {
+    this.data.push(...items)
+  }
+
+	public shift():number {
+    return this.data.shift()
+  }
+}
+
+const numberCollection = new collectionNumber();
+numberCollection.push(12,3,4);
+
+class Collection<T> {
+  data: T[] = [];
+	public push(...items: T[]) {
+    this.data.push(...items)
+  }
+
+	public shift():T {
+    return this.data.shift()
+  }
+}
+
+const numberCollection1 = new Collection<number>();
+const numberCollection2 = new Collection<string>();
+
+type User = {name: string, age: number}
+const user = {name: 'hah', age: 18}
+
+const numberCollection2 = new Collection<User>();
+numberCollection2.push(user)
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
 
 
 
