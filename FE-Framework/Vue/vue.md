@@ -89,6 +89,8 @@ vue会管理el选项命中的元素及其内部的后代元素
 
 ![5908A2E65960509FC3DBA910D0755558.jpg](http://ww1.sinaimg.cn/large/005NUwygly1grokekqtu8j30vq096jt1.jpg)
 
+## 🐒vue的生命周期
+
 ## 5. data属性
 
 1. vue中用到的数据定义在data中
@@ -445,7 +447,15 @@ var app = new Vue({
 <input v-on:keyup.enter="submit">
 ```
 
-## 7. [计算属性和侦听器](https://cn.vuejs.org/v2/guide/computed.html)
+## 7. 🐒计算属性和侦听器
+
+计算属性一般没有set方法，只作为只读属性。
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwyggy1gzyab53tdhj31c40z6qfm.jpg)
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwyggy1gzyabpam6wj31280ikgpe.jpg)
+
+[计算属性和侦听器](https://cn.vuejs.org/v2/guide/computed.html)
 
 | 计算方式       | 区别                                                         |
 | -------------- | ------------------------------------------------------------ |
