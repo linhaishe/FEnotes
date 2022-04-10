@@ -95,3 +95,20 @@ function updateUSer(user: userType) {
 }
 
 //函数的结构定义
+
+class User {
+  name: string;
+  age: number;
+
+  constructor(n: string, a: number) {
+    this.name = n;
+    this.age = a;
+  }
+
+  info(): string {
+    return `${this.name}的年龄是${this.age}`;
+  }
+}
+
+const user1 = new User('heather', 18);
+console.log(user1.info());

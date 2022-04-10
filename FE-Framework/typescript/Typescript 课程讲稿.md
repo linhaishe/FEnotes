@@ -283,17 +283,173 @@ const user = {name: 'hah', age: 18}
 const numberCollection2 = new Collection<User>();
 numberCollection2.push(user)
 
-
-
-
-
-
-
-
-
 ```
 
+## 类与接口
 
+### 使用ts来约束class
+
+```js
+class User {
+  name: string
+  age: number
+
+  constructor(n: string, a: number) {
+    this.name = n
+    this.age = a
+  }
+
+  info(): string {
+    return `${this.name}的年龄是${this.age}`
+  }
+}
+
+const user1 = new User('heather', 18);
+const user2 = new User('33', 99);
+console.log(user1.info());
+
+const userList: User[] = [];
+
+userList.push(user1, user2);
+console.log(userList);
+```
+
+### Public 修饰符
+
+默认不写的话其实就是public
+
+```js
+class User {
+  name: string
+  age: number
+
+  constructor(n: string, a: number) {
+    this.name = n
+    this.age = a
+  }
+
+  info(): string {
+    return `${this.name}的年龄是${this.age}`;
+  }
+}
+
+const user2 = new User('33', 99);
+console.log(user2.info());
+```
+
+### protected
+
+[protected](https://so.csdn.net/so/search?q=protected&spm=1001.2101.3001.7020)可以修饰数据成员，构造方法，方法成员，不能修饰类（此处指外 部类，不考虑内部类）。被protected修饰的成员，能在定义它们的类中，同包 的类中被调用。如果有不同包的类想调用它们，那么这个类必须是定义它们的类 的子类。 
+
+```js
+class User {
+  public name: string
+  protected age: number
+
+  constructor(n: string, a: number) {
+    this.name = n
+    this.age = a
+  }
+
+  protected info(): string {
+    return `${this.name}的年龄是${this.age}`
+  }
+
+	public show(){
+    return this.info()
+  }
+}
+
+//同包类中被调用
+const user2 = new User('33', 99);
+console.log(user2.show());
+
+
+//夫子类可以使用，外部不能使用
+class Person {
+  public name: string
+  protected age: number
+  protected info(): string {
+    return `${this.name}的年龄是${this.age}`
+  }
+
+}
+
+class User extend Person {
+  constructor(n:string, a: number){
+    //super调用父类的构造函数
+    super()
+    this.name = n
+    this.age = a
+  }
+  public show(){
+   return this.info()
+  }
+}
+
+const user3 = new User('33', 99);
+console.log(user3.show());
+```
+
+### private
+
+//私用，其他地方都不可以使用
+
+```js
+class User {
+  private name: string
+  protected age: number
+
+  constructor(n: string, a: number) {
+    this.name = n
+    this.age = a
+  }
+
+  protected info(): string {
+    return `${this.name}的年龄是${this.age}`
+  }
+
+	public show(){
+    return this.info()
+  }
+}
+
+const user3 = new User('33', 99);
+console.log(user3.name);
+```
+
+### static
+
+静态属性，静态方法
+
+
+
+### 构造函数中使用ts泛型
+
+```js
+class User {
+  user = null
+public construtor(user){
+  this.user = user
+}
+//...
+}
+
+class User<T> {
+public constructor(private _user: T){}
+public get(): T {
+return this._user
+}
+}
+
+interface IUser {
+name: string
+age: number
+}
+
+const obj = new User<IUser>({name: 'hah', age: 23});
+console.log(obj.get().name)
+```
 
 
 
