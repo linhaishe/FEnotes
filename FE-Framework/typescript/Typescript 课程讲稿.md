@@ -420,9 +420,19 @@ console.log(user3.name);
 
 ### static
 
-静态属性，静态方法
+静态属性，静态方法; 可以写一些公共的，不需要分给对象的方法用static去写,省内存。公共的东西放在静态里。类似于缓存的概念。
 
-
+```js
+class Axios {
+static site: string = 'push.com'
+public static getSite(): string {
+return Axios.site
+}
+const instance = new Axios()
+// console.log(Axios.site)
+console.log(Axios.getSite())
+}
+```
 
 ### 构造函数中使用ts泛型
 
@@ -449,6 +459,12 @@ age: number
 
 const obj = new User<IUser>({name: 'hah', age: 23});
 console.log(obj.get().name)
+```
+
+### 单例模式在ts中的实现
+
+```
+
 ```
 
 
