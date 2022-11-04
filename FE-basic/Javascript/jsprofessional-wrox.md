@@ -1,254 +1,3 @@
-- [Chapter 3 Language Basics](#chapter-3-language-basics)
-  - [I. Syntax](#i-syntax)
-      - [1. Case-sensitivity](#1-case-sensitivity)
-      - [2. Identifiers](#2-identifiers)
-      - [3. Comments](#3-comments)
-      - [4. Strict Mode](#4-strict-mode)
-      - [5. Statements](#5-statements)
-      - [6. Keywords are reserved words](#6-keywords-are-reserved-words)
-      - [7. Variables](#7-variables)
-  - [II. Data Type](#ii-data-type)
-    - [1. the typeof operator](#1-the-typeof-operator)
-    - [2. Undefined](#2-undefined)
-    - [3. Null](#3-null)
-    - [4. Boolean](#4-boolean)
-    - [5. Number](#5-number)
-      - [a. integers and floating-point values](#a-integers-and-floating-point-values)
-      - [b. range of values](#b-range-of-values)
-      - [c. NaN (Not a Number)](#c-nan-not-a-number)
-      - [d. Number Conversions](#d-number-conversions)
-        - [Number ( )](#number--)
-        - [parseInt ( )](#parseint--)
-        - [parseFloat ( )](#parsefloat--)
-    - [6. String](#6-string)
-        - [Template literals (Template strings)](#template-literals-template-strings)
-        - [string's are immutable](#strings-are-immutable)
-        - [Converting to a String](#converting-to-a-string)
-      - [slice()、 substring()和substr()的区别](#slice-substring和substr的区别)
-          - [例子](#例子)
-          - [以上示例的元算过程如下：](#以上示例的元算过程如下)
-    - [7. Object](#7-object)
-      - [创建对象的方法](#创建对象的方法)
-    - [8. Function](#8-function)
-  - [III. Operators](#iii-operators)
-    - [1. unary operators](#1-unary-operators)
-      - [a. Increment/Decrement](#a-incrementdecrement)
-      - [b. =+,=-](#b--)
-    - [2. Bitwise Operators](#2-bitwise-operators)
-    - [3. Boolean Operators](#3-boolean-operators)
-      - [a. Logical NOT](#a-logical-not)
-      - [b. Logical AND](#b-logical-and)
-      - [c. Logical OR](#c-logical-or)
-    - [4. Multiplicative Operators](#4-multiplicative-operators)
-      - [a. Multiply](#a-multiply)
-      - [b. Divide](#b-divide)
-      - [c. Modulus](#c-modulus)
-    - [5. Additive Operators](#5-additive-operators)
-      - [a. Add](#a-add)
-      - [b. Subtract](#b-subtract)
-    - [6. Relational Operators](#6-relational-operators)
-    - [7. Equality Operators](#7-equality-operators)
-      - [Identically Equal and Not Identically Equal](#identically-equal-and-not-identically-equal)
-    - [8. Conditional Operator](#8-conditional-operator)
-    - [9. Assignment Operators](#9-assignment-operators)
-    - [10. Comma Operator](#10-comma-operator)
-    - [11. short circuiting](#11-short-circuiting)
-  - [IV. Statements](#iv-statements)
-    - [if](#if)
-    - [do-while](#do-while)
-    - [while](#while)
-    - [For/of](#forof)
-    - [For-in](#for-in)
-    - [Labeled](#labeled)
-    - [Break and continue](#break-and-continue)
-    - [With](#with)
-    - [switch](#switch)
-  - [V. Functions](#v-functions)
-    - [basic syntax](#basic-syntax)
-    - [arguments object](#arguments-object)
-    - [length property](#length-property)
-    - [no overloading](#no-overloading)
-    - [function context](#function-context)
-- [Chapter 4 : Variable, Scope, and Memory](#chapter-4--variable-scope-and-memory)
-  - [I. Primitive and reference values](#i-primitive-and-reference-values)
-    - [a. dynamic properties](#a-dynamic-properties)
-    - [b. copying values](#b-copying-values)
-      - [for primitive values](#for-primitive-values)
-      - [for reference values](#for-reference-values)
-    - [c. Argument Passing](#c-argument-passing)
-    - [d. determining type](#d-determining-type)
-      - [typeof operator](#typeof-operator)
-      - [instanceof operator](#instanceof-operator)
-  - [II. Execution content and scope](#ii-execution-content-and-scope)
-      - [block-level scopes](#block-level-scopes)
-  - [III. Garbage collection](#iii-garbage-collection)
-- [Chapter 5 : Reference Types](#chapter-5--reference-types)
-  - [I. object](#i-object)
-    - [Create object](#create-object)
-    - [access object properties](#access-object-properties)
-  - [II. array](#ii-array)
-    - [create array](#create-array)
-    - [access array values](#access-array-values)
-    - [detecting array](#detecting-array)
-    - [Conversion methods](#conversion-methods)
-    - [stack methods](#stack-methods)
-      - [pop() removal](#pop-removal)
-      - [push() insertion](#push-insertion)
-    - [queue methods](#queue-methods)
-      - [shift()](#shift)
-      - [unshift()](#unshift)
-    - [reodering methods](#reodering-methods)
-      - [reverse()](#reverse)
-      - [sort()](#sort)
-    - [manipulation methods](#manipulation-methods)
-      - [concat()](#concat)
-      - [splice()](#splice)
-    - [location methods](#location-methods)
-      - [indexOf()](#indexof)
-      - [lastIndexOf()](#lastindexof)
-    - [iterative methods](#iterative-methods)
-      - [every()](#every)
-      - [filter()](#filter)
-      - [forEach()](#foreach)
-      - [map()](#map)
-      - [some()](#some)
-    - [reduction methods](#reduction-methods)
-      - [reduce()](#reduce)
-      - [reduceRight()](#reduceright)
-  - [III. data](#iii-data)
-    - [Date-Formatting Methods](#date-formatting-methods)
-    - [Date/Time Component Methods p102](#datetime-component-methods-p102)
-  - [IV. RegExp](#iv-regexp)
-    - [RegExp Instance Properties](#regexp-instance-properties)
-  - [V. function](#v-function)
-    - [return](#return)
-  - [VI. primitive wrapper types](#vi-primitive-wrapper-types)
-    - [a. Boolean](#a-boolean)
-    - [b. Number](#b-number)
-    - [c. String](#c-string)
-      - [charAt()](#charat)
-      - [charCodeAt()](#charcodeat)
-      - [String-Manipulation Methods](#string-manipulation-methods)
-  - [VII. singleton built-in objects](#vii-singleton-built-in-objects)
-    - [the global object](#the-global-object)
-    - [the math object](#the-math-object)
-- [Chapter 6 :Object-Oriented Programming](#chapter-6-object-oriented-programming)
-  - [I. understanding objects](#i-understanding-objects)
-    - [a. 属性类型](#a-属性类型)
-    - [b. 定义多个属性](#b-定义多个属性)
-    - [c. 读取属性的特性](#c-读取属性的特性)
-  - [II. Object creation](#ii-object-creation)
-    - [a. singleton pattern](#a-singleton-pattern)
-    - [b. factory pattern](#b-factory-pattern)
-    - [c. constructor pattern](#c-constructor-pattern)
-    - [d. Prototype pattern](#d-prototype-pattern)
-    - [e. combination constructor/prototype pattern](#e-combination-constructorprototype-pattern)
-      - [own properties and prototype properties](#own-properties-and-prototype-properties)
-    - [f. Dynamic Prototype Pattern](#f-dynamic-prototype-pattern)
-    - [g. Parasitic Constructor Pattern](#g-parasitic-constructor-pattern)
-    - [h. Durable Constructor Pattern](#h-durable-constructor-pattern)
-  - [III. inheritance](#iii-inheritance)
-    - [prototype chaining](#prototype-chaining)
-    - [constructor stealing](#constructor-stealing)
-    - [Combination Inheritance](#combination-inheritance)
-    - [Prototypal Inheritance](#prototypal-inheritance)
-    - [Parasitic Inheritance](#parasitic-inheritance)
-    - [Parasitic Combination Inheritance](#parasitic-combination-inheritance)
-    - [Override Inherited Methods](#override-inherited-methods)
-    - [Mixin](#mixin)
-  - [Don't Repeat Yourself (DRY)](#dont-repeat-yourself-dry)
-- [Chapter 7: function expressions](#chapter-7-function-expressions)
-  - [I. function expressions](#i-function-expressions)
-  - [II. recursion](#ii-recursion)
-  - [III. closures](#iii-closures)
-    - [closures and variables](#closures-and-variables)
-    - [this object](#this-object)
-    - [IIFE](#iife)
-    - [Use an IIFE to Create a Module](#use-an-iife-to-create-a-module)
-    - [memory leaks](#memory-leaks)
-  - [IV. mimicking block scope](#iv-mimicking-block-scope)
-  - [V. private variables](#v-private-variables)
-  - [VI. Statics private variables](#vi-statics-private-variables)
-    - [the module pattern](#the-module-pattern)
-    - [the module-augmentation patterns](#the-module-augmentation-patterns)
-- [Chapter: FCC Functional Programming](#chapter-fcc-functional-programming)
-- [Chapter 8: the browser object model(BOM)](#chapter-8-the-browser-object-modelbom)
-  - [I. window object](#i-window-object)
-  - [II. the location object](#ii-the-location-object)
-  - [III. the navigator object](#iii-the-navigator-object)
-  - [IV. the screen object](#iv-the-screen-object)
-  - [V. the history object](#v-the-history-object)
-- [Chapter 9: Client Detection](#chapter-9-client-detection)
-  - [I. capability detection](#i-capability-detection)
-  - [II. Quirks detection](#ii-quirks-detection)
-  - [III. user-agent detection](#iii-user-agent-detection)
-- [Chapter 10: DOM the document object model](#chapter-10-dom-the-document-object-model)
-      - [Document 类型](#document-类型)
-      - [Element 类型](#element-类型)
-  - [hierarchy of node](#hierarchy-of-node)
-    - [the document type](#the-document-type)
-      - [characteristics:](#characteristics)
-    - [<mark>the element type</mark>](#markthe-element-typemark)
-      - [characteristics:](#characteristics-1)
-    - [the text type](#the-text-type)
-      - [characteristics:](#characteristics-2)
-      - [methods:](#methods)
-    - [the comment type](#the-comment-type)
-      - [characteristics:](#characteristics-3)
-    - [the CDATASection type](#the-cdatasection-type)
-      - [characteristics:](#characteristics-4)
-    - [the documenttype type](#the-documenttype-type)
-      - [characteristics:](#characteristics-5)
-    - [the documentfragment type](#the-documentfragment-type)
-      - [characteristics:](#characteristics-6)
-    - [the attr type](#the-attr-type)
-      - [characteristics:](#characteristics-7)
-  - [working with the DOM](#working-with-the-dom)
-- [Chapter 11: DOM Extensions](#chapter-11-dom-extensions)
-  - [selector API](#selector-api)
-    - [querySelector()](#queryselector)
-    - [querySelectorAll()](#queryselectorall)
-    - [matchesSelector()](#matchesselector)
-  - [element traversal](#element-traversal)
-  - [HTML 5](#html-5)
-    - [getElementsByClassName()](#getelementsbyclassname)
-    - [classList](#classlist)
-    - [document .activeElement](#document-activeelement)
-  - [proprieties extensions](#proprieties-extensions)
-    - [children Property/ contains()](#children-property-contains)
-- [Chapter 12: DOM levels 2 and 3](#chapter-12-dom-levels-2-and-3)
-  - [DOM Style Properties and Methods](#dom-style-properties-and-methods)
-- [Chapter 13: EVENT](#chapter-13-event)
-  - [event flow](#event-flow)
-    - [event bubbling](#event-bubbling)
-    - [event capturing](#event-capturing)
-    - [DOM event flow](#dom-event-flow)
-  - [event handlers](#event-handlers)
-    - [html event handlers](#html-event-handlers)
-  - [event object](#event-object)
-  - [event type](#event-type)
-  - [UI events](#ui-events)
-  - [Focus events](#focus-events)
-  - [mouse and wheel events](#mouse-and-wheel-events)
-  - [keyboard and text events](#keyboard-and-text-events)
-  - [composition events](#composition-events)
-  - [mutation events](#mutation-events)
-  - [html5 events](#html5-events)
-  - [device events](#device-events)
-  - [touch and gesture events](#touch-and-gesture-events)
-  - [Touch Events](#touch-events)
-  - [Gesture Events](#gesture-events)
-  - [memory and performance](#memory-and-performance)
-  - [事件委托](#事件委托)
-    - [定义](#定义)
-    - [优点](#优点)
-    - [其他](#其他)
-    - [event.target](#eventtarget)
-  - [移除事件处理程序](#移除事件处理程序)
-  - [simulating events](#simulating-events)
-- [scripting forms](#scripting-forms)
-- [Exception handling](#exception-handling)
-    - [types of errors](#types-of-errors)
 # Chapter 3 Language Basics
 
 ## I. Syntax
@@ -275,8 +24,6 @@ $accountNumber
 _123
 __proto__
 ```
-
-
 
 #### 3. Comments
 
@@ -495,7 +242,7 @@ alert(NaN == NaN); //false
 alert(isNaN(NaN));       //true 
 alert(isNaN(10));        //false - 10 is a number 
 alert(isNaN(“10”));      //false - can be converted to number 10 
-alert(isNaN(“blue”));    //true - cannot be converted to a number 
+alert(isNaN("blue"));    //true - cannot be converted to a number 
 alert(isNaN(true));      //false - can be converted to number 1 
 isNaN(NaN); //true
 ```
@@ -587,7 +334,7 @@ console.log(`Let's meet at the ${foo}`);
 Strings can be delineated by either double quotes (“) or single quotes (‘)
 
 ```javascript
-var firstName = “Nicholas”; 
+var firstName = "Nicholas"; 
 var lastName = ‘Zakas’
 ```
 
@@ -598,8 +345,8 @@ var lastName = ‘Zakas’
 To change the string held by a variable, the original string must be destroyed and the variable filled with another string containing a new value
 
 ```javascript
-var lang = “Java”; 
-lang = lang + “Script”; 
+var lang = "Java"; 
+lang = lang + "Script"; 
 ```
 
 ##### Converting to a String 
@@ -1564,7 +1311,7 @@ function sayHi(name, message) {
  alert(“Hello “ + name + “, “ + message);
 }
 
-sayHi(“Nicholas”, “how are you today?”);
+sayHi("Nicholas", “how are you today?”);
 // “Hello Nicholas, how are you today?”
 
 //Any function can return a value at any time by using the return statement followed by the value to return.
@@ -1743,11 +1490,11 @@ Work for reference values
 ```javascript
 //can add, change, or delete properties and methods at any time.
 var person = new Object(); 
-person.name = “Nicholas”; 
-alert(person.name);    //”Nicholas” 
+person.name = "Nicholas"; 
+alert(person.name);    //"Nicholas" 
 
 //Primitive values can’t have properties added to them
-var name = “Nicholas”; 
+var name = "Nicholas"; 
 name.age = 27; 
 alert(name.age);    //undefined 
 ```
@@ -1771,8 +1518,8 @@ console.log(a,b);
 ```javascript
 var obj1 = new Object(); 
 var obj2 = obj1; 
-obj1.name = “Nicholas”; 
-alert(obj2.name);    //”Nicholas” 
+obj1.name = "Nicholas"; 
+alert(obj2.name);    //"Nicholas" 
 ```
 
 ### c. Argument Passing 
@@ -1808,7 +1555,7 @@ alert(result);   //30
 the best way to determine if a variable is a string, number, Boolean, or undefined. If the value is an object or null, then typeof returns “object”
 
 ```javascript
-var s = “Nicholas”; 
+var s = "Nicholas"; 
 var b = true; 
 var i = 22; 
 var u; 
@@ -1886,9 +1633,9 @@ alert(sum);
 会向上逐级查询与给定名字匹配的标识符，indentifier,找到即停止。
 
 ```javascript
-var color = “blue”;
+var color = "blue";
 function getColor(){
-  var color = “red”;
+  var color = "red";
   return color; }
 alert(getColor());  //”red” 
 
@@ -1930,11 +1677,11 @@ use the new operator with the Object constructor
 ```javascript
 //var person = new Object(); 
 var person = {}; 
-person.name = “Nicholas”; 
+person.name = "Nicholas"; 
 person.age = 29; 
 
 var person = {};   //same as new Object() 
-person.name = “Nicholas”; 
+person.name = "Nicholas"; 
 person.age = 29; //odd
 ```
 
@@ -1942,14 +1689,14 @@ person.age = 29; //odd
 
 ```javascript
 var person = {
-  name : “Nicholas”,
+  name : "Nicholas",
   age : 29 //注意这里没有逗号
 }; 
 ```
 
 ```javascript
 var person = {
-  “name” : “Nicholas”,
+  “name” : "Nicholas",
   “age” : 29,
   5: true 
 };
@@ -1992,9 +1739,9 @@ The best approach is to use named arguments for those that are required and an o
 1. dot notation
 2. bracket notation
 ```javascript
-alert(person[“name”]);    //”Nicholas” 
-alert(person.name);       //”Nicholas” 
-person[“first name”] = “Nicholas”; 
+alert(person[“name”]);    //"Nicholas" 
+alert(person.name);       //"Nicholas" 
+person[“first name”] = "Nicholas"; 
 ```
 
 3. Access Properties with Variables
@@ -2034,16 +1781,16 @@ var colors = new Array();
 var colors = new Array(3);
 // var colors = [];
 //create an array with three items 
-var names = new Array(“Greg”);  
-//create an array with one item, the string “Greg” 
+var names = new Array("Greg");  
+//create an array with one item, the string "Greg" 
 var colors = Array(3);      
-var names = Array(“Greg”); 
+var names = Array("Greg"); 
 ```
 
 2.  array literal notation
 
 ```javascript
-var colors = [“red”, “blue”, “green”]; //creates an array with three strings 
+var colors = ["red", "blue", "green"]; //creates an array with three strings 
 var names = [];                        //creates an empty 
 array var values = [1,2,];                   //AVOID! Creates an array with 2 or 3 items 
 //containing the values 1, 2, and undefined n Internet Explorer 8 and earlier
@@ -2054,33 +1801,33 @@ var options = [,,,,,];
 ### access array values
 
 ```javascript
-var colors = [“red”, “blue”, “green”];           //define an array of strings 
+var colors = ["red", "blue", "green"];           //define an array of strings 
 alert(colors[0]);                                //display the first item "red"
 colors[2] = “black”;                             //change the third item 
 colors[3] = “brown”;                             //add a fourth item 
 
 //length 属性不是只读的，可以修改数组的value
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 var names = [];                           //creates an empty array
 alert(colors.length);    //3 
 alert(names.length);     //0 
 
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 colors.length = 2; 
 //Setting the length to 2 removes the last item
 alert(colors[2]);        //undefined 
 
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 colors.length = 4; 
 alert(colors[3]);        //undefined 
 
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 colors[colors.length] = “black”;          
 //add a color (position 3) 
 colors[colors.length] = “brown”;          
 //add another color (position 4) 
 
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 colors[99] = “black”;                     
 //add a color (position 99) 
 alert(colors.length);  //100 
@@ -2101,7 +1848,7 @@ if (Array.isArray(value)){
 all objects have toLocaleString( ), toString( ), and valueOf( ) methods.toString( ):数组返回字符串，valueOf( )转换数组而返还的是数组。
 
 ```javascript
-var colors = [“red”, “blue”, “green”];    //creates an array with three strings 
+var colors = ["red", "blue", "green"];    //creates an array with three strings 
 alert(colors.toString());    //red,blue,green 
 alert(colors.valueOf());     //red,blue,green 
 alert(colors);               //red,blue,green 
@@ -2112,7 +1859,7 @@ alert(colors);               //red,blue,green
 ```javascript
 //The join() method accepts one argument, which is the string separator to use, and returns a string containing all items
 
-var colors = [“red”, “green”, “blue”]; alert(colors.join(“,”));   //red,green,blue 
+var colors = ["red", "green", "blue"]; alert(colors.join(“,”));   //red,green,blue 
 alert(colors.join(“||”));  //red||green||blue 
 ```
 
@@ -2304,8 +2051,8 @@ alert(callSum(10,10));   //20
 <mark>使用call()/apply()主要用于扩充函数运行的作用域</mark>
 
 ```javascript
-window.color = “red”; 
-var o = { color: “blue” };
+window.color = "red"; 
+var o = { color: "blue" };
 function sayColor(){
     alert(this.color); 
 }
@@ -2357,8 +2104,8 @@ call():individual arguments of varying type
 bind():make a opy of funciton , and then change the value of it.
 
 ```javascript
-window.color = “red”; 
-var o = { color: “blue” };
+window.color = "red"; 
+var o = { color: "blue" };
 function sayColor(){
     alert(this.color); 
 } 
@@ -2468,7 +2215,7 @@ min()
 
 max()
 
-# Chapter 6 :Object-Oriented Programming 
+# Chapter 6 :OBJECTS, CLASSES, AND OBJECT-ORIENTED 
 
 ## I. understanding objects
 
@@ -2488,9 +2235,9 @@ nicholas,29,software engineer→Value
 
 ```javascript
 var person = {
-  name: “Nicholas”,
+  name: "Nicholas",
   age: 29,
-  job: “Software Engineer”,
+  job: "Software Engineer",
   
   sayName: function(){
     alert(this.name);
@@ -2520,21 +2267,19 @@ dog.sayLegs();
 
    ![Xnip2019-10-08_22-03-26.png](http://ww1.sinaimg.cn/large/005NUwygly1g7r5bm7oq5j30iw0a80ua.jpg)
 
-   To change any of the default property attributes, you must use the ECMAScript 5 Object 
+   To change any of the default property attributes, you must use the ECMAScript 5 Object .defineProperty() method.属性不能直接定义，必须通过Object .defineProperty() 
 
-   .defineProperty() method.属性不能直接定义，必须通过Object 
-
-   .defineProperty() 
 ```javascript
 //修改默认属性
-var person = {}; 
-Object.defineProperty(person, “name”, {
-  writable: false,//默认的值可以省略不写
-  value: “Nicholas” 
-}); 
-alert(person.name);    //”Nicholas” 
-person.name = “Greg”; 
-alert(person.name);    //”Nicholas” 
+var person = {};
+Object.defineProperty(person, "name", {
+  writable: false, //默认的值可以省略不写
+  value: "Nicholas"
+});
+alert(person.name); //"Nicholas"
+person.name = "Greg";
+alert(person.name); //"Nicholas"
+
 ```
 
 2. 访问器属性 Accessor Properties 
@@ -2564,39 +2309,57 @@ alert(person.name);    //”Nicholas”
 ```javascript
 var book = {
   _year: 2004,
-  edition: 1 
-}; 
-//legacy accessor support 
-book.__defineGetter__(“year”, function(){
-  return this._year;    
-}); 
-book.__defineSetter__(“year”, function(newValue){
+  edition: 1
+};
+// legacy accessor support
+book.__defineGetter__("year", function () {
+  return this._year;
+});
+book.__defineSetter__("year", function (newValue) {
   if (newValue > 2004) {
     this._year = newValue;
-    this.edition += newValue - 2004;}    
-}); 
-book.year = 2005; 
-alert(book.edition);   //2 
+    this.edition += newValue - 2004;
+  }
+});
+book.year = 2005;
+alert(book.edition); // 2
+
+```
+
+```js
+let person = {
+  name_: "",
+  get name() {
+    return this.name_;
+  },
+  set name(name) {
+    this.name_ = name;
+  },
+  sayName() {
+    console.log(`My name is ${this.name_}`);
+  }
+};
 ```
 
 ```javascript
 var book = {
-    _year: 2004,
-    edition: 1 
+  _year: 2004,
+  edition: 1
 };
-Object.defineProperty(book, “year”, {
-    get: function(){
-        return this._year;
-    },
-    set: function(newValue){
-        if (newValue > 2004) {
-            this._year = newValue;
-            this.edition += newValue - 2004;
-        }
-    } 
-}); 
-book.year = 2005; 
-alert(book.edition);   //2 
+Object.defineProperty(book, "year", {
+  get: function () {
+    return this._year;
+  },
+  set: function (newValue) {
+    if (newValue > 2004) {
+      this._year = newValue;
+      this.edition += newValue - 2004;
+    }
+  }
+});
+book.year = 2005;
+alert(book.edition); // 2
+
 ```
 
 ### b. 定义多个属性
@@ -2604,25 +2367,27 @@ alert(book.edition);   //2
 Object.defineProperties()
 
 ```javascript
-var book = {}; 
+var book = {};
 Object.defineProperties(book, {
-    _year: {
-        value: 2004
+  _year: {
+    value: 2004
+  },
+  edition: {
+    value: 1
+  },
+  year: {
+    get: function () {
+      return this._year;
     },
-    edition: {
-        value: 1 
-    },
-    year: {            
-        get: function(){
-            return this._year;
-        },
-        set: function(newValue){
-            if (newValue > 2004) {
-                this._year = newValue;
-                this.edition += newValue - 2004;}                  
-        }            
-    }        
-}); 
+    set: function (newValue) {
+      if (newValue > 2004) {
+        this._year = newValue;
+        this.edition += newValue - 2004;
+      }
+    }
+  }
+});
+
 ```
 
 ### c. 读取属性的特性
@@ -2645,12 +2410,13 @@ let canary = new Bird("Tweety");
 let ownProps = [];
 // Add your code below this line
 for (let property in canary) {
-  if(canary.hasOwnProperty(property)) {
+  if (canary.hasOwnProperty(property)) {
     ownProps.push(property);
   }
 }
 
 console.log(ownProps); //prints [ "name", "numLegs" ]
+
 ```
 
 ## II. Object creation
@@ -2661,47 +2427,48 @@ console.log(ownProps); //prints [ "name", "numLegs" ]
 
 ```js
 var person = new Object();
+
 person.name = "heather";
 person.age = 29;
 person.job = "manager";
-person.sayName = function(){
-alert(this.name)
+person.sayName = function () {
+  alert(this.name);
 };
 
 //以上的模式成为对象字面两创建的首选模式
 var person = {
-  name : "heather",
-  age:29;
-  job:"manager",
-  sayName : function(){
-    alert (this.name);
+  name: "heather",
+  age: 29,
+  job: "manager",
+  sayName: function () {
+    alert(this.name);
   }
 };
+
 ```
-
-
 
 ### b. factory pattern
 
 工厂模式
 
 ```javascript
-function createPerson(name, age, job){
+function createPerson(name, age, job) {
   var o = new Object();
   o.name = name;
   o.age = age;
   o.job = job;
-  o.sayName = function(){
+  o.sayName = function () {
     alert(this.name);
-  };    
-  return o; 
-  }
-var person1 = createPerson(“Nicholas”, 29, “Software Engineer”); 
-var person2 = createPerson(“Greg”, 27, “Doctor”); 
+  };
+  return o;
+}
+
+var person1 = createPerson("Nicholas", 29, "Software Engineer");
+var person2 = createPerson("Greg", 27, "Doctor");
 ```
 
 ### c. constructor pattern 
-构造函数模式
+**构造函数模式**
 
 `Constructors`are functions that create new objects. 
 
@@ -2724,15 +2491,16 @@ Constructors constructor functions always begin with an uppercase letter, wherea
 3. 执行构造函数中的代码
 4. <mark>返回新对象</mark>
 
-不需要return 也可以返回对象
+不需要`return`也可以返回对象
 
 ```js
-function show(){
-console.log(this)
+function show() {
+  console.log(this);
 }
 
-console.log(new show());
-//show()
+console.log(show()); // undefined
+console.log(new show()); // show()
+
 ```
 
 ```javascript
@@ -2741,7 +2509,7 @@ console.log(new show());
 //Use a Constructor to Create Objects
 function Bird() {
   this.name = "Albert";
-  this.color  = "blue";
+  this.color = "blue";
   this.numLegs = 2;
   // "this" inside the constructor always refers to the object being created
 }
@@ -2751,57 +2519,60 @@ let blueBird = new Bird();
 
 
 ```javascript
-function Person(name, age, job){
+function Person(name, age, job) {
   this.name = name;
   this.age = age;
   this.job = job;
-  this.sayName = function(){
+  this.sayName = function () {
     alert(this.name);
-  };    
+  };
 }
 //创建Person的新实例，必须使用new操作符
-var person1 = new Person(“Nicholas”, 29, “Software Engineer”); 
-var person2 = new Person(“Greg”, 27, “Doctor”); 
-alert(person1.sayName == person2.sayName);  //false 
+var person1 = new Person("Nicholas", 29, "Software Engineer");
+var person2 = new Person("Greg", 27, "Doctor");
+alert(person1.sayName == person2.sayName); //false
 //指向同一个构造函数Person
-alert(person1.constructor == Person);  //true 
-alert(person2.constructor == Person);  //true 
+alert(person1.constructor == Person); //true
+alert(person2.constructor == Person); //true
 
-alert(person1 instanceof Object);  //true 
-alert(person1 instanceof Person);  //true 
-alert(person2 instanceof Object);  //true 
-alert(person2 instanceof Person);  //true 
+alert(person1 instanceof Object); //true
+alert(person1 instanceof Person); //true
+alert(person2 instanceof Object); //true
+alert(person2 instanceof Person); //true
 ```
 
 <mark>this example is considered to be both an instance of Object and an instance of Person</mark>
 
 ```javascript
-function Person(name, age, job){
+function Person(name, age, job) {
   this.name = name;
   this.age = age;
   this.job = job;
-  this.sayName = function(){
+  this.sayName = function () {
     alert(this.name);
-  };    
+  };
 }
 //用new的话则为构造函数，不用的话和普通函数没有区别
-//use as a constructor 
-var person = new Person(“Nicholas”, 29, “Software Engineer”); 
-person.sayName();   //”Nicholas”
+//use as a constructor
+var person = new Person("Nicholas", 29, "Software Engineer");
+person.sayName(); // "Nicholas"
 
-//call as a function 
-Person(“Greg”, 27, “Doctor”);  //adds to window 
-window.sayName();   //”Greg”
+//call as a function
+Person("Greg", 27, "Doctor"); //adds to window
+window.sayName(); // "Greg"
 
 //call in the scope of another object在另一个对象的作用域中调用
-var o = new Object(); 
-Person.call(o, “Kristen”, 25, “Nurse”); 
-o.sayName();    //”Kristen” 
+var o = new Object();
+Person.call(o, "Kristen", 25, "Nurse");
+o.sayName(); // "Kristen"
 
-// it’s called with a this value of the object o, which then gets assigned all of the properties and the sayName() method. 
+// it’s called with a this value of the object o, which then gets assigned all of the properties and the sayName() method.
+
 ```
 
 ### d. Prototype pattern
+
+**原型模式**
 
 创建的每个函数都有一个prototype属性，（个人理解，每个函数有自己的基因，这个基因被称为prototype）这个属性是一个指针，指向一个对象，而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法，如果按照字面意思来理解，那么prototype就是通过调用构造函数而创建的那个对象实例的原型对象。
 
@@ -2809,23 +2580,37 @@ o.sayName();    //”Kristen”
 
 This may not be an issue when there are only two instances, but imagine if there are millions of instances. That would be a lot of duplicated variables.
 
-原型模式
-
 ```javascript
-function Person(){
-}
+function Person() {}
 //构造函数成为空函数，将属性值添加在prototype属性中
-Person.prototype.name = “Nicholas”; 
-Person.prototype.age = 29; 
-Person.prototype.job = “Software Engineer”; 
-Person.prototype.sayName = function(){
-  alert(this.name); 
+Person.prototype.name = "Nicholas";
+Person.prototype.age = 29;
+Person.prototype.job = "Software Engineer";
+Person.prototype.sayName = function () {
+  console.log(this.name);
 };
-var person1 = new Person(); 
-person1.sayName();   //”Nicholas”
-var person2 = new Person(); 
-person2.sayName();   //”Nicholas”
-alert(person1.sayName == person2.sayName);  //true 
+
+var person1 = new Person();
+person1.sayName(); // "Nicholas"
+
+var person2 = new Person();
+person2.sayName(); // "Nicholas"
+
+console.log(person1.sayName == person2.sayName); //true
+
+// Person.prototype === person1.__proto__  -> true
+console.log(11, Person.prototype);
+console.log(33, person1.__proto__);
+// 11 output
+{
+  age: 29,
+  job: "Software Engineer",
+  name: "Nicholas",
+  sayName: ƒ()
+};
+
+console.log(22, Person.prototype.constructor); // ƒ Person() {}
+
 ```
 
 ```javascript
@@ -2833,11 +2618,11 @@ alert(person1.sayName == person2.sayName);  //true
 function fn(){}
 
 // prototype，原型
-//output {constructor: ƒ}
+// output {constructor: ƒ}
 console.log( fn.prototype )
 
 // constructor，构造器
-//output ƒ fn(){}
+// output ƒ fn(){}
 console.log( fn.prototype.constructor )
 
 ```
@@ -2846,28 +2631,32 @@ console.log( fn.prototype.constructor )
 
 ![QQ截图20191108113339.jpg](http://ww1.sinaimg.cn/large/005NUwyggy1g8qhfte7dfj30ld0ahjrt.jpg)
 
-![prototype chain.JPG](http://ww1.sinaimg.cn/large/005NUwygly1g8t0jo6zpwj316q0kyaen.jpg)Whenever a property is accessed for reading on an object, a search is started to find a property with that name. The search begins on the object instance itself. If a property with the given name is found on the instance, then that value is returned; if the property is not found, then the search continues up the pointer to the prototype, and the prototype is searched for a property with the same name. If the property is found on the prototype, then that value is returned. 
+![prototype chain.JPG](http://ww1.sinaimg.cn/large/005NUwygly1g8t0jo6zpwj316q0kyaen.jpg)
 
-读取对象某个属性的时候搜索顺序从对象实例自身再到原型对象，找到即停止。
+Whenever a property is accessed for reading on an object, a search is started to find a property with that name. The search begins on the object instance itself. If a property with the given name is found on the instance, then that value is returned; if the property is not found, then the search continues up the pointer to the prototype, and the prototype is searched for a property with the same name. If the property is found on the prototype, then that value is returned. 
+
+==读取对象某个属性的时候搜索顺序从对象实例自身再到原型对象，找到即停止。==
 
 不能通过对象实例修改原型对象中的值，实例对象和原型对象同名属性，修改实例对象会屏蔽原型中的那个属性。只会阻止访问原型中的属性，但原型属性不会被修改。
 
 在已经创建了实例的情况下重写原型，会切断现有实例与新原型之间的联系。
 
 ```javascript
-function Person(){ 
-}
-Person.prototype.name = “Nicholas”; 
-Person.prototype.age = 29; 
-Person.prototype.job = “Software Engineer”; 
-Person.prototype.sayName = function(){
-  alert(this.name); 
+function Person() {}
+Person.prototype.name = "Nicholas";
+Person.prototype.age = 29;
+Person.prototype.job = "Software Engineer";
+Person.prototype.sayName = function () {
+  alert(this.name);
 };
-var person1 = new Person(); 
+
+var person1 = new Person();
 var person2 = new Person();
-person1.name = “Greg”; 
-alert(person1.name);   //”Greg” - from instance 
-alert(person2.name);   //”Nicholas” - from prototype 
+person1.name = "Greg";
+
+alert(person1.name); // "Greg" - from instance
+alert(person2.name); // "Nicholas" - from prototype
+
 ```
 
 hasOwnProperty(),判定对象是否包含指定名称的属性，不会向原型链搜索。
@@ -2875,42 +2664,61 @@ hasOwnProperty(),判定对象是否包含指定名称的属性，不会向原型
 访问prototype会返回false,访问instance则会返回true
 
 ```javascript
-function Person(){ 
-}
-Person.prototype.name = “Nicholas”; 
-Person.prototype.age = 29; 
-Person.prototype.job = “Software Engineer”; 
-Person.prototype.sayName = function(){
-  alert(this.name); 
+function Person() {}
+Person.prototype.name = "Nicholas";
+Person.prototype.age = 29;
+Person.prototype.job = "Software Engineer";
+Person.prototype.sayName = function () {
+  console.log(this.name);
 };
-var person1 = new Person(); 
+
+var person1 = new Person();
 var person2 = new Person();
-alert(person1.hasOwnProperty(“name”));  //false
-person1.name = “Greg”; 
-alert(person1.name);   //”Greg” - from instance 
-alert(person1.hasOwnProperty(“name”));  //true
-alert(person2.name);   //”Nicholas” - from prototype 
-alert(person2.hasOwnProperty(“name”));  //false
-delete person1.name; 
-alert(person1.name);   //”Nicholas” - from the prototype 
-alert(person1.hasOwnProperty(“name”));  //false 
+
+console.log(person1.hasOwnProperty("name")); //false
+person1.name = "Greg";
+console.log(person1.name); // "Greg" - from instance
+console.log(person1.hasOwnProperty("name")); //true
+
+console.log(person2.name); // "Nicholas" - from prototype
+console.log(person2.hasOwnProperty("name")); //false
+
+delete person1.name;
+console.log(person1.name); // "Nicholas" - from the prototype
+console.log(person1.hasOwnProperty("name")); //false
+
 ```
 
 <mark>简单写法</mark>
 
 set the `prototype` to a new object that already contains the properties,
 
+Person.prototype 被设置为等于一个通过对象字面量创建的新对象。最终结果是一样的， 只有一个问题：这样重写之后， ==Person.prototype 的 constructor 属性就不指向 Person== 了。在创建函数时，也会创建它的 prototype 对象同时会自动给这个原型的 constructor 属性赋 值。而上面的写法完全重写了默认的 prototype 对象，因此其 constructor 属性也指向了完全不同的新对象（Object 构造函数），不再指向原来的构造函数。虽然 instanceof 操作符还能可靠地返回值，但我们不能再依靠 constructor 属性来识别类型了
+
 ```javascript
-function Person(){
-}
+// 简单写法的缺点 Person.prototype 的 constructor 属性就不指向 Person
+function Person() {}
 Person.prototype = {
-  name:"jhon";
-  age:29,
-  job:"writter",
-  sayName:function(){
-    alert(this.name);
+  name: "jhon",
+  age: 29,
+  job: "writter",
+  sayName: function () {
+    console.log(this.name);
   }
 };
+console.log(22, Person.prototype.constructor); // ƒ Object() { [native code] }
+// 如果要重新指向原来的原型
+function Person() {}
+Person.prototype = {
+  constructor: Person,
+  name: "Nicholas",
+  age: 29,
+  job: "Software Engineer",
+  sayName() {
+    console.log(this.name);
+  }
+};
+
 ```
 
 每创建一个函数，就会同时创建他的prototype对象，这个对象也会自动获得constructor属性[[constructor]]。这个简单写法是对prototype对象的重写。
@@ -2929,11 +2737,11 @@ constructor属性不👉Person函数
 Since the `constructor`property can be overwritten. it’s generally better to use the `instanceof`method to check the type of an object.
 
 ```javascript
-var friend = new Person(); 
-alert(friend instanceof Object);      //true 
-alert(friend instanceof Person);      //true 
-alert(friend.constructor == Person);  //false 
-alert(friend.constructor == Object);  //true 
+var friend = new Person();
+console.log(friend instanceof Object); //true
+console.log(friend instanceof Person); //true
+console.log(friend.constructor == Person); //false
+console.log(friend.constructor == Object); //true
 ```
 
 ```javascript
@@ -2943,13 +2751,13 @@ function Dog(name) {
 
 // Add your code below this line
 function joinDogFraternity(candidate) {
-  if(candidate.constructor === Dog){
+  if (candidate.constructor === Dog) {
     return true;
-  }else{
+  } else {
     return false;
   }
-  
 }
+
 ```
 
 <mark>p156</mark>
@@ -2962,13 +2770,14 @@ manually setting the `prototype`to a new object. It erased the `constructor`prop
 Bird.prototype = {
   constructor: Bird, // define the constructor property
   numLegs: 2,
-  eat: function() {
+  eat: function () {
     console.log("nom nom nom");
   },
-  describe: function() {
+  describe: function () {
     console.log("My name is " + this.name);
   }
 };
+
 ```
 
 ### e. combination constructor/prototype pattern
@@ -2987,7 +2796,7 @@ Bird.prototype = {
 //example 1
 
 function Bird(name) {
-  this.name  = name;
+  this.name = name;
   this.numLegs = 2;
 }
 
@@ -2997,12 +2806,13 @@ let canary = new Bird("Tweety");
 let ownProps = [];
 
 for (let property in duck) {
-  if(duck.hasOwnProperty(property)) {
+  if (duck.hasOwnProperty(property)) {
     ownProps.push(property);
   }
 }
 
 console.log(ownProps); // prints [ "name", "numLegs" ]
+
 ```
 
 ```javascript
@@ -3018,7 +2828,7 @@ let ownProps = [];
 let prototypeProps = [];
 
 for (let property in duck) {
-  if(duck.hasOwnProperty(property)) {
+  if (duck.hasOwnProperty(property)) {
     ownProps.push(property);
   } else {
     prototypeProps.push(property);
@@ -3027,41 +2837,43 @@ for (let property in duck) {
 
 console.log(ownProps); // prints ["name"]
 console.log(prototypeProps); // prints ["numLegs"]
+
 ```
 
 ```javascript
 //这种方法是，属性写在构造里，方法写在原型里，可变的都放在构造函数里，传进来的东西都在构造函数里接收，不变的东西就放在原型里。
-function Person(name, age, job){
+function Person(name, age, job) {
   this.name = name;
   this.age = age;
   this.job = job;
-  this.friends = [“Shelby”, “Court”]; 
+  this.friends = ["Shelby", "Court"];
 }
 Person.prototype = {
-    constructor: Person,
-    sayName : function () {
-      alert(this.name);
-    } 
-  };
+  constructor: Person,
+  sayName: function () {
+    alert(this.name);
+  }
+};
 
-function Person(name, age, job){
+function Person(name, age, job) {
   this.name = name;
   this.age = age;
   this.job = job;
-  this.friends = [“Shelby”, “Court”]; 
+  this.friends = ["Shelby", "Court"];
 }
 Person.prototype = function sayName() {
-      alert(this.name);
+  alert(this.name);
 };
 
+var person1 = new Person("Nicholas", 29, "Software Engineer");
+var person2 = new Person("Greg", 27, "Doctor");
 
-var person1 = new Person(“Nicholas”, 29, “Software Engineer”); 
-var person2 = new Person(“Greg”, 27, “Doctor”);
-person1.friends.push(“Van”);
-alert(person1.friends);    //”Shelby,Court,Van” 
-alert(person2.friends);    //”Shelby,Court” 
-alert(person1.friends === person2.friends);  //false 
-alert(person1.sayName === person2.sayName);  //true  
+person1.friends.push("Van");
+console.log(person1.friends); //”Shelby,Court,Van”
+console.log(person2.friends); //”Shelby,Court”
+console.log(person1.friends === person2.friends); //false
+console.log(person1.sayName === person2.sayName); //true
+
 ```
 
 ```javascript
@@ -3073,8 +2885,7 @@ Dog.prototype.numLegs = 2;
 
 let beagle = new Dog("Snoopy");    
 
-beagle.numLegs
-//2
+beagle.numLegs // 2
 ```
 
 ### f. Dynamic Prototype Pattern
@@ -3084,21 +2895,22 @@ beagle.numLegs
 将信息封装在构造函数中，通过在构造函数中初始化原型，保持构造函数和原型的优点
 
 ```javascript
-function Person(name, age, job){
+function Person(name, age, job) {
   //properties
   this.name = name;
   this.age = age;
   this.job = job;
   //methods
   //在sayname()方法不存在的情况下，才会将它添加到原型中
-  if (typeof this.sayName != “function”){
-    Person.prototype.sayName = function(){ 
-  alert(this.name);
+  if (typeof this.sayName != "function") {
+    Person.prototype.sayName = function () {
+      alert(this.name);
     };
-  } 
+  }
 }
-var friend = new Person(“Nicholas”, 29, “Software Engineer”); 
-friend.sayName(); 
+var friend = new Person("Nicholas", 29, "Software Engineer");
+friend.sayName();
+
 ```
 
 ### g. Parasitic Constructor Pattern 
@@ -3111,24 +2923,23 @@ friend.sayName();
 
 寄生模式/稳妥函数模式创建的对象构造函数之间也没有什么关系，instanceof操作符对这种对象没有意义
 
-<mark>不是很明白这个values arguments代表什么 ,只填写一个不行吗。values.push.apply(values, arguments);</mark>
-
 ```javascript
-function SpecialArray(){       
+function SpecialArray() {
   //create the array
   var values = new Array();
   //add the values
   values.push.apply(values, arguments);
   //assign the method
-  values.toPipedString = function(){
-    return this.join(“|”);
+  values.toPipedString = function () {
+    return this.join(" | ");
   };
   //return it
-  return values;        
+  return values;
 }
-var colors = new SpecialArray(“red”, “blue”, “green”); 
-alert(colors.toPipedString()); 
-//”red|blue|green” 
+
+var colors = new SpecialArray("red", "blue", "green");
+console.log(colors.toPipedString()); // ”red|blue|green”
+
 ```
 
 ### h. Durable Constructor Pattern
@@ -3138,22 +2949,26 @@ alert(colors.toPipedString());
 适合在安全的环境中使用，禁止使用this，new，或放置数据被其他引用程序改动时使用。
 
 ```javascript
-function Person(name, age, job){
+function Person(name, age, job) {
   //create the object to return
   var o = new Object();
   //optional: define private variables/functions here
   //attach methods
-  o.sayName = function(){
+  o.sayName = function () {
     alert(name);
-  };    
+  };
   //return the object
-  return o; 
+  return o;
 }
-var friend = Person(“Nicholas”, 29, “Software Engineer”); 
-friend.sayName();  //”Nicholas” 
+
+var friend = Person("Nicholas", 29, "Software Engineer");
+friend.sayName(); // "Nicholas"
+
 ```
 
 ## III. inheritance
+
+`isPrototypeOf()` 方法测试一个对象是否存在于另一个对象的原型链上,Understand Where an Object’s Prototype Comes From
 
 ```javascript
 function Dog(name) {
@@ -3162,7 +2977,7 @@ function Dog(name) {
 
 let beagle = new Dog("Snoopy");
 
-Dog.prototype.isPrototypeOf(beagle)  // true
+Dog.prototype.isPrototypeOf(beagle); // true
 Object.prototype.isPrototypeOf(Dog.prototype); //true
 
 function Bird(name, color) {
@@ -3172,6 +2987,7 @@ function Bird(name, color) {
 }
 
 let cardinal = new Bird("Bruce", "red");
+
 ```
 
 ```javascript
@@ -3183,10 +2999,9 @@ let duck = new Bird("Donald");
 
 Bird.prototype.isPrototypeOf(duck);
 // returns true
-//duck inherits its prototype from the Bird constructor function
-```
+// duck inherits its prototype from the Bird constructor function
 
-`isPrototypeOf()` 方法测试一个对象是否存在于另一个对象的原型链上,Understand Where an Object’s Prototype Comes From
+```
 
 some disadvantages when using this syntax for inheritance, which are too complex for the scope of this challenge. Instead, here's an alternative approach without those disadvantages
 
@@ -3210,8 +3025,8 @@ You’re right, this works. The difference is that this way, each object created
 
 ```javascript
 const person = {
- 	isHuman: false,
-	printIntroduction: function () {
+  isHuman: false,
+  printIntroduction: function () {
     console.log(`My name is ${this.name}. Am I human? ${this.isHuman}`);
   }
 };
@@ -3223,6 +3038,7 @@ me.isHuman = true; // inherited properties can be overwritten
 
 me.printIntroduction();
 // expected output: "My name is Matthew. Am I human? true"
+
 ```
 
 ````javascript
@@ -3265,23 +3081,24 @@ When you use `new` keyword, you are creating an instance/object from either a fu
 [Master JavaScript Prototypes & Inheritance]( https://codeburst.io/master-javascript-prototypes-inheritance-d0a9a5a75c4e?gi=584b76fbc46e )
 
 ```javascript
-function Animal() { }
+function Animal() {}
 
 Animal.prototype = {
   constructor: Animal,
-  eat: function() {
+  eat: function () {
     console.log("nom nom nom");
   }
 };
 
-function Dog() { }
+function Dog() {}
 
 Dog.prototype = Object.create(Animal.prototype);
 
 let beagle = new Dog();
-beagle.eat();  
+beagle.eat();
 
 // Should print "nom nom nom"
+
 ```
 
 <mark>不理解第一种方法和第二种方法的区别</mark>
@@ -3297,21 +3114,22 @@ beagle.eat();
 subtype inherit from supertype,constructor指向supertype,subtype 用继承创造的实例他的constructor也会指向supertype,但是，对象的实例中constructor属性应该指向创造的对象（即生出她们的父母），所以要修改constructor。
 
 ```javascript
-function Bird() { }
+function Bird() {}
 Bird.prototype = Object.create(Animal.prototype);
 let duck = new Bird();
-duck.constructor // function Animal(){...}
+duck.constructor; // function Animal(){...}
 //对象的实例中constructor属性应该指向创造的对象（即生出她们的父母）
 
 //修改constructor
 Bird.prototype.constructor = Bird;
-duck.constructor // function Bird(){...}
+duck.constructor; // function Bird(){...}
+
 ```
 
 ```javascript
-function Animal() { }
-function Bird() { }
-function Dog() { }
+function Animal() {}
+function Bird() {}
+function Dog() {}
 
 Bird.prototype = Object.create(Animal.prototype);
 Dog.prototype = Object.create(Animal.prototype);
@@ -3331,15 +3149,17 @@ OO支持两种继承方式：接口继承，实现继承
 ECMAScript,只有实现继承，并通过原型链才能实现。
 
 **1. JavaScript中一切皆是对象**
-**2. 所有对象有[[prototype]] / `_proto_`属性，指向其构造函数的原型对象**
+**2. 所有对象有[[prototype]] / `__proto__`属性，指向其构造函数的原型对象**
 **3. 所有函数都有prototype属性，指向其原型对象**
 **4. 所有实例都有constructor属性，指向其构造函数**
 
-构造函数，原型，实例的关系
-
 ### prototype chaining
 
-原型链
+**原型链（构造函数，原型，实例的关系）**
+
+每个构造函数都有一个原型对象，原型有一个属性指回构造函数，而实例有一个内部指针指向原型。这样就在实例和原型之间构造了一条原型链。
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7s351qy4lj30wq0ksgo3.jpg" alt="image.png" style="zoom:50%;" />
 
 All objects in JavaScript (with a few exceptions) have a `prototype`. Also, an object’s `prototype`itself is an object.Because a `prototype`is an object, a `prototype`can have its own `prototype`!
 
@@ -3357,6 +3177,7 @@ Object.prototype.isPrototypeOf(Bird.prototype);
 
 let duck = new Bird("Donald");
 duck.hasOwnProperty("name"); // => true
+
 ```
 
 利用原型让一个引用类型继承另一个引用类型的属性和方法。
@@ -3365,24 +3186,25 @@ duck.hasOwnProperty("name"); // => true
 
 ```javascript
 //combination constructor and prototype
-function SuperType(){
-    this.property = true; 
+function SuperType() {
+  this.property = true;
 }
-SuperType.prototype.getSuperValue = function(){
-    return this.property; 
+SuperType.prototype.getSuperValue = function () {
+  return this.property;
 };
 
 //combination constructor and prototype
-function SubType(){
-    this.subproperty = false; 
+function SubType() {
+  this.subproperty = false;
 }
-//inherit from SuperType 
+//inherit from SuperType
 SubType.prototype = new SuperType();
-SubType.prototype.getSubValue = function (){
-    return this.subproperty; 
+SubType.prototype.getSubValue = function () {
+  return this.subproperty;
 };
-var instance = new SubType(); 
-alert(instance.getSuperValue());   //true 
+var instance = new SubType();
+alert(instance.getSuperValue()); //true
+
 ```
 
 ![P204.jpg](http://ww1.sinaimg.cn/large/005NUwyggy1g8wed71u3kj30io0b40t6.jpg)
@@ -3391,81 +3213,86 @@ alert(instance.getSuperValue());   //true
 
 借用构造函数/伪造对象/经典继承，方法都在构造函数中定义，没有函数复用，此方法很少单独使用。
 
+盗用构造函数的主要缺点， 也是使用构造函数模式自定义类型的问题： 必须在构造函数中定义方法，因此函数不能重用。此外，子类也不能访问父类原型上定义的方法，因此所有类型只能使用构造函数模式。由于存在这些问题，盗用构造函数基本上也不能单独使用。
+
 ```javascript
-function SuperType(){
-    this colors = ["red","blue","green"]；
+function SuperType() {
+  this.colors = ["red", "blue", "green"];
 }
 
-function SubType(){
-    //inherit from SuperType
-    SuperType.call(this);
+function SubType() {
+  // inherit from SuperType
+  SuperType.call(this);
 }
 
 var instance1 = new SubType();
 instance1.colors.push("black");
-alert(instance1.colors); //"red,blue,green,black"
+alert(instance1.colors); // "red,blue,green,black"
 
 var instance2 = new SubType();
-alert(instance2.colors);//"red,blue,green"
+alert(instance2.colors); // "red,blue,green"
+
 ```
 
 ```javascript
-function SuperType(name){
-    this.name = name;
+function SuperType(name) {
+  this.name = name;
 }
 
-function SubType(){
-    //inherit from supertype and passing in an argument
-    SuperType.call(this,"Nicholas");
-    
-    //instance property
-    this.age = 29;
+function SubType() {
+  //inherit from supertype and passing in an argument
+  SuperType.call(this, "Nicholas");
+
+  //instance property
+  this.age = 29;
 }
 
 var instance = new SubType();
-alert(instance.name);//"Nicholas";
-alert(insatance.age);//29
+alert(instance.name); //"Nicholas";
+alert(instance.age); //29
+
 ```
 
 ### Combination Inheritance 
 
-组合继承,prototype chaining + constructor stealing
+组合继承, prototype chaining + constructor stealing
 
-使用原型链实现对原型属性和方法的继承，通过借用构造函数来实现对实例属性的继承。
+使用原型链实现对原型属性和方法的继承，通过借用构造函数来实现对实例属性的继承。将两者的优点集中了起来。基本的思路是使用原型链继承原型上的属性和方法，而通过盗用构造函数继承实例属性。这样既可以把方法定义在原型上以实现重用，又可以让每个实例都有自己的属性。
 
 ```javascript
-function SuperType(name){
-this.name = name;
-this.colors = ["red","blue","green"];
+function SuperType(name) {
+  this.name = name;
+  this.colors = ["red", "blue", "green"];
 }
 
-SuperType.prototype.sayName = function(){
+SuperType.prototype.sayName = function () {
   alert(this.name);
 };
 
-function SubType(name,age){
+function SubType(name, age) {
   //inherit properties
   SuperType.call(this.name);
-  
+
   this.age = age;
 }
 
 //inherit methods
 SubType.prototype = new SuperType();
-SubType.prototype.sayAge = function(){
+SubType.prototype.sayAge = function () {
   alert(this.age);
 };
 
-var instance1 = new SubType("nicholas",29);
+var instance1 = new SubType("nicholas", 29);
 instance1.colors.push("black");
-alert(instance1.colors);//”red,blue,green,black” 
-instance1.sayName();//”Nicholas”; 
-instance1.sayAge();//29
+alert(instance1.colors); //”red,blue,green,black”
+instance1.sayName(); //"Nicholas";
+instance1.sayAge(); //29
 
-var instance2 = new SubType("greg",27);
-alert(instance2.colors);//”red,blue,green” 
-instance2.sayName();//”Greg”; 
-instance2.sayAge();//27
+var instance2 = new SubType("greg", 27);
+alert(instance2.colors); //”red,blue,green”
+instance2.sayName(); //"Greg";
+instance2.sayAge(); //27
+
 ```
 
 ### Prototypal Inheritance 
@@ -3482,17 +3309,18 @@ function object(o){
 
 ```javascript
 var person = {
-  name: “Nicholas”,
-  friends: [“Shelby”, “Court”, “Van”] 
+  name: "Nicholas",
+  friends: ["Shelby", "Court", "Van"]
 };
 var anotherPerson = object(person);
-anotherPerson.name = “Greg”; 
-anotherPerson.friends.push(“Rob”);
+anotherPerson.name = "Greg";
+anotherPerson.friends.push("Rob");
 
-var yetAnotherPerson = object(person); 
-yetAnotherPerson.name = “Linda”; 
-yetAnotherPerson.friends.push(“Barbie”);
-alert(person.friends);   //”Shelby,Court,Van,Rob,Barbie”
+var yetAnotherPerson = object(person);
+yetAnotherPerson.name = "Linda";
+yetAnotherPerson.friends.push("Barbie");
+alert(person.friends); //”Shelby,Court,Van,Rob,Barbie”
+
 ```
 
 <mark>Object.create() </mark>
@@ -3501,37 +3329,38 @@ With one argument, object.create( )=object( )
 
 ```javascript
 var person = {
-  name: “Nicholas”,
-  friends: [“Shelby”, “Court”, “Van”] 
+  name: "Nicholas",
+  friends: ["Shelby", "Court", "Van"]
 };
 
 var anotherPerson = Object.create(person); 
-anotherPerson.name = “Greg”; 
-anotherPerson.friends.push(“Rob”);
+anotherPerson.name = "Greg";
+anotherPerson.friends.push("Rob");
 
 var yetAnotherPerson = Object.create(person); 
-yetAnotherPerson.name = “Linda”; 
-yetAnotherPerson.friends.push(“Barbie”);
+yetAnotherPerson.name = "Linda";
+yetAnotherPerson.friends.push("Barbie");
 
 alert(person.friends);   //”Shelby,Court,Van,Rob,Barbie”
 ```
 
 ```javascript
-function Animal() { }
-Animal.prototype.eat = function() {
+function Animal() {}
+Animal.prototype.eat = function () {
   console.log("nom nom nom");
 };
-function Bird() { }
+function Bird() {}
 Bird.prototype = Object.create(Animal.prototype);
 Bird.prototype.constructor = Bird;
 
-Bird.prototype.fly = function() {
+Bird.prototype.fly = function () {
   console.log("I'm flying!");
 };
 
 let duck = new Bird();
 duck.eat(); // prints "nom nom nom"
 duck.fly(); // prints "I'm flying!"
+
 ```
 
 With two argument,Object.create(),Object.defineProperties():
@@ -3542,14 +3371,16 @@ Any properties specified in this manner will shadow properties of the same name 
 
 ```javascript
 var person = {
-  name: “Nicholas”,
-  friends: [“Shelby”, “Court”, “Van”] };
+  name: "Nicholas",
+  friends: ["Shelby", "Court", "Van"]
+};
 var anotherPerson = Object.create(person, {
   name: {
-    value: “Greg”
-  } 
-}); 
-alert(anotherPerson.name);  //”Greg”               
+    value: "Greg"
+  }
+});
+alert(anotherPerson.name); //"Greg"
+
 ```
 
 ### Parasitic Inheritance 
@@ -3567,19 +3398,20 @@ alert(anotherPerson.name);  //”Greg”
 no overloading，方式重新书写后会覆盖之前书写过的。
 
 ```javascript
-function Animal() { }
-Animal.prototype.eat = function() {
+function Animal() {}
+Animal.prototype.eat = function () {
   return "nom nom nom";
 };
-function Bird() { }
+function Bird() {}
 
 // Inherit all methods from Animal
 Bird.prototype = Object.create(Animal.prototype);
 
 // Bird.eat() overrides Animal.eat()
-Bird.prototype.eat = function() {
+Bird.prototype.eat = function () {
   return "peck peck peck";
 };
+
 ```
 
 If you have an instance `let duck = new Bird();` and you call `duck.eat()`, this is how JavaScript looks for the method on `duck’s` `prototype` chain:
@@ -3598,10 +3430,10 @@ For unrelated objects, it's better to use mixins. A mixin allows other objects t
 ```javascript
 //The flyMixin takes any object and gives it the fly method
 
-let flyMixin = function(obj) {
-  obj.fly = function() {
+let flyMixin = function (obj) {
+  obj.fly = function () {
     console.log("Flying, wooosh!");
-  }
+  };
 };
 
 let bird = {
@@ -3619,7 +3451,964 @@ flyMixin(plane);
 
 bird.fly(); // prints "Flying, wooosh!"
 plane.fly(); // prints "Flying, wooosh!"
+
 ```
+
+## IV. Classes
+
+Classes are syntactic sugar that overlay the current constructor- and prototype-based approach to types. 
+
+```js
+class MyClass {
+  prop = value; // property
+
+  constructor(...) { // constructor
+    // ...
+  }
+
+  method(...) {} // method
+
+  get something(...) {} // getter method
+  set something(...) {} // setter method
+
+  [Symbol.iterator]() {} // method with computed name (symbol here)
+  // ...
+}
+```
+
+**class getter/setter**
+
+```js
+class User {
+
+  constructor(name) {
+    // invokes the setter
+    this.name = name;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(value) {
+    if (value.length < 4) {
+      alert("Name is too short.");
+      return;
+    }
+    this._name = value;
+  }
+
+}
+
+let user = new User("John");
+alert(user.name); // John
+
+user = new User(""); // Name is too short.
+```
+
+```js
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+Person.prototype.sayName = function () {
+  alert(this.name);
+};
+Person.prototype.getOlder = function (years) {
+  this.age += years;
+};
+
+```
+
+The `constructor()` method is called automatically by `new`, so we can initialize the object there.
+
+```js
+class Person {
+  // 有构造函数的类，有效
+  constructor(name, age) {
+    public name = name;
+    this.age = age;
+  }
+  // 有获取函数的类，有效 
+  get myBaz() {}
+  // 有静态方法的类，有效
+  static myQux() {}
+  sayName() {
+    alert(this.name);
+  }
+  getOlder(years) {
+    this.age += years;
+  }
+}
+
+new Person("John", 39)
+```
+
+###  The Class Constructor 
+
+类构造函数
+
+使用 new 调用类的构造函数会执行如下操作。 
+
+(1) 在内存中创建一个新对象。 
+
+(2) 这个新对象内部的[[Prototype]]指针被赋值为构造函数的 prototype 属性。 
+
+(3) 构造函数内部的 this 被赋值为这个新对象（即 this 指向新对象）
+
+(4) 执行构造函数内部的代码（给新对象添加属性）
+
+(5) 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象。
+
+(6) **No comma between class methods**
+
+```js
+class Animal {}
+class Person {
+  constructor() {
+    console.log("person ctor");
+  }
+}
+class Vegetable {
+  constructor() {
+    this.color = "orange";
+  }
+}
+let a = new Animal();
+let p = new Person(); // person ctor 
+let v = new Vegetable(); 
+console.log(v.color);  // orange
+
+```
+
+```js
+// 类实例化时传入的参数会用作构造函数的参数。如果不需要参数，则类名后面的括号也是可选的：
+class Person {
+  constructor(name) {
+    console.log(arguments.length);
+    this.name = name || null;
+  }
+}
+
+let p1 = new Person(); // 0
+console.log(p1.name); // null
+
+let p2 = new Person(); // 0
+console.log(p2.name); // null
+
+let p3 = new Person("Jake"); // 1
+console.log(p3.name); // Jake
+
+```
+
+类构造函数与构造函数的主要区别是，调用类构造函数必须使用new 操作符。而普通构造函数如果不使用 new 调用，那么就会以全局的 this（通常是 window）作为内部对象。调用类构造函数时如果忘了使用new 则会抛出错误。
+
+**立即调用函数表达式相似，类也可以立即实例化**
+
+```js
+let p = new (class Foo {
+  constructor(x) {
+    console.log(x);
+  }
+})("bar"); // bar
+console.log(p); // Foo {}
+
+```
+
+**类可以像函数一样在任何地方定义，比如在数组中**
+
+```js
+let classList = [
+  class {
+    constructor(id) {
+      this.id_ = id;
+      console.log(`instance ${this.id_}`);
+    }
+  }
+];
+
+function createInstance(classDefinition, id) {
+  return new classDefinition(id);
+}
+
+let foo = createInstance(classList[0], 3141); // instance 3141
+
+```
+
+**[Not just a syntactic sugar](https://javascript.info/class#not-just-a-syntactic-sugar)**
+
+1. First, a function created by `class` is labelled by a special internal property `[[IsClassConstructor]]: true`. So it’s not entirely the same as creating it manually.
+
+2. Class methods are non-enumerable. A class definition sets `enumerable` flag to `false` for all methods in the `"prototype"`.
+
+   That’s good, because if we `for..in` over an object, we usually don’t want its class methods.
+
+3. Classes always `use strict`. All code inside the class construct is automatically in strict mode.
+
+**[Making bound methods with class fields](https://javascript.info/class#making-bound-methods-with-class-fields)**
+
+```js
+class Button {
+  constructor(value) {
+    this.value = value;
+  }
+  click = () => {
+    alert(this.value);
+  }
+}
+
+let button = new Button("hello");
+
+// setTimeout(() => button.click(), 1000)
+setTimeout(button.click, 1000); // hello
+```
+
+
+
+### Instance, Prototype, and Class Members 
+
+#### Instance Members 
+
+实例成员
+
+每次通过new调用类标识符时， 都会执行类构造函数。 在这个函数内部， 可以为新创建的实例 （this）添加“自有”属性。至于添加什么样的属性，则没有限制。另外，在构造函数执行完毕后，仍然可以给实例继续添加新成员。每个实例都对应一个唯一的成员对象，这意味着所有成员都不会在原型上共享。
+
+==通过this的方式，new出来的实例对象的属性是不相同的，都是各自唯一的。==
+
+```js
+class Person {
+  constructor() {
+    // 这个例子先使用对象包装类型定义一个字符串
+    // 为的是在下面测试两个对象的相等性
+    this.name = new String('Jack');
+    this.sayName = () => console.log(this.name);
+    this.nicknames = ["Jake", "J-Dog"];
+  }
+}
+let p1 = new Person(),
+    p2 = new Person();
+p1.sayName(); // Jack
+p2.sayName(); // Jack
+console.log(1, p1.name === p2.name); // false
+console.log(2, p1.sayName === p2.sayName); // false
+console.log(3, p1.nicknames === p2.nicknames); // false
+p1.name = p1.nicknames[0];
+p2.name = p2.nicknames[1];
+p1.sayName(); // Jake
+p2.sayName(); // J-Dog
+```
+
+```js
+class Person {
+  constructor() {
+    this.name = "hihi";
+    this.sayName = () => console.log(this.name);
+    this.nicknames = ["Jake", "J-Dog"];
+  }
+}
+let p1 = new Person(),
+  	p2 = new Person();
+p1.sayName(); // hihi
+p2.sayName(); // hihi
+console.log(1, p1.name === p2.name); // true
+console.log(2, p1.sayName === p2.sayName); // false
+console.log(3, p1.nicknames === p2.nicknames); // false
+p1.name = p1.nicknames[0];
+p2.name = p2.nicknames[1];
+p1.sayName(); // Jake
+p2.sayName(); // J-Dog
+
+```
+
+#### Prototype Methods and Accessors  
+
+**原型方法与访问器**
+
+为了在实例间共享方法，类定义语法把在类块中定义的方法作为原型方法。
+
+```js
+class Person {
+  constructor() {
+    // 添加到this的所有内容都会存在于不同的实例上
+    this.locate = () => console.log("instance");
+  }
+  // 在类块中定义的所有内容都会定义在类的原型上
+  locate() {
+    console.log("prototype");
+  }
+}
+
+let p = new Person();
+p.locate(); // instance
+Person.prototype.locate(); // prototype
+
+```
+
+**可以把方法定义在类构造函数中或者类块中， 但不能在类块中给原型添加原始值或对象作为成员数据： **
+
+```js
+class Person {  name: 'Jake' } // Uncaught SyntaxError: Unexpected token 
+```
+
+**虽然类定义并不显式支持在原型或类上添加成员数据，但在类定义外部，可以手动添加：**
+
+```js
+class Person {
+  sayName() {
+    console.log(`${Person.greeting} ${this.name}`);
+  }
+}
+Person.greeting = "My name is"; // 在类上定义数据成员
+Person.prototype.name = "Jake"; // 在原型上定义数据成员
+let p = new Person();
+p.sayName(); // My name is Jake
+
+```
+
+**类定义也支持获取和设置访问器。语法与行为跟普通对象一样**
+
+```js
+class Person {
+  set name(newName) {
+    this.name_ = newName;
+  }
+  get name() {
+    return this.name_;
+  }
+}
+let p = new Person();
+p.name = "Jake";
+console.log(p.name); // Jake
+
+```
+
+#### Static Class Methods and Accessors
+
+**静态类方法**
+
+可以在类上定义静态方法。这些方法通常用于执行不特定于实例的操作，也不要求存在类的实例。与原型成员(prototype members)类似，静态成员每个类上只能有一个。
+
+Usually, static methods are used to implement functions that belong to the class as a whole, but not to any particular object of it.
+
+new 出来的对象访问不到父类的 static methods。
+
+==Static methods aren’t available for individual objects.==, 但是extends的类available，就可以用static的方法/属性。
+
+Static methods are callable on classes, not on individual objects.
+
+```js
+class Person {
+  constructor() {
+    // 添加到this的所有内容都会存在于不同的实例上
+    this.locate = () => console.log("instance", this);
+  } 
+  
+  // 定义在类的原型对象上
+  locate() {
+    console.log("prototype", this);
+  } 
+  
+  // 定义在类本身上
+  static locate() {
+    console.log("class", this);
+  }
+}
+
+let p = new Person();
+p.locate(); // instance, Person {}
+Person.prototype.locate(); // prototype, {constructor: ... }
+Person.locate(); // class, class Person {}
+
+```
+
+```js
+class Article {
+  constructor(title, date) {
+    this.title = title;
+    this.date = date;
+  }
+
+  static compare(articleA, articleB) {
+    return articleA.date - articleB.date;
+  }
+}
+
+// usage
+let articles = [
+  new Article("HTML", new Date(2019, 1, 1)),
+  new Article("CSS", new Date(2019, 0, 1)),
+  new Article("JavaScript", new Date(2019, 11, 1))
+];
+
+articles.sort(Article.compare);
+alert(articles[0].title); // CSS
+```
+
+```js
+class Article {
+  publisher = "Ilya Kantor";
+}
+
+// Article.publisher = "bbbbbb";
+
+let cc = new Article();
+console.log(11,cc.publisher);
+console.log(22,Article.publisher);
+```
+
+==class里的静态方法写法等同于在class外面进行赋值==
+
+![image-20221104212058224](/Users/chenruo/Library/Application Support/typora-user-images/image-20221104212058224.png)
+
+```js
+// 但是extends的类available，就可以用static的方法/属性。
+class Animal {
+  static planet = "Earth";
+
+  constructor(name, speed) {
+    this.speed = speed;
+    this.name = name;
+  }
+
+  run(speed = 0) {
+    this.speed += speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+
+  static compare(animalA, animalB) {
+    return animalA.speed - animalB.speed;
+  }
+}
+
+// Inherit from Animal
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+}
+
+let rabbits = [new Rabbit("White Rabbit", 10), new Rabbit("Black Rabbit", 5)];
+
+rabbits.sort(Rabbit.compare);
+
+rabbits[0].run(); // Black Rabbit runs with speed 5.
+
+alert(Rabbit.planet); // Earth
+
+```
+
+How does it work? Again, using prototypes. As you might have already guessed, `extends` gives `Rabbit` the `[[Prototype]]` reference to `Animal`.
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7terukl9wj30so0iugpl.jpg)
+
+**Summary**
+
+Static methods are used for the functionality that belongs to the class “as a whole”. It doesn’t relate to a concrete class instance.
+
+Static properties are used when we’d like to store class-level data, also not bound to an instance.
+
+For `class B extends A` the prototype of the class `B` itself points to `A`: `B.[[Prototype]] = A`. So if a field is not found in `B`, the search continues in `A`.
+
+#### Private and protected properties and methods
+
+##### protected properties and methods
+
+Protected properties are usually prefixed with an underscore _.
+
+- 利用get/set accessor 处理 private property, 使用方法是直接赋值。
+- 利用getter/setter function 处理 private property，使用方法是函数传参。
+
+```js
+class CoffeeMachine {
+  _waterAmount = 0;
+
+  set waterAmount(value) {
+    if (value < 0) {
+      value = 0;
+    }
+    this._waterAmount = value;
+  }
+
+  get waterAmount() {
+    return this._waterAmount;
+  }
+
+  constructor(power) {
+    this._power = power;
+  }
+}
+
+// create the coffee machine
+let coffeeMachine = new CoffeeMachine(100);
+
+// add water
+coffeeMachine.waterAmount = -10; // _waterAmount will become 0, not -10
+
+```
+
+```js
+class CoffeeMachine {
+  _waterAmount = 0;
+
+  setWaterAmount(value) {
+    if (value < 0) value = 0;
+    this._waterAmount = value;
+  }
+
+  getWaterAmount() {
+    return this._waterAmount;
+  }
+}
+
+new CoffeeMachine().setWaterAmount(100);
+
+```
+
+**只读方法**
+
+不设置setter即可。
+
+```js
+class CoffeeMachine {
+  // ...
+
+  constructor(power) {
+    this._power = power;
+  }
+
+  get power() {
+    return this._power;
+  }
+}
+
+// create the coffee machine
+let coffeeMachine = new CoffeeMachine(100);
+
+alert(`Power is: ${coffeeMachine.power}W`); // Power is: 100W
+
+coffeeMachine.power = 25; // Error (no setter)
+
+```
+
+==Protected fields are inherited==
+
+If we inherit class MegaMachine extends CoffeeMachine, then nothing prevents us from accessing this._waterAmount or this._power from the methods of the new class.
+
+##### Private properties and methods
+
+**Privates should start with #. They are only accessible from inside the class.**
+
+只要在class外部，永远获取不到 Private properties and methods.
+
+```js
+class CoffeeMachine {
+  #waterLimit = 200;
+
+  #fixWaterAmount(value) {
+    if (value < 0) return 0;
+    if (value > this.#waterLimit) return this.#waterLimit;
+  }
+
+  setWaterAmount(value) {
+    this.#waterLimit = this.#fixWaterAmount(value);
+  }
+}
+
+let coffeeMachine = new CoffeeMachine();
+
+// can't access privates from outside of the class
+coffeeMachine.#fixWaterAmount(123); // Error
+coffeeMachine.#waterLimit = 1000; // Error
+
+```
+
+**Private fields are not available as this[name]**
+
+Private fields are special. As we know, usually we can access fields using `this[name]`:
+
+```javascript
+class User {
+  ...
+  sayHi() {
+    let fieldName = "name";
+    alert(`Hello, ${this[fieldName]}`);
+  }
+}
+```
+
+With private fields that’s impossible: `this['#name']` doesn’t work. That’s a syntax limitation to ensure privacy.
+
+### Inheritance
+
+#### Inheritance Basics
+
+**extends**
+
+ES6类支持单继承。使用`extends`关键字，就可以继承任何拥有[[Construct]]和原型的对象。很大程度上，这意味着不仅可以继承一个类，也可以继承普通的构造函数（保持向后兼容）。==**Any expression is allowed after** `extends`==
+
+```js
+// 继承类 Inherit from class 
+class Vehicle {} 
+class Bus extends Vehicle {}
+let b = new Bus();
+
+console.log(b instanceof Bus); // true
+console.log(b instanceof Vehicle); // true
+
+// 继承普通构造函数 Inherit from function constructor 
+function Person() {} 
+class Engineer extends Person {}
+let e = new Engineer();
+
+console.log(e instanceof Engineer); // true
+console.log(e instanceof Person); // true
+
+function f(phrase) {
+  return class {
+    sayHi() { alert(phrase); }
+  };
+}
+
+class User extends f("Hello") {}
+
+new User().sayHi(); // Hello
+```
+
+```js
+// 派生类(derived class)都会通过原型链访问到类和原型上定义的方法。this 的值会反映调用相应方法的实例或者类
+class Vehicle {
+  identifyPrototype(id) {
+    console.log(id, this);
+  }
+  static identifyClass(id) {
+    console.log(id, this);
+  }
+}
+
+class Bus extends Vehicle {}
+
+let v = new Vehicle();
+let b = new Bus();
+
+b.identifyPrototype("bus"); // bus, Bus {}
+v.identifyPrototype("vehicle"); // vehicle, Vehicle {}
+Bus.identifyClass("bus"); // bus, class Bus {}
+Vehicle.identifyClass("vehicle"); // vehicle, class Vehicle {}
+
+```
+
+```js
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+  run(speed) {
+    this.speed = speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+  stop() {
+    this.speed = 0;
+    alert(`${this.name} stands still.`);
+  }
+}
+
+let animal = new Animal("My animal");
+```
+
+```js
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.hide(); // White Rabbit hides!
+```
+
+#### Constructors, HomeObjects, and super() 
+
+**构造函数、HomeObject 和super() **
+
+##### [Overriding a method](https://javascript.info/class-inheritance#overriding-a-method)
+
+派生类的方法可以通过 super 关键字引用它们的原型。这个关键字只能在派生类中使用，而且仅限于类构造函数、实例方法和静态方法内部。在类构造函数中使用super 可以调用父类构造函数。
+
+Classes provide "super" keyword for that.
+
+- super.method(...) to call a parent method.
+- super(...) to call a parent constructor (inside our constructor only).
+
+```js
+class Animal {
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
+  }
+
+  run(speed) {
+    this.speed = speed;
+    alert(`${this.name} runs with speed ${this.speed}.`);
+  }
+
+  stop() {
+    this.speed = 0;
+    alert(`${this.name} stands still.`);
+  }
+}
+
+class Rabbit extends Animal {
+  hide() {
+    alert(`${this.name} hides!`);
+  }
+
+  stop() {
+    super.stop(); // call parent stop
+    this.hide(); // and then hide
+  }
+}
+
+let rabbit = new Rabbit("White Rabbit");
+
+rabbit.run(5); // White Rabbit runs with speed 5.
+rabbit.stop(); // White Rabbit stands still. White Rabbit hides!
+
+```
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7te5iwulej31b20uudqd.jpg)
+
+##### [Overriding constructor](https://javascript.info/class-inheritance#overriding-constructor)
+
+According to the [specification](https://tc39.github.io/ecma262/#sec-runtime-semantics-classdefinitionevaluation), if a class extends another class and has no `constructor`, then the following “empty” `constructor` is generated:
+
+当一个类中没有明确写出constructor时，class中会默认给到  `constructor(...args) { super(...args); }`
+
+```js
+class Rabbit extends Animal {
+  // generated for extending classes without own constructors
+  constructor(...args) {
+    super(...args);
+  }
+}
+```
+
+```js
+// Constructors in inheriting classes must call super(...), and (!) do it before using this.
+class Vehicle {
+  constructor() {
+    this.hasEngine = true;
+  }
+}
+
+class Bus extends Vehicle {
+  constructor() {
+    // 不要在调用super()之前引用this，否则会抛出ReferenceError
+    super(); // 相当于super.constructor()
+    console.log(this instanceof Vehicle); // true
+    console.log(this); // Bus { hasEngine: true }
+  }
+}
+
+new Bus();
+```
+
+```js
+// 在静态方法中可以通过super 调用继承的类上定义的静态方法：
+class Vehicle {
+  static identify() {
+    console.log("vehicle");
+  }
+}
+
+class Bus extends Vehicle {
+  static identify() {
+    super.identify();
+  }
+}
+
+Bus.identify(); // vehicle
+```
+
+We can override not only methods, but also class fields.原声方法会被继承类重写时覆盖，字段也会。
+
+```js
+class Animal {
+  name = 'animal';
+
+  constructor() {
+    alert(this.name); // (*)
+  }
+}
+
+class Rabbit extends Animal {
+  name = 'rabbit';
+}
+
+new Animal(); // animal
+new Rabbit(); // animal
+```
+
+In other words, the parent constructor always uses its own field value, not the overridden one.
+
+Well, the reason is the field initialization order. The class field is initialized:
+
+- Before constructor for the base class (that doesn’t extend anything),
+- Immediately after `super()` for the derived class.
+
+In our case, `Rabbit` is the derived class. There’s no `constructor()` in it. As said previously, that’s the same as if there was an empty constructor with only `super(...args)`.
+
+So, `new Rabbit()` calls `super()`, thus executing the parent constructor, and (per the rule for derived classes) only after that its class fields are initialized. At the time of the parent constructor execution, there are no `Rabbit` class fields yet, that’s why `Animal` fields are used. 因为我们在`new Rabbit()`的时候调用了`super()`，运行了父类的构造函数，之后才会初始化Rabbit自己的字段。当父类构造函数运行时，就没有`Rabbit`的字段存在了。所以才会输出animal。
+
+This subtle difference between fields and methods is specific to JavaScript.
+
+If it becomes a problem, one can fix it by using methods or getters/setters instead of fields.
+
+被覆盖后的解决方法即：==using methods or getters/setters instead of fields.==，用访问器和修改器重写，而不使用字段处理，就好了。
+
+```js
+class Animal {
+  showName() {  // instead of this.name = 'animal'
+    alert('animal');
+  }
+
+  constructor() {
+    this.showName(); // instead of alert(this.name);
+  }
+}
+
+class Rabbit extends Animal {
+  showName() {
+    alert('rabbit');
+  }
+}
+
+new Animal(); // animal
+new Rabbit(); // rabbit
+```
+
+==在使用super 时要注意几个问题==
+
+1. super 只能在派生类构造函数和静态方法中使用
+
+2. 不能单独引用super 关键字，要么用它调用构造函数，要么用它引用静态方法。
+
+3. 调用super()会调用父类构造函数，并将返回的实例赋值给this。
+
+4. super()的行为如同调用构造函数，如果需要给父类构造函数传参，则需要手动传入。
+
+5. 如果没有定义类构造函数，在实例化派生类时会调用super()，而且会传入所有传给派生类的 
+
+   参数。 
+
+6. 在类构造函数中，不能在调用super()之前引用this。
+
+7. 如果在派生类中显式定义了构造函数，则要么必须在其中调用 super()，要么必须在其中返回 
+
+   一个对象。
+
+That label affects its behavior with `new`.
+
+- When a regular function is executed with new, it creates an empty object and assigns it to this.
+
+- But when a derived constructor runs, it doesn’t do this. It expects the parent constructor to do this job.
+
+So a derived constructor must call super in order to execute its parent (base) constructor, otherwise the object for this won’t be created. And we’ll get an error.
+
+```js
+// 1.
+class Vehicle {
+  constructor() {
+    super(); // SyntaxError: 'super' keyword unexpected
+  }
+}
+```
+
+```js
+// 2. 
+class Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    console.log(super); // SyntaxError: 'super' keyword unexpected here
+  }
+}
+```
+
+```js
+// 3. 
+class Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    super();
+    console.log(this instanceof Vehicle);
+  }
+}
+
+new Bus(); // true
+```
+
+```js
+// 4.
+class Vehicle {
+  constructor(licensePlate) {
+    this.licensePlate = licensePlate;
+  }
+}
+class Bus extends Vehicle {
+  constructor(licensePlate) {
+    super(licensePlate);
+  }
+}
+console.log(new Bus("1337H4X")); // Bus { licensePlate: '1337H4X' }
+```
+
+```js
+// 5.
+class Vehicle {
+  constructor(licensePlate) {
+    this.licensePlate = licensePlate;
+  }
+}
+class Bus extends Vehicle {}
+console.log(new Bus("1337H4X")); // Bus { licensePlate: '1337H4X' }
+
+```
+
+```js
+// 6.
+class Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    console.log(this);
+  }
+}
+new Bus(); 
+// ReferenceError: Must call super constructor in derived class 
+// before accessing 'this' or returning from derived constructor
+```
+
+```js
+// 7.
+class Vehicle {}
+class Car extends Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    super();
+  }
+}
+class Van extends Vehicle {
+  constructor() {
+    return {};
+  }
+}
+console.log(new Car()); // Car {}
+console.log(new Bus()); // Bus {}
+console.log(new Van()); // {}
+```
+
+
 
 ## Don't Repeat Yourself (DRY)
 
@@ -3629,29 +4418,30 @@ plane.fly(); // prints "Flying, wooosh!"
 
 ```javascript
 function Cat(name) {
-  this.name = name; 
+  this.name = name;
 }
 
 Cat.prototype = {
-  constructor: Cat, 
+  constructor: Cat
 };
 
 function Bear(name) {
-  this.name = name; 
+  this.name = name;
 }
 
 Bear.prototype = {
-  constructor: Bear, 
+  constructor: Bear
 };
 
-function Animal() { }
+function Animal() {}
 
 Animal.prototype = {
   constructor: Animal,
-  eat: function() {
-      console.log("nom nom nom");
+  eat: function () {
+    console.log("nom nom nom");
   }
 };
+
 ```
 
 # Chapter 7: function expressions
@@ -4248,7 +5038,7 @@ window.sayAge();      //29
 全局变量不能通过delete操作符删除，但是可以通过在windows对象上的定义的属性可以
 
 ```javascript
-var age = 29; window.color = “red”; //throws an error in IE < 9, returns false in all other browsers delete window.age; //throws an error in IE < 9, returns true in all other browsers delete window.color;    //returns true alert(window.age);      //29 alert(window.color);    //undefined 
+var age = 29; window.color = "red"; //throws an error in IE < 9, returns false in all other browsers delete window.age; //throws an error in IE < 9, returns true in all other browsers delete window.color;    //returns true alert(window.age);      //29 alert(window.color);    //undefined 
 ```
 
 弹出窗口屏蔽程序
@@ -4884,7 +5674,7 @@ var handler = function(event){
             alert(“Clicked”);
             break;
         case “mouseover”:
-            event.target.style.backgroundColor = “red”;
+            event.target.style.backgroundColor = "red";
             break;
         case “mouseout”:
             event.target.style.backgroundColor = “”;
