@@ -1,5 +1,9 @@
 # Promise
 
+此部分知识为学习axios预备知识,预备知识链:ajax --> promise --> axios
+
+该笔记为观看尚硅谷Web前端Promise教程从入门到精通（2021抢先版）与尚硅谷Promise教程(promise前端进阶必学)两个课程视频以及参考其课件
+
 笔记：https://blog.csdn.net/weixin_44972008/article/details/113779708
 
 笔记：https://gitee.com/hongjilin/hongs-study-notes/tree/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Promise%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0
