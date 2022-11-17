@@ -1608,69 +1608,10 @@ p.a // 'a' = 2
 
 <img src="https://static.vue-js.com/6e80e5e0-7cb8-11eb-85f6-6fac77c0c9b3.png" alt="img" style="zoom: 50%;" />
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l04bfjsij30xk0vudow.jpg" alt="image-20210908092808139.png" style="zoom: 33%;" />
-
-`1`=>`'new Promise'`=> `3` => `'then'` => `2`
-
 1. 微任务宏任务
    - 执行一个宏任务，如果遇到微任务就将它放到微任务的事件队列中
    - 当前宏任务执行完成后，会查看微任务的事件队列，然后将里面的所有微任务依次执行完
 2. Await async
-
-### 15. ==ajax==
-
-即异步的`JavaScript` 和`XML`，是一种创建交互式网页应用的网页开发技术，可以在不重新加载整个网页的情况下，与服务器交换数据，并且更新部分网页
-
-`Ajax`的原理简单来说通过`XmlHttpRequest`对象来向服务器发异步请求，从服务器获得数据，然后用`JavaScript`来操作`DOM`而更新页面
-
-```js
-//封装一个ajax请求
-function ajax(options) {
-    //创建XMLHttpRequest对象
-    const xhr = new XMLHttpRequest()
-
-
-    //初始化参数的内容
-    options = options || {}
-    options.type = (options.type || 'GET').toUpperCase()
-    options.dataType = options.dataType || 'json'
-    const params = options.data
-
-    //发送请求
-    if (options.type === 'GET') {
-        xhr.open('GET', options.url + '?' + params, true)
-        xhr.send(null)
-    } else if (options.type === 'POST') {
-        xhr.open('POST', options.url, true)
-        xhr.send(params)
-
-    //接收请求
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            let status = xhr.status
-            if (status >= 200 && status < 300) {
-                options.success && options.success(xhr.responseText, xhr.responseXML)
-            } else {
-                options.fail && options.fail(status)
-            }
-        }
-    }
-}
-```
-
-### 16. ==JSONP 的原理是什么, 如何实现==
-
-**以下是Jsonp解决跨域：**
-
-根据浏览器同源策略，所谓同源就是协议、主机、端口号都相同时成为同源。a 域的js不能直接访问 b域名的信息，但是script 标签的src属性可以跨域引用文件，jsonp是请求之后后台包装好一段json，并且把数据放在一个callback函数，返回一个js文件，动态引入这个文件，下载完成js之后，会去调用这个callback通过这样访问数据。
-
-为了实现跨域请求，可以通过script标签实现跨域请求，然后再服务端输出JSON数据并执行回调callback函数，从而解决跨域数据请求。**jsonp的核心则是动态添加`<script>`标签来调用服务器提供的js脚本。**
-
-首先在客户端注册一个callback，然后把callback的名字传给服务器。此时，服务器先生成json数据，然后以javascript语法的方式，生成function，function名字就是传递上来I带参数jsonp。最后将json数据直接以入参的方式，放置function中，这样就生成js语法的文档，返回给客户端。客户端浏览器，解析script标签，并执行返回javascript文档，此时数据作为参数，传入了客户端预先定义好的callback函数里。简单的说，就是利用script标签没有跨域限制的“漏洞”来达到与第三方通讯的目的。
-
-总结一下，json 是一种数据格式，jsonp 是一种数据调用的方式，带callback的json就是jsonp。
-
-**缺点：这种方式只支持get方式。**
 
 ## 三、JS基础 
 
@@ -2121,54 +2062,6 @@ function cycle(obj, parent) {
 - 第二种方式，通过对象的 constructor 属性来判断，对象的 constructor 属性指向该对象的构造函数，但是这种方式不是很安全，因为 constructor 属性可以被改写。
 - 第三种方式，如果需要判断的是某个内置的引用类型的话，可以使用 Object.prototype.toString() 方法来打印对象的[[Class]] 属性来进行判断。
 
-### 27. ==ajax、 axios、 fetch的区别==
-
-**（1）AJAX**
-
-Ajax 即“AsynchronousJavascriptAndXML”（异步 JavaScript 和 XML），是指一种创建交互式[网页](https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E7%BD%91%E9%A1%B5)应用的网页开发技术。它是一种在无需重新加载整个网页的情况下，能够更新部分网页的技术。通过在后台与服务器进行少量数据交换，Ajax 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。传统的网页（不使用 Ajax）如果需要更新内容，必须重载整个网页页面。其缺点如下：
-
-- 本身是针对MVC编程，不符合前端MVVM的浪潮
-- 基于原生XHR开发，XHR本身的架构不清晰
-- 不符合关注分离（Separation of Concerns）的原则
-- 配置和调用方式非常混乱，而且基于事件的异步模型不友好。
-
-**（2）Fetch**
-
-fetch号称是AJAX的替代品，是在ES6出现的，使用了ES6中的promise对象。Fetch是基于promise设计的。Fetch的代码结构比起ajax简单多。**fetch不是ajax的进一步封装，而是原生js，没有使用XMLHttpRequest对象**。
-
-fetch的优点：
-
-- 语法简洁，更加语义化
-- 基于标准 Promise 实现，支持 async/await
-- 更加底层，提供的API丰富（request, response）
-- 脱离了XHR，是ES规范里新的实现方式
-
-fetch的缺点：
-
-- fetch只对网络请求报错，对400，500都当做成功的请求，服务器返回 400，500 错误码时并不会 reject，只有网络错误这些导致请求不能完成时，fetch 才会被 reject。
-- fetch默认不会带cookie，需要添加配置项： fetch(url, {credentials: 'include'})
-- fetch不支持abort，不支持超时控制，使用setTimeout及Promise.reject的实现的超时控制并不能阻止请求过程继续在后台运行，造成了流量的浪费
-- fetch没有办法原生监测请求的进度，而XHR可以
-
-**（3）Axios**
-
-Axios 是一种基于Promise封装的HTTP客户端，其特点如下：
-
-- 浏览器端发起XMLHttpRequests请求
-- node端发起http请求
-- 支持Promise API
-- 监听请求和返回
-- 对请求和返回进行转化
-- 取消请求
-- 自动转换json数据
-- 客户端支持抵御XSRF攻击
-
-### 29. axios封装
-
-https://vue3js.cn/interview/vue/axiosCode.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%AE%80%E6%98%93%E7%89%88axios
-
-https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%BB%80%E4%B9%88
-
 ### 30. 什么是纯函数
 
 redux中的reducer就是纯函数
@@ -2202,19 +2095,6 @@ obj?.a?.[0];
 //使用方法
 obj?.b?.();
 ```
-
-### 36. ==什么是 CSRF 攻击==
-
-跨站请求伪造（英语：Cross-site request forgery），也被称为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF， 是一种挟制用户在当前已登录的 Web 应用程序上执行非本意的操作的攻击方法。跟跨网站脚本（XSS）相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。
-
-CSRF (Cross-site request forgery)，跨站请求伪造，又称为 `one-click attack`，顾名思义，通过恶意引导用户一次点击劫持 cookie 进行攻击。
-
-1. 使用 JSON API。当进行 CSRF 攻击时，请求体通过 `<form>` 构建，请求头为 `application/www-form-urlencoded`。它难以发送 JSON 数据被服务器所理解。
-2. CSRF Token。生成一个随机的 token，切勿放在 cookie 中，每次请求手动携带该 token 进行校验。
-3. SameSite Cookie。设置为 Lax 或者 Strict，禁止发送第三方 Cookie。
-
-1. [理解 CSRF(opens new window)](https://github.com/pillarjs/understanding-csrf/blob/master/README_zh.md)
-2. [Cross-Site Request Forgery Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 
 ## 四、原型与原型链
 
@@ -2327,34 +2207,660 @@ init();
 ## 七、异步编程 Promise
 
 ### 1. 异步编程的实现方式?
+
+JavaScript中的异步机制可以分为以下几种：
+
+- **回调函数**的方式，使用回调函数的方式有一个缺点是，多个回调函数嵌套的时候会造成回调函数地狱，上下两层的回调函数间的代码耦合度太高，不利于代码的可维护。
+- **Promise**的方式，使用 Promise 的方式可以将嵌套的回调函数作为链式调用。但是使用这种方法，有时会造成多个 then 的链式调用，可能会造成代码的语义不够明确。
+- **generator**的方式，它可以在函数的执行过程中，将函数的执行权转移出去，在函数外部还可以将执行权转移回来。当遇到异步函数执行的时候，将函数执行权转移出去，当异步函数执行完毕时再将执行权给转移回来。因此在 generator 内部对于异步操作的方式，可以以同步的顺序来书写。使用这种方式需要考虑的问题是何时将函数的控制权转移回来，因此需要有一个自动执行 generator 的机制，比如说 co 模块等方式来实现 generator 的自动执行。
+- **async 函数**的方式，async 函数是 generator 和 promise 实现的一个自动执行的语法糖，它内部自带执行器，当函数内部执行到一个 await 语句的时候，如果语句返回一个 promise 对象，那么函数将会等待 promise 对象的状态变为 resolve 后再继续向下执行。因此可以将异步逻辑，转化为同步的顺序来书写，并且这个函数可以自动执行。
+
 ### 2. setTimeout、Promise、 Async/Await的区别
 
 ### 3. 如何实现一个简单的 Promise
 
 ### 3. 对Promise的理解
+
+Promise是异步编程的一种解决方案，它是一个对象，可以获取异步操作的消息，他的出现大大改善了异步编程的困境，避免了地狱回调，它比传统的解决方案回调函数和事件更合理和更强大。
+
+所谓Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。
+
+（1）Promise的实例有**三个状态**:
+
+- Pending（进行中）
+- Resolved（已完成）
+- Rejected（已拒绝）
+
+当把一件事情交给promise时，它的状态就是Pending，任务完成了状态就变成了Resolved、没有完成失败了就变成了Rejected。
+
+（2）Promise的实例有**两个过程**：
+
+- pending -> fulfilled : Resolved（已完成）
+- pending -> rejected：Rejected（已拒绝）
+
+注意：一旦从进行状态变成为其他状态就永远不能更改状态了。
+
+**Promise的特点：**
+
+- 对象的状态不受外界影响。promise对象代表一个异步操作，有三种状态，`pending`（进行中）、`fulfilled`（已成功）、`rejected`（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态，这也是promise这个名字的由来——“**承诺**”；
+- 一旦状态改变就不会再变，任何时候都可以得到这个结果。promise对象的状态改变，只有两种可能：从`pending`变为`fulfilled`，从`pending`变为`rejected`。这时就称为`resolved`（已定型）。如果改变已经发生了，你再对promise对象添加回调函数，也会立即得到这个结果。这与事件（event）完全不同，事件的特点是：如果你错过了它，再去监听是得不到结果的。
+
+**Promise的缺点：**
+
+- 无法取消Promise，一旦新建它就会立即执行，无法中途取消。
+- 如果不设置回调函数，Promise内部抛出的错误，不会反应到外部。
+- 当处于pending状态时，无法得知目前进展到哪一个阶段（刚刚开始还是即将完成）。
+
+**总结：**
+
+Promise 对象是异步编程的一种解决方案，最早由社区提出。Promise 是一个构造函数，接收一个函数作为参数，返回一个 Promise 实例。一个 Promise 实例有三种状态，分别是pending、resolved 和 rejected，分别代表了进行中、已成功和已失败。实例的状态只能由 pending 转变 resolved 或者rejected 状态，并且状态一经改变，就凝固了，无法再被改变了。
+
+状态的改变是通过 resolve() 和 reject() 函数来实现的，可以在异步操作结束后调用这两个函数改变 Promise 实例的状态，它的原型上定义了一个 then 方法，使用这个 then 方法可以为两个状态的改变注册回调函数。这个回调函数属于微任务，会在本轮事件循环的末尾执行。
+
+**注意：**在构造 `Promise` 的时候，构造函数内部的代码是立即执行的
+
 ### 4. Promise的基本用法
+
+Promise有五个常用的方法：then()、catch()、all()、race()、finally。
+
+```js
+function testPromise(ready) {
+  return new Promise(function (resolve, reject) {
+    if (ready) {
+      resolve("hello world");
+    } else {
+      reject("No thanks");
+    }
+  });
+}
+// 方法调用
+testPromise(true).then(
+  function (msg) {
+    console.log(msg);
+  },
+  function (error) {
+    console.log(error);
+  }
+);
+
+```
+
 ### 5. Promise解决了什么问题
+
+解决了地狱回调的问题
+
 ### 6. Promise. all和Promise.race的区别的使用场景
 ### 7. 对async/await的理解
+
+async/await其实是Generator 的语法糖，它能实现的效果都能用then链来实现，它是为优化then链而开发出来的。从字面上来看，async是“异步”的简写，await则为等待，所以很好理解async 用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。当然语法上强制规定await只能出现在asnyc函数中。
+
+async 函数返回的是一个 Promise 对象，所以在最外层不能用 await 获取其返回值的情况下，当然应该用原来的方式：then() 链来处理这个 Promise 对象。
+
+```js
+async function testAsy() {
+  return "hello world";
+}
+let result = testAsy();
+console.log(result);
+result.then((v) => {
+  console.log(v); // hello world
+});
+
+```
+
 ### 8. await到底在等啥?
+
+一般来说，都认为 await 是在等待一个 async 函数完成。不过按语法说明，await 等待的是一个表达式，这个表达式的计算结果是 Promise 对象或者其它值（换句话说，就是没有特殊限定）
+
+await 表达式的运算结果取决于它等的是什么。
+
+- 如果它等到的不是一个 Promise 对象，那 await 表达式的运算结果就是它等到的东西。
+- 如果它等到的是一个 Promise 对象，await 就忙起来了，它会阻塞后面的代码，等着 Promise 对象 resolve，然后得到 resolve 的值，作为 await 表达式的运算结果。
+
 ### 9. async/await的优势
+
+单一的 Promise 链并不能发现 async/await 的优势，但是，如果需要处理由多个 Promise 组成的 then 链的时候，优势就能体现出来了（很有意思，Promise 通过 then 链来解决多层回调的问题，现在又用 async/await 来进一步优化它）。
+
 ### 10. async/await对比Promise的优势
+
+- 代码读起来更加同步，Promise虽然摆脱了回调地狱，但是then的链式调⽤也会带来额外的阅读负担 
+- Promise传递中间值⾮常麻烦，⽽async/await⼏乎是同步的写法，⾮常优雅 
+- 错误处理友好，async/await可以⽤成熟的try/catch，Promise的错误捕获⾮常冗余 
+- 调试友好，Promise的调试很差，由于没有代码块，你不能在⼀个返回表达式的箭头函数中设置断点，如果你在⼀个.then代码块中使⽤调试器的步进(step-over)功能，调试器并不会进⼊后续的.then代码块，因为调试器只能跟踪同步代码的每⼀步。
+
 ### 11. async/await如何捕获异常
-### 12. 并发与并行的区别?
-### 13. 什么是回调函数?回调函数有什么缺点？如何解决毁掉地狱的问题？
+### 12. ==并发与并行的区别?==
+
+- 并发是宏观概念，我分别有任务 A 和任务 B，在一段时间内通过任务间的切换完成了这两个任务，这种情况就可以称之为并发。
+- 并行是微观概念，假设 CPU 中存在两个核心，那么我就可以同时完成任务 A、B。同时完成多个任务的情况就可以称之为并行。
+
+### 13. 什么是回调函数？回调函数有什么缺点？如何解决毁掉地狱的问题？
+
+回调地狱的根本问题就是：
+
+1. 嵌套函数存在耦合性，一旦有所改动，就会牵一发而动全身
+2. 嵌套函数一多，就很难处理错误
+3. 不能使用 `try catch` 捕获错误
+4. 不能直接 `return`
+
 ### 14. setTimeout、setInterval、requestAnimationFrame 各有什么特点？
+
+异步编程当然少不了定时器了，常见的定时器函数有 `setTimeout`、`setInterval`、`requestAnimationFrame`。最常用的是`setTimeout`，很多人认为 `setTimeout` 是延时多久，那就应该是多久后执行。
+
+其实这个观点是错误的，因为 JS 是单线程执行的，如果前面的代码影响了性能，就会导致 `setTimeout` 不会按期执行。当然了，可以通过代码去修正 `setTimeout`，从而使定时器相对准确。
+
+```js
+let period = 60 * 1000 * 60 * 2;
+let startTime = new Date().getTime();
+let count = 0;
+let end = new Date().getTime() + period;
+let interval = 1000;
+let currentInterval = interval;
+function loop() {
+  count++;
+  // 代码执行所消耗的时间
+  let offset = new Date().getTime() - (startTime + count * interval);
+  let diff = end - new Date().getTime();
+  let h = Math.floor(diff / (60 * 1000 * 60));
+  let hdiff = diff % (60 * 1000 * 60);
+  let m = Math.floor(hdiff / (60 * 1000));
+  let mdiff = hdiff % (60 * 1000);
+  let s = mdiff / 1000;
+  let sCeil = Math.ceil(s);
+  let sFloor = Math.floor(s);
+  // 得到下一次循环所消耗的时间
+  currentInterval = interval - offset;
+  console.log(
+    "时：" + h,
+    "分：" + m,
+    "毫秒：" + s,
+    "秒向上取整：" + sCeil,
+    "代码执行时间：" + offset,
+    "下次循环间隔" + currentInterval
+  );
+  setTimeout(loop, currentInterval);
+}
+setTimeout(loop, currentInterval);
+
+```
+
+如果有循环定时器的需求，其实完全可以通过 `requestAnimationFrame` 来实现：
+
+```js
+function setInterval(callback, interval) {
+  let timer;
+  const now = Date.now;
+  let startTime = now();
+  let endTime = startTime;
+  const loop = () => {
+    timer = window.requestAnimationFrame(loop);
+    endTime = now();
+    if (endTime - startTime >= interval) {
+      startTime = endTime = now();
+      callback(timer);
+    }
+  };
+  timer = window.requestAnimationFrame(loop);
+  
+  return timer;
+}
+
+let a = 0;
+
+setInterval((timer) => {
+  console.log(1);
+  a++;
+  if (a === 3) cancelAnimationFrame(timer);
+}, 1000);
+
+```
+
+首先 `requestAnimationFrame` 自带函数节流功能，基本可以保证在 16.6 毫秒内只执行一次（不掉帧的情况下），并且该函数的延时效果是精确的，没有其他定时器时间不准的问题，当然你也可以通过该函数来实现 `setTimeout`。
 
 ### 15. 如何实现 promise.map，限制 promise 并发数
 
+实现一个 promise.map，进行并发数控制，有以下测试用例
+
+```js
+pMap([1, 2, 3, 4, 5], (x) => Promise.resolve(x + 1));
+
+pMap([Promise.resolve(1), Promise.resolve(2)], (x) => x + 1);
+
+// 注意输出时间控制
+pMap([1, 1, 1, 1, 1, 1, 1, 1], (x) => sleep(1000), { concurrency: 2 });
+```
+
+```js
+function pMap(list, mapper, concurrency = Infinity) {
+  // list 为 Iterator，先转化为 Array
+  list = Array.from(list);
+  return new Promise((resolve, reject) => {
+    let currentIndex = 0;
+    let result = [];
+    let resolveCount = 0;
+    let len = list.length;
+    function next() {
+      const index = currentIndex;
+      currentIndex++;
+      Promise.resolve(list[index])
+        .then((o) => mapper(o, index))
+        .then((o) => {
+          result[index] = o;
+          resolveCount++;
+          if (resolveCount === len) {
+            resolve(result);
+          }
+          if (currentIndex < len) {
+            next();
+          }
+        });
+    }
+    for (let i = 0; i < concurrency && i < len; i++) {
+      next();
+    }
+  });
+}
+
+```
+
 ### 16. 如何实现一个 async/await
+
+参考 `@bebel/runtime` 的实现代码如下，可在 [asyncToGenerator.js](https://cdn.jsdelivr.net/npm/@babel/runtime@7.13.9/helpers/esm/asyncToGenerator.js)查看源代码
+
+```js
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+export default function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+      args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+```
 
 ### 17. 如何使用 async/await 实现 Promise.all 的效果
 ### 18. 有没有用过 Promise.allSettled() ，它是干什么的
+
+接收一个可迭代对象，其中每个成员都是`Promise`。在所有给定的`Promise`都已经`fulfilled`或`rejected`后返回一个`Promise`，并带有一个对象数组，每个对象表示对应的`Promise`结果 相较于`Promise.all`，后者会在任何一个`Promise`为`rejected`时立即结束 简单实现。
+
 ### 19. fetch 中 crendentials 指什么意思，可以取什么值
+
+·`redentials` 指在使用 `fetch` 发送请求时是否应当发送 `cookie`
+
+- `omit`: 从不发送 `cookie`.
+- `same-origin`: 同源时发送 `cookie` (浏览器默认值)
+- `include`: 同源与跨域时都发送 `cookie`
+
 ### 20. 如何实现 Promise.race
+
+```js
+Promise.race = (promiseArray) => {
+  return new Promise((resolve, reject) => {
+    promiseArray.forEach((item) => {
+      Promise.resolve(item).then(
+        (val) => {
+          resolve(val);
+        },
+        (reason) => {
+          reject(reason);
+        }
+      );
+    });
+  });
+};
+```
+
 ### 21. 异步加载 JS 脚本时，async 与 defer 有何区别
+
+> 以下图片取自 whatwg 的规范，可以说是最权威的图文解释了，详细参考[原文](https://html.spec.whatwg.org/multipage/scripting.html#the-script-element)
+
+![async 与 defer 区别](https://html.spec.whatwg.org/images/asyncdefer.svg)
+
+在*正常情况下*，即 `<script>` 没有任何额外属性标记的情况下，有几点共识
+
+1. JS 的脚本分为**加载、解析、执行**几个步骤，简单对应到图中就是 `fetch` (加载) 和 `execution` (解析并执行)
+2. **JS 的脚本加载(fetch)且执行(execution)会阻塞 DOM 的渲染**，因此 JS 一般放到最后头
+
+而 `defer` 与 `async` 的区别如下:
+
+- 相同点: **异步加载 (fetch)**
+- 不同点:
+  - async 加载(fetch)完成后立即执行 (execution)，因此可能会阻塞 DOM 解析；
+  - defer 加载(fetch)完成后延迟到 DOM 解析完成后才会执行(execution)**，但会在事件 `DomContentLoaded` 之前
+
 ### 22. setTimeout为什么最小只能设置4ms，如何实现一个0ms的setTimeout?
+
+1. [为什么 setTimeout 有最小时延 4ms ?](https://juejin.cn/post/6846687590616137742)
+2. [如何实现一个 0ms 的 setTimeout?](https://zhuanlan.zhihu.com/p/379637806)
+
 ### 23. return promise 与 return await promise 有何区别
+
+最终返回得到的结果是相同的，但是有些顺序的变化。
+
+```js
+async function p1() {
+  return 3;
+}
+
+async function p2() {
+  return Promise.resolve(3);
+}
+
+async function p3() {
+  return await Promise.resolve(3);
+}
+
+// Output: p1、p3、p2
+p3().then((o) => console.log(o, "p3"));
+p2().then((o) => console.log(o, "p2"));
+p1().then((o) => console.log(o, "p1"));
+```
+
+### 24. 了解 promiseA+ 规范吗
+
+[原文](https://promisesaplus.com/)
+
+[Promise/A+ 规范](https://tsejx.github.io/javascript-guidebook/standard-built-in-objects/control-abstraction-objects/promise-standard/)
+
+### 27. ajax、 axios、 fetch的区别
+
+**（1）AJAX**
+
+本身虽然简单，但常常会涉及到一些问题：如==CSRF攻击==、==XSS攻击==
+
+Ajax 即“AsynchronousJavascriptAndXML”（异步 JavaScript 和 XML），是指一种创建交互式[网页](https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E7%BD%91%E9%A1%B5)应用的网页开发技术。它是一种在无需重新加载整个网页的情况下，能够更新部分网页的技术。通过在后台与服务器进行少量数据交换，Ajax 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。传统的网页（不使用 Ajax）如果需要更新内容，必须重载整个网页页面。其缺点如下：
+
+- 本身是针对MVC编程，不符合前端MVVM的浪潮
+- 基于原生XHR开发，XHR本身的架构不清晰
+- 不符合关注分离（Separation of Concerns）的原则
+- 配置和调用方式非常混乱，而且基于事件的异步模型不友好。
+
+**（2）Fetch**
+
+fetch号称是AJAX的替代品，是在ES6出现的，使用了ES6中的promise对象。Fetch是基于promise设计的。Fetch的代码结构比起ajax简单多。==**fetch不是ajax的进一步封装，而是原生js，没有使用XMLHttpRequest对象**。==
+
+fetch的优点：
+
+- 语法简洁，更加语义化
+- 基于标准 Promise 实现，支持 async/await
+- 更加底层，提供的API丰富（request, response）
+- 脱离了XHR，是ES规范里新的实现方式
+
+fetch的缺点：
+
+- fetch只对网络请求报错，对400，500都当做成功的请求，服务器返回 400，500 错误码时并不会 reject，只有网络错误这些导致请求不能完成时，fetch 才会被 reject。
+- fetch默认不会带cookie，需要添加配置项： fetch(url, {credentials: 'include'})
+- fetch不支持abort，不支持超时控制，使用setTimeout及Promise.reject的实现的超时控制并不能阻止请求过程继续在后台运行，造成了流量的浪费
+- fetch没有办法原生监测请求的进度，而XHR可以
+
+**（3）Axios**
+
+Axios 是一种基于Promise封装的HTTP客户端，其特点如下：
+
+- 浏览器端发起XMLHttpRequests请求
+- node端发起http请求
+- 支持Promise API
+- 监听请求和返回
+- 对请求和返回进行转化
+- 取消请求
+- 自动转换json数据
+- 客户端支持抵御XSRF攻击
+
+### 29. axios封装
+
+https://vue3js.cn/interview/vue/axiosCode.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%AE%80%E6%98%93%E7%89%88axios
+
+https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%BB%80%E4%B9%88
+
+### 15. ajax
+
+即异步的`JavaScript` 和`XML`，是一种创建交互式网页应用的网页开发技术，可以在不重新加载整个网页的情况下，与服务器交换数据，并且更新部分网页
+
+`Ajax`的原理简单来说通过`XmlHttpRequest`对象来向服务器发异步请求，从服务器获得数据，然后用`JavaScript`来操作`DOM`而更新页面
+
+```js
+//封装一个ajax请求
+function ajax(options) {
+    //创建XMLHttpRequest对象
+    const xhr = new XMLHttpRequest()
+
+
+    //初始化参数的内容
+    options = options || {}
+    options.type = (options.type || 'GET').toUpperCase()
+    options.dataType = options.dataType || 'json'
+    const params = options.data
+
+    //发送请求
+    if (options.type === 'GET') {
+        xhr.open('GET', options.url + '?' + params, true)
+        xhr.send(null)
+    } else if (options.type === 'POST') {
+        xhr.open('POST', options.url, true)
+        xhr.send(params)
+
+    //接收请求
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            let status = xhr.status
+            if (status >= 200 && status < 300) {
+                options.success && options.success(xhr.responseText, xhr.responseXML)
+            } else {
+                options.fail && options.fail(status)
+            }
+        }
+    }
+}
+```
+
+### 16. JSONP 的原理是什么, 如何实现
+
+**以下是Jsonp解决跨域：**
+
+根据浏览器同源策略，所谓同源就是协议、主机、端口号都相同时成为同源。a 域的js不能直接访问 b域名的信息，但是script 标签的src属性可以跨域引用文件，jsonp是请求之后后台包装好一段json，并且把数据放在一个callback函数，返回一个js文件，动态引入这个文件，下载完成js之后，会去调用这个callback通过这样访问数据。
+
+为了实现跨域请求，可以通过script标签实现跨域请求，然后再服务端输出JSON数据并执行回调callback函数，从而解决跨域数据请求。**jsonp的核心则是动态添加`<script>`标签来调用服务器提供的js脚本。**
+
+首先在客户端注册一个callback，然后把callback的名字传给服务器。此时，服务器先生成json数据，然后以javascript语法的方式，生成function，function名字就是传递上来I带参数jsonp。最后将json数据直接以入参的方式，放置function中，这样就生成js语法的文档，返回给客户端。客户端浏览器，解析script标签，并执行返回javascript文档，此时数据作为参数，传入了客户端预先定义好的callback函数里。简单的说，就是利用script标签没有跨域限制的“漏洞”来达到与第三方通讯的目的。
+
+总结一下，json 是一种数据格式，jsonp 是一种数据调用的方式，带callback的json就是jsonp。
+
+**缺点：这种方式只支持get方式。**
+
+### 17. 如何解决跨域
+
+#### 1. JSONP
+
+1. JSONP是什么
+
+   JSONP (JSON with Padding)
+
+   本质和ajax没有任何关系,本质是html的非同源策略和函数的传参。动态创建script标签，在本地准备全局函数，用来接收引过来的调用传的值，是一个非官方的跨域解决方案，~~纯粹凭借程序员的聪明才智开发出来~~，==只支持get请求==
+
+2. JSONP 怎么工作的？
+
+   在网页有一些标签天生具有跨域能力，比如：img, link, iframe, script
+
+   JSONP就是利用**`script`**标签的跨域能力来发送请求的
+
+3. JSONP的使用
+
+   - 动态的创建一个script标签
+
+   ```
+   var script = document.createElement("script");
+   ```
+
+   - 设置script的src，设置回调函数
+
+   ```js
+   script.src = "http://locallhost:3000/textAJAX?callback=abc"
+   ```
+
+#### 2. CORS
+
+1. CORS是什么？
+
+   CORS (Cross-Origin Resource Sharing), 跨域资源共享。CORS 是==官方==的跨域解决方案，它的特点是不需要在客户端做任何特殊的操作，完全**在服务器中进行处理**，支持 get 和 post 等多种请求。跨域资源共享标准新增了一组 HTTP首部字段（响应头），允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
+
+2. CORS怎么工作的？
+
+   CORS 是通过设置一个响应头来告诉浏览器，该请求允许跨域，浏览器收到该响应以后就会对响应放行。
+
+3. CORS 的使用
+
+   主要是服务端的设置
+
+   ```js
+   app.all("/cors-server", (request, response) => {
+     //设置响应头
+     response.setHeader("Access-Control-Allow-Origin", "*");
+     response.setHeader("Access-Control-Allow-Headers", "*");
+     response.setHeader("Access-Control-Allow-Method", "*");
+     // response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+   
+     response.send("hello CORS");
+   });
+   ```
+
+   ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
+
+#### 3. Proxy
+
+代理（Proxy）也称网络代理，是一种特殊的网络服务，允许一个（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的隐私或安全，防止攻击。
+
+##### 方案一
+
+如果是通过vue-cli脚手架工具搭建项目，我们可以通过webpack为我们起一个本地服务器作为请求的代理对象
+
+通过该服务器转发请求至目标服务器，得到结果再转发给前端，但是最终发布上线时如果web应用和接口服务器不在一起仍会跨域
+
+在vue.config.js文件，新增以下代码
+
+```js
+amodule.exports = {
+  devServer: {
+    host: "127.0.0.1",
+    port: 8084,
+    open: true, // vue项目启动时自动打开浏览器
+    proxy: {
+      "/api": {
+        // '/api'是代理标识，用于告诉node，url前面是/api的就是使用代理的
+        target: "http://xxx.xxx.xx.xx:8080", //目标地址，一般是指后台服务器地址
+        changeOrigin: true, //是否跨域
+        pathRewrite: {
+          // pathRewrite 的作用是把实际Request Url中的'/api'用""代替
+          "^/api": ""
+        }
+      }
+    }
+  }
+};
+
+```
+
+通过`axios`发送请求中，配置请求的根路径
+
+```js
+axios.defaults.baseURL = '/api'
+```
+
+##### 方案二
+
+此外，还可通过服务端实现代理请求转发
+
+以`express`框架为例
+
+```js
+var express = require("express");
+const proxy = require("http-proxy-middleware");
+const app = express();
+app.use(express.static(__dirname + "/"));
+app.use(
+  "/api",
+  proxy({ target: "http://localhost:4000", changeOrigin: false })
+);
+module.exports = app;
+```
+
+##### 方案三
+
+通过配置`nginx`实现代理
+
+```nginx
+server {
+    listen    80;
+    # server_name www.josephxia.com;
+    location / {
+        root  /var/www/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+    location /api {
+        proxy_pass  http://127.0.0.1:3000;
+        proxy_redirect   off;
+        proxy_set_header  Host       $host;
+        proxy_set_header  X-Real-IP     $remote_addr;
+        proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+### 36. 什么是 CSRF 攻击
+
+跨站请求伪造（英语：Cross-site request forgery），也被称为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF， 是一种挟制用户在当前已登录的 Web 应用程序上执行非本意的操作的攻击方法。跟跨网站脚本（XSS）相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。
+
+CSRF (Cross-site request forgery)，跨站请求伪造，又称为 `one-click attack`，顾名思义，通过恶意引导用户一次点击劫持 cookie 进行攻击。
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h88e1pdd2xj30ht08y0wi.jpg)
+
+1. 使用 JSON API。当进行 CSRF 攻击时，请求体通过 `<form>` 构建，请求头为 `application/www-form-urlencoded`。它难以发送 JSON 数据被服务器所理解。
+2. CSRF Token。生成一个随机的 token，切勿放在 cookie 中，每次请求手动携带该 token 进行校验。
+3. SameSite Cookie。设置为 Lax 或者 Strict，禁止发送第三方 Cookie。
+
+4. [理解 CSRF(opens new window)](https://github.com/pillarjs/understanding-csrf/blob/master/README_zh.md)
+5. [Cross-Site Request Forgery Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
+
+### 37. XSS攻击
+
+
+Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。
+
+为了和 CSS 区分，这里把攻击的第一个字母改成了 X，于是叫做 XSS。
+
+XSS 的本质是：恶意代码未经过滤，与网站正常的代码混在一起；浏览器无法分辨哪些脚本是可信的，导致恶意脚本被执行。
+
+而由于直接在用户的终端执行，恶意代码能够直接获取用户的信息，或者利用这些信息冒充用户向网站发起攻击者定义的请求。
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h88e3nwdtdj30jf0b3jtj.jpg)
 
 ## 八、面向对象
 

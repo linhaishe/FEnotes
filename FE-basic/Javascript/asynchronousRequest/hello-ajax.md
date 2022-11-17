@@ -209,7 +209,7 @@ a.com 向 b.com发请求则是域名不同
 
    JSONP (JSON with Padding)
 
-   本质和ajax没有任何关系,本质是html的非同源策略和函数的传参。动态创建script标签，在本地准备全局函数，用来接收引过来的调用传的值，是一个非官方的跨域解决方案，纯粹凭借程序员的聪明才智开发出来，==只支持get请求==
+   本质和ajax没有任何关系,本质是html的非同源策略和函数的传参。动态创建script标签，在本地准备全局函数，用来接收引过来的调用传的值，是一个非官方的跨域解决方案，~~纯粹凭借程序员的聪明才智开发出来~~，==只支持get请求==
 
 2. JSONP 怎么工作的？
 
@@ -231,7 +231,7 @@ a.com 向 b.com发请求则是域名不同
    script.src = "http://locallhost:3000/textAJAX?callback=abc"
    ```
 
-### 3. CORS
+### 2. CORS
 
 1. CORS是什么？
 
@@ -256,6 +256,89 @@ a.com 向 b.com发请求则是域名不同
      response.send("hello CORS");
    });
    ```
+   
+   ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
+
+### 3. Proxy
+
+代理（Proxy）也称网络代理，是一种特殊的网络服务，允许一个（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的隐私或安全，防止攻击。
+
+#### 方案一
+
+如果是通过vue-cli脚手架工具搭建项目，我们可以通过webpack为我们起一个本地服务器作为请求的代理对象
+
+通过该服务器转发请求至目标服务器，得到结果再转发给前端，但是最终发布上线时如果web应用和接口服务器不在一起仍会跨域
+
+在vue.config.js文件，新增以下代码
+
+```js
+amodule.exports = {
+  devServer: {
+    host: "127.0.0.1",
+    port: 8084,
+    open: true, // vue项目启动时自动打开浏览器
+    proxy: {
+      "/api": {
+        // '/api'是代理标识，用于告诉node，url前面是/api的就是使用代理的
+        target: "http://xxx.xxx.xx.xx:8080", //目标地址，一般是指后台服务器地址
+        changeOrigin: true, //是否跨域
+        pathRewrite: {
+          // pathRewrite 的作用是把实际Request Url中的'/api'用""代替
+          "^/api": ""
+        }
+      }
+    }
+  }
+};
+
+```
+
+通过`axios`发送请求中，配置请求的根路径
+
+```js
+axios.defaults.baseURL = '/api'
+```
+
+#### 方案二
+
+此外，还可通过服务端实现代理请求转发
+
+以`express`框架为例
+
+```js
+var express = require("express");
+const proxy = require("http-proxy-middleware");
+const app = express();
+app.use(express.static(__dirname + "/"));
+app.use(
+  "/api",
+  proxy({ target: "http://localhost:4000", changeOrigin: false })
+);
+module.exports = app;
+```
+
+#### 方案三
+
+通过配置`nginx`实现代理
+
+```nginx
+server {
+    listen    80;
+    # server_name www.josephxia.com;
+    location / {
+        root  /var/www/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+    location /api {
+        proxy_pass  http://127.0.0.1:3000;
+        proxy_redirect   off;
+        proxy_set_header  Host       $host;
+        proxy_set_header  X-Real-IP     $remote_addr;
+        proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+    }
+}
+```
 
 # 推荐阅读
 
