@@ -283,6 +283,8 @@ const myFirstPromise = new Promise((resolve, reject) => {
 
 说明: 指定用于得到成功 value 的成功回调和用于得到失败 reason 的失败回调 返回一个新的 promise 对象
 
+then()是异步函数，属于微任务。
+
 ```js
 const p1 = new Promise((resolve, reject) => {
   resolve("Success!");
