@@ -6,6 +6,8 @@
 
 ## 2. 清除浮动的方法
 
+https://www.cnblogs.com/SallyShan/p/11470549.html
+
    1. 后面不需要浮动的块元素。加clear：both;
 
    2. <mark>让父级触发BFC</mark>（Block Formatting Context-块级格式化上下文）效果BFC格式化成最开始的样式，标准文档流。使得其浮动元素会被父级计算高度，从而也就避免了高度塌陷。
@@ -27,9 +29,23 @@
 
 ## 3. w3c盒模型和ie盒模型的区别？
 
-**IE盒模型**：width=border+padding+content---Borer-box
+`box-sizing property`
 
-**W3C盒模型**：width就等于内容区的width---content-box
+**W3C盒模型**：width就等于内容区的width -> content-box
+
+**IE盒模型/标准盒模型**：width = margin + border + padding + content -> border-box
+
+如果你希望所有元素都使用替代模式，而且确实很常用，设置 box-sizing 在 <html> 元素上，然后设置所有元素继承该属性。
+
+```css
+html {
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+```
 
 ## 4. 介绍 CSS 隐藏页面中某个元素的几种方法
 
@@ -71,6 +87,16 @@
 
 ## 6. `flex:1`是什么
 
+它表示 flex 项目扩展并填充可用空间。
+
+https://www.zhangxinxu.com/wordpress/2019/12/css-flex-basis/
+
+https://www.51cto.com/article/683878.html
+
+https://ishadeed.com/article/css-flex-property/
+
+在Flex布局中，一个Flex子项的宽度是由元素自身尺寸，`flex-basis`设置的基础尺寸，以及外部填充（`flex-grow`）或收缩（`flex-shrink`）规则3者共同决定的。基础尺寸由CSS `flex-basis`属性，`width`等属性以及`box-sizing`盒模型共同决定；
+
 `flex: 1  ===  flex: 1 1 0%`
 
 ```css
@@ -85,13 +111,26 @@ flex-basis: 0%;
 
 3. flex-basis : 0;   ➜ The div does not have a starting value as such and will take up screen as per the screen size available for
 
+   这个div没有一个起始值，它将根据可用的屏幕尺寸占用屏幕。
+
    e.g: - if 3 divs are in the wrapper then each div will take 33%.
+
 
 ![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h865ix62qlj30co053js6.jpg)on IE it is `1 1 0px`
 
 ![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h865n2smfgj30bb04bq3f.jpg)In Chrome Ver 84
 
-## 9. em/px/rem/vh/vw区别?
+## 7. em/px/rem/vh/vw区别?
+
+### 总结
+
+px：绝对单位，页面按精确像素展示
+
+em：相对单位，基准点为父节点字体的大小，如果自身定义了font-size按自身来计算，整个页面内1em不是一个固定的值
+
+rem：相对单位，可理解为root em, 相对根节点html的字体大小来计算
+
+vh、vw：主要用于页面视口大小布局，在页面布局上更加方便简单
 
 在`css`单位中，可以分为长度单位、绝对单位，如下表所指示
 
@@ -167,16 +206,8 @@ vw ，vw = view width; vh = view height。就是根据窗口的宽度，分成10
 对于普通定位元素就是我们理解的父元素
 对于position: absolute;的元素是相对于已定位的父元素
 对于position: fixed;的元素是相对于 ViewPort（可视窗口）
-### 总结
-px：绝对单位，页面按精确像素展示
 
-em：相对单位，基准点为父节点字体的大小，如果自身定义了font-size按自身来计算，整个页面内1em不是一个固定的值
-
-rem：相对单位，可理解为root em, 相对根节点html的字体大小来计算
-
-vh、vw：主要用于页面视口大小布局，在页面布局上更加方便简单
-
-## 10. 设备像素、css像素、设备独立像素、dpr、ppi 之间的区别？
+## 8. 设备像素、css像素、设备独立像素、dpr、ppi 之间的区别？
 
 无缩放情况下，1个CSS像素等于1个设备独立像素
 
@@ -190,11 +221,11 @@ PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的�
 
 每英寸像素（ppi），值越大，图像越清晰
 
-## 12. 谈谈你对BFC的理解？
+## 9. 你对BFC的理解？
 
 <mark>让父级触发BFC</mark>（Block Formatting Context-块级格式化上下文）效果BFC格式化成最开始的样式，标准文档流。使得其浮动元素会被父级计算高度，从而也就避免了高度塌陷。
 
-## 13. 元素水平垂直居中的方法有哪些？如果元素不定宽高呢？
+## 10. ==元素水平垂直居中的方法有哪些？如果元素不定宽高呢？==
 ### 内联元素居中布局
 
 水平居中
@@ -202,18 +233,81 @@ PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的�
 - 行内元素可设置：text-align: center
 - flex布局设置父元素：display: flex; justify-content: center
 
+```css
+.content {
+  border: 1px solid red;
+  height: 100px;
+  text-align: center;
+  /*   display: flex;
+  justify-content: center; */
+}
+
+<div class="content">水平居中</div>
+```
+
 垂直居中
 
-- 单行文本父元素确认高度：height === line-height
+- 单行文本父元素确认高度：height = line-height
 - 多行文本父元素确认高度：display: table-cell; vertical-align: middle
+- 水平+垂直居中： display: flex; justify-content: center;  align-items: center;
+
+```css
+<div class="content">垂直居中单行文本</div>
+
+.content {
+  border: 1px solid red;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+}
+```
+
+```css
+<div class="content">垂直居中单行文本</div>
+
+.content {
+  border: 1px solid red;
+  height: 100px;
+  display: table-cell;
+  vertical-align: middle;
+}
+```
+
+```css
+<div class="content">垂直居中单行文本</div>
+
+.content {
+  border: 1px solid red;
+  height: 100px;
+  line-height: 100px;
+}
+```
+
+```css
+<div class="content">
+dddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvr
+</div>
+
+.content {
+  border: 1px solid red;
+  height: 100px;
+  word-break: break-all;
+  display: table-cell; 
+  vertical-align: middle
+}
+```
 
 ### 块级元素居中布局
 
-#### 水平剧中
+#### 水平居中
 
 ##### 1. 定宽: margin: 0 auto
 
 ##### 2. 绝对定位+left:50%+margin:负自身一半
+
+ `margin: auto;` 其实相当于 `margin: auto auto auto auto;`，`margin: 0 auto;`相当于`margin: 0 auto 0 auto;`
+
+==margin: auto / margin: 0 auto实现的原理需要注意==
 
 #### 垂直居中
 
@@ -356,26 +450,146 @@ PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的�
 }
 ```
 
-## 14. ==如何实现两栏布局，右侧自适应？三栏布局中间自适应呢？==
-## 15. flexbox（弹性盒布局模型）,以及适用场景？
+## 19. ==如何实现单行／多行文本溢出的省略样式？==
+
+### 1. 单行文本溢出省略
+
+```css
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+```
+
+```js
+p {
+  overflow: hidden;
+  line-height: 40px;
+  width: 400px;
+  height: 40px;
+  border: 1px solid red;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+```
+
+```html
+<p>
+  这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
+</p> 
+```
+
+实现方式也很简单，涉及的css属性有：
+
+1. `text-overflow`：规定当文本溢出时，显示省略符号来代表被修剪的文本。具有以下属性：
+
+​	`clip`：当对象内文本溢出部分裁切掉
+
+​	`ellipsis`：当对象内文本溢出时显示省略标记（...）
+
+​	`text-overflow`只有在设置了`overflow:hidden`和`white-space:nowrap`才能够生效的
+
+​	<img src="http://tva1.sinaimg.cn/large/005NUwygly1h8agb6k3oxj31cy176try.jpg" alt="image.png" style="zoom:33%;" />
+
+2. `white-space`：设置文字是否换行
+
+   `white-space:nowrap`，作用是设置文本不换行，是`overflow:hidden`和`text-overflow:ellipsis`生效的基础
+
+   ==pre-wrap这些没看懂==
+
+| 值       | 描述                                                         |
+| :------- | :----------------------------------------------------------- |
+| normal   | 默认。空白会被浏览器忽略。                                   |
+| pre      | 空白会被浏览器保留。其行为方式类似 HTML 中的 `<pre>` 标签。  |
+| nowrap   | 文本不会换行，文本会在在同一行上继续，直到遇到 `<br>`标签为止。 |
+| pre-wrap | 保留空白符序列，但是正常地进行换行。                         |
+| pre-line | 合并空白符序列，但是保留换行符。                             |
+
+3. `overflow`：文字长度超出限定宽度，则隐藏超出的内容
+
+`overflow设为hidden`，普通情况用在块级元素的外层隐藏内部溢出元素，或者配合下面两个属性实现文本溢出省略
+
+### 2. 多行文本溢出省略
+
+```css
+.demo {
+  width: 400px;
+  border: 1px solid red;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis; 
+}
+```
+
+```html
+<div class='demo'>这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本这是一段很长的文本</div>
+```
+
+- `display: -webkit-box`：和1结合使用，将对象作为弹性伸缩盒子模型显示
+- `-webkit-line-clamp: 2`：用来限制在一个块元素显示的文本的行数，为了实现该效果，它需要组合其他的WebKit属性）
+- `-webkit-box-orient: vertical`：和1结合使用 ，设置或检索伸缩盒对象的子元素的排列方式
+- `overflow: hidden`：文本溢出限定的宽度就隐藏内容
+- `text-overflow: ellipsis`：多行文本的情况下，用省略号“…”隐藏溢出范围的文本
+
+需要注意的是，如果文本为一段很长的英文或者数字，则需要添加`word-wrap: break-word`属性
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h8agqwqbdrj31ac0sw13o.jpg" alt="image.png" style="zoom:33%;" />
+
+~~1. 基于高度截断~~ 效果差，不建议用于回答
+
+~~伪元素 + 定位~~
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h8agdch7t7j30si09maah.jpg" alt="image.png" style="zoom:33%;" />
+
+```css
+.demo {
+  position: relative;
+  line-height: 20px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid red;
+}
+
+.demo::after {
+  content: "...";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 0 20px 0 10px;
+}
+```
+
+```html
+<div class='demo'>这是一段很长的文本</div>
+```
+
+- 兼容性好，对各大主流浏览器有好的支持
+- 响应式截断，根据不同宽度做出调整
+
+一般文本存在英文的时候，可以设置`word-break: break-all`使一个单词能够在换行时进行拆分
+
+## 11. ==如何实现两栏布局，右侧自适应？三栏布局中间自适应呢？==
+
+## 12. flexbox（弹性盒布局模型），以及适用场景？
 
 [intro](https://vue3js.cn/interview/css/flexbox.html)
 
-**[Flexbox](https://www.geeksforgeeks.org/introduction-to-css-flexbox/):** The CSS Flexbox offers a **one-dimensional layout**. It is helpful in allocating and aligning the space among items in a container (made of grids). It works with all kinds of display devices and screen sizes.
+**[Flexbox](https://www.geeksforgeeks.org/introduction-to-css-flexbox/):** The CSS Flexbox offers a ==**one-dimensional layout**==. It is helpful in allocating and aligning the space among items in a container (made of grids). It works with all kinds of display devices and screen sizes.
 
-**[Grid](https://www.geeksforgeeks.org/css-grid-property/): **CSS Grid Layout, is a **two-dimensional** grid-based layout system with rows and columns, making it easier to design web pages without having to use floats and positioning. Like tables, grid layout allow us to align elements into columns and rows.
+**[Grid](https://www.geeksforgeeks.org/css-grid-property/): **CSS Grid Layout, is a ==**two-dimensional**== grid-based layout system with rows and columns, making it easier to design web pages without having to use floats and positioning. Like tables, grid layout allow us to align elements into columns and rows.
 
-## 16. 介绍一下grid网格布局
+## 13. 介绍一下grid网格布局
 
 [intro](https://vue3js.cn/interview/css/grid.html#%E4%B8%80%E3%80%81%E6%98%AF%E4%BB%80%E4%B9%88)
 
-## 17. ==CSS3新增了哪些新特性？==
+## 14. ==CSS3新增了哪些新特性？==
 
 https://juejin.cn/post/6844903486618861575
 
 选择器、Transition,Transform和Animation、边框、背景
 
-## 18. ==css3动画有哪些？==
+## 15. ==CSS3动画有哪些？==
 
 `css`实现动画的方式，有如下几种：
 
@@ -390,14 +604,14 @@ https://juejin.cn/post/6844903486618861575
 | translate（移动）  | 只是transform的一个属性值，即移动                            |
 | animation（动画）  | 用于设置动画属性，他是一个简写的属性，包含6个属性            |
 
-## 19. 怎么理解回流跟重绘？什么场景下会触发？
+## 16. 怎么理解回流跟重绘？什么场景下会触发？
 
 在`HTML`中，每个元素都可以理解成一个盒子，在浏览器解析过程中，会涉及到回流与重绘：
 
 - 回流：布局引擎会根据各种样式计算每个盒子在页面上的大小与位置
 - 重绘：当计算好盒模型的位置、大小及其他属性后，浏览器根据每个盒子特性进行绘制
 
-**触发回流一定会触发重绘，反之不一定**
+==**触发回流一定会触发重绘，反之不一定**==
 
 在页面初始渲染阶段，回流不可避免的触发，可以理解成页面一开始是空白的元素，后面添加了新的元素使页面布局发生改变
 
@@ -422,7 +636,16 @@ https://juejin.cn/post/6844903486618861575
 2. 文本方向的修改
 3. 阴影的修改
 
-## 20. 什么是响应式设计？响应式设计的基本原理是什么？如何做？
+## 17. 什么是响应式设计？响应式设计的基本原理是什么？如何做？
+
+响应式网站设计（Responsive Web design）是一种网络页面设计布局，页面的设计与开发应当根据用户行为以及设备环境(系统平台、屏幕尺寸、屏幕定向等)进行相应的响应和调整
+
+**总结方式：**
+
+- 弹性盒子（包括图片、表格、视频）和媒体查询等技术
+- 使用百分比布局创建流式布局的弹性UI，同时使用媒体查询限制元素的尺寸和内容变更范围
+- 使用相对单位使得内容自适应调节
+- 选择断点，针对不同断点实现不同布局和内容展示
 
 实现响应式布局的方式有如下：
 
@@ -444,7 +667,7 @@ https://juejin.cn/post/6844903486618861575
 - 其实这是一种折中性质的设计解决方案，多方面因素影响而达不到最佳效果
 - 一定程度上改变了网站原有的布局结构，会出现用户混淆的情况
 
-## 21. 如果要做优化，CSS提高性能的方法有哪些？
+## 18. 如果要做优化，CSS提高性能的方法有哪些？
 
 - 内联首屏关键CSS
 - 异步加载CSS
@@ -458,120 +681,15 @@ https://juejin.cn/post/6844903486618861575
 - 把小的icon图片转成base64编码
 - CSS3动画或者过渡尽量使用transform和opacity来实现动画，不要使用left和top属性
 
-## 22. 如何实现单行／多行文本溢出的省略样式？
-
-### 1. 单行文本溢出省略
-
-```js
-p {
-  overflow: hidden;
-  line-height: 40px;
-  width: 400px;
-  height: 40px;
-  border: 1px solid red;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-```
-
-```html
-<p>
-  这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
-</p> 
-```
-
-实现方式也很简单，涉及的css属性有：
-
-`text-overflow`：规定当文本溢出时，显示省略符号来代表被修剪的文本
-
-`white-space`：设置文字在一行显示，不能换行
-
-`overflow`：文字长度超出限定宽度，则隐藏超出的内容
-
-`overflow设为hidden`，普通情况用在块级元素的外层隐藏内部溢出元素，或者配合下面两个属性实现文本溢出省略
-
-`white-space:nowrap`，作用是设置文本不换行，是overflow:hidden和text-overflow：ellipsis生效的基础
-
-`text-overflow`属性值有如下：
-
-`clip`：当对象内文本溢出部分裁切掉
-
-`ellipsis`：当对象内文本溢出时显示省略标记（...）
-
-`text-overflow`只有在设置了overflow:hidden和white-space:nowrap才能够生效的
-
-### 2. 多行文本溢出省略
-
-#### 1. 基于高度截断
-
-伪元素 + 定位
-
-```css
-.demo {
-  position: relative;
-  line-height: 20px;
-  height: 40px;
-  overflow: hidden;
-}
-.demo::after {
-  content: "...";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  padding: 0 20px 0 10px;
-}
-
-```
-
-```html
-<div class='demo'>这是一段很长的文本</div>
-```
-
-- 兼容性好，对各大主流浏览器有好的支持
-- 响应式截断，根据不同宽度做出调整
-
-一般文本存在英文的时候，可以设置`word-break: break-all`使一个单词能够在换行时进行拆分
-
-#### 2. 基于行数截断
-
-```css
-p {
-  width: 400px;
-  border-radius: 1px solid red;
-  -webkit-line-clamp: 2;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-```
-
-```html
-<p>
-  这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
-  这是一些文本这是一些文本这是一些文本这是一些文本这是一些文本
-</p>
-```
-
-- `-webkit-line-clamp: 2`：用来限制在一个块元素显示的文本的行数，为了实现该效果，它需要组合其他的WebKit属性）
-- `display: -webkit-box`：和1结合使用，将对象作为弹性伸缩盒子模型显示
-- `-webkit-box-orient: vertical`：和1结合使用 ，设置或检索伸缩盒对象的子元素的排列方式
-- `overflow: hidden`：文本溢出限定的宽度就隐藏内容
-- `text-overflow: ellipsis`：多行文本的情况下，用省略号“…”隐藏溢出范围的文本
-
-需要注意的是，如果文本为一段很长的英文或者数字，则需要添加`word-wrap: break-word`属性
-
-## 23. 如何使用css完成视差滚动效果?
+## 20. 如何使用css完成视差滚动效果?
 
 https://vue3js.cn/interview/css/visual_scrolling.html
 
-## 24. CSS如何画一个三角形？原理是什么？
+## 21. CSS如何画一个三角形？原理是什么？
 
 https://vue3js.cn/interview/css/triangle.html
 
-## 25. 让Chrome支持小于12px 的文字方式有哪些？区别？
+## 22. 让Chrome支持小于12px 的文字方式有哪些？区别？
 
 常见的解决方案有：
 
@@ -626,7 +744,7 @@ https://vue3js.cn/interview/css/triangle.html
 html { -webkit-text-size-adjust: none; }
 ```
 
-## 26. 对css预编语言的理解？有哪些区别?
+## 23. 对css预编语言的理解？有哪些区别?
 
 https://vue3js.cn/interview/css/sass_less_stylus.html#%E4%BA%8C%E3%80%81%E6%9C%89%E5%93%AA%E4%BA%9B
 
