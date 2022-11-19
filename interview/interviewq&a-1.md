@@ -1592,9 +1592,9 @@ console.log(objectToArray(obj));
 
 块级作用域，重复声明，变量提升，暂时性死区
 
-*ES6规定，`let/const` 命令会使区块形成封闭的作用域。若在声明之前使用变量，就会报错。*
-*总之，在代码块内，使用 `let` 命令声明变量之前，该变量都是不可用的。*
-*这在语法上，称为 **“暂时性死区”**（ temporal dead zone，简称 **TDZ**）。*
+ES6规定，`let/const` 命令会使区块形成封闭的作用域。若在声明之前使用变量，就会报错。
+总之，在代码块内，使用 `let` 命令声明变量之前，该变量都是不可用的。
+这在语法上，称为 **“暂时性死区”**（ temporal dead zone，简称 **TDZ**）。
 
 ![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7nmhw2phaj316e0ja41z.jpg)
 
@@ -1621,11 +1621,11 @@ const保证的并不是变量的值不能改动，而是变量指向的那个内
 
 ### 6. 扩展运算符的作用
 
-和rest参数的区别：
+#### 和rest参数的区别：
 
-- **当用在函数定义时的形参前面时,称为rest参数；当函数调用时,用于接收不确定的参数.**
-- **当与解构赋值组合使用时,称为rest参数,用于接收剩余的值,存储在数组中.**
-- **当用在字符串或数组前面时称为扩展运算符,将数组或字符串进行拆解.**
+- **当用在函数定义时的形参前面时，称为rest参数；当函数调用时，用于接收不确定的参数。**
+- **当与解构赋值组合使用时，称为rest参数，用于接收剩余的值,存储在数组中。**
+- **当用在字符串或数组前面时称为扩展运算符，将数组或字符串进行拆解。**
 
 ```js
 // 1. 对象扩展运算符: 复制，或者覆盖原有的属性
@@ -1684,30 +1684,30 @@ function mutiple(...args) {
 mutiple(1, 2, 3, 4) // [1, 2, 3, 4]
 ```
 
-==rest参数和argument的区别==
+#### rest参数和argument的区别
 
-arguments是一个类数组,本质是对象;
+arguments是一个类数组,本质是对象;方便处理函数传参。
 
 而rest参数m,是真正的数组,可以正常调用数组的所有方法.所以在某些场景中,无需将arguments转为真正的数组,可以直接使用rest参数代替。
 
 ```js
-function sumArgu () {
-     var result = 0;
-     for (var i = 0; i < arguments.length; i++) {
-        result += arguments[i];
-    }
-    return result
+function sumArgu() {
+  var result = 0;
+  for (var i = 0; i < arguments.length; i++) {
+    result += arguments[i];
+  }
+  return result;
 }
-console.log(sumArgu(1,2,3));//6
+console.log(sumArgu(1, 2, 3)); // 6
 
-function sumRest (...m) {
-	var total = 0; 
-	for(var i of m){
-	    total += i;
-	}
-	return total;
+function sumRest(...m) {
+  var total = 0;
+  for (var i of m) {
+    total += i;
+  }
+  return total;
 }
-console.log(sumRest(1,2,3));//6
+console.log(sumRest(1, 2, 3)); // 6
 ```
 
 ### 8. 对象与数组的解构的理解
@@ -1746,34 +1746,38 @@ var finalString = `my name is ${name}, I work as a ${career} I love ${hobby[0]} 
 
 ### 11. proxy实现什么功能
 
+[这章节对`Object.defineProperty`和`Proxy`有相关讲解](# 1. Vue的基本原理)
+
+`Object.defineProperty` 无法监听到数组、对象的修改，`Proxy`可以。
+
 在 Vue3.0 中通过 `Proxy` 来替换原本的 `Object.defineProperty` 来实现数据响应式。
 
 ```js
 let onWatch = (obj, setBind, getLogger) => {
   let handler = {
     get(target, property, receiver) {
-      getLogger(target, property)
-      return Reflect.get(target, property, receiver)
+      getLogger(target, property);
+      return Reflect.get(target, property, receiver);
     },
     set(target, property, value, receiver) {
-      setBind(value, property)
-      return Reflect.set(target, property, value)
+      setBind(value, property);
+      return Reflect.set(target, property, value);
     }
-  }
-  return new Proxy(obj, handler)
-}
-let obj = { a: 1 }
+  };
+  return new Proxy(obj, handler);
+};
+let obj = { a: 1 };
 let p = onWatch(
   obj,
   (v, property) => {
-    console.log(`监听到属性${property}改变为${v}`)
+    console.log(`监听到属性${property}改变为${v}`);
   },
   (target, property) => {
-    console.log(`'${property}' = ${target[property]}`)
+    console.log(`'${property}' = ${target[property]}`);
   }
-)
-p.a = 2 // 监听到属性a改变
-p.a // 'a' = 2
+);
+p.a = 2; // "监听到属性a改变为2"
+p.a; // 'a' = 2
 ```
 
 ### 12. 深拷贝和浅拷贝
@@ -1800,25 +1804,14 @@ p.a // 'a' = 2
 
 `this` 关键字是函数运行时自动生成的一个内部对象，只能在函数内部使用，总指向调用它的对象。
 
-### 14. eventLoop事件循环
-
-`JavaScript`是一门单线程的语言，意味着同一时间内只能做一件事，但是这并不意味着单线程就是阻塞，而实现单线程非阻塞的方法就是事件循环
-
-<img src="https://static.vue-js.com/6e80e5e0-7cb8-11eb-85f6-6fac77c0c9b3.png" alt="img" style="zoom: 50%;" />
-
-1. 微任务宏任务
-   - 执行一个宏任务，如果遇到微任务就将它放到微任务的事件队列中
-   - 当前宏任务执行完成后，会查看微任务的事件队列，然后将里面的所有微任务依次执行完
-2. Await async
-
 ## 三、JS基础 
 
-### 1. ==new操作符的实现原理==
+### 1. new操作符的实现原理
    - new关键字会首先创建一个空对象
    - 将这个空对象的原型对象指向构造函数的原型属性，从而继承原型上的方法
    - 将this指向这个空对象，执行构造函数中的代码，以获取私有属性
    - 如果构造函数返回了一个对象res，就将该返回值res返回，如果返回值不是对象，就将创建的对象返回
-     理解了new的原理，手动实现就很简单了.
+     理解了new的原理，手动实现就很简单了
 
 ### 2. Map和Object的区别
 
@@ -1842,14 +1835,15 @@ p.a // 'a' = 2
 
 ```js
 const map = [
-     ["name","张三"],
-     ["age",18],
-]
+  ["name", "张三"],
+  ["age", 18]
+];
 
 const map = new Map([
-     ["foo",1],
-     ["bar",2],
-])
+  ["foo", 1],
+  ["bar", 2]
+]);
+
 ```
 
 Map数据结构有以下操作方法：
@@ -1891,7 +1885,7 @@ js 中的内置对象主要指的是在程序执行前存在全局作用域里�
 
 ### 5. 常用的正则表达式有哪些?
 
-### 6. ==对JSON的理解==
+### 6. 对JSON的理解
 
 JSON 是一种基于文本的轻量级的数据交换格式。它可以被任何的编程语言读取和作为数据格式来传递。
 
@@ -2099,12 +2093,12 @@ console.log(i); // 11
 
 ### 19. ES6 Module与CommonJS模块有什么异同
 
-区别： 
+**区别： **
 
 - CommonJS是对模块的浅拷⻉，ES6 Module是对模块的引⽤，即ES6 Module只存只读，不能改变其值，也就是指针指向不能变，类似const；
 - import的接⼝是read-only（只读状态），不能修改其变量值。 即不能修改其变量的指针指向，但可以改变变量内部指针指向，可以对commonJS对重新赋值（改变指针指向），但是对ES6 Module赋值会编译报错。 
 
-共同点： 
+**共同点： **
 
 - CommonJS和ES6 Module都可以对引⼊的对象进⾏赋值，即对对象内部属性的值进⾏改变。
 
@@ -2262,10 +2256,31 @@ function cycle(obj, parent) {
 
 ### 30. 什么是纯函数
 
+[What Is a Pure Function in JavaScript?](https://www.freecodecamp.org/news/what-is-a-pure-function-in-javascript-acb887375dfe/)
+
+[純粹的好，Pure Function 知道](https://medium.com/frochu/%E7%B4%94%E7%B2%B9%E7%9A%84%E5%A5%BD-pure-function-%E7%9F%A5%E9%81%93-574d5c0d7819)
+
 redux中的reducer就是纯函数
 
 1. 输出仅由输入决定，每一个固定的输入总是返回相同的输出
 2. 不产生副作用
+
+```js
+// impure function
+let intercept = 2;
+function math(x) {
+  return 3 * x + intercept;
+}
+const result = math(4); // 14
+
+// pure function, 这个有点像柯里化
+function math(itr) {
+  return function (x) {
+    return 3 * x + itr;
+  };
+}
+const result = math(2)(4); // 14
+```
 
 ### 31. Number 中最大数、最大安全整数、EPSILON 都是多少，原理是什么
 ### 34. 什么是 TypedArray
@@ -2294,19 +2309,104 @@ obj?.a?.[0];
 obj?.b?.();
 ```
 
+### 36. eventLoop事件循环
+
+`JavaScript`是一门单线程的语言，意味着同一时间内只能做一件事，但是这并不意味着单线程就是阻塞，而实现单线程非阻塞的方法就是事件循环
+
+JavaScript 中的事件循环是一个持续运行的过程，它不断监听call stack（调用栈）。它的主要功能是检查调用栈是否为空。如果调用栈为空，事件循环继续执行任务队列中等待的所有回调。在任务队列中，任务大致分为两类，即微任务和宏任务
+
+宏任务：setTimeout、setInterval、DOM事件、AJAX请求
+
+微任务：Promise, async/await
+
+![](https://miro.medium.com/max/4800/1*_0CnS0bHNX7HMBLri3gNng.gif)
+
 ## 四、原型与原型链
 
 ### 1. 对原型、原型链的理解
 
+**原型**：
+
+在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。
+
+**获取原型的方法：**
+
+1.  `__proto__ `属性来访问这个属性，但是最好不要使用这个属性，因为它不是规范中规定的。
+2. ES5 中新增了一个 Object.getPrototypeOf() 方法，可以通过这个方法来获取对象的原型。
+
+**原型链（构造函数，原型，实例的关系）**
+
+每个构造函数都有一个原型对象，原型有一个属性指回构造函数，而实例有一个内部指针指向原型。这样就在实例和原型之间构造了一条原型链。
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7s351qy4lj30wq0ksgo3.jpg" alt="image.png" style="zoom: 50%;" /><img src="http://tva1.sinaimg.cn/large/005NUwygly1h8aogs0sksj30h60lpgqm.jpg" alt="image.png" style="zoom: 50%;" />
+
 ### 2. 原型修改、重写
+
+```js
+function Person(name) {
+  this.name = name;
+}
+// 修改原型
+Person.prototype.getName = function () {};
+var p = new Person("hello");
+console.log(p.__proto__ === Person.prototype); // true
+console.log(p.__proto__ === p.constructor.prototype); // true
+// 重写原型
+Person.prototype = {
+  getName: function () {}
+};
+var p = new Person("hello");
+console.log(p.__proto__ === Person.prototype); // true
+console.log(p.__proto__ === p.constructor.prototype); // false
+```
+
+可以看到修改原型的时候p的构造函数不是指向Person了，因为直接给Person的原型对象直接用对象赋值时，它的构造函数指向的了根构造函数Object，所以这时候`p.constructor === Object` ，而不是`p.constructor === Person`。要想成立，就要用constructor指回来：
+
+```js
+Person.prototype = {
+  getName: function () {}
+};
+var p = new Person("hello");
+p.constructor = Person;
+console.log(p.__proto__ === Person.prototype); // true
+console.log(p.__proto__ === p.constructor.prototype); // true
+```
 
 ### 3. 原型链指向
 
+```js
+p.__proto__; // Person.prototype
+Person.prototype.__proto__; // Object.prototype
+p.__proto__.__proto__; //Object.prototype
+p.__proto__.constructor.prototype.__proto__; // Object.prototype
+Person.prototype.constructor.prototype.__proto__; // Object.prototype
+p1.__proto__.constructor; // Person
+Person.prototype.constructor; // Person
+```
+
 ### 4. 原型链的终点是什么?如何打印出原型链的终点？
+
+由于`Object`是构造函数，原型链终点是`Object.prototype.__proto__`，而`Object.prototype.__proto__ === null // true`，所以，==原型链的终点是`null`。==
+
+原型链上的所有原型都是对象，所有的对象最终都是由`Object`构造的，而`Object.prototype`的下一级是`Object.prototype.__proto__`。
 
 ### 5. 如何获得对象非原型链上的属性?
 
-在 ES6 Class 中，super 的过程中做了什么
+使用`hasOwnProperty()`方法来判断属性是否属于原型链的属性：
+
+```js
+function iterate(obj) {
+  var res = [];
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) res.push(key + ": " + obj[key]);
+  }
+  return res;
+}
+```
+
+### 6. 在 ES6 Class 中，super 的过程中做了什么
+
+派生类的方法可以通过 super 关键字引用它们的原型。这个关键字只能在派生类中使用，而且仅限于类构造函数、实例方法和静态方法内部。在类构造函数中使用super可以调用父类构造函数。
 
 ## 五、执行上下文/作用域链/闭包
 

@@ -129,7 +129,7 @@ console.log(myTemplate);
 // </article>
 ```
 
-<mark>注意，这里从api传入参数使用的时候没有引号包裹，即${data.name}不是${'data.name'}</mark>
+<mark>注意，这里从api传入参数使用的时候没有引号包裹，即`${data.name}`不是`${'data.name'}`</mark>
 
 ```js
 //from api
@@ -1066,7 +1066,7 @@ f`<p>Hi, ${name}.I would like send you some message.</p>`;
 			- 从全局移植到 Number 对象的方法
 
 				- 逐步减少全局方法，用于全局变量的模块化。
-方法的行为没有发生改变。
+		方法的行为没有发生改变。
 				- 用于将给定字符串转化为指定进制的整数。
 				- Number.parseInt()
 				- https://www.runoob.com/w3cnote/es6-number.html
@@ -1151,58 +1151,58 @@ exam ** = 2; // 4
 		- 属性的简洁表示法
 
 			- const age = 12;
-const name = "Amy";
-const person = {age, name};
-person   //{age: 12, name: "Amy"}
-//等同于
-const person = {age: age, name: name}
+		const name = "Amy";
+		const person = {age, name};
+		person   //{age: 12, name: "Amy"}
+		//等同于
+		const person = {age: age, name: name}
 
 				- const person = {
-  sayHi(){
-    console.log("Hi");
-  }
-}
-person.sayHi();  //"Hi"
-//等同于
-const person = {
-  sayHi:function(){
-    console.log("Hi");
-  }
-}
-person.sayHi();//"Hi"
+  		sayHi(){
+    	console.log("Hi");
+  		}
+		}
+		person.sayHi();  //"Hi"
+		//等同于
+		const person = {
+  		sayHi:function(){
+    	console.log("Hi");
+  		}
+		}
+		person.sayHi();//"Hi"
 
 			- Generator 函数，则要在前面加一个星号
 
 				- const obj = {
   * myGenerator() {
     yield 'hello world';
-  }
-};
-//等同于
-const obj = {
-  myGenerator: function* () {
+    }
+  };
+  //等同于
+  const obj = {
+    myGenerator: function* () {
     yield 'hello world';
-  }
-};
+    }
+  };
 
 		- 属性名表达式
 
 			- ES6允许用表达式作为属性名，但是一定要将表达式放在方括号内。
 
 				- const obj = {
- ["he"+"llo"](){
-   return "Hi";
-  }
-}
-obj.hello();  //"Hi"
+   ["he"+"llo"](){
+      return "Hi";
+     }
+   }
+   obj.hello();  //"Hi"
 
 			- 注意点：属性的简洁表示法和属性名表达式不能同时使用，否则会报错。
 
 				- const hello = "Hello";
-const obj = {
- [hello]
-};
-obj  //SyntaxError: Unexpected token }
+  const obj = {
+   [hello]
+  };
+  obj  //SyntaxError: Unexpected token }
 
 const hello = "Hello";
 const obj = {
@@ -1506,10 +1506,10 @@ console.log(arr3); [1, undefined, 3]
 
 			- function fn(name,age=17){
  console.log(name+","+age);
-}
-fn("Amy",18);  // Amy,18
-fn("Amy","");  // Amy,
-fn("Amy");     // Amy,17
+ }
+ fn("Amy",18);  // Amy,18
+ fn("Amy","");  // Amy,
+ fn("Amy");     // Amy,17
 
 		- 注意点：使用函数默认参数时，不允许有同名参数。
 
@@ -1577,9 +1577,9 @@ f(6,2);  //8
 
 		- var f = (a,b) => {
  let result = a+b;
- return result;
-}
-f(6,2);  // 8
+  return result;
+ }
+ f(6,2);  // 8
 
 	- 当箭头函数要返回对象的时候，为了区分于代码块，要用 () 将对象包裹起来
 
@@ -1650,10 +1650,10 @@ Person1.sayHello();  // 18
     'sayHello': ()=>{
         console.log(this.age);
       }
-};
-var age = 20;
-Person.sayHello();  // 20
-// 此时 this 指向的是全局对象
+  };
+  var age = 20;
+  Person.sayHello();  // 20
+  // 此时 this 指向的是全局对象
 
 var Person1 = {
     'age': 18,
@@ -2170,11 +2170,11 @@ function logMethod(id) {
 	- 不可继承常规对象。
 	- var Father = {
     // ...
-}
-class Child extends Father {
+  }
+  class Child extends Father {
      // ...
-}
-// Uncaught TypeError: Class extends value #<Object> is not a constructor or null
+  }
+  // Uncaught TypeError: Class extends value #<Object> is not a constructor or null
 
 // 解决方案
 Object.setPrototypeOf(Child.prototype, Father);
@@ -2413,12 +2413,12 @@ console.log('first');
 	- 其中 * 用来表示函数为 Generator 函数，yield 用来定义函数内部的状态。
 	- function* func(){
  console.log("one");
- yield '1';
- console.log("two");
- yield '2'; 
- console.log("three");
- return '3';
-}
+  yield '1';
+  console.log("two");
+  yield '2'; 
+  console.log("three");
+  return '3';
+ }
 
 - 执行机制
 
@@ -2451,33 +2451,33 @@ f.next();
     var y = yield '3';
     console.log("two:" + y);
     console.log("total:" + (x + y));
-}
+	}
 
 		- next不传参
 
 			- var sendp1 = sendParameter();
-sendp1.next();
-// strat
-// {value: "2", done: false}
-sendp1.next();
-// one:undefined
-// {value: "3", done: false}
-sendp1.next();
-// two:undefined
-// total:NaN
-// {value: undefined, done: true}
-next传参
-var sendp2 = sendParameter();
-sendp2.next(10);
-// strat
-// {value: "2", done: false}
-sendp2.next(20);
-// one:20
-// {value: "3", done: false}
-sendp2.next(30);
-// two:30
-// total:50
-// {value: undefined, done: true}
+	sendp1.next();
+	// strat
+	// {value: "2", done: false}
+	sendp1.next();
+	// one:undefined
+	// {value: "3", done: false}
+	sendp1.next();
+	// two:undefined
+	// total:NaN
+	// {value: undefined, done: true}
+	next传参
+	var sendp2 = sendParameter();
+	sendp2.next(10);
+	// strat
+	// {value: "2", done: false}
+	sendp2.next(20);
+	// one:20
+	// {value: "3", done: false}
+	sendp2.next(30);
+	// two:30
+	// total:50
+	// {value: undefined, done: true}
 
 		- 除了使用 next ，还可以使用 for... of 循环遍历 Generator 函数生产的 Iterator 对象。
 
@@ -2562,7 +2562,7 @@ function* caller() {
     for (const propKey of propKeys) {
         yield [propKey, obj[propKey]];
     }
-}
+  }
 
 const jane = { first: 'Jane', last: 'Doe' };
 for (const [key,value] of objectEntries(jane)) {

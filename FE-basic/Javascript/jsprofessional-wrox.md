@@ -2574,6 +2574,8 @@ o.sayName(); // "Kristen"
 
 **原型模式**
 
+在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。
+
 创建的每个函数都有一个prototype属性，（个人理解，每个函数有自己的基因，这个基因被称为prototype）这个属性是一个指针，指向一个对象，而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法，如果按照字面意思来理解，那么prototype就是通过调用构造函数而创建的那个对象实例的原型对象。
 
 使用原型对象的好处是可以让所有对象实例共享它所包含的属性和方法。换句话说，不必在构造函数中定义对象实例的信息，而是将信息直接添加到原型对象中。
@@ -3456,6 +3458,8 @@ plane.fly(); // prints "Flying, wooosh!"
 
 ## IV. Classes
 
+### intro
+
 Classes are syntactic sugar that overlay the current constructor- and prototype-based approach to types. 
 
 ```js
@@ -3663,11 +3667,15 @@ let button = new Button("hello");
 setTimeout(button.click, 1000); // hello
 ```
 
-
-
 ### Instance, Prototype, and Class Members 
 
-#### Instance Members 
+笔记中涉及到prototype的内容：
+
+[d. Prototype pattern](# d. Prototype pattern)
+
+[prototype chaining](# prototype chaining)
+
+#### Instance Members
 
 实例成员
 
@@ -4232,7 +4240,7 @@ class Bus extends Vehicle {
 Bus.identify(); // vehicle
 ```
 
-We can override not only methods, but also class fields.原声方法会被继承类重写时覆盖，字段也会。
+We can override not only methods, but also class fields. 原生方法会被继承类重写时覆盖，字段也会。
 
 ```js
 class Animal {
@@ -4407,8 +4415,6 @@ console.log(new Car()); // Car {}
 console.log(new Bus()); // Bus {}
 console.log(new Van()); // {}
 ```
-
-
 
 ## Don't Repeat Yourself (DRY)
 
