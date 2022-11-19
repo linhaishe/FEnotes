@@ -569,6 +569,65 @@ p {
 
 一般文本存在英文的时候，可以设置`word-break: break-all`使一个单词能够在换行时进行拆分
 
+```css
+<div class='mulLineTruncate3'>
+hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohel
+</div>
+
+/* 1:单行文本溢出 */
+.textTruncate1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 2:按行数-多行文本溢出(兼容性不好) */
+.mulLineTruncate2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 3:按高度-多行文本溢出(没有省略号) */
+.mulLineTruncate3 {
+  max-height: 40px;
+  overflow: hidden;
+  line-height: 20px;
+}
+
+/* 4:解决3方案没有省略号的情况 */
+.mulLineTruncate4 {
+  border: 1px solid red;
+  position: relative;
+  max-height: 40px;
+  overflow: hidden;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+.mulLineTruncate4::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0 20px 0 10px;
+  content: "...";
+}
+
+.mulLineTruncate5 {
+  position: relative;
+  max-height: 40px;
+  overflow: hidden;
+  line-height: 20px;
+  &::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 20px 0 10px;
+    content: "...";
+  }
+}
+```
+
 ## 11. ==如何实现两栏布局，右侧自适应？三栏布局中间自适应呢？==
 
 ## 12. flexbox（弹性盒布局模型），以及适用场景？
@@ -763,7 +822,7 @@ un sos bnb
 
 - BigInt 是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。
 
-#### 可分为原始数据类型和引用数据类型： 
+#### 可分为原始数据类型和引用数据类型
 
 - 栈：原始数据类型（Undefined、Null、Boolean、Number、String） 
 
@@ -775,14 +834,17 @@ un sos bnb
 
 Array , object , null typeof -> object
 
+缺点：引用类型无法判断
+
 ```js
 console.log(typeof 2);               // number
 console.log(typeof true);            // boolean
 console.log(typeof 'str');           // string
-console.log(typeof []);              // object    
 console.log(typeof function(){});    // function
-console.log(typeof {});              // object
 console.log(typeof undefined);       // undefined
+
+console.log(typeof {});              // object
+console.log(typeof []);              // object    
 console.log(typeof null);            // object
 ```
 
@@ -790,7 +852,9 @@ console.log(typeof null);            // object
 
 instanceof可以正确判断对象的类型，其内部运行机制是判断在其原型链中能否找到该类型的原型。
 
-instanceof只能正确判断引用数据类型，而不能判断基本数据类型。instanceof 运算符可以用来测试一个对象在其原型链中是否存在一个构造函数的 prototype 属性。
+缺点：instanceof只能正确判断引用数据类型，而不能判断基本数据类型。
+
+instanceof 运算符可以用来测试一个对象在其原型链中是否存在一个构造函数的 prototype 属性。
 
 ```js
 console.log(2 instanceof Number);                    // false
@@ -817,13 +881,13 @@ console.log(({}).constructor === Object); // true
 
 ```js
 function Fn(){};
- 
+
 Fn.prototype = new Array();
- 
+
 var f = new Fn();
- 
-console.log(f.constructor===Fn);    // false
-console.log(f.constructor===Array); // true
+
+console.log(f.constructor === Fn);    // false
+console.log(f.constructor === Array); // true
 ```
 
 #### d. Object.prototype.toString.call()
@@ -843,16 +907,31 @@ console.log(a.call(undefined));
 console.log(a.call(null));
 ```
 
-同样是检测对象obj调用toString方法，obj.toString()的结 果和Object.prototype. tostring.cal(obj)的结果不一
-样，这是为什么?
+同样是检测对象obj调用toString方法，obj.toString()的结 果和Object.prototype. tostring.cal(obj)的结果不一样，这是为什么?
 
-这是因为toString是Object的原型方法，而Array、 function等类型作为Object的实例,都重写了toString方法。
-不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法(function类
-型返回内容为函数体的字符串，Array类型返回元素组成的字符串...)，
+这是因为toString是Object的原型方法，而Array、 function等类型作为Object的实例,都重写了toString方法。不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法(function类型返回内容为函数体的字符串，Array类型返回元素组成的字符串)，而不会去调用Object.上原型toString方法(返回对象的具体类型)， 所以采用obj.toString()不能得到其对象类型，只能将obj转换为字符串类型;因此，在想要得到对象的具体类型时，应该调用Object原型上的toString方法。
 
-而不会去调用Object.上原型toString方法
+#### e. 自创
 
-(返回对象的具体类型)， 所以采用obj.toString()不能得到其对象类型，只能将obj转换为字符串类型;因此，在想要得到对象的具体类型时，应该调用Object原型上的toString方法。
+```js
+function getType(obj){
+  let type  = typeof obj;
+  if (type !== "object") {    // 先进行typeof判断，如果是基础数据类型，直接返回
+    return type;
+  }
+  // 对于typeof返回结果是object的，再进行如下的判断，正则返回结果
+  return Object.prototype.toString.call(obj).replace(/^\[object (\S+)\]$/, '$1'); 
+}
+
+getType([])     // "Array" typeof []是object，因此toString返回
+getType('123')  // "string" typeof 直接返回
+getType(window) // "Window" toString返回
+getType(null)   // "Null"首字母大写，typeof null是object，需toString来判断
+getType(undefined)   // "undefined" typeof 直接返回
+getType()            // "undefined" typeof 直接返回
+getType(function(){}) // "function" typeof能判断，因此首字母小写
+getType(/123/g)      //"RegExp" toString返回
+```
 
 ### 3. 检测数组的方式有哪些
 
@@ -864,54 +943,59 @@ obj instanceof Array
 Array.prototype.isPrototypeOf(obj)
 ```
 
-### 12. 数组常用的方法
+### 4. 数组常用的方法
+
+会影响原数组 ⭕️，不会影响原数组 ❌。
 
 1. 操作方法
 
    - 增
 
-     - push()：方法接收任意数量的参数，并将它们添加到数组末尾，返回数组的最新长度
-     - unshift()：在数组开头添加任意多个值，然后返回新的数组长度
-     - splice()：传入三个参数，分别是开始位置、0（要删除的元素数量）、插入的元素，返回空数组
-     - concat()：首先会创建一个当前数组的副本，然后再把它的参数添加到副本末尾，最后返回这个新构建的数组，不会影响原始数组
+     - `push()`: 方法接收任意数量的参数，并将它们添加到数组末尾，返回数组的最新长度 ⭕️
+     - `unshift()`: 在数组开头添加任意多个值，然后返回新的数组长度 ⭕️
+     - `splice()`: 传入三个参数，分别是开始位置、0（要删除的元素数量）、插入的元素，返回空数组 ⭕️
+     - `concat()`: 首先会创建一个当前数组的副本，然后再把它的参数添加到副本末尾，最后返回这个新构建的数组 ❌
 
    - 删
 
-     - pop()：用于删除数组的最后一项，同时减少数组的`length` 值，返回被删除的项
-     - shift()：用于删除数组的第一项，同时减少数组的`length` 值，返回被删除的项
-     - splice()：传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组
-     - slice()：不影响原数组：创建一个包含原有数组中一个或多个元素的新数组，不会影响原始数组
+     - `pop()`: 用于删除数组的最后一项，同时减少数组的`length` 值，返回被删除的项 ⭕️
+     - `shift()`: 用于删除数组的第一项，同时减少数组的`length` 值，返回被删除的项 ⭕️
+     - `splice()`: 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组 ⭕️
+     - `slice()`: 不影响原数组：创建一个包含原有数组中一个或多个元素的新数组 ❌
 
    - 改
 
-     splice():传入三个参数，分别是开始位置，要删除元素的数量，要插入的任意多个元素，返回删除元素的数组，对原数组产生影响
+     `splice()`: 传入三个参数，分别是开始位置，要删除元素的数量，要插入的任意多个元素，返回删除元素的数组，对原数组产生影响 ⭕️
 
    - 查
 
-     - indexOf():返回要查找的元素在数组中的位置，如果没找到则返回 -1
-     - includes():返回要查找的元素在数组中的位置，找到返回`true`，否则`false`
-     - find():返回第一个匹配的元素
+     - `indexOf()`: 返回要查找的元素在数组中的位置，如果没找到则返回 -1❌
+     - `includes()`: 返回要查找的元素在数组中的位置，找到返回`true`，否则`false` ❌
+     - `find()`: 返回第一个匹配的元素 ❌
+     - `findIndex()`: ❌
 
-2. 转换方法：join():接收一个参数，即字符串分隔符，返回包含所有项的字符串
+2. 转换方法：`join()`: 接收一个参数，即字符串分隔符，返回包含所有项的字符串 ❌
 
 3. 排序方法：
 
-   - reverse():顾名思义，将数组元素方向反转
-   - sort():接受一个比较函数，用于判断哪个值应该排在前面
+   - `reverse()`: 顾名思义，将数组元素方向反转 ⭕️
+   - `sort()`: 接受一个比较函数，用于判断哪个值应该排在前面 ⭕️
 
 4. 迭代/遍历方法
 
-- some():对数组每一项都运行传入的函数，如果有一项函数返回 true ，则这个方法返回 true
+- `some()`: 对数组每一项都运行传入的函数，如果有一项函数返回 true ，则这个方法返回 true ❌
 
-- every():对数组每一项都运行传入的函数，如果对每一项函数都返回 true ，则这个方法返回 true
+- `every()`: 对数组每一项都运行传入的函数，如果对每一项函数都返回 true ，则这个方法返回 true ❌
 
-- forEach():对数组每一项都运行传入的函数，没有返回值
+- `forEach()`: 对数组每一项都运行传入的函数，没有返回值 ❌
 
-- filter():对数组每一项都运行传入的函数，函数返回 `true` 的项会组成数组之后返回
+- `filter()`: 对数组每一项都运行传入的函数，函数返回 `true` 的项会组成数组之后返回 ❌
 
-- map():对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组
+- `map()`: 对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组 ❌
 
-### 28. 数组遍历方法
+- `reduce()`: ❌
+
+### 5. 数组遍历方法
 
 | **方法**                  | **是否改变原数组** | **特点**                                                     |
 | ------------------------- | ------------------ | ------------------------------------------------------------ |
@@ -924,21 +1008,21 @@ Array.prototype.isPrototypeOf(obj)
 | reduce() 和 reduceRight() | 否                 | 数组方法，reduce()对数组正序操作；reduceRight()对数组逆序操作 |
 
 
-### 13. 字符串的操作方法
+### 6. 字符串的操作方法
 
 1. 操作方法
 
    - 增
 
-     - concat:用于将一个或多个字符串拼接成一个新字符串
+     - concat():用于将一个或多个字符串拼接成一个新字符串
 
    - 删
 
      这里的删的意思并不是说删除原字符串的内容，而是创建字符串的一个副本，再进行操作
 
-     - Slice 
+     - slice()
      - substr()
-     - Substring()
+     - substring()
 
    - 改
 
@@ -964,7 +1048,7 @@ Array.prototype.isPrototypeOf(obj)
    - search():接收一个参数，可以是一个正则表达式字符串，也可以是一个`RegExp`对象，找到则返回匹配索引，否则返回 -1
    - replace():接收两个参数，第一个参数为匹配的内容，第二个参数为替换的元素（可用函数
 
-### 4. 检测对象的方式有哪些
+### 7. ⚡️检测对象的方式有哪些
 
 ```js
 Object.prototype.toString.call({}) === 'Object';
@@ -972,7 +1056,7 @@ obj instanceof object
 console.log(({}).constructor === Object); // true
 ```
 
-### 5. null和undefined区别
+### 8. null和undefined区别
 
 - 首先 Undefined 和 Null 都是基本数据类型，这两个基本数据类型分别都只有一个值，就是 undefined 和 null。 
 
@@ -982,7 +1066,7 @@ console.log(({}).constructor === Object); // true
 
 - 当对这两种类型使用 typeof 进行判断时，Null 类型化会返回 “object”，这是一个历史遗留的问题。当使用双等号对两种类型的值进行比较时会返回 true，使用三个等号时会返回 false。
 
-### 6. intanceof 操作符的实现原理及实现 
+### 9. intanceof 操作符的实现原理及实现 
 
 instanceof 运算符用于判断构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
 
@@ -1057,7 +1141,7 @@ Object.prototype.toString.call(window)   //"[object Window]"
 
 
 
-### 7. 为什么0.1+0.2 ! == 0.3，如何让其相等
+### 10. 为什么`0.1+0.2 ! == 0.3`，如何让其相等
 
 计算机是通过二进制的方式存储数据的，所以计算机计算0.1+0.2的时候，实际上是计算的两个数的二进制的和。
 
@@ -1075,11 +1159,11 @@ function equal(a, b) {
 console.log(numberepsilon(0.1 + 0.2, 0.3)); // true
 ```
 
-### 8. 如何获取安全的 undefined 值？ 
+### 11. 如何获取安全的 undefined 值？ 
 
 因为 undefined 是一个标识符，所以可以被当作变量来使用和赋值，但是这样会影响 undefined 的正常判断。表达式 `void ___ `没有返回值，因此返回结果是 undefined。void 并不改变表达式的结果，只是让表达式不返回值。因此可以用 void 0 来获得 undefined。
 
-### 9. typeof NaN 的结果是什么？ 
+### 12. typeof NaN 的结果是什么？
 
 NaN 指“不是一个数字”（not a number），NaN 是一个“警戒值”（sentinel value，有特殊用途的常规值），用于指出数字类型中的错误情况，即“执行数学运算没有成功，这是失败后返回的结果”。
 
@@ -1089,17 +1173,18 @@ typeof NaN; // "number"
 
 NaN 是一个特殊值，它和自身不相等，是唯一一个非自反（自反，reflexive，即 `x === x `不成立）的值。而 NaN !== NaN 为 true。
 
-### 10. isNaN 和 Number.isNaN 函数的区别？ 
+### 13. isNaN 和 Number.isNaN 函数的区别？ 
 
-- 函数 isNaN 接收参数后，会尝试将这个参数转换为数值，任何不能被转换为数值的的值都会返回 true，因此非数字值传入也会返回 true ，会影响 NaN 的判断。 
+- 函数 isNaN 接收参数后，会尝试将这个参数转换为数值，任何不能被转换为数值的的值都会返回 true，因此非数字值传入也会返回 true ，会影响 NaN 的判断。 (is not a number 是否 不是数字，不是数字-true, 是数字false)。
 - 函数 Number.isNaN 会首先判断传入参数是否为数字，如果是数字再继续判断是否为 NaN ，不会进行数据类型的转换，这种方法对于 NaN 的判断更为准确。
 
 ```js
 isNaN(1);
- Number.isNaN("123");
+isNaN("1");
+Number.isNaN("123");
 ```
 
-### 11. == 操作符的强制类型转换规则？ 
+### 14. == 操作符的强制类型转换规则？ 
 
 对于 == 来说，如果对比双方的类型不一样，就会进行类型转换。假如对比 x 和 y 是否相同，就会进行如下判断流程： 
 
@@ -1134,7 +1219,7 @@ isNaN(1);
 
 ![image](http://ww1.sinaimg.cn/large/005NUwyggy1gu01mn6mg6j60rx0bujsf02.jpg)
 
-### 12. 谈谈 Javascript 中的类型转换机制
+### 15. 谈谈 Javascript 中的类型转换机制
 
 常见的类型转换有：
 
@@ -1153,11 +1238,11 @@ isNaN(1);
 
 ![boolean()](https://static.vue-js.com/53bdad10-6692-11eb-ab90-d9ae814b240d.png)
 
-- `+`**操作符**
+- `+` **操作符**
 - `-`、`*`、`\` **操作符** `NaN` 也是一个数字
-- `==`**操作符**
+- `==` **操作符**
 
-### 12. 其他值到字符串的转换规则
+### 16. 其他值到字符串的转换规则
 
 1. Null 和 Undefined 类型 ，null 转换为 "null"，undefined 转换为 "undefined"， 
 2. Boolean 类型，true 转换为 "true"，false 转换为 "false"。 
@@ -1165,7 +1250,7 @@ isNaN(1);
 4.  Symbol 类型的值直接转换，但是只允许显式强制类型转换，使用隐式强制类型转换会产生错误。 
 5. 对普通对象来说，除非自行定义 toString() 方法，否则会调用 toString()（Object.prototype.toString()）来返回内部属性 [[Class]] 的值，如"[object Object]"。如果对象有自己的 toString() 方法，字符串化时就会调用该方法并使用其返回值。
 
-### 13. 其他值到数字值的转换规则
+### 17. 其他值到数字值的转换规则
 
 1. Null 类型的值转换为 0。 
 2. Undefined 类型的值转换为 NaN。 
@@ -1176,7 +1261,7 @@ isNaN(1);
 
 为了将值转换为相应的基本类型值，抽象操作 ToPrimitive 会首先（通过内部操作 DefaultValue）检查该值是否有valueOf()方法。如果有并且返回基本类型值，就使用该值进行强制类型转换。如果没有就使用 toString() 的返回值（如果存在）来进行强制类型转换。 如果 valueOf() 和 toString() 均不返回基本类型值，会产生 TypeError 错误。
 
-### 14. 其他值到布尔类型的值的转换规则？ 
+### 18. 其他值到布尔类型的值的转换规则？ 
 
 以下这些是假值： 
 
@@ -1192,7 +1277,7 @@ isNaN(1);
 
    假值的布尔强制类型转换结果为 false。从逻辑上说，假值列表以外的都应该是真值。
 
-### 15. || 和 && 操作符的返回值？ 
+### 19. || 和 && 操作符的返回值？ 
 
 || 和 && 首先会对第一个操作数执行条件判断，如果其不是布尔值就先强制转换为布尔类型，然后再执行条件判断。 
 
@@ -1249,7 +1334,7 @@ const b = -2;
 console.log(a > 0 && b > 0);
 ```
 
-### 16. Object.is() 与比较操作符 “=== ”、“ ==” 的区别？ 
+### 20. Object.is() 与比较操作符 “=== ”、“ ==” 的区别？ 
 
 ● 使用双等号（==）进行相等判断时，如果两边的类型不一致，则会进行强制类型转化后再进行比较。 
 
@@ -1257,7 +1342,7 @@ console.log(a > 0 && b > 0);
 
 ● 使用 Object.is 来进行相等判断时，一般情况下和三等号的判断相同，它处理了一些特殊的情况，比如 -0 和 +0 不再相等，两个 NaN 是相等的。
 
-### 17. 什么是 JavaScript 中的包装类型
+### 21. 什么是 JavaScript 中的包装类型
 
 在 JavaScript 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 JavaScript 会在后台隐式地将基本类型的值转换为对象，如：
 
@@ -1289,21 +1374,21 @@ if (!a) {
 }
 ```
 
-### 18. JavaScript 中如何进行隐式类型转换？
+### 22. JavaScript 中如何进行隐式类型转换？
 
 - `+`**操作符**
 - `-`、`*`、`\` **操作符** `NaN` 也是一个数字
 - `==`**操作符**
 
-### 19. + 操作符什么时候用于字符串的拼接？ 
+### 23. + 操作符什么时候用于字符串的拼接？ 
 
 根据 ES5 规范，如果某个操作数是字符串或者能够通过以下步骤转换为字符串的话，+ 将进行拼接操作。如果其中一个操作数是对象（包括数组），则首先对其调用 ToPrimitive 抽象操作，该抽象操作再调用 [[DefaultValue]]，以数字作为上下文。如果不能转换为字符串，则会将其转换为数字类型来进行计算。 简单来说就是，如果 + 的其中一个操作数是字符串（或者通过以上步骤最终得到字符串），则执行字符串拼接，否则执行数字加法。 那么对于除了加法的运算符来说，只要其中一方是数字，那么另一方就会被转为数字。
 
-###  20. 为什么会有BigInt的提案？ 
+###  24. 为什么会有BigInt的提案？ 
 
 JavaScript中Number.MAX_SAFE_INTEGER表示最⼤安全数字，计算结果是9007199254740991，即在这个数范围内不会出现精度丢失（⼩数除外）。但是⼀旦超过这个范围，js就会出现计算不准确的情况，这在⼤数计算的时候不得不依靠⼀些第三⽅库进⾏解决，因此官⽅提出了BigInt来解决此问题。
 
-### 21. object.assign和扩展运算法是深拷贝还是浅拷贝，两者区别
+### 25. object.assign和扩展运算法是深拷贝还是浅拷贝，两者区别
 
 1. 扩展运算符
 
@@ -1329,25 +1414,24 @@ console.log(outObj) // {inObj: {a: 2, b: 2}}
 
 可以看到，两者都是浅拷贝。 
 
-● Object.assign()方法接收的第一个参数作为目标对象，后面的所有参数作为源对象。然后把所有的源对象合并到目标对象中。它会修改了一个对象，因此会触发 ES6 setter。 
+- `Object.assign()`方法接收的第一个参数作为目标对象，后面的所有参数作为源对象。然后把所有的源对象合并到目标对象中。它会修改了一个对象，因此会触发 ES6 setter。 
+- 扩展操作符（…）使用它时，数组或对象中的每一个值都会被拷贝到一个新的数组或对象中。它不复制继承的属性或类的属性，但是它会复制ES6的 symbols 属性。
 
-● 扩展操作符（…）使用它时，数组或对象中的每一个值都会被拷贝到一个新的数组或对象中。它不复制继承的属性或类的属性，但是它会复制ES6的 symbols 属性。
-
-### 22. 如何判断一个对象是空对象
+### 26. ⚡️如何判断一个对象是空对象
 
 - 使用JSON自带的JSON.stringify方法来判断：
 
 ```js
-if(JSON.stringify(Obj) == '{}' ){
-    console.log('空对象');
+if (JSON.stringify(Obj) == "{}") {
+  console.log("空对象");
 }
 ```
 
 - 使用ES6新增的方法Object.keys()来判断：
 
 ```js
-if(Object.keys(Obj).length === 0){
-    console.log('空对象');
+if (Object.keys(Obj).length === 0) {
+  console.log("空对象");
 }
 ```
 
@@ -1355,15 +1439,14 @@ if(Object.keys(Obj).length === 0){
 
 ```js
 function isEmpty(obj) {
-	for(var prop in obj) {
-		if(obj.hasOwnProperty(prop))
-			return false;
-	}
-   return true;
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop)) return false;
+  }
+  return true;
 }
 ```
 
-### 23. typeof null 的结果是什么，为什么？
+### 27. typeof null 的结果是什么，为什么？
 
 typeof null 的结果是Object。 因为历史遗留问题。
 
@@ -1381,14 +1464,13 @@ typeof null 的结果是Object。 因为历史遗留问题。
 
 有两种特殊数据类型： 
 
-● undefined的值是 (-2)30(一个超出整数范围的数字)； 
+- undefined的值是 (-2)30(一个超出整数范围的数字)； 
+- null 的值是机器码 NULL 指针(null 指针的值全是 0) 那也就是说null的类型标签也是000，和Object的类型标签一样，所以会被判定为Object
 
-● null 的值是机器码 NULL 指针(null 指针的值全是 0) 那也就是说null的类型标签也是000，和Object的类型标签一样，所以会被判定为Object
-
-### 24. typeof 与 instanceof 区别
+### 28. typeof 与 instanceof 区别
 
 - `typeof`会返回一个变量的基本类型，`instanceof`返回的是一个布尔值
-- `instanceof` 可以准确地判断复杂引用数据类型，但是不能正确判断基础数据类型?
+- `instanceof` 可以准确地判断复杂引用数据类型，但是不能正确判断基础数据类型
 - 而` typeof` 也存在弊端，它虽然可以判断基础数据类型（`null` 除外），但是引用数据类型中，除了` function` 类型以外，其他的判断类型都是object
 
 ```js
@@ -1421,7 +1503,7 @@ console.log(function(){} instanceof Function);       // true
 console.log({} instanceof Object);                   // true
 ```
 
-### 25. 解释下什么是事件代理？应用场景？
+### 29. 什么是事件代理/事件委托？应用场景？
 
 就是把一个元素响应事件（`click`、`keydown`......）的函数委托到另一个元素
 
@@ -1441,9 +1523,9 @@ console.log({} instanceof Object);                   // true
 
 如果把所有事件都用事件代理，可能会出现事件误判，即本不该被触发的事件被绑定上了事件
 
-### 26. 事件捕捉/事件冒泡
+### 30. 事件捕捉/事件冒泡
 
-- 冒泡（bubbling）原理很简单。
+#### 1. 冒泡（bubbling）
 
 **当一个事件发生在一个元素上，它会首先运行在该元素上的处理程序，然后运行其父元素上的处理程序，然后一直向上到其他祖先上的处理程序。**
 
@@ -1451,60 +1533,58 @@ console.log({} instanceof Object);                   // true
 
 `event.stopPropagation()` 停止向上移动，但是当前元素上的其他处理程序都会继续运行。
 
-有一个 `event.stopImmediatePropagation()` 方法，可以用于停止冒泡，并阻止当前元素上的处理程序运行。使用该方法之后，其他处理程序就不会被执行。
+ `event.stopImmediatePropagation()` 方法，可以用于停止冒泡，并阻止当前元素上的处理程序运行。使用该方法之后，其他处理程序就不会被执行。
 
 ==阻止浏览器默认行为==：event.preventDefault()
 
-- 捕获（capturing）
+#### 2. 捕获（capturing）
 
 **事件首先通过祖先链向下到达元素（捕获阶段），然后到达目标（目标阶段），最后上升（冒泡阶段），在途中调用处理程序。**
 
-### 27. Javascript 数组中有那些方法可以改变自身，那些不可以
-
-不改变原数组的方法：concat/join/reduce/map/forEach/filter/slice/findIndex
-
-改变原数组的方法：push/unshift/pop/shift/sort/splice/reverse
-
-### 28. Object.keys() 与 Object.getOwnPropertyNames() 有何区别
+### 31. Object.keys() 与 Object.getOwnPropertyNames() 有何区别
 
 - `Object.keys`: 列出可枚举的属性值
 - `Object.getOwnPropertyNames`: 列出所有属性值(包括可枚举与不可枚举)
 
-### 30. 如何把对象转化为 key/value 的二维数组
+### 32. 如何把对象转化为 key/value 的二维数组
+
+**方法一：**
 
 `Object.entries({ a: 3 });`
 
+**方法二：**
+
 ```js
 const obj = {
-   city: "New Delhi",
-   maxTemp: 32,
-   minTemp: 21,
-   humidity: 78,
-   aqi: 456,
-   day: 'Tuesday',
+  city: "New Delhi",
+  maxTemp: 32,
+  minTemp: 21,
+  humidity: 78,
+  aqi: 456,
+  day: "Tuesday"
 };
 
 const objectToArray = (obj = {}) => {
-   const res = [];
-   const keys = Object.keys(obj);
-   for(key of keys){
-      res.push([
-         key, obj[key]
-      ]);
-   };
-   return res;
+  const res = [];
+  const keys = Object.keys(obj);
+  for (key of keys) {
+    res.push([key, obj[key]]);
+  }
+  
+  return res;
 };
+
 console.log(objectToArray(obj));
 ```
 
-### 31. 在 JS 中如何监听 Object 某个属性值的变化
+### 33. 在 JS 中如何监听 Object 某个属性值的变化
 
 在 JS 中可以使用两种方式监听属性值变化
 
 - Proxy
 - Object.defineProperty
 
-### 32. 列举 Number、String、Array、Object、Promise 有哪些 API
+### 34. 列举 Number、String、Array、Object、Promise 有哪些 API
 
 ## 二、ES6
 
