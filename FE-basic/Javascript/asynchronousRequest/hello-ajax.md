@@ -191,7 +191,7 @@ xhr.onreadystatechange = function () {
 
 # 第二章：跨域
 
-## 1. 同源策略
+## 1. 同源策略/什么是跨域
 
 同源策略（Same-Origin Policy）最早由 Netscape 公司提出，是浏览器的一种安全策略。
 

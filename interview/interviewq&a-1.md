@@ -1139,9 +1139,9 @@ Object.prototype.toString.call(document)  //"[object HTMLDocument]"
 Object.prototype.toString.call(window)   //"[object Window]"
 ```
 
-
-
 ### 10. 为什么`0.1+0.2 ! == 0.3`，如何让其相等
+
+[Javascript 数字精度丢失的问题](https://vue3js.cn/interview/JavaScript/loss_accuracy.html#%E4%B8%80%E3%80%81%E5%9C%BA%E6%99%AF%E5%A4%8D%E7%8E%B0)
 
 计算机是通过二进制的方式存储数据的，所以计算机计算0.1+0.2的时候，实际上是计算的两个数的二进制的和。
 
@@ -2321,11 +2321,218 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 ![](https://miro.medium.com/max/4800/1*_0CnS0bHNX7HMBLri3gNng.gif)
 
+### 37. 对闭包的理解
+
+闭包是一个函数, 其可以记住并访问外部变量。
+
+闭包是指有权访问另一个函数作用域中变量的函数，创建闭包的最常见的方式就是在一个函数内创建另一个函数，创建的函数可以访问到当前函数的局部变量。
+
+```js
+function init() {
+    var name = "Mozilla"; // name 是一个被 init 创建的局部变量
+    function displayName() { // displayName() 是内部函数，一个闭包
+        alert(name); // 使用了父函数中声明的变量
+    }
+    displayName();
+}
+init();
+```
+
+在函数被创建时, 函数的隐藏属性 [[Environment]] 会记住函数被创建时的位置, 即当时的词法环境 Lexical Environment这样, 无论在哪里调用函数, 都会去到 [[Environment]] 所引用的词法环境，当查找变量时, 先在词法环境内部查找, 当没有找到局部变量时, 前往当前词法环境所记录的外部词法环境查找。
+
+**使用场景**
+
+==封装私有变量和处理回调函数==
+
+==例如计数器、延迟调用、回调等闭包的应用，其核心思想还是创建私有变量和延长变量的生命周期==
+
+- 创建私有变量
+- 延长变量的生命周期
+
+从作用域的角度理解，每创建一个函数会创建一个作用域，闭包里面的函数没有要释放，但是在外层却返回了本函数，导致变量不能被释放而留存下来，应用就是对于有存储变量的需求可以用
+
+1. 柯里化函数：目的在于避免频繁调用具有相同参数函数的同时，又能够轻松的重用
+
+2. 使用闭包模拟私有方法：在`JavaScript`中，没有支持声明私有变量，但我们可以使用闭包来模拟私有方法
+
+   通过使用闭包来定义公共函数，并令其可以访问私有函数和变量，这种方式也叫模块方式
+
+   两个计数器 `Counter1` 和 `Counter2` 是维护它们各自的独立性的，每次调用其中一个计数器时，通过改变这个变量的值，会改变这个闭包的词法环境，不会影响另一个闭包中的变量
+
+3. 创建私有变量：闭包的第一个用途是使我们在函数外部能够访问到函数内部的变量。通过使用闭包，可以通过在外部调用闭包函数，从而在外部访问到函数内部的变量，可以使用这种方法来创建私有变量
+
+4. 闭包的另一个用途是使已经运行结束的函数上下文中的变量对象继续留在内存中，因为闭包函数保留了这个变量对象的引用，所以这个变量对象不会被回收。
+
+**闭包注意事项**
+
+   **缺点：**
+
+   - 常驻内存，增加内存使用量。
+   - 使用不当会很容易造成内存泄露。
+
+如果不是某些特定任务需要使用闭包，在其它函数中创建函数是不明智的，因为闭包在处理速度和内存消耗方面对脚本性能具有负面影响
+
+在创建新的对象或者类时，方法通常应该关联于对象的原型，而不是定义到对象的构造器中。原因在于每个对象的创建，方法都会被重新赋值。
+
+我们知道[闭包](https://so.csdn.net/so/search?q=闭包&spm=1001.2101.3001.7020)延展了局部变量的生命周期，使得外部操作局部变量成为可能，一般来讲函数在调用执行后函数就会被释放，但如果函数中产生了闭包，就会导致函数执行完毕后，函数内部的局部变量没有被释放，使得占用内存时间会变长，容易造成==内存泄漏==。
+
+**解决办法**
+
+1. 能不用闭包就不用
+2. 及时释放
+
+### 38. 对作用域、作用域链的理解
+
+#### **作用域**
+
+**作用域：函数和变量能被访问的区域，分有全局作用域、函数作用域、块级作用域。**
+
+- 全局作用域：任何不在函数中或是大括号中声明的变量，都是在全局作用域下，全局作用域下声明的变量可以在程序的任意位置访问
+- 函数作用域：函数作用域也叫局部作用域，如果一个变量是在函数内部声明的它就在一个函数作用域下面。这些变量只能在函数内部访问，不能在函数以外去访问
+- 块级作用域：ES6引入了`let`和`const`关键字,和`var`关键字不同，在大括号中使用`let`和`const`声明的变量存在于块级作用域中。在大括号之外不能访问这些变量
+
+#### **作用域链**
+
+当在`Javascript`中使用一个变量的时候，首先`Javascript`引擎会尝试在当前作用域下去寻找该变量，如果没找到，再到它的上层作用域寻找，以此类推直到找到该变量或是已经到了全局作用域
+
+### 39. 对执行上下文的理解
+
+- 全局执行上下文：只有一个，浏览器中的全局对象就是 `window`对象，`this` 指向这个全局对象
+- 函数执行上下文：存在无数个，只有在函数被调用的时候才会被创建，每次调用函数都会创建一个新的执行上下文
+- 执行栈，也叫调用栈，具有 LIFO（后进先出）结构，用于存储在代码执行期间创建的所有执行上下文
+
+### 40. call() 和apply()、bind()的区别?
+
+它们的作用一模一样，区别仅在于传入参数的形式的不同。
+
+- apply 接受两个参数，第一个参数指定了函数体内 this 对象的指向，第二个参数为一个带下标的集合，这个集合可以为数组，也可以为类数组，apply 方法把这个集合中的元素作为参数传递给被调用的函数。
+- call 传入的参数数量不固定，跟 apply 相同的是，第一个参数也是代表函数体内的 this 指向，从第二个参数开始往后，每个参数被依次传入函数。
+- bind与call的参数相同，只不过返回的是函数，需要进行调用。
+
+<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z37e4p7uj20xc0s2gs9.jpg" alt="image.png" style="zoom:33%;" /><img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z3dinhgdj215c0ykdsg.jpg" alt="image.png" style="zoom:33%;" />
+
+### 41. 实现call、apply 及bind函数
+
+- [【Q031】js 中如何实现 bind](https://github.com/shfshanyue/Daily-Question/issues/32)
+- [【Q032】js 中什么是 softbind，如何实现](https://github.com/shfshanyue/Daily-Question/issues/33)
+- [【Q656】JS 中如何实现 call/apply (代码集合)](https://github.com/shfshanyue/Daily-Question/issues/674)
+
+#### 1. call 函数的实现步骤
+
+- 判断调用对象是否为函数，即使是定义在函数的原型上的，但是可能出现使用 call 等方式调用的情况。
+- 判断传入上下文对象是否存在，如果不存在，则设置为 window 。
+- 处理传入的参数，截取第一个参数后的所有参数。
+- 将函数作为上下文对象的一个属性。
+- 使用上下文对象来调用这个方法，并保存返回结果。
+- 删除刚才新增的属性。
+- 返回结果。
+
+```js
+Function.prototype.myCall = function (context) {
+  // 判断调用对象
+  if (typeof this !== "function") {
+    console.error("type error");
+  }
+  // 获取参数
+  let args = [...arguments].slice(1),
+    result = null;
+  // 判断 context 是否传入，如果未传入则设置为 window
+  context = context || window;
+  // 将调用函数设为对象的方法
+  context.fn = this;
+  // 调用函数
+  result = context.fn(...args);
+  // 将属性删除
+  delete context.fn;
+  return result;
+};
+
+```
+
+#### 2. apply 函数的实现步骤
+
+- 判断调用对象是否为函数，即使是定义在函数的原型上的，但是可能出现使用 call 等方式调用的情况。
+- 判断传入上下文对象是否存在，如果不存在，则设置为 window 。
+- 将函数作为上下文对象的一个属性。
+- 判断参数值是否传入
+- 使用上下文对象来调用这个方法，并保存返回结果。
+- 删除刚才新增的属性
+- 返回结果
+
+```js
+Function.prototype.myApply = function (context) {
+  // 判断调用对象是否为函数
+  if (typeof this !== "function") {
+    throw new TypeError("Error");
+  }
+  let result = null;
+  // 判断 context 是否存在，如果未传入则为 window
+  context = context || window;
+  // 将函数设为对象的方法
+  context.fn = this;
+  // 调用方法
+  if (arguments[1]) {
+    result = context.fn(...arguments[1]);
+  } else {
+    result = context.fn();
+  }
+  // 将属性删除
+  delete context.fn;
+  return result;
+};
+
+```
+
+#### 3. bind 函数的实现步骤
+
+- 判断调用对象是否为函数，即使是定义在函数的原型上的，但是可能出现使用 call 等方式调用的情况。
+- 保存当前函数的引用，获取其余传入参数值。
+- 创建一个函数返回
+- 函数内部使用 apply 来绑定函数调用，需要判断函数作为构造函数的情况，这个时候需要传入当前函数的 this 给 apply 调用，其余情况都传入指定的上下文对象。
+
+```js
+Function.prototype.myBind = function (context) {
+  // 判断调用对象是否为函数
+  if (typeof this !== "function") {
+    throw new TypeError("Error");
+  }
+  // 获取参数
+  var args = [...arguments].slice(1),
+    fn = this;
+  return function Fn() {
+    // 根据调用方式，传入不同绑定值
+    return fn.apply(
+      this instanceof Fn ? this : context,
+      args.concat(...arguments)
+    );
+  };
+};
+
+```
+
+### 42. js 中什么是 softbind，如何实现
+
+bind 函数多次调用会已第一次绑定的 this 为准，softbind 已最后一次绑定传入的 this 为准；
+
+```js
+Function.prototype.softBind = function (obj, ...rest) {
+  const fn = this;
+  const bound = function (...args) {
+    const o = !this || this === (window || global) ? obj : this;
+    return fn.apply(o, [...rest, ...args]);
+  };
+
+  bound.prototype = Object.create(fn.prototype);
+  return bound;
+};
+
+```
+
 ## 四、原型与原型链
 
 ### 1. 对原型、原型链的理解
 
-**原型**：
+**原型**
 
 在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。
 
@@ -2408,100 +2615,6 @@ function iterate(obj) {
 
 派生类的方法可以通过 super 关键字引用它们的原型。这个关键字只能在派生类中使用，而且仅限于类构造函数、实例方法和静态方法内部。在类构造函数中使用super可以调用父类构造函数。
 
-## 五、执行上下文/作用域链/闭包
-
-### 1. 对闭包的理解
-
-闭包是指有权访问另一个函数作用域中变量的函数，创建闭包的最常见的方式就是在一个函数内创建另一个函数，创建的函数可以访问到当前函数的局部变量。
-
-闭包是一个函数, 其可以记住并访问外部变量。
-
-```js
-function init() {
-    var name = "Mozilla"; // name 是一个被 init 创建的局部变量
-    function displayName() { // displayName() 是内部函数，一个闭包
-        alert(name); // 使用了父函数中声明的变量
-    }
-    displayName();
-}
-init();
-```
-
-在函数被创建时, 函数的隐藏属性 [[Environment]] 会记住函数被创建时的位置, 即当时的词法环境 Lexical Environment这样, 无论在哪里调用函数, 都会去到 [[Environment]] 所引用的词法环境，当查找变量时, 先在词法环境内部查找, 当没有找到局部变量时, 前往当前词法环境所记录的外部词法环境查找。
-
-**使用场景**
-
-==封装私有变量和处理回调函数==
-
-- 创建私有变量
-- 延长变量的生命周期
-
-从作用域的角度理解，每创建一个函数会创建一个作用域，闭包里面的函数没有要释放，但是在外层却返回了本函数，导致变量不能被释放而留存下来，应用就是对于有存储变量的需求可以用
-
-1. 柯里化函数：目的在于避免频繁调用具有相同参数函数的同时，又能够轻松的重用
-
-2. 使用闭包模拟私有方法：在`JavaScript`中，没有支持声明私有变量，但我们可以使用闭包来模拟私有方法
-
-   通过使用闭包来定义公共函数，并令其可以访问私有函数和变量，这种方式也叫模块方式
-
-   两个计数器 `Counter1` 和 `Counter2` 是维护它们各自的独立性的，每次调用其中一个计数器时，通过改变这个变量的值，会改变这个闭包的词法环境，不会影响另一个闭包中的变量
-
-3. 创建私有变量：闭包的第一个用途是使我们在函数外部能够访问到函数内部的变量。通过使用闭包，可以通过在外部调用闭包函数，从而在外部访问到函数内部的变量，可以使用这种方法来创建私有变量
-
-4. 闭包的另一个用途是使已经运行结束的函数上下文中的变量对象继续留在内存中，因为闭包函数保留了这个变量对象的引用，所以这个变量对象不会被回收。
-
-==例如计数器、延迟调用、回调等闭包的应用，其核心思想还是创建私有变量和延长变量的生命周期==
-
-**闭包注意事项**
-
-   **缺点：**
-
-   - 常驻内存，增加内存使用量。
-   - 使用不当会很容易造成内存泄露。
-
-如果不是某些特定任务需要使用闭包，在其它函数中创建函数是不明智的，因为闭包在处理速度和内存消耗方面对脚本性能具有负面影响
-
-在创建新的对象或者类时，方法通常应该关联于对象的原型，而不是定义到对象的构造器中。原因在于每个对象的创建，方法都会被重新赋值。
-
-我们知道[闭包](https://so.csdn.net/so/search?q=闭包&spm=1001.2101.3001.7020)延展了局部变量的生命周期，使得外部操作局部变量成为可能，一般来讲函数在调用执行后函数就会被释放，但如果函数中产生了闭包，就会导致函数执行完毕后，函数内部的局部变量没有被释放，使得占用内存时间会变长，容易造成==内存泄漏==。
-
-**解决办法**
-
-1. 能不用闭包就不用
-2. 及时释放
-
-### 2. 对作用域、作用域链的理解
-
-函数和变量能被访问的区域
-
-- 全局作用域：任何不在函数中或是大括号中声明的变量，都是在全局作用域下，全局作用域下声明的变量可以在程序的任意位置访问
-- 函数作用域：函数作用域也叫局部作用域，如果一个变量是在函数内部声明的它就在一个函数作用域下面。这些变量只能在函数内部访问，不能在函数以外去访问
-- 块级作用域：ES6引入了`let`和`const`关键字,和`var`关键字不同，在大括号中使用`let`和`const`声明的变量存在于块级作用域中。在大括号之外不能访问这些变量
-
-#### **作用域链**
-
-当在`Javascript`中使用一个变量的时候，首先`Javascript`引擎会尝试在当前作用域下去寻找该变量，如果没找到，再到它的上层作用域寻找，以此类推直到找到该变量或是已经到了全局作用域
-
-### 3. 对执行上下文的理解
-
-- 全局执行上下文：只有一个，浏览器中的全局对象就是 `window`对象，`this` 指向这个全局对象
-- 函数执行上下文：存在无数个，只有在函数被调用的时候才会被创建，每次调用函数都会创建一个新的执行上下文
-- 执行栈，也叫调用栈，具有 LIFO（后进先出）结构，用于存储在代码执行期间创建的所有执行上下文
-
-## 六、this/call/apply/bind
-
-### 1. 对this对象的理解
-
-### 2. call() 和apply()的区别?
-
-### 3. 实现call、apply 及bind函数
-
-### 4. js 中什么是 softbind，如何实现
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z37e4p7uj20xc0s2gs9.jpg" alt="image.png" style="zoom:33%;" />
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z3dinhgdj215c0ykdsg.jpg" alt="image.png" style="zoom:33%;" />
-
 ## 七、异步编程 Promise
 
 ### 1. 异步编程的实现方式?
@@ -2516,6 +2629,88 @@ JavaScript中的异步机制可以分为以下几种：
 ### 2. setTimeout、Promise、 Async/Await的区别
 
 ### 3. 如何实现一个简单的 Promise
+
+[如何实现一个简单的 Promise](https://github.com/shfshanyue/Daily-Question/issues/23)
+
+```js
+class myPromise {
+  static PENDING = "pending";
+  static FULFILLED = "fulfilled";
+  static REJECTED = "rejected";
+
+  static resolve(value) {
+    if (value && value.then) {
+      return value;
+    }
+    return new myPromise((resolve) => resolve(value));
+  }
+
+  static reject(value) {
+    return new myPromise((_, reject) => reject(value));
+  }
+
+  constructor(fn) {
+    this.status = myPromise.PENDING;
+    this.result = null;
+
+    this.resFns = [];
+    this.rejFns = [];
+
+    const resolve = (value) => {
+      if (this.status === myPromise.PENDING) {
+        setTimeout(() => {
+          this.status = myPromise.FULFILLED;
+          this.result = value;
+          this.resFns.forEach(({ fn, resolve, reject }) => resolve(fn(value)));
+        });
+      }
+    };
+
+    const reject = (reason) => {
+      if (this.status === myPromise.PENDING) {
+        setTimeout(() => {
+          this.status = myPromise.REJECTED;
+          this.result = reason;
+          this.rejFns.forEach(({ fn, resolve, reject }) => reject(fn(reason)));
+        });
+      }
+    };
+
+    try {
+      fn(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  }
+
+  then(resFn, rejFn) {
+    resFn = typeof resFn === "function" ? resFn : (value) => value;
+    rejFn = typeof rejFn === "function" ? rejFn : (reason) => reason;
+
+    const _promise = {
+      [myPromise.PENDING]: () => {
+        return new myPromise((resolve, reject) => {
+          this.resFns.push({ fn: resFn, resolve, reject });
+          this.rejFns.push({ fn: rejFn, resolve, reject });
+        });
+      },
+      [myPromise.FULFILLED]: () => myPromise.resolve(resFn(this.result)),
+      [myPromise.REJECTED]: () => myPromise.reject(rejFn(this.result))
+    }[this.status];
+
+    return _promise();
+  }
+
+  catch(fn) {
+    return this.then(undefined, fn);
+  }
+
+  finally(cb) {
+    return this.then(cb, cb);
+  }
+}
+
+```
 
 ### 3. 对Promise的理解
 
@@ -2888,7 +3083,7 @@ p1().then((o) => console.log(o, "p1"));
 
 [Promise/A+ 规范](https://tsejx.github.io/javascript-guidebook/standard-built-in-objects/control-abstraction-objects/promise-standard/)
 
-### 27. ajax、 axios、 fetch的区别
+### 25. ajax、 axios、 fetch的区别
 
 **（1）AJAX**
 
@@ -2932,13 +3127,13 @@ Axios 是一种基于Promise封装的HTTP客户端，其特点如下：
 - 自动转换json数据
 - 客户端支持抵御XSRF攻击
 
-### 29. axios封装
+### 26. axios封装
 
 https://vue3js.cn/interview/vue/axiosCode.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%AE%80%E6%98%93%E7%89%88axios
 
 https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%BB%80%E4%B9%88
 
-### 15. ajax
+### 27. ajax
 
 即异步的`JavaScript` 和`XML`，是一种创建交互式网页应用的网页开发技术，可以在不重新加载整个网页的情况下，与服务器交换数据，并且更新部分网页
 
@@ -2979,7 +3174,7 @@ function ajax(options) {
 }
 ```
 
-### 16. JSONP 的原理是什么, 如何实现
+### 28. JSONP 的原理是什么, 如何实现
 
 **以下是Jsonp解决跨域：**
 
@@ -2993,7 +3188,30 @@ function ajax(options) {
 
 **缺点：这种方式只支持get方式。**
 
-### 17. 如何解决跨域
+### 29. 什么是跨域
+
+==违背同源策略就是跨域==
+
+==同源：协议、域名、端口号必须完全相同。不来自同一个服务则是不同源。==
+
+a.com 向 b.com发请求则是域名不同
+
+### 30. Postman为什么不会跨域
+
+跨域这个情况只会出现在浏览器页面里，因为实际上是浏览器由于安全原因限制了这些请求的访问。在postman里面，实际上每发出一个请求，都是在独立请求一个资源，而不是在一个网站返回的页面里，再去请求另外一个网站/端口的资源。自然也就不会造成跨域了。
+
+> Postman doesn't care about SOP, it's a dev tool not a browser
+
+[`CORS`](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) (Cross-Origin Resource Sharing) and `SOP` (Same-Origin Policy) are server-side configurations that **clients decide to enforce or not**.
+
+Related to clients
+
+- Most **Browsers** *do enforce* it to prevent issues related to [`CSRF`](https://en.wikipedia.org/wiki/Cross-site_request_forgery) attack.
+- Most **Development tools** *don't care* about it.
+
+跨域是指的当前资源访问其他资源时发起的http请求由于安全原因（由于同源策略，域名、协议。端口中只要有一个不同就不同源），浏览器限制了这些请求的正常访问，特别需要注意的是这些发生在浏览器中。
+
+### 31. 如何解决跨域
 
 #### 1. JSONP
 
@@ -3055,7 +3273,7 @@ function ajax(options) {
 
 代理（Proxy）也称网络代理，是一种特殊的网络服务，允许一个（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的隐私或安全，防止攻击。
 
-##### 方案一
+##### 方案一:通过vue-cli脚手架工具搭建项目, 通过webpack为我们起一个本地服务器作为请求的代理对象
 
 如果是通过vue-cli脚手架工具搭建项目，我们可以通过webpack为我们起一个本地服务器作为请求的代理对象
 
@@ -3091,7 +3309,7 @@ amodule.exports = {
 axios.defaults.baseURL = '/api'
 ```
 
-##### 方案二
+##### 方案二:通过服务端实现代理请求转发
 
 此外，还可通过服务端实现代理请求转发
 
@@ -3109,7 +3327,7 @@ app.use(
 module.exports = app;
 ```
 
-##### 方案三
+##### 方案三: 通过配置`nginx`实现代理
 
 通过配置`nginx`实现代理
 
@@ -3132,7 +3350,9 @@ server {
 }
 ```
 
-### 36. 什么是 CSRF 攻击
+### 30. 什么是 CSRF 攻击
+
+https://vue3js.cn/interview/JavaScript/security.html#%E4%B8%80%E3%80%81%E6%98%AF%E4%BB%80%E4%B9%88
 
 跨站请求伪造（英语：Cross-site request forgery），也被称为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF， 是一种挟制用户在当前已登录的 Web 应用程序上执行非本意的操作的攻击方法。跟跨网站脚本（XSS）相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。
 
@@ -3147,7 +3367,7 @@ CSRF (Cross-site request forgery)，跨站请求伪造，又称为 `one-click at
 4. [理解 CSRF(opens new window)](https://github.com/pillarjs/understanding-csrf/blob/master/README_zh.md)
 5. [Cross-Site Request Forgery Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 
-### 37. XSS攻击
+### 31. XSS攻击
 
 
 Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。
@@ -3170,47 +3390,682 @@ XSS 的本质是：恶意代码未经过滤，与网站正常的代码混在一�
 ### 1. 浏览器的垃圾回收机制
 ### 2. 哪些情况会导致内存泄漏
 
-### 3. 举例说明你对尾递归的理解，有哪些应用场景
+[JavaScript 中内存泄漏的几种情况](https://vue3js.cn/interview/JavaScript/memory_leak.html#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E6%83%85%E5%86%B5)
 
-4. WeakMap 与垃圾回收有何关系
+http://www.ruanyifeng.com/blog/2017/04/memory-leak.html
+https://zh.wikipedia.org/wiki
+
+1. 意外的全局变量
+2. 定时器不及时销毁也常会造成内存泄露
+3. 闭包，维持函数内局部变量，使其得不到释放
+4. 没有清理对`DOM`元素的引用同样造成内存泄露
+5. 包括使用事件监听addEventListener监听的时候，在不监听的情况下使用removeEventListener取消对事件监听
+
+### 3. 举例说明你对尾递归的理解，有哪些应用场景
+### 4. WeakMap 与垃圾回收有何关系
 
 ## 十、其他
 
 ### 1. 说说你对正则表达式的理解？应用场景？
 ### 2. 说说JavaScript中的事件模型
-### 3. Javascript本地存储的方式有哪些？区别及应用场景？
-### 4. 说说你对函数式编程的理解？优缺点？
-### 5. Javascript中如何实现函数缓存？函数缓存有哪些应用场景？
-### 6. 说说 Javascript 数字精度丢失的问题，如何解决？
-### 7. 什么是防抖和节流？有什么区别？如何实现？
+### 3. ⚡️Javascript本地存储的方式有哪些？区别及应用场景？
+
+#### 区别
+
+关于`cookie`、`sessionStorage`、`localStorage`三者的区别主要如下：
+
+- 存储大小：`cookie`数据大小不能超过`4k`，`sessionStorage`和`localStorage`虽然也有存储大小的限制，但比`cookie`大得多，可以达到5M或更大
+- 有效时间：`localStorage`存储持久数据，浏览器关闭后数据不丢失除非主动删除数据； `sessionStorage`数据在当前浏览器窗口关闭后自动删除；`cookie`设置的`cookie`过期时间之前一直有效，即使窗口或浏览器关闭
+- 数据与服务器之间的交互方式，`cookie`的数据会自动的传递到服务器，服务器端也可以写`cookie`到客户端； `sessionStorage`和`localStorage`不会自动把数据发给服务器，仅在本地保存
+
+#### 应用场景
+
+- 标记用户与跟踪用户行为的情况，推荐使用`cookie`
+- 适合长期保存在本地的数据（令牌），推荐使用`localStorage`
+- 敏感账号一次性登录，推荐使用`sessionStorage`
+- 存储大量数据的情况、在线文档（富文本编辑器）保存编辑历史的情况，推荐使用`indexedDB`
+
+`javaScript`本地缓存的方法我们主要讲述以下四种：
+
+- cookie
+- sessionStorage
+- localStorage
+- indexedDB
+
+#### a. cookie
+
+`Cookie`，类型为「小型文本文件」，指某些网站为了辨别用户身份而储存在用户本地终端上的数据。是为了解决 `HTTP`无状态导致的问题
+
+作为一段一般不超过 4KB 的小型文本数据，它由一个名称（Name）、一个值（Value）和其它几个用于控制 `cookie`有效期、安全性、使用范围的可选属性组成
+
+但是`cookie`在每次请求中都会被发送，如果不使用 `HTTPS`并对其加密，其保存的信息很容易被窃取，导致安全风险。举个例子，在一些使用 `cookie`保持登录态的网站上，如果 `cookie`被窃取，他人很容易利用你的 `cookie`来假扮成你登录网站
+
+关于`cookie`常用的属性如下：
+
+关于`cookie`常用的属性如下：
+
+```js
+document.cookie="username=John Doe; expires=Thu, 18 Dec 2043 12:00:00 GMT; path=/";
+```
+
+- expires 用于设置 Cookie 的过期时间
+
+```js
+expires=Wed, 21 Oct 2015 07:28:00 GMT
+```
+
+- max-Age 用于设置在 Cookie 失效之前需要经过的秒数（优先级比`Expires`高）
+
+```
+max-Age=604800
+```
+
+- `;max-age=max-age-in-seconds` (e.g., `60*60*24*365` or 31536000 for a year)
+- `;expires=date-in-GMTString-format` If neither `expires` nor `max-age` specified it will expire at the end of session.
+
+- `Domain`指定了 `Cookie` 可以送达的主机名
+- `Path`指定了一个 `URL`路径，这个路径必须出现在要请求的资源的路径中才可以发送 `Cookie` 首部
+
+```js
+Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部
+```
+
+- 标记为 `Secure`的 `Cookie`只应通过被`HTTPS`协议加密过的请求发送给服务端
+
+通过上述，我们可以看到`cookie`又开始的作用并不是为了缓存而设计出来，只是借用了`cookie`的特性实现缓存
+
+关于`cookie`的使用如下：
+
+```js
+document.cookie = '名字=值';
+```
+
+关于`cookie`的修改，首先要确定`domain`和`path`属性都是相同的才可以，其中有一个不同得时候都会创建出一个新的`cookie`
+
+```js
+Set-Cookie:name=aa; domain=aa.net; path=/  # 服务端设置
+document.cookie =name=bb; domain=aa.net; path=/  # 客户端设置
+```
+
+最后`cookie`的删除，最常用的方法就是给`cookie`设置一个过期的事件，这样`cookie`过期后会被浏览器删除
+
+#### b. localStorage
+
+`HTML5`新方法，IE8及以上浏览器都兼容
+
+特点
+
+- 生命周期：持久化的本地存储，除非主动删除数据，否则数据是永远不会过期的
+- 存储的信息在同一域中是共享的
+- 当本页操作（新增、修改、删除）了`localStorage`的时候，本页面不会触发`storage`事件,但是别的页面会触发`storage`事件。
+- 大小：5M（跟浏览器厂商有关系）
+- `localStorage`本质上是对字符串的读取，如果存储内容多的话会消耗内存空间，会导致页面变卡
+- 受同源策略的限制
+
+下面再看看关于`localStorage`的使用
+
+设置
+
+```js
+localStorage.setItem('username','cfangxu');
+```
+
+获取
+
+```js
+localStorage.getItem('username')
+```
+
+获取键名
+
+```js
+localStorage.key(0) //获取第一个键名
+```
+
+删除
+
+```js
+localStorage.removeItem('username')
+```
+
+一次性清除所有存储
+
+```js
+localStorage.clear()
+```
+
+`localStorage` 也不是完美的，它有两个缺点：
+
+- 无法像`Cookie`一样设置过期时间
+- 只能存入字符串，无法直接存对象
+
+```js
+localStorage.setItem('key', {name: 'value'});
+console.log(localStorage.getItem('key')); // '[object, Object]'
+```
+
+#### c. sessionStorage
+
+`sessionStorage`和 `localStorage`使用方法基本一致，唯一不同的是生命周期，一旦页面（会话）关闭，`sessionStorage` 将会删除数据。
+
+#### d. indexedDB
+
+`indexedDB`是一种低级API，用于客户端存储大量结构化数据(包括, 文件/ blobs)。该API使用索引来实现对该数据的高性能搜索
+
+虽然 `Web Storage`对于存储较少量的数据很有用，但对于存储更大量的结构化数据来说，这种方法不太有用。`IndexedDB`提供了一个解决方案
+
+优点：
+
+- 储存量理论上没有上限
+- 所有操作都是异步的，相比 `LocalStorage` 同步操作性能更高，尤其是数据量较大时
+- 原生支持储存`JS`的对象
+- 是个正经的数据库，意味着数据库能干的事它都能干
+
+缺点：
+
+- 操作非常繁琐
+- 本身有一定门槛
+
+关于`indexedDB`的使用基本使用步骤如下：
+
+- 打开数据库并且开始一个事务
+- 创建一个 `object store`
+- 构建一个请求来执行一些数据库操作，像增加或提取数据等。
+- 通过监听正确类型的 `DOM` 事件以等待操作完成。
+- 在操作结果上进行一些操作（可以在 `request`对象中找到）
+
+关于使用`indexdb`的使用会比较繁琐，大家可以通过使用`Godb.js`库进行缓存，最大化的降低操作难度
+
+### 4. 你对函数式编程的理解？优缺点？
+
+#### intro
+
+函数式编程是一种"编程范式"（programming paradigm），一种编写程序的方法论
+
+主要的编程范式有三种：命令式编程，声明式编程和函数式编程
+
+相比命令式编程，函数式编程更加强调程序执行的结果而非执行的过程，倡导利用若干简单的执行单元让计算结果不断渐进，逐层推导复杂的运算，而非设计一个复杂的执行过程。
+
+简单来讲，就是要把过程逻辑写成函数，定义好输入参数，只关心它的输出结果。
+
+```js
+// 命令式编程
+var array = [0, 1, 2, 3]
+for(let i = 0; i < array.length; i++) {
+    array[i] = Math.pow(array[i], 2)
+}
+
+// 函数式方式
+[0, 1, 2, 3].map(num => Math.pow(num, 2))
+```
+
+**优点**
+
+- 更好的管理状态：因为它的宗旨是无状态，或者说更少的状态，能最大化的减少这些未知、优化代码、减少出错情况
+- 更简单的复用：固定输入->固定输出，没有其他外部变量影响，并且无副作用。这样代码复用时，完全不需要考虑它的内部实现和外部影响
+- 更优雅的组合：往大的说，网页是由各个组件组成的。往小的说，一个函数也可能是由多个小函数组成的。更强的复用性，带来更强大的组合性
+- 隐性好处。减少代码量，提高维护性
+
+**缺点**
+
+- 性能：函数式编程相对于指令式编程，性能绝对是一个短板，因为它往往会对一个方法进行过度包装，从而产生上下文切换的性能开销
+- 资源占用：在 JS 中为了实现对象状态的不可变，往往会创建新的对象，因此，它对垃圾回收所产生的压力远远超过其他编程方式
+- 递归陷阱：在函数式编程中，为了实现迭代，通常会采用递归操作
+
+#### a. 纯函数
+
+函数式编程旨在尽可能的提高代码的无状态性和不变性。要做到这一点，就要学会使用无副作用的函数，也就是纯函数
+
+纯函数是对给定的输入返还相同输出的函数，并且要求你所有的数据都是不可变的，即纯函数=无状态+数据不可变
+
+特性：
+
+- 函数内部传入指定的值，就会返回确定唯一的值
+- 不会造成超出作用域的变化，例如修改全局变量或引用传递的参数
+
+优势：
+
+- 使用纯函数，我们可以产生可测试的代码
+
+```js
+test('double(2) 等于 4', () => {
+  expect(double(2)).toBe(4);
+})
+```
+
+- 不依赖外部环境计算，不会产生副作用，提高函数的复用性
+- 可读性更强 ，函数不管是否是纯函数 都会有一个语义化的名称，更便于阅读
+- 可以组装成复杂任务的可能性。符合模块化概念及单一职责原则
+
+#### b. 高阶函数
+
+高级函数，就是以函数作为输入或者输出的函数被称为高阶函数。
+
+```js
+// 通过高阶函数抽象过程，注重结果。
+const forEach = function (arr, fn) {
+  for (let i = 0; i < arr.length; i++) {
+    fn(arr[i]);
+  }
+};
+
+let arr = [1, 2, 3];
+
+forEach(arr, (item) => {
+  console.log(item);
+});
+```
+
+```js
+// 高阶函数存在缓存的特性，主要是利用闭包作用
+const once = (fn) => {
+  let done = false;
+  return function () {
+    if (!done) {
+      fn.apply(this, fn);
+    } else {
+      console.log("该函数已经执行");
+    }
+    done = true;
+  };
+};
+
+```
+
+#### c. 柯里化
+
+柯里化是把一个多参数函数转化成一个嵌套的一元函数的过程
+
+```js
+// 二元函数
+let fn = (x,y)=>x+y;
+
+const curry = function (fn) {
+  return function (x) {
+    return function (y) {
+      return fn(x, y);
+    };
+  };
+};
+let myfn = curry(fn);
+console.log(myfn(1)(2));
+
+// 多参数柯里化；
+const curry = function (fn) {
+  return function curriedFn(...args) {
+    if (args.length < fn.length) {
+      return function () {
+        return curriedFn(...args.concat([...arguments]));
+      };
+    }
+    return fn(...args);
+  };
+};
+const fn = (x, y, z, a) => x + y + z + a;
+const myfn = curry(fn);
+console.log(myfn(1)(2)(3)(1));
+```
+
+关于柯里化函数的意义如下：
+
+- 让纯函数更纯，每次接受一个参数，松散解耦
+- 惰性执行
+
+#### d. 组合函数与管道函数
+
+**组合函数与管道函数的意义在于：可以把很多小函数组合起来完成更复杂的逻辑**
+
+**组合函数，目的是将多个函数组合成一个函数**
+
+**而管道函数，执行顺序是从左到右执行的**
+
+```js
+function afn(a) {
+  return a * 2;
+}
+
+function bfn(b) {
+  return b * 3;
+}
+
+const compose = (a, b) => (c) => a(b(c));
+
+let myfn = compose(afn, bfn);
+console.log(myfn(2));
+// 可以看到compose实现一个简单的功能：形成了一个新的函数，而这个函数就是一条从 bfn -> afn 的流水线
+```
+
+```js
+// compose执行是从右到左的
+const compose = (...fns)=>val=>fns.reverse().reduce((acc,fn)=>fn(acc),val);
+```
+
+```js
+// 而管道函数，执行顺序是从左到右执行的
+const pipe = (...fns)=>val=>fns.reduce((acc,fn)=>fn(acc),val);
+```
+
+### 5. ⚡️Javascript中如何实现函数缓存？函数缓存有哪些应用场景？
+
+==实现函数缓存主要依靠闭包、柯里化、高阶函数。==
+
+函数缓存，就是将函数运算过的结果进行缓存，本质上就是用空间（缓存存储）换时间（计算过程），常用于缓存数据计算结果和缓存对象。缓存只是一个临时的数据存储，它保存数据，以便将来对该数据的请求能够更快地得到处理
+
+```js
+const add = (a,b) => a+b;
+const calc = memoize(add); // 函数缓存
+calc(10,20); // 30
+calc(10,20); // 30 缓存
+
+// 高阶函数缓存
+const memoize = function (func, content) {
+  let cache = Object.create(null);
+  content = content || this;
+  return (...key) => {
+    if (!cache[key]) {
+      cache[key] = func.apply(content, key);
+    }
+    return cache[key];
+  };
+};
+
+// 柯里化
+var add2 = function (x) {
+  //**返回函数**
+  return function (y) {
+    return x + y;
+  };
+};
+add2(3)(4); //7
+
+// 闭包可以理解成，函数 + 函数体内可访问的变量总和
+// add函数本身，以及其内部可访问的变量，即 a = 1，这两个组合在⼀起就形成了闭包
+(function () {
+  var a = 1;
+  function add() {
+    const b = 2;
+    let sum = b + a;
+    console.log(sum); // 3
+  }
+  add();
+})();
+
+```
+
+### 6. 什么是 Iterable 对象，与 Array 有什么区别
+
+实现了 `[Symbol.iterator]` 属性的对象即是 `Iterable` 对象，然后可以使用操作符 `for...of` 进行迭代
+
+https://javascript.info/iterable
+
+### 7. js 如何全部替代一个子串为另一个子串
+
+假设有一个字符串 `hello. hello. hello.` 需要替换为 `AAA`，即把 `hello.` 替换为 `A`
+
+- `str.split('foo').join('bar')`
+- `str.replaceAll('foo', 'bar')`，在 `ESNext` 中，目前支持性不好
+
 ### 8. 如何判断一个元素是否在可视区域中？
+
+https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h8as2q72hmj30f60bcq5d.jpg" alt="image.png" style="zoom: 50%;" />
+
+在日常开发中，我们经常需要判断目标元素是否在视窗之内或者和视窗的距离小于一个值（例如 100 px），从而实现一些常用的功能，例如：
+
+- 图片的懒加载
+- 列表的无限滚动
+- 计算广告元素的曝光情况
+- 可点击链接的预加载
+
+判断一个元素是否在可视区域，我们常用的有三种办法：
+
+- offsetTop、scrollTop
+- getBoundingClientRect
+- Intersection Observer
+
 ### 9. 大文件上传如何做断点续传？
+
+https://vue3js.cn/interview/JavaScript/continue_to_upload.html#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF
+
+吐了，我不会。🤮
+
 ### 10. 如何实现上拉加载，下拉刷新？
+
+https://vue3js.cn/interview/JavaScript/pull_up_loading_pull_down_refresh.html#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80
+
+#### 上拉加载
+
+上拉加载的本质是页面触底，或者快要触底时的动作
+
+`scrollTop + clientHeight >= scrollHeight`
+
+```js
+let clientHeight = document.documentElement.clientHeight; //浏览器高度
+let scrollHeight = document.body.scrollHeight;
+let scrollTop = document.documentElement.scrollTop;
+
+let distance = 50; //距离视窗还用50的时候，开始触发；
+
+if (scrollTop + clientHeight >= scrollHeight - distance) {
+  console.log("开始加载数据");
+}
+```
+
+#### 下拉刷新
+
+下拉刷新的本质是页面本身置于顶部时，用户下拉时需要触发的动作
+
+关于下拉刷新的原生实现，主要分成三步：
+
+- 监听原生`touchstart`事件，记录其初始位置的值，`e.touches[0].pageY`；
+- 监听原生`touchmove`事件，记录并计算当前滑动的位置值与初始位置值的差值，大于`0`表示向下拉动，并借助CSS3的`translateY`属性使元素跟随手势向下滑动对应的差值，同时也应设置一个允许滑动的最大值；
+- 监听原生`touchend`事件，若此时元素滑动达到最大值，则触发`callback`，同时将`translateY`重设为`0`，元素回到初始位置
+
 ### 11. 什么是单点登录？如何实现？
-### 12. web常见的攻击方式有哪些？如何防御？
+
+单点登录（Single Sign On），简称为 SSO，是目前比较流行的企业业务整合的解决方案之一
+
+SSO的定义是在多个应用系统中，用户只需要登录一次就可以访问所有相互信任的应用系统
+
+SSO 一般都需要一个独立的认证中心（passport），子系统的登录均得通过`passport`，子系统本身将不参与登录操作
+
+当一个系统成功登录以后，`passport`将会颁发一个令牌给各个子系统，子系统可以拿着令牌会获取各自的受保护资源，为了减少频繁认证，各个子系统在被`passport`授权以后，会建立一个局部会话，在一定时间内可以无需再次向`passport`发起认证
+
+![img](https://static.vue-js.com/2b9b0e70-8c4b-11eb-85f6-6fac77c0c9b3.png)
+
+上图有四个系统，分别是`Application1`、`Application2`、`Application3`、和`SSO`，当`Application1`、`Application2`、`Application3`需要登录时，将跳到`SSO`系统，`SSO`系统完成登录，其他的应用系统也就随之登录了
+
+淘宝、天猫都属于阿里旗下，当用户登录淘宝后，再打开天猫，系统便自动帮用户登录了天猫，这种现象就属于单点登录
+
+#### a. 同域名下的单点登录
+
+`cookie`的`domain`属性设置为当前域的父域，并且父域的`cookie`会被子域所共享。`path`属性默认为`web`应用的上下文路径
+
+利用 `Cookie` 的这个特点，没错，我们只需要将`Cookie`的`domain`属性设置为父域的域名（主域名），同时将 `Cookie`的`path`属性设置为根路径，将 `Session ID`（或 `Token`）保存到父域中。这样所有的子域应用就都可以访问到这个`Cookie`
+
+不过这要求应用系统的域名需建立在一个共同的主域名之下，如 `tieba.baidu.com` 和 `map.baidu.com`，它们都建立在 `baidu.com`这个主域名之下，那么它们就可以通过这种方式来实现单点登录
+
+#### b. 不同域名下的单点登录(一)
+
+如果是不同域的情况下，`Cookie`是不共享的，这里我们可以部署一个认证中心，用于专门处理登录请求的独立的 `Web`服务
+
+用户统一在认证中心进行登录，登录成功后，认证中心记录用户的登录状态，并将 `token` 写入 `Cookie`（注意这个 `Cookie`是认证中心的，应用系统是访问不到的）
+
+应用系统检查当前请求有没有 `Token`，如果没有，说明用户在当前系统中尚未登录，那么就将页面跳转至认证中心
+
+由于这个操作会将认证中心的 `Cookie` 自动带过去，因此，认证中心能够根据 `Cookie` 知道用户是否已经登录过了
+
+如果认证中心发现用户尚未登录，则返回登录页面，等待用户登录
+
+如果发现用户已经登录过了，就不会让用户再次登录了，而是会跳转回目标 `URL`，并在跳转前生成一个 `Token`，拼接在目标`URL` 的后面，回传给目标应用系统
+
+应用系统拿到 `Token`之后，还需要向认证中心确认下 `Token` 的合法性，防止用户伪造。确认无误后，应用系统记录用户的登录状态，并将 `Token`写入`Cookie`，然后给本次访问放行。（注意这个 `Cookie` 是当前应用系统的）当用户再次访问当前应用系统时，就会自动带上这个 `Token`，应用系统验证 Token 发现用户已登录，于是就不会有认证中心什么事了
+
+此种实现方式相对复杂，支持跨域，扩展性好，是单点登录的标准做法
+
+#### c. 不同域名下的单点登录(二)
+
+可以选择将 `Session ID` （或 `Token` ）保存到浏览器的 `LocalStorage` 中，让前端在每次向后端发送请求时，主动将`LocalStorage`的数据传递给服务端
+
+这些都是由前端来控制的，后端需要做的仅仅是在用户登录成功后，将 `Session ID`（或 `Token`）放在响应体中传递给前端
+
+单点登录完全可以在前端实现。前端拿到 `Session ID`（或 `Token` ）后，除了将它写入自己的 `LocalStorage` 中之外，还可以通过特殊手段将它写入多个其他域下的 `LocalStorage` 中
+
+前端通过 `iframe`+`postMessage()` 方式，将同一份 `Token` 写入到了多个域下的 `LocalStorage` 中，前端每次在向后端发送请求之前，都会主动从 `LocalStorage` 中读取`Token`并在请求中携带，这样就实现了同一份`Token` 被多个域所共享
+
+此种实现方式完全由前端控制，几乎不需要后端参与，同样支持跨域
+
+```js
+// 获取 token
+var token = result.data.token;
+
+// 动态创建一个不可见的iframe，在iframe中加载一个跨域HTML
+var iframe = document.createElement("iframe");
+iframe.src = "http://app1.com/localstorage.html";
+document.body.append(iframe);
+// 使用postMessage()方法将token传递给iframe
+setTimeout(function () {
+  iframe.contentWindow.postMessage(token, "http://app1.com");
+}, 4000);
+setTimeout(function () {
+  iframe.remove();
+}, 6000);
+
+// 在这个iframe所加载的HTML中绑定一个事件监听器，当事件被触发时，把接收到的token数据写入localStorage
+window.addEventListener(
+  "message",
+  function (event) {
+    localStorage.setItem("token", event.data);
+  },
+  false
+);
+```
+
+### 12. 浏览器的剪切板中如何监听复制事件
+
+在 HTML 元素上
+
+```html
+<input oncopy="cb" />
+```
+
+在 JS 中获取具体元素
+
+```js
+document.querySelector("p").oncopy = cb;
+document.oncopy = cb;
+```
+
+或者
+
+```js
+document.querySelector("p").addEventListener("copy", cb);
+document.addEventListener("copy", cb);
+```
 
 ### 13. 在前端开发中，如何获取浏览器的唯一标识
 
+根据 `canvas` 可以获取浏览器指纹信息
+
+1. 绘制 `canvas`，获取 `base64` 的 dataurl
+2. 对 dataurl 这个字符串进行 `md5` 摘要计算，得到指纹信息
+
+若在生产环境使用，可以使用 [fingerprintjs2 (opens new window)](https://github.com/Valve/fingerprintjs2)，根据业务需求，如单设备是否可跨浏览器，以此选择合适的 `component`
+
 ### 14. 有没有用 npm 发布过 package，如何发布
+
+1. 注册 npm 账号 https://www.npmjs.com/
+2. 本地通过命令行 `npm login` 登陆
+3. 进入到项目目录下（与 package.json 同级），在 package.json 中指定发布文件、文件夹
+
+```json
+{
+  "name": "pkg-xxx",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "typings": "types/index.d.ts",
+  "files": [
+    "CHANGELOG.md",
+    "lib",
+    "esm",
+    "dist",
+    "types",
+  ],
+  ...
+}
+```
+
+执行 `npm publish --registry=https://registry.npmjs.org/` 即可发布
 
 ### 15. js 代码压缩 minify 的原理是什么
 
+我们知道 `javascript` 代码经压缩 (uglify) 后，可以使体积变得更小，那它代码压缩的原理是什么。如果你来做这么一个功能的话，你会怎么去压缩一段 `js` 代码的体积。
+
+https://github.com/shfshanyue/Daily-Question/issues/138
+
+我不会😂
+
 ### 16. 如何在 url 中传递数组
+
+在 URL 中如何传递数组这种复杂的数据，完全**取决于项目中前后端成员关于复杂数据在 URL 中传输的约定**，一般情况下可以使用以下方式来传递数组
+
+```js
+a=3&a=4&a=5
+
+a=3,4,5
+
+a[]=3&a[]=4&a[]=5
+
+a[0]=3&a[1]=4&a[2]=5
+```
+
+但同样，需要后端开发者写一个 `querystring.parse` 来对指定的格式解析进行支持，同时也有对各种复杂 qs 支持较好的 package，比如：[qs: 据说是对 querystring 复杂对象解析最好的库](https://github.com/ljharb/qs#parsing-arrays)
 
 ### 17. 如何实现 compose 函数，进行函数合成
 
-### 18. 前端中遇到过处理二进制的场景吗
+https://github.com/shfshanyue/Daily-Question/issues/182
 
-19. js 中什么是可选链操作符，如何访问数组
-20. 如何实现一个 flatMap 函数 (头条)
-21. 如何裁剪图片 (情景：选择头像)
-22. 有没有遇到 js 捕捉不到异常堆栈信息的情况
-23. js 中在 new 的时候发生了什么
-24. 什么是 Iterable 对象，与 Array 有什么区别
-25. js 如何全部替代一个子串为另一个子串
-26. 浏览器的剪切板中如何监听复制事件
-27. 你最喜欢的三个 js 库是什么
-28. 
+### 18. 前端中遇到过处理二进制的场景吗
+### 19. js 中什么是可选链操作符，如何访问数组
+
+`?.` 操作符，可以嵌套获取对象的属性值。通过获取对象属性获得的值可能是 undefined 或 null 时，可选链操作符提供了一种方法来简化被连接对象的值访问。
+
+```js
+const o = {};
+
+// 添加可选链之前
+o && o.a && o.a.b && o.a.b.c && o.a.b.c.d;
+
+// 添加可选链之后
+o?.a?.b?.c?.d;
+```
+
+### 21. 如何裁剪图片 (情景：选择头像)
+
+使用`ctx.arc()`和`ctx.clip()`进行裁剪`ctx.arc(x, y, radius, startAngle, endAngle)`; `ctx.clip()`; `ctx.drawImage(img, x, y, width, height)`
+
+```js
+var path = "https://static-zh.wxb.com.cn/customer/form/2020/11/1758696796d.jpg";
+function clipImage(path) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 200;
+  canvas.height = 100;
+  const ctx = canvas.getContext("2d");
+  const img = document.createElement("img");
+  img.src = path;
+  img.setAttribute("crossOrigin", "Anonymous");
+  img.onload = function () {
+    ctx.drawImage(this, 0, 0, 200, 100);
+    console.log(canvas.toDataURL());
+  };
+}
+clipImage(path);
+
+```
+
+### 22. 有没有遇到 js 捕捉不到异常堆栈信息的情况
 
 # 二、Vue
 
