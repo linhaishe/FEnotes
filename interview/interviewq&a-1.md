@@ -6,8 +6,6 @@
 
 ## 2. 清除浮动的方法
 
-https://www.cnblogs.com/SallyShan/p/11470549.html
-
    1. 后面不需要浮动的块元素。加clear：both;
 
    2. <mark>让父级触发BFC</mark>（Block Formatting Context-块级格式化上下文）效果BFC格式化成最开始的样式，标准文档流。使得其浮动元素会被父级计算高度，从而也就避免了高度塌陷。
@@ -26,16 +24,18 @@ https://www.cnblogs.com/SallyShan/p/11470549.html
    3. 利用伪元素
 
       <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l024gm14j30v40tkadp.jpg" alt="image-20210906160312195.png" style="zoom: 33%;" />
+      
+      refs: https://www.cnblogs.com/SallyShan/p/11470549.html
 
 ## 3. w3c盒模型和ie盒模型的区别？
 
 `box-sizing property`
 
-**W3C盒模型**：width就等于内容区的width -> content-box
+**W3C盒模型**：width就等于内容区的width -> `box-sizing: content-box`
 
-**IE盒模型/标准盒模型**：width = margin + border + padding + content -> border-box
+**IE盒模型/标准盒模型**：width = margin + border + padding + content -> `box-sizing: border-box`
 
-如果你希望所有元素都使用替代模式，而且确实很常用，设置 box-sizing 在 <html> 元素上，然后设置所有元素继承该属性。
+如果你希望所有元素都使用替代模式，而且确实很常用，设置 box-sizing 在 `<html> `元素上，然后设置所有元素继承该属性。
 
 ```css
 html {
@@ -1336,11 +1336,9 @@ console.log(a > 0 && b > 0);
 
 ### 20. Object.is() 与比较操作符 “=== ”、“ ==” 的区别？ 
 
-● 使用双等号（==）进行相等判断时，如果两边的类型不一致，则会进行强制类型转化后再进行比较。 
-
-● 使用三等号（===）进行相等判断时，如果两边的类型不一致时，不会做强制类型准换，直接返回 false。 
-
-● 使用 Object.is 来进行相等判断时，一般情况下和三等号的判断相同，它处理了一些特殊的情况，比如 -0 和 +0 不再相等，两个 NaN 是相等的。
+- 使用双等号（==）进行相等判断时，如果两边的类型不一致，则会进行强制类型转化后再进行比较。 
+- 使用三等号（===）进行相等判断时，如果两边的类型不一致时，不会做强制类型准换，直接返回 false。 
+- 使用 Object.is 来进行相等判断时，一般情况下和三等号的判断相同，它处理了一些特殊的情况，比如 -0 和 +0 不再相等，两个 NaN 是相等的。
 
 ### 21. 什么是 JavaScript 中的包装类型
 
@@ -1579,6 +1577,8 @@ console.log(objectToArray(obj));
 
 ### 33. 在 JS 中如何监听 Object 某个属性值的变化
 
+[这章节对`Object.defineProperty`和`Proxy`有相关讲解](# 1. Vue的基本原理)
+
 在 JS 中可以使用两种方式监听属性值变化
 
 - Proxy
@@ -1606,7 +1606,15 @@ const保证的并不是变量的值不能改动，而是变量指向的那个内
 
 ### 3. 如果new一个箭头函数会怎样
 
-不能New一个箭头函数。
+箭头函数是ES6中的提出来的，它没有prototype，也没有自己的this指向，更不可以使用arguments参数，所以不能New一个箭头函数。
+
+new操作符的实现步骤如下：
+
+1. 创建一个对象
+2. 将构造函数的作用域赋给新对象（也就是将对象的proto属性指向构造函数的prototype属性）
+3. 指向构造函数中的代码，构造函数中的this指向该对象（也就是为这个对象添加属性和方法）返回新的对象
+
+所以，上面的第二、三步，箭头函数都是没有办法执行的。
 
 ### 4. 箭头函数和普通函数的区别
 
@@ -1810,8 +1818,7 @@ p.a; // 'a' = 2
    - new关键字会首先创建一个空对象
    - 将这个空对象的原型对象指向构造函数的原型属性，从而继承原型上的方法
    - 将this指向这个空对象，执行构造函数中的代码，以获取私有属性
-   - 如果构造函数返回了一个对象res，就将该返回值res返回，如果返回值不是对象，就将创建的对象返回
-     理解了new的原理，手动实现就很简单了
+   - 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象
 
 ### 2. Map和Object的区别
 
@@ -2260,6 +2267,8 @@ function cycle(obj, parent) {
 
 [純粹的好，Pure Function 知道](https://medium.com/frochu/%E7%B4%94%E7%B2%B9%E7%9A%84%E5%A5%BD-pure-function-%E7%9F%A5%E9%81%93-574d5c0d7819)
 
+[4. 你对函数式编程的理解？优缺点？](# 4. 你对函数式编程的理解？优缺点？)
+
 redux中的reducer就是纯函数
 
 1. 输出仅由输入决定，每一个固定的输入总是返回相同的输出
@@ -2290,6 +2299,8 @@ const result = math(2)(4); // 14
 ### 35. js 中什么是可选链操作符，如何访问数组
 
 [可选链操作符 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining)
+
+[Optional chaining (?.)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining)
 
 `?.` 操作符，可以嵌套获取对象的属性值。通过获取对象属性获得的值可能是 undefined 或 null 时，可选链操作符提供了一种方法来简化被连接对象的值访问。
 
@@ -2512,7 +2523,7 @@ Function.prototype.myBind = function (context) {
 
 ### 42. js 中什么是 softbind，如何实现
 
-bind 函数多次调用会已第一次绑定的 this 为准，softbind 已最后一次绑定传入的 this 为准；
+bind 函数多次调用会已第一次绑定的 this 为准，softbind以最后一次绑定传入的 this 为准；
 
 ```js
 Function.prototype.softBind = function (obj, ...rest) {
@@ -2783,6 +2794,22 @@ testPromise(true).then(
 解决了地狱回调的问题
 
 ### 6. Promise. all和Promise.race的区别的使用场景
+
+1. Promise.all
+
+   Promise.all可以将多个Promise实例包装成一个新的Promise实例。同时，成功和失败的返回值是不同的，成功的时候返回的是一个结果数组，而失败的时候则返回最先被reject失败状态的值。
+
+   Promise.all中传入的是数组，返回的也是是数组，并且会将进行映射，传入的promise对象返回的值是按照顺序在数组中排列的，但是注意的是他们执行的顺序并不是按照顺序的，除非可迭代对象为空。
+
+   需要注意，Promise.all获得的成功结果的数组里面的数据顺序和Promise.all接收到的数组顺序是一致的，这样当遇到发送多个请求并根据请求顺序获取和使用数据的场景，就可以使用Promise.all来解决。
+
+2. Promise.race
+   顾名思义，Promse.race就是赛跑的意思，意思就是说，Promise.race([p1, p2, p3])里面哪个结果获得的快，就返回那个结果，不管结果本身是成功状态还是失败状态。
+
+   当要做一件事，超过多长时间就不做了，可以用这个方法来解决：
+
+   `Promise.race([promise1,timeOutPromise(5000)]).then(res=>{})`
+
 ### 7. 对async/await的理解
 
 async/await其实是Generator 的语法糖，它能实现的效果都能用then链来实现，它是为优化then链而开发出来的。从字面上来看，async是“异步”的简写，await则为等待，所以很好理解async 用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。当然语法上强制规定await只能出现在asnyc函数中。
@@ -3110,7 +3137,7 @@ fetch的优点：
 fetch的缺点：
 
 - fetch只对网络请求报错，对400，500都当做成功的请求，服务器返回 400，500 错误码时并不会 reject，只有网络错误这些导致请求不能完成时，fetch 才会被 reject。
-- fetch默认不会带cookie，需要添加配置项： fetch(url, {credentials: 'include'})
+- fetch默认不会带cookie，需要添加配置项：` fetch(url, {credentials: 'include'})`
 - fetch不支持abort，不支持超时控制，使用setTimeout及Promise.reject的实现的超时控制并不能阻止请求过程继续在后台运行，造成了流量的浪费
 - fetch没有办法原生监测请求的进度，而XHR可以
 
@@ -3824,13 +3851,13 @@ https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%
 - getBoundingClientRect
 - Intersection Observer
 
-### 9. 大文件上传如何做断点续传？
+### 9. ==大文件上传如何做断点续传？==
 
 https://vue3js.cn/interview/JavaScript/continue_to_upload.html#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF
 
 吐了，我不会。🤮
 
-### 10. 如何实现上拉加载，下拉刷新？
+### 10. ==如何实现上拉加载，下拉刷新？==
 
 https://vue3js.cn/interview/JavaScript/pull_up_loading_pull_down_refresh.html#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80
 
@@ -3862,7 +3889,7 @@ if (scrollTop + clientHeight >= scrollHeight - distance) {
 - 监听原生`touchmove`事件，记录并计算当前滑动的位置值与初始位置值的差值，大于`0`表示向下拉动，并借助CSS3的`translateY`属性使元素跟随手势向下滑动对应的差值，同时也应设置一个允许滑动的最大值；
 - 监听原生`touchend`事件，若此时元素滑动达到最大值，则触发`callback`，同时将`translateY`重设为`0`，元素回到初始位置
 
-### 11. 什么是单点登录？如何实现？
+### 11. ==什么是单点登录？如何实现？==
 
 单点登录（Single Sign On），简称为 SSO，是目前比较流行的企业业务整合的解决方案之一
 
