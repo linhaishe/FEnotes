@@ -4116,6 +4116,35 @@ Object.defineProperty(obj,"newKey",{
     writable:false,
     enumerable:false
 });
+
+//修改默认属性
+var person = {};
+Object.defineProperty(person, "name", {
+  writable: false, //默认的值可以省略不写
+  value: "Nicholas"
+});
+alert(person.name); //"Nicholas"
+person.name = "Greg";
+alert(person.name); //"Nicholas"
+
+// getter/setter方式
+var book = {
+  _year: 2004,
+  edition: 1
+};
+Object.defineProperty(book, "year", {
+  get: function () {
+    return this._year;
+  },
+  set: function (newValue) {
+    if (newValue > 2004) {
+      this._year = newValue;
+      this.edition += newValue - 2004;
+    }
+  }
+});
+book.year = 2005;
+alert(book.edition); // 2
 ```
 
    ![](https://cdn.nlark.com/yuque/0/2021/png/1500604/1620128979608-f7465ffc-9411-43e3-a6bc-96ab44dd77df.png)
@@ -4128,14 +4157,18 @@ const p = new Proxy(target, handler);
 - `handler`：一个对象，定义要拦截的行为
 
 ```javascript
-const p = new Proxy({}, {
+const p = new Proxy(
+  {},
+  {
     get(target, propKey) {
-        return '哈哈，你被我拦截了';
+      return "哈哈，你被我拦截了";
     }
-});
+  }
+);
 
 console.log(p.name);
 // 哈哈，你被我拦截了
+
 ```
 
 ### 2. 双向数据绑定的原理
@@ -4214,9 +4247,9 @@ $set()方法相当于手动的去把obj.b处理成一个响应式的属性，此
 
 `Vue` 不允许在已经创建的实例上动态添加新的响应式属性，若想实现数据与视图同步更新，可采取下面三种解决方案：
 
-- Vue.set()
-- Object.assign()
-- $forcecUpdated()
+- `Vue.set()`
+- `Object.assign()`
+- `$forcecUpdated()`
 
 ### 6. Vue中封装的数组方法有哪些，其如何实现页面更新
 
@@ -4287,19 +4320,39 @@ Vue组件可能存在多个实例，如果使用对象形式定义data，则会�
 
 ### 9. MVVM、MVC、MVP的区别
 
-   Model -> `person{age:18,name:"li"}`
+MVC、MVP 和 MVVM 是三种常见的软件架构设计模式，主要通过分离关注点的方式来组织代码结构，优化开发效率。
 
-   Controller / viewmodel-> `person.name = 'Homer';person.age = 51;`
+   
 
-   ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/27/16af72cd60c25062~tplv-t2oaga2asx-watermark.awebp)
+**（1）MVC**
 
-   ![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/27/16af920a988c5f66~tplv-t2oaga2asx-watermark.awebp)
+<img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/27/16af72cd60c25062~tplv-t2oaga2asx-watermark.awebp" style="zoom: 50%;" />
 
-   MVVM模式的优点:
+MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。其中 View 负责页面的显示逻辑，Model 负责存储页面的业务数据，以及对相应数据的操作。并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新。
+
+**（2）MVVM**
+
+<img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/5/27/16af920a988c5f66~tplv-t2oaga2asx-watermark.awebp" style="zoom: 50%;" />
+
+MVVM 分为 Model、View、ViewModel：
+
+- Model代表数据模型，数据和业务逻辑都在Model层中定义；
+- View代表UI视图，负责数据的展示；
+- ViewModel负责监听Model中数据的改变并且控制视图的更新，处理用户交互操作；
+
+Model和View并无直接关联，而是通过ViewModel来进行联系的，Model和ViewModel之间有着双向数据绑定的联系。因此当Model中的数据改变时会触发View层的刷新，View中由于用户交互操作而改变的数据也会在Model中同步。
+
+这种模式实现了 Model和View的数据自动同步，因此开发者只需要专注于数据的维护操作即可，而不需要自己操作DOM。
+
+MVVM模式的优点:
 
    - 低耦合:View可以独立于Model变化和修改,一个ViewModel可以绑定到不同的View上,当View变化的时候Model可以不变,当Model变化的时候View也可以不变。
    - 可重用性: 可以把一些视图逻辑放在一个ViewModel里面,让很多View重用这段视图逻辑。
    - 独立开发: 开发人员可以专注于业务逻辑和数据的开发,设计人员可以专注于页面的设计。
+
+**（3）MVP**
+
+MVP 模式与 MVC 唯一不同的在于 Presenter 和 Controller。在 MVC 模式中使用观察者模式，来实现当 Model 层数据发生变化的时候，通知 View 层的更新。这样 View 层和 Model 层耦合在一起，当项目逻辑变得复杂的时候，可能会造成代码的混乱，并且可能会对代码的复用性造成一些问题。MVP 的模式通过使用 Presenter 来实现对 View 层和 Model 层的解耦。MVC 中的Controller 只知道 Model 的接口，因此它没有办法控制 View 层的更新，MVP 模式中，View 层的接口暴露给了 Presenter 因此可以在 Presenter 中将 Model 的变化和 View 的变化绑定在一起，以此来实现 View 和 Model 的同步更新。这样就实现了对 View 和 Model 的解耦，Presenter 还包含了其他的响应逻辑。
 
 ### 10. MVVM的优缺点?
 
@@ -4346,8 +4399,6 @@ Vue组件可能存在多个实例，如果使用对象形式定义data，则会�
 - 作用域插槽：默认插槽、具名插槽的一个变体，可以是匿名插槽，也可以是具名插槽，该插槽的不同点是在子组件渲染作用域插槽时，可以将子组件内部的数据传递给父组件，让父组件根据子组件的传递过来的数据决定如何渲染该插槽。
 
 实现原理：当子组件vm实例化时，获取到父组件传入的slot标签的内容，存放在`vm.$slot`中，默认插槽为`vm.$slot.default`，具名插槽为`vm.$slot.xxx`，xxx 为插槽名，当组件执行渲染函数时候，遇到slot标签，使用`$slot`中的内容进行替换，此时可以为插槽传递数据，若存在数据，则可称该插槽为作用域插槽。
-
-
 
 <img src="/Users/chenruo/Library/Application Support/typora-user-images/image-20221110173531986.png" alt="image-20221110173531986" style="zoom:50%;" />
 
@@ -4974,7 +5025,7 @@ const Modal = {
 定义一个`tooltip`提示框，内部通过`isShowing`来控制显示
 
 ```js
-1const Tooltip = {
+const Tooltip = {
   template: "#tooltip",
   data() {
     return {
@@ -5049,21 +5100,21 @@ Vue.mixin({
 
 这个 API 很少用到，作用是扩展组件生成一个构造器，通常会与 $mount 一起使用。
 
-```vue
+```js
 // 创建组件构造器
 let Component = Vue.extend({
-  template: '<div>test</div>'
-})
+  template: "<div>test</div>"
+});
 // 挂载到 #app 上
-new Component().$mount('#app')
+new Component().$mount("#app");
 // 除了上面的方式，还可以用来扩展已有的组件
-let SuperComponent = Vue.extend(Component)
+let SuperComponent = Vue.extend(Component);
 new SuperComponent({
-    created() {
-        console.log(1)
-    }
-})
-new SuperComponent().$mount('#app')
+  created() {
+    console.log(1);
+  }
+});
+new SuperComponent().$mount("#app");
 ```
 
 ### 28. 简述 mixin、extends 的覆盖逻辑
@@ -5087,16 +5138,17 @@ mixin 和 extends 均是用于合并、拓展组件的，两者均通过 mergeOp
 - 对未合并的选项，进行判断
 
 ```js
-if(!child._base) {
-    if(child.extends) {
-        parent = mergeOptions(parent, child.extends, vm)
+if (!child._base) {
+  if (child.extends) {
+    parent = mergeOptions(parent, child.extends, vm);
+  }
+  if (child.mixins) {
+    for (let i = 0, l = child.mixins.length; i < l; i++) {
+      parent = mergeOptions(parent, child.mixins[i], vm);
     }
-    if(child.mixins) {
-        for(let i = 0, l = child.mixins.length; i < l; i++){
-            parent = mergeOptions(parent, child.mixins[i], vm)
-        }
-    }
+  }
 }
+
 ```
 
 - 合并处理。根据一个通用 Vue 实例所包含的选项进行分类逐一判断合并，如 props、data、 methods、watch、computed、生命周期等，将合并结果存储在新定义的 options 对象里。
@@ -5306,15 +5358,18 @@ get 方法中的 pushTarget 实际上就是把 Dep.target 赋值为当前的 wat
 - `delete` 只是被删除的元素变成了 `empty/undefined` 其他的元素的键值还是不变。
 - `Vue.delete` 直接删除了数组改变了数组的键值。
 
-### 34. Vue模版编译原理
+### 34. ==Vue模版编译原理==
 
 vue中的模板template无法被浏览器解析并渲染，因为这不属于浏览器的标准，不是正确的HTML语法，所有需要将template转化成一个JavaScript函数，这样浏览器就可以执行这一个函数并渲染出对应的HTML元素，就可以让视图跑起来了，这一个转化的过程，就成为模板编译。模板编译又分三个阶段，解析parse，优化optimize，生成generate，最终生成可执行函数render。
 
 - **解析阶段**：使用大量的正则表达式对template字符串进行解析，将标签、指令、属性等转化为抽象语法树AST。
 - **优化阶段**：遍历AST，找到其中的一些静态节点并进行标记，方便在页面重渲染的时候进行diff比较时，直接跳过这一些静态节点，优化runtime的性能。
 - **生成阶段**：将最终的AST转化为render函数字符串。
+- 实例进行挂载, 根据根节点render函数的调用，递归的生成虚拟dom
+- 对比虚拟dom，渲染到真实dom
+- 组件内部data发生变化，组件和子组件引用data作为props重新调用render函数，生成虚拟dom, 对比虚拟dom，渲染到真实dom
 
-### 35. Vue template 到 render 的过程
+### 35. ==Vue template 到 render 的过程==
 
 - 把模板编译为render函数
 - 实例进行挂载, 根据根节点render函数的调用，递归的生成虚拟dom
@@ -5379,7 +5434,6 @@ generate将ast抽象语法树编译成 render字符串并将静态部分放到 s
 - 资源文件体积是否过大
 - 资源是否重复发送请求去加载了
 - 加载脚本的时候，渲染内容堵塞了
-- 
 #### 方案
 
 [方案](https://vue3js.cn/interview/vue/first_page_time.html#%E4%B8%89%E3%80%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88)
@@ -5439,11 +5493,11 @@ SPA（ single-page application ）仅在 Web 页面初始化时加载相应的 H
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h816g611roj30sq0v8jxp.jpg" alt="image.png" style="zoom: 50%;" />
 
-### 40. vue初始化页面闪动问题
+### 40. ==vue初始化页面闪动问题==
 
 使用vue开发时，在vue初始化之前，由于div是不归vue管的，所以我们写的代码在还没有解析的情况下会容易出现花屏现象，看到类似于{{message}}的字样，虽然一般情况下这个时间很短暂，但是还是有必要让解决这个问题的。
 
-**1. 方法一：为初始化实例的跟标签添加v-cloak属性**
+#### **1. 方法一：为初始化实例的跟标签添加v-cloak属性**
 
 v-cloak原理是先通过样式隐藏内容，然后在内存中进行值的替换，将替换的内容再反馈给界面，数据渲染完成之后，v-cloak 属性会被自动去除。
 
@@ -5468,7 +5522,7 @@ v-cloak原理是先通过样式隐藏内容，然后在内存中进行值的替�
 </style>
 ```
 
-**2. 方法二：在根元素加上`style="display: none;" :style="{display: 'block'}"`**
+#### **2. 方法二：在根元素加上`style="display: none;" :style="{display: 'block'}"`**
 
 如果没有彻底解决问题，则在根元素加上`style="display: none;" :style="{display: 'block'}"`
 
@@ -5478,9 +5532,9 @@ vue在渲染之前，style="display: none;"让页面不显示
 
 vue渲染完成了，:style="display: block;"让页面显示
 
-**3. 方法三：可以添加一个loading遮罩层，等初始化或者挂载完成mount周期函数里移除遮罩层。**
+#### **3. 方法三：可以添加一个loading遮罩层，等初始化或者挂载完成mount周期函数里移除遮罩层。**
 
-**4. 方法四：使用 v-text 和 v-html 指令来替代`{{ }}`**
+#### **4. 方法四：使用 v-text 和 v-html 指令来替代`{{ }}`**
 
 vue中我们会将数据包在两个大括号中，然后放到HTML里，但是在vue内部，所有的双括号会被编译成textNode的一个v-text指令。
 而使用v-text的好处就是永远更好的性能，更重要的是可以避免FOUC (Flash of Uncompiled Content) ，也就是上面与遇到的问题。
@@ -5929,16 +5983,14 @@ keep-alive是 Vue 提供的一个内置组件，用来对组件进行缓存—�
 
 1. **父子组件间通信**
    - `props`  / `$emit` : 子组件通过 props 属性来接受父组件的数据，然后父组件在子组件上注册监听事件，子组件通过 emit 触发事件来向父组件发送数据。
-   - `ref` / `$refs` : 通过 ref 属性给子组件设置一个名字。父组件通过 $refs 组件名来获得子组件，子组件通过 $parent 获得父组件，这样也可以实现通信。
-   - 依赖注入(`project` / `inject`) : 使用 provide/inject，在父组件中通过 provide提供变量，在子组件中通过 inject 来将变量注入到组件中。不论子组件有多深，只要调用了 inject 那么就可以注入 provide中的数据。
-   - `$attrs / $listeners`
+   - `$parent / $refs` : 通过 ref 属性给子组件设置一个名字。父组件通过 `$refs` 组件名来获得子组件，子组件通过 `$parent`获得父组件，这样也可以实现通信。
 2. **兄弟组件间通信**
-   - eventBus：它的本质是通过创建一个空的 Vue 实例来作为消息传递的对象，通信的组件引入这个实例，通信的组件通过在这个实例上监听和触发事件，来实现消息的传递。
    - 通过 `$parent`/`$refs` 来获取到兄弟组件，也可以进行通信。
 3. **任意组件之间/子孙组件**
    - 使用 eventBus ，其实就是创建一个事件中心，相当于中转站，可以用它来传递事件和接收事件。
    - 依赖注入(`project` / `inject`) : 使用 provide/inject，在父组件中通过 provide提供变量，在子组件中通过 inject 来将变量注入到组件中。不论子组件有多深，只要调用了 inject 那么就可以注入 provide中的数据。
    - `$attrs / $listeners`
+   - vueX
 
 如果业务逻辑复杂，很多组件之间需要同时处理一些公共的数据，这个时候采用上面这一些方法可能不利于项目的维护。这个时候可以使用 vuex ，vuex 的思想就是将这一些公共的数据抽离出来，将它作为一个全局的变量来管理，然后其他组件就可以对这个公共数据进行读写操作，这样达到了解耦的目的。
 
@@ -5946,7 +5998,7 @@ keep-alive是 Vue 提供的一个内置组件，用来对组件进行缓存—�
 
 父组件通过`props`向子组件传递数据，子组件通过`$emit`和父组件通信
 
-#### 1. 父组件向子组件传值
+#### a. 父组件向子组件传值
 
 - `props`只能是父组件向子组件进行传值，`props`使得父子组件之间形成了一个单向下行绑定。子组件的数据会随着父组件不断更新。
 - `props` 可以显示定义一个或一个以上的数据，对于接收的数据，可以是各种数据类型，同样也可以传递一个函数。
@@ -5996,7 +6048,7 @@ export default {
 </script>
 ```
 
-#### 2. 子组件向父组件传值
+#### b. 子组件向父组件传值
 
 - `$emit`绑定一个自定义事件，当这个事件被执行的时就会将参数传递给父组件，而父组件通过`v-on`监听并接收参数。
 
@@ -6787,6 +6839,12 @@ SPA极大地提升了用户体验，它允许页面在不刷新的情况下更�
 
 ### 1. Vuex的原理
 
+**总结：**
+
+Vuex 实现了一个单向数据流，在全局拥有一个 State 存放数据，当组件要更改 State 中的数据时，必须通过 Mutation 提交修改信息， Mutation 同时提供了订阅者模式供外部插件调用获取 State 数据的更新。而当所有异步操作(常见于调用后端接口异步获取更新数据)或批量的同步操作需要走 Action ，但 Action 也是无法直接修改 State 的，还是需要通过Mutation 来修改State的数据。最后，根据 State 的变化，渲染到视图上。   
+
+<img src="http://ww1.sinaimg.cn/large/005NUwyggy1gu5tw21u1bj61nx1acwn002.jpg" alt="vuex2.jpg" style="zoom: 33%;" />
+
 Vuex为Vue Components建立起了一个完整的生态圈，包括开发中的API调用一环。 
 
 **（1）核心流程中的主要功能：**
@@ -6805,12 +6863,6 @@ Vuex为Vue Components建立起了一个完整的生态圈，包括开发中的AP
 - `mutations`∶状态改变操作方法。是Vuex修改state的唯一推荐方法，其他修改方式在严格模式下将会报错。该方法只能进行同步操作，且方法名只能全局唯一。操作之中会有一些hook暴露出来，以进行state的监控等。
 - `state`∶ 页面状态管理容器对象。集中存储Vuecomponents中data对象的零散数据，全局唯一，以进行统一的状态管理。页面显示所需的数据从该对象中进行读取，利用Vue的细粒度数据响应机制来进行高效的状态更新。
 - `getters`∶ state对象读取方法。图中没有单独列出该模块，应该被包含在了render中，Vue Components通过该方法读取全局state对象。
-
-**总结：**
-
-Vuex 实现了一个单向数据流，在全局拥有一个 State 存放数据，当组件要更改 State 中的数据时，必须通过 Mutation 提交修改信息， Mutation 同时提供了订阅者模式供外部插件调用获取 State 数据的更新。而当所有异步操作(常见于调用后端接口异步获取更新数据)或批量的同步操作需要走 Action ，但 Action 也是无法直接修改 State 的，还是需要通过Mutation 来修改State的数据。最后，根据 State 的变化，渲染到视图上。   
-
-![vuex2.jpg](http://ww1.sinaimg.cn/large/005NUwyggy1gu5tw21u1bj61nx1acwn002.jpg)
 
 ### 2. Vuex中action和mutation的区别
 
@@ -6926,14 +6978,14 @@ Action 函数接受一个与 store 实例具有相同方法和属性的 context 
 
 ### 7. Vuex和单纯的全局对象有什么区别?
 
-   响应式，不能直接更新对应状态
+   ==响应式，不能直接更新对应状态==
 
 - Vuex 的状态存储是响应式的。当 Vue 组件从 store 中读取状态的时候，若 store 中的状态发生变化，那么相应的组件也会相应地得到高效更新。
 - 不能直接改变 store 中的状态。改变 store 中的状态的唯一途径就是显式地提交 (commit) mutation。这样可以方便地跟踪每一个状态的变化，从而能够实现一些工具帮助更好地了解我们的应用。
 
 ### 8. 为什么Vuex的mutation中不能做异步操作？
 
-  - Vuex中所有的状态更新的唯一途径都是mutation，异步操作通过 Action 来提交 mutation实现，这样可以**方便地跟踪每一个状态的变化**，从而能够实现一些工具帮助更好地了解我们的应用。
+  - Vuex中所有的状态更新的唯一途径都是mutation，异步操作通过 Action 来提交 mutation实现，这样可以==**方便地跟踪每一个状态的变化**==，从而能够实现一些工具帮助更好地了解我们的应用。
 - 每个mutation执行完成后都会对应到一个新的状态变更，这样devtools就可以打个快照存下来，然后就可以实现 time-travel 了。如果mutation支持异步操作，就没有办法知道状态是何时更新的，无法很好的进行状态的追踪，给调试带来困难。
 
 ### 9. Vuex的严格模式是什么，有什么作用，如何开启？
@@ -6980,7 +7032,7 @@ methods:{
 
    [link](https://vue3js.cn/interview/vue/vue3_vue2.html#%E4%BA%8C%E3%80%81vue3%E6%96%B0%E5%A2%9E%E7%89%B9%E6%80%A7)
 
-   更小更快(优化)更友好（ts,composition api,开放更多底层功能）+响应性
+   更小更快(优化)更友好（ts,composition api,开放更多底层功能）+ 响应性
 
 **（1）监测机制的改变**
 
@@ -7036,7 +7088,7 @@ Vue3 使用 Proxy 来监控数据的变化。Proxy 是 ES6 中提供的功能，
 - 全方位的数组变化检测，消除了Vue2 无效的边界情况。
 - 支持 Map，Set，WeakMap 和 WeakSet。
 
- Proxy 实现的响应式原理与 Vue2的实现原理相同，实现方式大同小异∶ 
+ Proxy 实现的响应式原理与 Vue2 的实现原理相同，实现方式大同小异∶ 
 
 - get 收集依赖
 - Set、delete 等触发依赖
@@ -7061,7 +7113,7 @@ Vue Composition API 使得 Vue3 的开发风格更接近于原生 JavaScript，�
    - `Composition API`中见不到`this`的使用，减少了`this`指向不明的情况
    - 如果是小型组件，可以继续使用`Options API`，也是十分友好的
 
-### 5. Composition API与 React Hook很像，区别是什么？
+### 5. Composition API 与 React Hook很像，区别是什么？
 
 从React Hook的实现角度看，React Hook是根据useState调用的顺序来确定下一次重渲染时的state是来源于哪个useState，所以出现了以下限制
 
