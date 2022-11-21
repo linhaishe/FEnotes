@@ -115,10 +115,23 @@ CNAME（意为：别名）：在域名解析中，实际上解析出来的指定
 
 ![img](https://cdn.nlark.com/yuque/0/2020/png/1500604/1603966605254-fe880ec0-ebd1-4f94-b662-cdd5e5396c34.png)
 
-**代码实现：**
-
 ```html
-<div class="container">      <img src="loading.gif"  data-src="pic.png">      <img src="loading.gif"  data-src="pic.png">      <img src="loading.gif"  data-src="pic.png">      <img src="loading.gif"  data-src="pic.png">      <img src="loading.gif"  data-src="pic.png">      <img src="loading.gif"  data-src="pic.png"> </div> <script> var imgs = document.querySelectorAll('img'); function lozyLoad(){ 		var scrollTop = document.body.scrollTop || document.documentElement.scrollTop; 		var winHeight= window.innerHeight; 		for(var i=0;i < imgs.length;i++){ 			if(imgs[i].offsetTop < scrollTop + winHeight ){ 				imgs[i].src = imgs[i].getAttribute('data-src'); 			} 		} 	}   window.onscroll = lozyLoad(); </script>
+<div class="container"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> </div>
+
+<script>
+  var imgs = document.querySelectorAll('img');
+
+  function lozyLoad() {
+    var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+    var winHeight = window.innerHeight;
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].offsetTop < scrollTop + winHeight) {
+        imgs[i].src = imgs[i].getAttribute('data-src');
+      }
+    }
+  }
+  window.onscroll = lozyLoad();
+</script>
 ```
 
 ### 4. 懒加载与预加载的区别
@@ -207,7 +220,7 @@ DocumentFragment，文档片段接口，一个没有父对象的最小文档对�
 - 按钮提交场景：防⽌多次提交按钮，只执⾏最后提交的⼀次 
 - 服务端验证场景：表单验证需要服务端配合，只执⾏⼀段连续的输⼊事件的最后⼀次，还有搜索联想词功能类似⽣存环境请⽤lodash.debounce 
 
-**节流函数的**适⽤场景：
+**节流函数的****适⽤场景：** 
 
 - 拖拽场景：固定时间内只执⾏⼀次，防⽌超⾼频次触发位置变动 
 - 缩放场景：监控浏览器resize 
@@ -217,11 +230,58 @@ DocumentFragment，文档片段接口，一个没有父对象的最小文档对�
 
 **函数防抖的实现：**
 
-function debounce(fn, wait) {   var timer = null;   return function() {     var context = this,       args = [...arguments];     // 如果此时存在定时器的话，则取消之前的定时器重新记时     if (timer) {       clearTimeout(timer);       timer = null;     }     // 设置定时器，使事件间隔指定事件后执行     timer = setTimeout(() => {       fn.apply(context, args);     }, wait);   }; }
+```js
+function debounce(fn, wait) {
+  var timer = null;
+  return function () {
+    var context = this,
+      args = [...arguments]; // 如果此时存在定时器的话，则取消之前的定时器重新记时
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    } // 设置定时器，使事件间隔指定事件后执行
+    timer = setTimeout(() => {
+      fn.apply(context, args);
+    }, wait);
+  };
+}
+
+```
 
 **函数节流的实现：**
 
-// 时间戳版 function throttle(fn, delay) {   var preTime = Date.now();   return function() {     var context = this,       args = [...arguments],       nowTime = Date.now();     // 如果两次时间间隔超过了指定时间，则执行函数。     if (nowTime - preTime >= delay) {       preTime = Date.now();       return fn.apply(context, args);     }   }; } // 定时器版 function throttle (fun, wait){   let timeout = null   return function(){     let context = this     let args = [...arguments]     if(!timeout){       timeout = setTimeout(() => {         fun.apply(context, args)         timeout = null        }, wait)     }   } }
+```js
+// 时间戳版
+function throttle(fn, delay) {
+  var preTime = Date.now();
+  return function () {
+    var context = this,
+      args = [...arguments],
+      nowTime = Date.now(); // 如果两次时间间隔超过了指定时间，则执行函数。
+    if (nowTime - preTime >= delay) {
+      preTime = Date.now();
+      return fn.apply(context, args);
+    }
+  };
+}
+```
+
+```js
+// 定时器版
+function throttle(fun, wait) {
+  let timeout = null;
+  return function () {
+    let context = this;
+    let args = [...arguments];
+    if (!timeout) {
+      timeout = setTimeout(() => {
+        fun.apply(context, args);
+        timeout = null;
+      }, wait);
+    }
+  };
+}
+```
 
 ## 五、图片优化
 
@@ -267,13 +327,27 @@ function debounce(fn, wait) {   var timer = null;   return function() {     var 
 
 首先我们**优化 Loader 的文件搜索范围**
 
-module.exports = {   module: {     rules: [       {         // js 文件才使用 babel         test: /\.js$/,         loader: 'babel-loader',         // 只在 src 文件夹下查找         include: [resolve('src')],         // 不会去查找的路径         exclude: /node_modules/       }     ]   } }
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        // js 文件才使用 babel
+        test: /\.js$/,
+        loader: "babel-loader", // 只在 src 文件夹下查找
+        include: [resolve("src")], // 不会去查找的路径
+        exclude: /node_modules/
+      }
+    ]
+  }
+};
+```
 
-对于 Babel 来说，希望只作用在 JS 代码上的，然后 node_modules 中使用的代码都是编译过的，所以完全没有必要再去处理一遍。
+对于 Babel 来说，希望只作用在 JS 代码上的，然后 `node_modules` 中使用的代码都是编译过的，所以完全没有必要再去处理一遍。
 
 当然这样做还不够，还可以将 Babel 编译过的文件**缓存**起来，下次只需要编译更改过的代码文件即可，这样可以大幅度加快打包时间
 
-loader: 'babel-loader?cacheDirectory=true'
+`loader: 'babel-loader?cacheDirectory=true'`
 
 #### （2）HappyPack
 
@@ -281,17 +355,58 @@ loader: 'babel-loader?cacheDirectory=true'
 
 **HappyPack 可以将 Loader 的同步执行转换为并行的**，这样就能充分利用系统资源来加快打包效率了
 
-module: {   loaders: [     {       test: /\.js$/,       include: [resolve('src')],       exclude: /node_modules/,       // id 后面的内容对应下面       loader: 'happypack/loader?id=happybabel'     }   ] }, plugins: [   new HappyPack({     id: 'happybabel',     loaders: ['babel-loader?cacheDirectory'],     // 开启 4 个线程     threads: 4   }) ]
+```js
+module: {
+  loaders: [
+    {
+      test: /\.js$/,
+      include: [resolve('src')],
+      exclude: /node_modules/,
+      // id 后面的内容对应下面
+      loader: 'happypack/loader?id=happybabel'
+    }
+  ]
+},
+plugins: [
+  new HappyPack({
+    id: 'happybabel',
+    loaders: ['babel-loader?cacheDirectory'],
+    // 开启 4 个线程
+    threads: 4
+  })
+]
+```
 
 #### （3）DllPlugin
 
 **DllPlugin 可以将特定的类库提前打包然后引入**。这种方式可以极大的减少打包类库的次数，只有当类库更新版本才有需要重新打包，并且也实现了将公共代码抽离成单独文件的优化方案。DllPlugin的使用方法如下：
 
-// 单独配置在一个文件中 // webpack.dll.conf.js const path = require('path') const webpack = require('webpack') module.exports = {   entry: {     // 想统一打包的类库     vendor: ['react']   },   output: {     path: path.join(__dirname, 'dist'),     filename: '[name].dll.js',     library: '[name]-[hash]'   },   plugins: [     new webpack.DllPlugin({       // name 必须和 output.library 一致       name: '[name]-[hash]',       // 该属性需要与 DllReferencePlugin 中一致       context: __dirname,       path: path.join(__dirname, 'dist', '[name]-manifest.json')     })   ] }
-
-然后需要执行这个配置文件生成依赖文件，接下来需要使用 DllReferencePlugin 将依赖文件引入项目中
-
-// webpack.conf.js module.exports = {   // ...省略其他配置   plugins: [     new webpack.DllReferencePlugin({       context: __dirname,       // manifest 就是之前打包出来的 json 文件       manifest: require('./dist/vendor-manifest.json'),     })   ] }
+```js
+// 单独配置在一个文件中
+// webpack.dll.conf.js
+const path = require('path')
+const webpack = require('webpack')
+module.exports = {
+  entry: {
+    // 想统一打包的类库
+    vendor: ['react']
+  },
+  output: {
+    path: path.join(__dirname, 'dist'),
+    filename: '[name].dll.js',
+    library: '[name]-[hash]'
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      // name 必须和 output.library 一致
+      name: '[name]-[hash]',
+      // 该属性需要与 DllReferencePlugin 中一致
+      context: __dirname,
+      path: path.join(__dirname, 'dist', '[name]-manifest.json')
+    })
+  ]
+}
+```
 
 #### （4）代码压缩
 
@@ -321,25 +436,34 @@ module: {   loaders: [     {       test: /\.js$/,       include: [resolve('src')
 
 比如希望打包两个文件：
 
-// test.js export const a = 1 // index.js import { a } from './test.js'
+```js
+// test.js 
+export const a = 1 // index.js import { a } from './test.js'
+```
 
 对于这种情况，打包出来的代码会类似这样：
 
-[   /* 0 */   function (module, exports, require) {     //...   },   /* 1 */   function (module, exports, require) {     //...   } ]
+`[   /* 0 */   function (module, exports, require) {     //...   },   /* 1 */   function (module, exports, require) {     //...   } ]`
 
 但是如果使用 Scope Hoisting ，代码就会尽可能的合并到一个函数中去，也就变成了这样的类似代码：
 
-[   /* 0 */   function (module, exports, require) {     //...   } ]
+`[   /* 0 */   function (module, exports, require) {     //...   } ]`
 
 这样的打包方式生成的代码明显比之前的少多了。如果在 Webpack4 中你希望开启这个功能，只需要启用 optimization.concatenateModules 就可以了：
 
-module.exports = {   optimization: {     concatenateModules: true   } }
+`module.exports = {   optimization: {     concatenateModules: true   } }`
 
 #### （3）Tree Shaking
 
 **Tree Shaking 可以实现删除项目中未被引用的代码**，比如：
 
-// test.js export const a = 1 export const b = 2 // index.js import { a } from './test.js'
+```js
+// test.js export 
+const a = 1 export const b = 2 
+
+// index.js 
+import { a } from './test.js'
+```
 
 对于以上情况，test 文件中的变量 b 如果没有在项目中使用到的话，就不会被打包到文件中。
 
@@ -350,7 +474,7 @@ module.exports = {   optimization: {     concatenateModules: true   } }
 ⽤webpack优化前端性能是指优化webpack的输出结果，让打包的最终结果在浏览器运⾏快速⾼效。 
 
 - **压缩代码**：删除多余的代码、注释、简化代码的写法等等⽅式。可以利⽤webpack的 UglifyJsPlugin 和 ParallelUglifyPlugin 来压缩JS⽂件， 利⽤ cssnano （css-loader?minimize）来压缩css 
-- **利⽤****CDN****加速**: 在构建过程中，将引⽤的静态资源路径修改为CDN上对应的路径。可以利⽤webpack对于 output 参数和各loader的 publicPath 参数来修改资源路径 
+- **利⽤CDN加速**: 在构建过程中，将引⽤的静态资源路径修改为CDN上对应的路径。可以利⽤webpack对于 output 参数和各loader的 publicPath 参数来修改资源路径 
 - **Tree Shaking**: 将代码中永远不会⾛到的⽚段删除掉。可以通过在启动webpack时追加参数 --optimize-minimize 来实现
 - **Code Splitting:**将代码按路由维度或者组件分块(chunk),这样做到按需加载,同时可以充分利⽤浏览器缓存 
 - **提取公共第三⽅库**: SplitChunksPlugin插件来进⾏公共模块抽取,利⽤浏览器缓存可以⻓期缓存这些⽆需频繁变动的公共代码 
@@ -362,7 +486,7 @@ module.exports = {   optimization: {     concatenateModules: true   } }
 3. 利⽤ DllPlugin 和 DllReferencePlugin 预编译资源模块 通过 DllPlugin 来对那些我们引⽤但是绝对不会修改的npm包来进⾏预编译，再通过 DllReferencePlugin 将预编译的模块加载进来。 
 4. 使⽤ Happypack 实现多线程加速编译 
 5. 使⽤ webpack-uglify-parallel 来提升 uglifyPlugin 的压缩速度。 原理上 webpack-uglify-parallel 采⽤了多核并⾏压缩来提升压缩速度 
-6. 使⽤ Tree-shaking 和 Scope Hoisting 来剔除多余代码 
+6. 使⽤ Tree-shaking 和 Scope Hoisting 来剔除多余代码
 
 # 二、设计模式
 
