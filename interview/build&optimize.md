@@ -116,7 +116,14 @@ CNAME（意为：别名）：在域名解析中，实际上解析出来的指定
 ![img](https://cdn.nlark.com/yuque/0/2020/png/1500604/1603966605254-fe880ec0-ebd1-4f94-b662-cdd5e5396c34.png)
 
 ```html
-<div class="container"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> <img src="loading.gif" data-src="pic.png"> </div>
+<div class="container"> 
+  <img src="loading.gif" data-src="pic.png"> 
+  <img src="loading.gif" data-src="pic.png"> 
+  <img src="loading.gif" data-src="pic.png"> 
+  <img src="loading.gif" data-src="pic.png"> 
+  <img src="loading.gif" data-src="pic.png"> 
+  <img src="loading.gif" data-src="pic.png"> 
+</div>
 
 <script>
   var imgs = document.querySelectorAll('img');
@@ -220,7 +227,7 @@ DocumentFragment，文档片段接口，一个没有父对象的最小文档对�
 - 按钮提交场景：防⽌多次提交按钮，只执⾏最后提交的⼀次 
 - 服务端验证场景：表单验证需要服务端配合，只执⾏⼀段连续的输⼊事件的最后⼀次，还有搜索联想词功能类似⽣存环境请⽤lodash.debounce 
 
-**节流函数的****适⽤场景：** 
+**节流函数的适⽤场景：** 
 
 - 拖拽场景：固定时间内只执⾏⼀次，防⽌超⾼频次触发位置变动 
 - 缩放场景：监控浏览器resize 
