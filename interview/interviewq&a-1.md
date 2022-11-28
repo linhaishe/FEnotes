@@ -117,7 +117,7 @@ flex-basis: 0%;
 
 3. flex-basis : 0;   ➜ The div does not have a starting value as such and will take up screen as per the screen size available for
 
-   这个div没有一个起始值，它将根据可用的屏幕尺寸占用屏幕。
+   ==这个div没有一个起始值，它将根据可用的屏幕尺寸占用屏幕。==
 
    e.g: - if 3 divs are in the wrapper then each div will take 33%.
 
@@ -234,7 +234,7 @@ PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的�
 ## 10. ==元素水平垂直居中的方法有哪些？如果元素不定宽高呢？==
 ### 内联元素居中布局
 
-水平居中
+#### 1. 水平居中
 
 - 行内元素可设置：text-align: center
 - flex布局设置父元素：display: flex; justify-content: center
@@ -251,9 +251,9 @@ PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的�
 <div class="content">水平居中</div>
 ```
 
-垂直居中
+#### 2. 垂直居中
 
-- 单行文本父元素确认高度：height = line-height
+- 单行文本父元素确认高度：height、line-height设置的值相等。
 - 多行文本父元素确认高度：display: table-cell; vertical-align: middle
 - 水平+垂直居中： display: flex; justify-content: center;  align-items: center;
 
@@ -319,6 +319,8 @@ dddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvrsfvtegbsdffer
 
 ##### 1. 利用定位+margin:auto
 
+ `top: 0; left: 0; right: 0; bottom: 0; margin: auto;`
+
 ```css
 .father {
   width: 500px;
@@ -349,6 +351,8 @@ dddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvrsfvtegbsdffer
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h863lggki1j30te0i8gly.jpg" alt="image.png" style="zoom:33%;" />
 
 ##### 2. 利用定位+margin:负值
+
+`top: 50%; left: 50%; margin-left: -50px; margin-top: -50px;`
 
 ```css
 .father {
@@ -402,6 +406,7 @@ dddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvrsfvtegbsdffer
 ##### 4. table布局
 
 ```css
+/* 在父元素中处理居中的方式 */
 .father {
   display: table-cell;
   width: 200px;
@@ -422,6 +427,7 @@ dddergvrgvrsfvtegbsdffergvrsvbwergfvrbvwdfwrgbbrtvsrgsbvdddergvrgvrsfvtegbsdffer
 ##### 5. flex布局
 
 ```css
+/* 在父元素中处理居中的方式 */
 .father {
   display: flex;
   justify-content: center;
@@ -538,7 +544,7 @@ p {
 - `overflow: hidden`：文本溢出限定的宽度就隐藏内容
 - `text-overflow: ellipsis`：多行文本的情况下，用省略号“…”隐藏溢出范围的文本
 
-需要注意的是，如果文本为一段很长的英文或者数字，则需要添加`word-wrap: break-word`属性
+需要注意的是，==如果文本为一段很长的英文或者数字，则需要添加`word-wrap: break-word`属性==
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h8agqwqbdrj31ac0sw13o.jpg" alt="image.png" style="zoom:33%;" />
 
@@ -913,9 +919,9 @@ console.log(a.call(undefined));
 console.log(a.call(null));
 ```
 
-同样是检测对象obj调用toString方法，obj.toString()的结 果和Object.prototype. tostring.cal(obj)的结果不一样，这是为什么?
+同样是检测对象obj调用toString方法，`obj.toString()`的结 果和`Object.prototype. toString.cal(obj)`的结果不一样，这是为什么?
 
-这是因为toString是Object的原型方法，而Array、 function等类型作为Object的实例,都重写了toString方法。不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法(function类型返回内容为函数体的字符串，Array类型返回元素组成的字符串)，而不会去调用Object.上原型toString方法(返回对象的具体类型)， 所以采用obj.toString()不能得到其对象类型，只能将obj转换为字符串类型;因此，在想要得到对象的具体类型时，应该调用Object原型上的toString方法。
+这是因为toString是Object的原型方法，而Array、 Function等类型作为Object的实例,都重写了toString方法。不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法(function类型返回内容为函数体的字符串，Array类型返回元素组成的字符串)，而不会去调用Object上原型toString方法(返回对象的具体类型)， 所以采用`obj.toString()`不能得到其对象类型，只能将obj转换为字符串类型;因此，在想要得到对象的具体类型时，应该调用Object原型上的toString方法。
 
 #### e. 自创
 
@@ -1388,7 +1394,7 @@ if (!a) {
 
 简单来说就是，如果 + 的其中一个操作数是字符串（或者通过以上步骤最终得到字符串），则执行字符串拼接，否则执行数字加法。 那么对于除了加法的运算符来说，只要其中一方是数字，那么另一方就会被转为数字。
 
-###  24. 为什么会有BigInt的提案？ 
+###  24. 为什么会有BigInt的提案？
 
 JavaScript中Number.MAX_SAFE_INTEGER表示最⼤安全数字，计算结果是9007199254740991，即在这个数范围内不会出现精度丢失（⼩数除外）。但是⼀旦超过这个范围，js就会出现计算不准确的情况，这在⼤数计算的时候不得不依靠⼀些第三⽅库进⾏解决，因此官⽅提出了BigInt来解决此问题。
 
@@ -1704,9 +1710,9 @@ mutiple(1, 2, 3, 4) // [1, 2, 3, 4]
 
 #### rest参数和argument的区别
 
-arguments是一个类数组,本质是对象;方便处理函数传参。
+arguments是一个类数组,本质是对象；方便处理函数传参。
 
-而rest参数m,是真正的数组,可以正常调用数组的所有方法.所以在某些场景中,无需将arguments转为真正的数组,可以直接使用rest参数代替。
+而rest参数是真正的数组,可以正常调用数组的所有方法.所以在某些场景中,无需将arguments转为真正的数组,可以直接使用rest参数代替。
 
 ```js
 function sumArgu() {
@@ -1809,7 +1815,7 @@ p.a; // 'a' = 2
 - `Array.prototype.slice()`, `Array.prototype.concat()`
 - 使用拓展运算符实现的复制
 
-<mark>深拷贝</mark>，深拷贝开辟一个新的栈，两个对象属完成相同，但是对应两个不同的地址，修改一个对象的属性，不会改变另一个对象的属性
+<mark>深拷贝</mark>，深拷贝开辟一个新的栈，两个对象属性完成相同，但是对应两个不同的地址，修改一个对象的属性，不会改变另一个对象的属性。
 
 常见的深拷贝方式有：
 
@@ -1825,6 +1831,8 @@ p.a; // 'a' = 2
    - 将这个空对象的原型对象指向构造函数的原型属性，从而继承原型上的方法
    - 将this指向这个空对象，执行构造函数中的代码，以获取私有属性
    - 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7s351qy4lj30wq0ksgo3.jpg" alt="image.png" style="zoom: 33%;" />
 
 ### 2. Map和Object的区别
 
@@ -2069,7 +2077,7 @@ container.insertBefore(content, title)
 
 ### 16. escape、 encodeURI、encodeURIComponent的区别
 
-### 17. JavaScript为什么要进行变量提升，他导致了什么问题？
+### 17. ==JavaScript为什么要进行变量提升，他导致了什么问题？==
 
 - 解析和预编译过程中的声明提升可以提高性能，让函数可以在执行时预先为变量分配栈空间
 - 声明提升还可以提高JS代码的容错性，使一些不规范的代码也可以正常执行
@@ -2102,9 +2110,9 @@ console.log(i); // 11
 
 ### 18. 什么是尾调用，使用尾调用有什么好处？
 
-尾调用指的是函数的最后一步调用另一个函数。代码执行是基于执行栈的，所以当在一个函数里调用另一个函数时，会保留当前的执行上下文，然后再新建另外一个执行上下文加入栈中。使用尾调用的话，因为已经是函数的最后一步，所以这时可以不必再保留当前的执行上下文，从而节省了内存，这就是尾调用优化。但是 ES6 的尾调用优化只在严格模式下开启，正常模式是无效的
+尾调用指的是函数的最后一步调用另一个函数。代码执行是基于执行栈的，所以当在一个函数里调用另一个函数时，会保留当前的执行上下文，然后再新建另外一个执行上下文加入栈中。使用尾调用的话，因为已经是函数的最后一步，==所以这时可以不必再保留当前的执行上下文，从而节省了内存，这就是尾调用优化。但是 ES6 的尾调用优化只在严格模式下开启，正常模式是无效的==
 
-### 19. ES6 Module与CommonJS模块有什么异同
+### 19. ==ES6 Module与CommonJS模块有什么异同==
 
 **区别： **
 
@@ -2157,21 +2165,19 @@ use strict 是一种 ECMAscript5 添加的（严格模式）运行模式，这�
 
 **两者主要区别在于：**前者源程序编译后即可在该平台运行，后者是在运行期间才编译。所以前者运行速度快，后者跨平台性好。
 
-### 25. for..in和for.. .of的区别 forin forof
+### 25. ==for...in和for...of的区别 forin forof==
 
 for…of 是ES6新增的遍历方式，允许遍历一个含有iterator接口的数据结构（数组、对象等）并且返回各项的值，和ES3中的for…in的区别如下 
 
-for…of 遍历获取的是对象的键值，for…in 获取的是对象的键名； 
-
-for… in 会遍历对象的整个原型链，性能非常差不推荐使用，而 for … of 只遍历当前对象不会遍历原型链； 
-
-对于数组的遍历，for…in 会返回数组中所有可枚举的属性(包括原型链上可枚举的属性)，for…of 只返回数组的下标对应的属性值； 
+1. for… in 会遍历对象的整个原型链，性能非常差不推荐使用，而 for … of 只遍历当前对象不会遍历原型链； 
+2. for…of 遍历获取的是对象的键值，for…in 获取的是对象的键名； 
+3. 对于数组的遍历，for…in 会返回数组中所有可枚举的属性(包括原型链上可枚举的属性)，for…of 只返回数组的下标对应的属性值； 
 
 总结：==for...in 循环主要是为了遍历对象而生，不适用于遍历数组；for...of 循环可以用来遍历数组、类数组对象，字符串、Set、Map 以及 Generator 对象。==
 
-### 26. 如何使用for.. .of遍历对象
+### 26. 如何使用for...of遍历对象
 
-for…of是作为ES6新增的遍历方式，允许遍历一个含有iterator接口的数据结构（数组、对象等）并且返回各项的值，普通的对象用for..of遍历是会报错的。
+for…of是作为ES6新增的遍历方式，允许遍历一个含有iterator接口的数据结构（数组、对象等）并且返回各项的值，普通的对象用for...of遍历是会报错的。
 
 如果需要遍历的对象是类数组对象，用Array.from转成数组即可。
 
@@ -2551,7 +2557,9 @@ Function.prototype.softBind = function (obj, ...rest) {
 
 **原型**
 
-在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。
+每个构造函数的内部都包含一个指针，这个指针指向构造函数的 `prototype`属性对应的值，这个指针被称为对象的原型。（在 ES5 中）
+
+在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个`prototype`属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。在这个对象的内部将包含一个指针，这个指针指向构造函数的 `prototype`属性对应的值，在 ES5 中这个指针被称为对象的原型。
 
 **获取原型的方法：**
 
@@ -2943,7 +2951,7 @@ setInterval((timer) => {
 
 首先 `requestAnimationFrame` 自带函数节流功能，基本可以保证在 16.6 毫秒内只执行一次（不掉帧的情况下），并且该函数的延时效果是精确的，没有其他定时器时间不准的问题，当然你也可以通过该函数来实现 `setTimeout`。
 
-### 15. 如何实现 promise.map，限制 promise 并发数
+### 15. ==如何实现 promise.map，限制 promise 并发数==
 
 实现一个 promise.map，进行并发数控制，有以下测试用例
 
@@ -2986,7 +2994,6 @@ function pMap(list, mapper, concurrency = Infinity) {
     }
   });
 }
-
 ```
 
 ### 16. 如何实现一个 async/await
@@ -3033,9 +3040,9 @@ export default function _asyncToGenerator(fn) {
 ```
 
 ### 17. 如何使用 async/await 实现 Promise.all 的效果
-### 18. 有没有用过 Promise.allSettled() ，它是干什么的
+### 18. ==Promise.allSettled() ，它是干什么的==
 
-接收一个可迭代对象，其中每个成员都是`Promise`。在所有给定的`Promise`都已经`fulfilled`或`rejected`后返回一个`Promise`，并带有一个对象数组，每个对象表示对应的`Promise`结果 相较于`Promise.all`，后者会在任何一个`Promise`为`rejected`时立即结束 简单实现。
+接收一个可迭代对象，其中每个成员都是`Promise`。在所有给定的`Promise`都已经`fulfilled`或`rejected`后返回一个`Promise`，并带有一个对象数组，每个对象表示对应的`Promise`结果 相较于`Promise.all`，后者会在任何一个`Promise`为`rejected`时立即结束。
 
 ### 19. fetch 中 crendentials 指什么意思，可以取什么值
 
@@ -3116,7 +3123,7 @@ p1().then((o) => console.log(o, "p1"));
 
 [Promise/A+ 规范](https://tsejx.github.io/javascript-guidebook/standard-built-in-objects/control-abstraction-objects/promise-standard/)
 
-### 25. ajax、 axios、 fetch的区别
+### 25. ==ajax、 axios、 fetch的区别==
 
 **（1）AJAX**
 
@@ -3166,7 +3173,7 @@ https://vue3js.cn/interview/vue/axiosCode.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E
 
 https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%BB%80%E4%B9%88
 
-### 27. ajax
+### 27. ==手写Ajax==
 
 即异步的`JavaScript` 和`XML`，是一种创建交互式网页应用的网页开发技术，可以在不重新加载整个网页的情况下，与服务器交换数据，并且更新部分网页
 
@@ -3175,51 +3182,73 @@ https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%B
 ```js
 //封装一个ajax请求
 function ajax(options) {
-    //创建XMLHttpRequest对象
-    const xhr = new XMLHttpRequest()
+  //创建XMLHttpRequest对象
+  const xhr = new XMLHttpRequest();
 
+  //初始化参数的内容
+  options = options || {};
+  options.type = (options.type || "GET").toUpperCase();
+  options.dataType = options.dataType || "json";
+  const params = options.data;
 
-    //初始化参数的内容
-    options = options || {}
-    options.type = (options.type || 'GET').toUpperCase()
-    options.dataType = options.dataType || 'json'
-    const params = options.data
-
-    //发送请求
-    if (options.type === 'GET') {
-        xhr.open('GET', options.url + '?' + params, true)
-        xhr.send(null)
-    } else if (options.type === 'POST') {
-        xhr.open('POST', options.url, true)
-        xhr.send(params)
-
+  //发送请求
+  if (options.type === "GET") {
+    xhr.open("GET", options.url + "?" + params, true);
+    xhr.send(null);
+  } else if (options.type === "POST") {
+    xhr.open("POST", options.url, true);
+    xhr.send(params);
     //接收请求
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            let status = xhr.status
-            if (status >= 200 && status < 300) {
-                options.success && options.success(xhr.responseText, xhr.responseXML)
-            } else {
-                options.fail && options.fail(status)
-            }
+      if (xhr.readyState === 4) {
+        let status = xhr.status;
+        if (status >= 200 && status < 300) {
+          options.success && options.success(xhr.responseText, xhr.responseXML);
+        } else {
+          options.fail && options.fail(status);
         }
-    }
+      }
+    };
+  }
 }
 ```
 
 ### 28. JSONP 的原理是什么, 如何实现
 
-**以下是Jsonp解决跨域：**
+**1. 什么是jsonp**
+
+json 是一种数据格式，jsonp 是一种数据调用的方式，带callback的json就是jsonp。
+
+jsonp的核心则是动态添加`<script>`标签来调用服务器提供的js脚本。
+
+**2. 以下是Jsonp解决跨域：**
 
 根据浏览器同源策略，所谓同源就是协议、主机、端口号都相同时成为同源。a 域的js不能直接访问 b域名的信息，但是script 标签的src属性可以跨域引用文件，jsonp是请求之后后台包装好一段json，并且把数据放在一个callback函数，返回一个js文件，动态引入这个文件，下载完成js之后，会去调用这个callback通过这样访问数据。
 
-为了实现跨域请求，可以通过script标签实现跨域请求，然后再服务端输出JSON数据并执行回调callback函数，从而解决跨域数据请求。**jsonp的核心则是动态添加`<script>`标签来调用服务器提供的js脚本。**
+为了实现跨域请求，可以通过script标签实现跨域请求，然后再服务端输出JSON数据并执行回调callback函数，从而解决跨域数据请求。==**jsonp的核心则是动态添加`<script>`标签来调用服务器提供的js脚本。**==
 
 首先在客户端注册一个callback，然后把callback的名字传给服务器。此时，服务器先生成json数据，然后以javascript语法的方式，生成function，function名字就是传递上来I带参数jsonp。最后将json数据直接以入参的方式，放置function中，这样就生成js语法的文档，返回给客户端。客户端浏览器，解析script标签，并执行返回javascript文档，此时数据作为参数，传入了客户端预先定义好的callback函数里。简单的说，就是利用script标签没有跨域限制的“漏洞”来达到与第三方通讯的目的。
 
 总结一下，json 是一种数据格式，jsonp 是一种数据调用的方式，带callback的json就是jsonp。
 
-**缺点：这种方式只支持get方式。**
+JSONP的使用
+
+- 动态的创建一个script标签
+
+```
+var script = document.createElement("script");
+```
+
+- 设置script的src，设置回调函数
+
+```js
+script.src = "http://locallhost:3000/textAJAX?callback=abc"
+```
+
+**3. 缺点：**
+
+1. 这种方式只支持get方式。
+2. jsonp的弊端就是绕过了浏览器的同源策略，必须确保第三方资源能够安全准确的运行我们的回调函数，第一个问题是第三方资源的不安全会导致我们的程序出现安全漏洞，二是jsonp的失败状态不容易检测。
 
 ### 29. 什么是跨域
 
@@ -3244,7 +3273,7 @@ Related to clients
 
 跨域是指的当前资源访问其他资源时发起的http请求由于安全原因（由于同源策略，域名、协议。端口中只要有一个不同就不同源），浏览器限制了这些请求的正常访问，特别需要注意的是这些发生在浏览器中。
 
-### 31. 如何解决跨域
+### 31. ==如何解决跨域==
 
 #### 1. JSONP
 
@@ -3295,12 +3324,11 @@ Related to clients
      response.setHeader("Access-Control-Allow-Headers", "*");
      response.setHeader("Access-Control-Allow-Method", "*");
      // response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
-   
      response.send("hello CORS");
    });
    ```
-
-   ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
+   
+ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
 
 #### 3. Proxy
 
@@ -9613,10 +9641,3 @@ https://vue3js.cn/interview/applet/WebView_jscore.html#%E4%B8%80%E3%80%81%E8%83%
 4. 关于模块化，什么是 amd 和 umd
 5. 什么是 commonjs2
 6. 现代化前端框架中如何进行调试
-
-
-
-
-
-
-
