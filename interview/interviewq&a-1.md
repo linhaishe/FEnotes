@@ -3328,6 +3328,7 @@ Related to clients
    });
    ```
    
+
 ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
 
 #### 3. Proxy
@@ -3449,7 +3450,7 @@ XSS 的本质是：恶意代码未经过滤，与网站正常的代码混在一�
 ## 九、垃圾回收机制
 
 ### 1. 浏览器的垃圾回收机制
-### 2. 哪些情况会导致内存泄漏
+### 2. ==哪些情况会导致内存泄漏==
 
 [JavaScript 中内存泄漏的几种情况](https://vue3js.cn/interview/JavaScript/memory_leak.html#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E6%83%85%E5%86%B5)
 
@@ -3462,14 +3463,13 @@ https://zh.wikipedia.org/wiki
 4. 没有清理对`DOM`元素的引用同样造成内存泄露
 5. 包括使用事件监听addEventListener监听的时候，在不监听的情况下使用removeEventListener取消对事件监听
 
-### 3. 举例说明你对尾递归的理解，有哪些应用场景
-### 4. WeakMap 与垃圾回收有何关系
+### 3. WeakMap 与垃圾回收有何关系
 
 ## 十、其他
 
 ### 1. 说说你对正则表达式的理解？应用场景？
 ### 2. 说说JavaScript中的事件模型
-### 3. ⚡️Javascript本地存储的方式有哪些？区别及应用场景？
+### 3. ==Javascript本地存储的方式有哪些？区别及应用场景？==
 
 #### 区别
 
@@ -3806,18 +3806,13 @@ const compose = (...fns)=>val=>fns.reverse().reduce((acc,fn)=>fn(acc),val);
 const pipe = (...fns)=>val=>fns.reduce((acc,fn)=>fn(acc),val);
 ```
 
-### 5. ⚡️Javascript中如何实现函数缓存？函数缓存有哪些应用场景？
+### 5. ==Javascript中如何实现函数缓存？函数缓存有哪些应用场景？==
 
 ==实现函数缓存主要依靠闭包、柯里化、高阶函数。==
 
 函数缓存，就是将函数运算过的结果进行缓存，本质上就是用空间（缓存存储）换时间（计算过程），常用于缓存数据计算结果和缓存对象。缓存只是一个临时的数据存储，它保存数据，以便将来对该数据的请求能够更快地得到处理
 
 ```js
-const add = (a,b) => a+b;
-const calc = memoize(add); // 函数缓存
-calc(10,20); // 30
-calc(10,20); // 30 缓存
-
 // 高阶函数缓存
 const memoize = function (func, content) {
   let cache = Object.create(null);
@@ -3829,15 +3824,18 @@ const memoize = function (func, content) {
     return cache[key];
   };
 };
+const add = (a,b) => a+b;
+const calc = memoize(add); // 函数缓存
+calc(10,20); // 30 缓存
 
 // 柯里化
 var add2 = function (x) {
-  //**返回函数**
+  // 返回函数
   return function (y) {
     return x + y;
   };
 };
-add2(3)(4); //7
+add2(3)(4); // 7
 
 // 闭包可以理解成，函数 + 函数体内可访问的变量总和
 // add函数本身，以及其内部可访问的变量，即 a = 1，这两个组合在⼀起就形成了闭包
@@ -4034,7 +4032,7 @@ document.addEventListener("copy", cb);
 
 若在生产环境使用，可以使用 [fingerprintjs2 (opens new window)](https://github.com/Valve/fingerprintjs2)，根据业务需求，如单设备是否可跨浏览器，以此选择合适的 `component`
 
-### 14. 有没有用 npm 发布过 package，如何发布
+### 14. ==用 npm 发布过 package，如何发布==
 
 1. 注册 npm 账号 https://www.npmjs.com/
 2. 本地通过命令行 `npm login` 登陆
@@ -7292,27 +7290,54 @@ React是Facebook开发的一款JS库,React不是一个MVC框架，它是构建�
 
 ## 一、组件基础
 
-### 1. React事件机制
+### 1. ==React事件机制/事件代理==
 
-是 `React`模拟原生 `DOM`事件所有能力的一个事件对象。即浏览器原生事件的跨浏览器包装器。举例onClick,事件没有绑定在真实DOM上，而是通过事件代理，绑定在最外层。减少内存消耗，组件卸载销毁的时候统一订阅和移除事件。（阻止事件发生不能用stopPropogation,而是要用prevent default ）
+https://febook.hzfe.org/awesome-interview/book4/frame-react-event-mechanism
 
-- 阻止合成事件间的冒泡，用`e.stopPropagation()`
-- 阻止合成事件与最外层 document 上的事件间的冒泡，用`e.nativeEvent.stopImmediatePropagation()`
-- 阻止合成事件与除最外层document上的原生事件上的冒泡，通过判断e.target来避免
+因为版本更新后，事件委托绑定在root上，所以需要深入去了解这里的内容是否有出入。
 
-### 2. React的事件和普通的HTML事件有什么不同。
+React 的事件处理机制可以分为两个阶段：
 
-   命名方式，事件阻止方式
+1. 初始化渲染时在 root 节点上注册原生事件；
 
-### 3. React组件中怎么做事件代理?它的原理是什么？
+2. 原生事件触发时模拟捕获、目标和冒泡阶段派发合成事件。
 
-   事件冒泡，绑定到root上(17.0.0版本)
+事件冒泡，绑定到root上(17.0.0版本)
 
-   原理：1. 事件委派 2. 自动绑定
+原理：1. 事件委派 2. 自动绑定
 
    - 事件委派：React会把所有的事件绑定到结构的最外层，使用统一的事件监听器，这个事件监听器上维持了一个映射来保存所有组件内部事件监听和处理函数。 
 
    - 自动绑定：React组件中，每个方法的上下文都会指向该组件的实例，即自动绑定this为当前组件。
+
+通过这种机制，冒泡的原生事件类型最多在 root 节点上注册一次，节省内存开销。且 React 为不同类型的事件定义了不同的处理优先级，从而让用户代码及时响应高优先级的用户交互，提升用户体验。
+
+React 的事件机制中依赖合成事件这个核心概念。合成事件在符合 W3C 规范定义的前提下，抹平浏览器之间的差异化表现。并且简化事件逻辑，对关联事件进行合成。如每当表单类型组件的值发生改变时，都会触发 onChange 事件，而 onChange 事件由 change、click、input、keydown、keyup 等原生事件组成。
+
+是 `React`模拟原生 `DOM`事件所有能力的一个事件对象。即浏览器原生事件的跨浏览器包装器。举例onClick,事件没有绑定在真实DOM上，而是通过事件代理，绑定在最外层。==减少内存消耗，组件卸载销毁的时候统一订阅和移除事件。==
+
+除此之外，冒泡到root上的事件也不是原生的浏览器事件，而是由react自己实现的合成事件（SyntheticEvent）。因此如果不想要是事件冒泡的话应该调用event.preventDefault()方法，而不是调用event.stopProppagation()方法。
+
+可以得出以下结论：
+
+1. React 所有事件都挂载在 root 对象上
+2. 当真实 DOM 元素触发事件，会冒泡到 root 对象后，再处理 React 事件
+3. 所以会先执行原生事件，然后处理 React 事件
+4. 最后真正执行 root 上挂载的事件
+
+- 阻止合成事件间的冒泡，用`e.stopPropagation()`
+- 阻止合成事件与最外层 root 上的事件间的冒泡，用`e.nativeEvent.stopImmediatePropagation()`
+- 阻止合成事件与除最外层root上的原生事件上的冒泡，通过判断e.target来避免
+
+![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h8l4ijlw74j30oe0azacj.jpg)
+
+### 2. React的事件和普通的HTML事件有什么不同。
+
+- 对于事件名称命名方式，原生事件为全小写，react 事件采用小驼峰；
+- 对于事件函数处理语法，原生事件为字符串，react 事件为函数；
+- react 事件不能采用 return false 的方式来阻止浏览器的默认行为，而必须要地明确地调用`preventDefault()`来阻止默认行为。
+
+### 3. ~~React组件中怎么做事件代理?它的原理是什么？~~
 
 ### 4. React高阶组件、Render props、hooks有什么区别，为什么不断迭代？
 
@@ -7337,7 +7362,7 @@ React 在渲染时，会递归比对 VirtualDOM 树，找出需要变动的节�
 - ==分批延时对DOM进行操作，避免一次性操作大量 DOM 节点，可以得到更好的用户体验；==
 - ==给浏览器一点喘息的机会，它会对代码进行编译优化（JIT）及进行热代码优化，或者对 reflow 进行修正。==
 
-==**核心思想：**==Fiber 也称协程或者纤程。它和线程并不一样，协程本身是没有并发或者并行能力的（需要配合线程），它只是一种控制流程的让出机制。让出 CPU 的执行权，让 CPU 能在这段时间执行其他的操作。渲染的过程可以被中断，可以将控制权交回浏览器，让位给高优先级的任务，浏览器空闲后再恢复渲染。
+==**核心思想：**==Fiber 称协程~~或者纤程~~。它和线程并不一样，协程本身是没有并发或者并行能力的（需要配合线程），它只是一种控制流程的让出机制。让出 CPU 的执行权，让 CPU 能在这段时间执行其他的操作。渲染的过程可以被中断，可以将控制权交回浏览器，让位给高优先级的任务，浏览器空闲后再恢复渲染。
 
 ==在react中，主要做了以下的操作：==
 
@@ -7359,13 +7384,26 @@ Fiber把渲染更新过程拆分成多个子任务，每次只做一小部分，
 
 window.requestIdleCallback()方法将在浏览器的空闲时段内调用的函数排队。这使开发者能够在主事件循环上执行后台和低优先级工作，而不会影响延迟关键事件，如动画和输入响应
 
-首先 React 中任务切割为多个步骤，分批完成。在完成一部分任务之后，将控制权交回给浏览器，让浏览器有时间再进行页面的渲染。等浏览器忙完之后有剩余时间，再继续之前 React 未完成的任务，是一种合作式调度。
+----------
+
+==首先 React 中任务切割为多个步骤，分批完成。在完成一部分任务之后，将控制权交回给浏览器，让浏览器有时间再进行页面的渲染。等浏览器忙完之后有剩余时间，再继续之前 React 未完成的任务，是一种合作式调度。==
 
 该实现过程是基于 Fiber节点实现，作为静态的数据结构来说，每个 Fiber 节点对应一个 React element，保存了该组件的类型（函数组件/类组件/原生组件等等）、对应的 DOM 节点等信息。
 
 作为动态的工作单元来说，每个 Fiber 节点保存了本次更新中该组件改变的状态、要执行的工作。
 
 每个 Fiber 节点有个对应的 React element，多个 Fiber节点根据如下三个属性构建一颗树
+
+```js
+// 指向父级Fiber节点
+this.return = null
+// 指向子Fiber节点
+this.child = null
+// 指向右边第一个兄弟Fiber节点
+this.sibling = null
+```
+
+通过这些属性就能找到下一个执行目标
 
 ### 6. React.Component和React.PureComponent的区别。
 
@@ -7462,19 +7500,58 @@ PureComponent表示一个纯组件，会自动调用shouldComponentUpdate，这�
 - State 抽象和更改 
 - Props 更改 
 
-### 10. ~~对componentWillReceiveProps的理解~~
+### 10. 对getDerivedStateFromProps的理解
 
-在这个生命周期中，可以在子组件的render函数执行前获取新的props，从而更新子组件自己的state。
+`getDerivedStateFromProps`这个方法名已经非常语义话了，简单翻译过来就是从Props中获得State，所以该函数的功能就是**从更新后的props中获取State，它让组件在 props 发生改变时更新它自身的内部 state**。
 
-该方法当`props`发生变化时执行，初始化`render`时不执行，在这个回调函数里面，你可以根据属性的变化，通过调用`this.setState()`来更新你的组件状态，旧的属性还是可以通过`this.props`来获取,这里调用更新状态是安全的，并不会触发额外的`render`调用。
+1. 当props数据某个值发生变化时对state进行赋值：
 
-**使用好处：**在这个生命周期中，可以在子组件的render函数执行前获取新的props，从而更新子组件自己的state。 可以将数据请求放在这里进行执行，需要传的参数则从componentWillReceiveProps(nextProps)中获取。而不必将所有的请求都放在父组件中。于是该请求只会在该组件渲染时才会发出，从而减轻请求负担。componentWillReceiveProps在初始化render的时候不会执行，它会在Component接受到新的状态(Props)时被触发，一般用于父组件状态更新时子组件的重新渲染。
+```js
+static getDerivedStateFromProps(nextProps, preState) {
+  const {
+    match: {
+      params: { instrumentId }
+    }
+  } = nextProps;
+  // 此处当传入的instrumentId发生变化的时候，更新state
+  if (instrumentId !== preState.instrumentId) {
+    //若需要在数据变化后进行其他操作，需要在return前操作！
+    return {
+      instrumentId: instrumentId
+    };
+  }
+  return null; // 不变化，则对于state不进行任何操作
+};
+
+```
+
+2. 无条件的根据 prop 来更新内部 state，也就是只要有传入 prop 值， 就更新 state
+
+   （但是如果只要props值改变，就更新state，其实直接用props的值去进行操作就可以了。）
+
+```js
+static getDerivedStateFromProps(props, state) {
+  const {
+    match: {
+      params: { instrumentId }
+    }
+  } = nextProps;
+  return {
+    instrumentId: instrumentId
+  };
+};
+
+```
+
+https://segmentfault.com/a/1190000041714311
+
+==需补充学习==
 
 ### 11. 哪些方法会触发React重新渲染?
 
    - `setState()`方法被调用。但传入null的时候不会触发render。
    - 父组件重新渲染：只要父组件重新渲染了，即使传入子组件的 props 未发生变化，那么子组件也会重新渲染，进而触发 render。
-   - 3.`forceUpdate()`
+   - `forceUpdate()`
 
 **重新渲染 render 会做些什么?**
 
@@ -7498,9 +7575,55 @@ This，props，hooks
 
 ### 14. 对有状态组件和无状态组件的理解及使用场景
 
-组件内部状态且与外部无关的组件，可以考虑用状态组件，这样状态树就不会过于复杂，易于理解和管理。
+#### 1. 有状态组件
 
-当一个组件不需要管理自身状态时，也就是无状态组件，应该优先设计为函数组件。比如自定义的 `<Button/>`、 `<Input />` 等组件。
+**总结：**
+
+类组件可以维护自身的状态变量，即组件的 state ，类组件还有不同的生命周期方法，可以让开发者能够在组件的不同阶段（挂载、更新、卸载），对组件做更多的控制。类组件则既可以充当无状态组件，也可以充当有状态组件。当一个类组件不需要管理自身状态时，也可称为无状态组件。
+
+**特点：**
+
+- 是类组件 
+- 有继承 
+- 可以使用this
+- 可以使用react的生命周期
+- 使用较多，容易频繁触发生命周期钩子函数，影响性能
+- 内部使用 state，维护自身状态的变化，有状态组件根据外部组件传入的 props 和自身的 state进行渲染。
+
+**使用场景：**
+
+- 需要使用到状态的。 
+- 需要使用状态操作组件的（无状态组件的也可以实现新版本react hooks也可实现）
+
+#### 2. 无状态组件
+
+**总结：**
+
+组件内部状态且与外部无关的组件，可以考虑用状态组件，这样状态树就不会过于复杂，易于理解和管理。当一个组件不需要管理自身状态时，也就是无状态组件，应该优先设计为函数组件。比如自定义的 `<Button/>`、 `<Input />` 等组件。
+
+**特点：**
+
+- 不依赖自身的状态state
+- 可以是类组件或者函数组件。
+- 可以完全避免使用 this 关键字。（由于使用的是箭头函数事件无需绑定）
+- 有更高的性能。当不需要使用生命周期钩子时，应该首先使用无状态函数组件
+- 组件内部不维护 state ，只根据外部组件传入的 props 进行渲染的组件，当 props 改变时，组件重新渲染。
+
+**使用场景：**
+
+- 组件不需要管理 state，纯展示 
+
+**优点：**
+
+- 简化代码、专注于 render
+- 组件不需要被实例化，无生命周期，提升性能。 输出（渲染）只取决于输入（属性），无副作用
+- 视图和数据的解耦分离
+
+**缺点：**
+
+- 无法使用 ref 
+- 无生命周期方法
+- 无法控制组件的重渲染，因为无法使用shouldComponentUpdate 方法，当组件接受到新的属性时则会重渲染
 
 ### 15. 对React中Fragment的理解，它的使用场景
 
@@ -7515,6 +7638,9 @@ React 中的一个常见模式是一个组件返回多个元素。Fragments 允�
 - 字符串格式：字符串格式，例如：`<p ref="info">span</p>`
 - 函数格式：ref对应一个方法，该方法有一个参数，也就是对应的节点实例，例如：`<p ref={ele => this.info = ele}></p>`
 - createRef方法：hooks，使用React.createRef()来实现
+- 函数组件：`const textInput = useRef(null);`
+
+注意：我们通过 "current" 来访问 DOM 节点`this.info.current.focus();`
 
 ### 17. React中可以在render访问refs吗?为什么？
 
@@ -7649,7 +7775,7 @@ constructor(props){
    - 转发 refs 到 DOM 组件
    - 在高阶组件中转发 refs
 
-### 28. 类组件与函数组件有什么异同?
+### 28. ==类组件与函数组件有什么异同?==
 
 **相同点：**
 
@@ -7657,13 +7783,15 @@ constructor(props){
 
 我们甚至可以将一个类组件改写成函数组件，或者把函数组件改写成一个类组件（虽然并不推荐这种重构行为）。从使用者的角度而言，很难从使用体验上区分两者，而且在现代浏览器中，闭包和类的性能只在极端场景下才会有明显的差别。所以，基本可认为两者作为组件是完全一致的。
 
-**不同点：**
+**不同点**
 
-- 它们在开发时的心智模型上却存在巨大的差异。类组件是基于面向对象编程的，它主打的是继承、生命周期等核心概念；而函数组件内核是函数式编程，主打的是 immutable、没有副作用、引用透明等特点。
-- 之前，在使用场景上，如果存在需要使用生命周期的组件，那么主推类组件；设计模式上，如果需要使用继承，那么主推类组件。但现在由于 React Hooks 的推出，生命周期概念的淡出，函数组件可以完全取代类组件。其次继承并不是组件最佳的设计模式，官方更推崇“组合优于继承”的设计概念，所以类组件在这方面的优势也在淡出。
-- 性能优化上，类组件主要依靠 shouldComponentUpdate 阻断渲染来提升性能，而函数组件依靠 React.memo 缓存渲染结果来提升性能。
-- 从上手程度而言，类组件更容易上手，从未来趋势上看，由于React Hooks 的推出，函数组件成了社区未来主推的方案。
-- 类组件在未来时间切片与并发模式中，由于生命周期带来的复杂度，并不易于优化。而函数组件本身轻量简单，且在 Hooks 的基础上提供了比原先更细粒度的逻辑组织与复用，更能适应 React 的未来发展。
+|                          | 类组件(class)                                                | 函数组件(hooks)                                              |
+| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 开发时的心智模型上的差异 | 基于面向对象编程的，它主打的是继承、生命周期等核心概念       | 内核是函数式编程，主打的是 immutable、没有副作用、引用透明等特 |
+| 使用场景上（class劣势）  | 1. 如果存在需要使用生命周期的组件<br />2. 设计模式上，如果需要使用继承 | 由于 React Hooks 的推出，生命周期概念的淡出，函数组件可以完全取代类组件。其次继承并不是组件最佳的设计模式，官方更推崇“组合优于继承”的设计概念，所以类组件在这方面的优势也在淡出 |
+| 性能优化                 | 类组件主要依靠 shouldComponentUpdate 阻断渲染来提升性能      | 而函数组件依靠 React.memo 缓存渲染结果来提升性能。           |
+| 上手程度                 | 类组件更容易上手                                             | 从未来趋势上看，由于React Hooks 的推出，函数组件成了社区未来主推的方案 |
+| 未来时间切片与并发模式   | 由于生命周期带来的复杂度，并不易于优化                       | 函数组件本身轻量简单，且在 Hooks 的基础上提供了比原先更细粒度的逻辑组织与复用，更能适应 React 的未来发展 |
 
 ### 29. ==React Jsx转换成真实DOM过程？==
 
@@ -7742,7 +7870,7 @@ constructor(props){
    };
    ```
 
-### 2. React setState调用之后发生了什么?是同步还是异步？
+### 2. ==React setState调用之后发生了什么?是同步还是异步？==
 
 **流程**
 
@@ -7757,9 +7885,9 @@ constructor(props){
 - 在组件生命周期或React合成事件中，setState是异步，因为react可以控制。
 - 在setTimeout或者原生dom事件中，setState是同步，因为react无法控制原生事件。
 
-### 3. React中的setState批量更新的过程是什么？
+### 3. ==React中的setState批量更新的过程是什么？==
 
-   放入队列，合成一次，即使多次触发，只保留最后一次的更新
+放入队列，合成一次，即使多次触发，只保留最后一次的更新
 
 同样先给出一个例子：
 
@@ -7780,6 +7908,22 @@ handleClick = () => {
   });
   console.log(this.state.count); // 1
 };
+
+function A() {
+  const [count, setCount] = useState(4);
+  setCount(count + 1);
+  setCount(count + 1);
+  console.log("A: ", count); // ?
+}
+
+function B() {
+  const [count, setCount] = useState(4);
+  setCount((prev) => prev + 1);
+  setCount((prev) => prev + 1);
+  console.log("B: ", count); // ?
+} // Answer
+// A: 5
+// B: 6
 
 ```
 
@@ -7818,7 +7962,7 @@ onClick = () => {
 
 ### 4. React中有使用过getDefaultProps吗？它有什么作用？
 
-   通过实现组件的getDefaultProps，对属性设置默认值（ES5的写法
+通过实现组件的getDefaultProps，对属性设置默认值（ES5的写法
 
 ```jsx
 var ShowTitle = React.createClass({
@@ -7833,9 +7977,9 @@ var ShowTitle = React.createClass({
 });
 ```
 
-### 5. React中setState的第二个参数作用是什么？
+### 5. ==React中setState的第二个参数作用是什么？==
 
-setState 的第二个参数是一个可选的回调函数。这个回调函数将在组件重新渲染后执行。等价于`componentDidUpdate` 生命周期内执行。通常建议使用 `componentDidUpdat `来代替此方式。在这个回调函数中你可以拿到更新后 state 的值
+setState 的第二个参数是一个可选的回调函数。这个回调函数将在组件重新渲染后执行。等价于`componentDidUpdate` 生命周期内执行。通常建议使用 `componentDidUpdate `来代替此方式。在这个回调函数中你可以拿到更新后 state 的值
 
 ```js
 this.setState({
@@ -7935,7 +8079,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(Link);
   - props 在组件内部是不可修改的，但 state 在组件内部可以进行修改
   - state 是多变的、可以修改
 
-### 10. React中的props为什么是只读的?
+### 10. ==React中的props为什么是只读的?==
+
+==`this.props`就是汲取了纯函数的思想。props的不可以变性就保证的相同的输入，页面显示的内容是一样的，并且不会产生副作用==
 
 `this.props`是组件之间沟通的一个接口，原则上来讲，它只能从父组件流向子组件。React具有浓重的函数式编程的思想。
 
@@ -7945,14 +8091,14 @@ export default connect(mapStateToProps, mapDispatchToProps)(Link);
 - 过程没有副作用。
 - 不依赖外部状态。
 
-==`this.props`就是汲取了纯函数的思想。props的不可以变性就保证的相同的输入，页面显示的内容是一样的，并且不会产生副作用==
-
-### 11. 在React中组件的props改变时更新组件有哪些方法？
+### 11. ==在React中组件的props改变时更新组件有哪些方法？==
 
 - getDerivedStateFromProps
-- componentWillReceiveProps（已废弃）
+- ~~componentWillReceiveProps~~（已废弃）
 
-在一个组件传入的props更新时重新渲染该组件常用的方法是在`componentWillReceiveProps`中将新的props更新到组件的state中（这种state被成为派生状态（Derived State）），从而实现重新渲染。React 16.3中还引入了一个新的钩子函数`getDerivedStateFromProps`来专门实现这一需求。
+在一个组件传入的props更新时重新渲染该组件常用的方法是在`componentWillReceiveProps`中将新的props更新到组件的state中（这种state被成为派生状态（Derived State）），从而实现重新渲染。
+
+React 16.3中还引入了一个新的钩子函数`getDerivedStateFromProps`来专门实现这一需求。
 
 **（1）componentWillReceiveProps（已废弃）**
 
@@ -7960,7 +8106,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(Link);
 
 这样的好处是，可以将数据请求放在这里进行执行，需要传的参数则从componentWillReceiveProps(nextProps)中获取。而不必将所有的请求都放在父组件中。于是该请求只会在该组件渲染时才会发出，从而减轻请求负担。
 
-**（2）getDerivedStateFromProps（16.3引入）**
+==**（2）getDerivedStateFromProps（16.3引入）**==
 
 这个生命周期函数是为了替代`componentWillReceiveProps`存在的，所以在需要使用`componentWillReceiveProps`时，就可以考虑使用`getDerivedStateFromProps`来进行替代。
 
@@ -7987,7 +8133,7 @@ static getDerivedStateFromProps(nextProps, prevState){
 
 **React**为我们提供了**PropTypes**以供验证使用。当我们向**Props**传入的数据无效（向Props传入的数据类型和验证的数据类型不符）就会在控制台发出警告信息。它可以避免随着应用越来越复杂从而出现的问题。并且，它还可以让程序变得更易读。
 
-当然，如果项目汇中使用了TypeScript，那么就可以不用PropTypes来校验，而使用TypeScript定义接口来校验props。
+当然，如果项目中使用了TypeScript，那么就可以不用PropTypes来校验，而使用TypeScript定义接口来校验props。
 
 ```jsx
 import PropTypes from "prop-types";
@@ -8019,14 +8165,23 @@ Greeting.propTypes = {
 
 React常见生命周期的过程大致如下： 
 
-      1. 挂载阶段，首先执行constructor构造方法，来创建组件
-      2. 创建完成之后，就会执行render方法，该方法会返回需要渲染的内容 
-      3. 随后，React会将需要渲染的内容挂载到DOM树上 
-      4. 挂载完成之后就会执行componentDidMount生命周期函数
-      5. 如果我们给组件创建一个props（用于组件通信）、调用setState（更改state中的数据）、调用forceUpdate（强制更新组件）时，都会重新调用render函数 
-      6. render函数重新执行之后，就会重新进行DOM树的挂载
-      7. 挂载完成之后就会执行componentDidUpdate生命周期函数 
-      8. 当移除组件时，就会执行componentWillUnmount生命周期函数
+  1. 挂载阶段，首先执行constructor构造方法，来创建组件
+   2. 创建完成之后，就会执行render方法，该方法会返回需要渲染的内容 
+   3. 随后，React会将需要渲染的内容挂载到DOM树上 
+   4. 挂载完成之后就会执行componentDidMount生命周期函数
+   5. 如果我们给组件创建一个props（用于组件通信）、调用setState（更改state中的数据）、调用forceUpdate（强制更新组件）时，都会重新调用render函数 
+   6. render函数重新执行之后，就会重新进行DOM树的挂载
+   7. 挂载完成之后就会执行componentDidUpdate生命周期函数 
+   8. 当移除组件时，就会执行componentWillUnmount生命周期函数
+
+```jsx
+  useEffect(() => {
+    const timeout = setTimeout(() => setVarA(varA + 1), 1000);
+    return () => clearTimeout(timeout);
+  }, [varA]);
+```
+
+
 
 <img src="https://cdn.nlark.com/yuque/0/2021/png/1500604/1611914193870-a5a93315-a094-40aa-959a-e3e3c58c8a96.png" style="zoom: 25%;" /><img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
 
@@ -8044,7 +8199,7 @@ React常见生命周期的过程大致如下：
 
 在getDerivedStateFromProps中进行处理。
 
-第二种场景是一些组件需要在用户输入时有一个中间状态，当触发某个操作时再把中间结果提交给上层。以一个 `input`为例，在过去我们通过 `componentWillReceiveProps`在上层组件触发重绘时把数据同步到 `state`：
+第二种场景是一些组件需要在用户输入时有一个中间状态，当触发某个操作时再把中间结果提交给上层。以一个 `input`为例，在过去我们通过 `getDerivedStateFromProps`在上层组件触发重绘时把数据同步到 `state`：
 
    ```js
    static getDerivedStateFromProps(nextProps, prevState) {
@@ -8105,7 +8260,7 @@ React常见生命周期的过程大致如下：
 - 在componentWillMount中fetch data，数据一定在render后才能到达，如果忘记了设置初始状态，用户体验不好。
 - react16.0以后，componentWillMount可能会被执行多次。
 
-`componentwillMout` ：会执行两次，服务端，客户端
+`componentwillMount` ：会执行两次，服务端，客户端
 
 **react的生命周期：** `constructor()` -> `componentWillMount()` -> `render()` -> `componentDidMount()`
 
@@ -8167,13 +8322,12 @@ React16 自上而下地对生命周期做了另一种维度的解读：
 客户端路由实现的思想：
 
 - 基于 hash 的路由：通过监听`hashchange`事件，感知 hash 的变化
-
-- - 改变 hash 可以直接通过 location.hash=xxx
+  - 改变 hash 可以直接通过 location.hash=xxx
 
 - 基于 H5 history 路由：
-
-- - 改变 url 可以通过 history.pushState 和 resplaceState 等，会将URL压入堆栈，同时能够应用 `history.go()` 等 API
+  - 改变 url 可以通过 history.pushState 和 resplaceState 等，会将URL压入堆栈，同时能够应用 `history.go()` 等 API
   - 监听 url 的变化可以通过自定义事件触发实现
+
 
 **react-router 实现的思想：**
 
@@ -8324,9 +8478,9 @@ Switch 通常被用来包裹 Route，用于渲染与路径匹配的第一个子 
 - state 是只读的
 - 使用纯函数来执行修改
 
-   - 首先，用户（通过View）发出Action，触发方式就用到了dispatch方法
-   - 然后，Store自动调用Reducer，并且传入两个参数：当前State和收到的Action，Reducer会返回新的State
-   - State—旦有变化，Store就会调用监听函数，来更新View
+   1. 首先，用户（通过View）发出Action，触发方式就用到了dispatch方法
+   2. 然后，Store自动调用Reducer，并且传入两个参数：当前State和收到的Action，Reducer会返回新的State
+   3. State—旦有变化，Store就会调用监听函数，来更新View
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h8cwbqdjdpj30lr0dqmzz.jpg" alt="image.png" style="zoom:50%;" />
 
@@ -8336,16 +8490,14 @@ react-redux 数据传输∶ `view-->action-->reducer-->store-->view`。
 
 看下点击事件的数据是如何通过redux传到view上：
 
-- view 上的AddClick 事件通过`mapDispatchToProps` 把数据传到`action ---> click:()=>dispatch(ADD)`
-- action 的ADD 传到reducer上
+- view 上的 AddClick 事件通过`mapDispatchToProps` 把数据传到`action ---> click:()=>dispatch(ADD)`
+- action 的 ADD 传到reducer上
 - reducer传到store上 `const store = createStore(reducer);`
 - store再通过` mapStateToProps` 映射穿到`view`上`text:State.text`
 
 ### 4. Redux中的connect有什么作用
 
 connect负责连接React和Redux，可以获取整个store tree上的所有state，可以监听store tree的变化。
-
-connect负责连接React和Redux
 
 **（1）获取state**
 
@@ -8416,7 +8568,7 @@ redux-saga是一个管理redux应用异步操作的中间件，用于代替 redu
 
 redux中间件本质就是一个函数柯里化。redux applyMiddleware Api 源码中每个middleware 接受2个参数， Store 的getState 函数和dispatch 函数，分别获得store和action，最终返回一个函数。该函数会被传入 next 的下一个 middleware 的 dispatch 方法，并返回一个接收 action 的新函数，这个函数可以直接调用 next（action），或者在其他需要的时刻调用，甚至根本不去调用它。调用链中最后一个 middleware 会接受真实的 store的 dispatch 方法作为 next 参数，并借此结束调用链。所以，middleware 的函数签名是`（{ getState，dispatch })=> next => action`。 
 
-### 9. Redux状态管理器和变量挂载到winddow中有什么区别？
+### 9. Redux状态管理器和变量挂载到window中有什么区别？
 
 两者都是存储数据以供后期使用。但是Redux状态更改可回溯——Time travel，数据多了的时候可以很清晰的知道改动在哪里发生，完整的提供了一套状态管理模式。
 
@@ -8481,11 +8633,11 @@ filter/
 
 **（1）Redux 和 Vuex区别**
 
+通俗点理解就是，vuex 弱化 dispatch，通过commit进行 store状态的一次更变；取消了action概念，不必传入特定的 action形式进行指定变更；弱化reducer，基于commit参数直接对数据进行转变，使得框架更加简易; 
+
 - Vuex改进了Redux中的Action和Reducer函数，以mutations变化函数取代Reducer，无需switch，只需在对应的mutation函数里改变state值即可
 - Vuex由于Vue自动重新渲染的特性，无需订阅重新渲染函数，只要生成新的State即可
 - Vuex数据流的顺序是∶View调用store.commit提交对应的请求到Store中对应的mutation函数->store改变（vue检测到数据变化自动渲染）
-
-通俗点理解就是，vuex 弱化 dispatch，通过commit进行 store状态的一次更变；取消了action概念，不必传入特定的 action形式进行指定变更；弱化reducer，基于commit参数直接对数据进行转变，使得框架更加简易; 
 
 **（2）共同思想**
 
@@ -8498,31 +8650,19 @@ filter/
 
 **对比总结：**
 
-- redux将数据保存在单一的store中，mobx将数据保存在分散的多个store中
-- redux使用plain object保存数据，需要手动处理变化后的操作;mobx适用observable保存数据，数据变化后自动处理响应的操作
-- redux使用不可变状态，这意味着状态是只读的，不能直接去修改它，而是应该返回一个新的状态，同时使用纯函数;mobx中的状态是可变的，可以直接对其进行修改
-- mobx相对来说比较简单，在其中有很多的抽象，mobx更多的使用面向对象的编程思维;redux会比较复杂，因为其中的函数式编程思想掌握起来不是那么容易，同时需要借助一系列的中间件来处理异步和副作用
-- mobx中有更多的抽象和封装，调试会比较困难，同时结果也难以预测;而redux提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加的容易
+| 区别                | redux                                                        | Mobx                                                   |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| 数据保存的store数量 | 存单一store                                                  | 分散在多个store                                        |
+| 数据保存原理        | 使用plain object保存数据，需要手动处理变化后的操作           | 用observable保存数据，数据变化后自动处理响应的操作     |
+| 状态是否可变        | 使用不可变状态，这意味着状态是只读的，不能直接去修改它，而是应该返回一个新的状态，同时使用纯函数 | 状态是可变的，可以直接对其进行修改                     |
+| 编程思想            | 会比较复杂，因为其中的函数式编程思想，同时需要借助一系列的中间件来处理异步和副作用 | 更多的使用面向对象的编程思维                           |
+| 调试                | 提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加的容易 | 有更多的抽象和封装，调试会比较困难，同时结果也难以预测 |
 
 **共同点：**
 
-      1. 为了解决状态管理混乱
-      2. 操作更新状态方式统一
-      3. 支持将store与react组件连接
-
-**区别：**
-
-   1. redux将数据保存在单一的store中，mobx将数据保存在分散的多个store中
-
-   2. mobx中有更多的抽象和封装，调试会比较困难，同时结果也难以预测;而redux提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加的容易
-
-   3. redux使用不可变状态，这意味着状态是只读的，不能直接去修改它，而是应该返回一个新的状态，同时使用纯函数;mobx中的状态是可变的，可以直接对其进行修改
-
-4. Redux和Vuex有什么区别，它们的共同思想
-
-   vuex 弱化 dispatch，通过commit进行 store状态的一次更变；取消了action概念，不必传入特定的 action形式进行指定变更；弱化reducer，基于commit参数直接对数据进行转变，使得框架更加简易;
-
-   redux与vuex都是对mvvm思想的服务，将数据从视图中抽离的一种方案
+  1. 为了解决状态管理混乱
+  2. 操作更新状态方式统一
+  3. 支持将store与react组件连接
 
 ## 七、Hooks
 
@@ -8617,6 +8757,14 @@ Hooks 组件（使用了Hooks的函数组件）有生命周期，而函数组件
 
 ### 8. ==useCallback 和 useMemo的区别==
 
+`useMemo` 和 `useCallback` 是 React 性能优化的一个手段之一。
+
+`useMemo` 会记住回调函数返回的值，只有当它的依赖项改变的时候，才会重新计算。`useMemo` 应该用在一些计算量比较大的场景下，或者是使用它来缓存一些 JSX 对象来避免重渲染。
+
+`useCallback` 其实是 `useMemo` 的语法糖，只不过它是用来缓存函数的，比如一个事件的回调函数。常见的使用场景是，一个较复杂的组件接收一个事件的回调函数，使用 `useCallback` 包装来避免函数的重新创建，从而导致函数的引用发生改变，引起复杂组件的重渲染（前提是该组件使用了 `React.memo` 或者是 `shouldComponentUpdate` API 来优化过）。
+
+但是其实 `useCallback` 有一个非常大的问题，比如在回调函数中，依赖了一个 state，你就不得不在依赖项中添加这个 state，而恰巧这个 state 是频繁变化的值，就会导致回调函数每次都会重新创建，失去了缓存的意义。所以最近 React 团队创建了一个 [RFC](https://github.com/reactjs/rfcs/pull/220) 专门来讨论这个问题。后面 React 会新增一个命名为 `useEvent` 的新 hooks 来解决这个问题。
+
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l0a60iuaj312k0jc79k.jpg" alt="image-20210908132743370.png" style="zoom:50%;" />
 
 useMemo 和 useCallback 接收的参数都是一样,第一个参数为回调 第二个参数为要依赖的数据
@@ -8632,16 +8780,6 @@ useMemo 和 useCallback 接收的参数都是一样,第一个参数为回调 第
 2.useCallback 计算结果是 函数, 主要用于 缓存函数，应用场景如: 需要缓存的函数，因为函数式组件每次任何一个 state 的变化 整个组件 都会被重新刷新，一些函数是没有必要被重新刷新的，此时就应该缓存起来，提高性能，和减少资源浪费。
 
 注意： 不要滥用会造成性能浪费，react中减少render就能提高性能，所以这个仅仅只针对缓存能减少重复渲染时使用和缓存计算结果。
-
----
-
-`useMemo` 和 `useCallback` 是 React 性能优化的一个手段之一。
-
-`useMemo` 会记住回调函数返回的值，只有当它的依赖项改变的时候，才会重新计算。`useMemo` 应该用在一些计算量比较大的场景下，或者是使用它来缓存一些 JSX 对象来避免重渲染。
-
-`useCallback` 其实是 `useMemo` 的语法糖，只不过它是用来缓存函数的，比如一个事件的回调函数。常见的使用场景是，一个较复杂的组件接收一个事件的回调函数，使用 `useCallback` 包装来避免函数的重新创建，从而导致函数的引用发生改变，引起复杂组件的重渲染（前提是该组件使用了 `React.memo` 或者是 `shouldComponentUpdate` API 来优化过）。
-
-但是其实 `useCallback` 有一个非常大的问题，比如在回调函数中，依赖了一个 state，你就不得不在依赖项中添加这个 state，而恰巧这个 state 是频繁变化的值，就会导致回调函数每次都会重新创建，失去了缓存的意义。所以最近 React 团队创建了一个 [RFC](https://github.com/reactjs/rfcs/pull/220) 专门来讨论这个问题。后面 React 会新增一个命名为 `useEvent` 的新 hooks 来解决这个问题。
 
 ### 9. react hooks 如何替代或部分替代 redux 功能
 
@@ -8751,7 +8889,13 @@ Virtual DOM本质上是JavaScript的对象，它可以很方便的跨平台操�
 
 `diff`算法就是更高效地通过对比新旧`Virtual DOM`来找出真正的`Dom`变化之处。
 
-`react`中`diff`算法主要遵循三个层级的策略：
+具体的流程如下：
+
+- 真实的 DOM 首先会映射为虚拟 DOM；
+- 当虚拟 DOM 发生变化后，就会根据差距计算生成 patch，这个 patch 是一个结构化的数据，内容包含了增加、更新、移除等；
+- 根据 patch 去更新真实的 DOM，反馈到用户的界面上。
+
+==`react`中`diff`算法主要遵循三个层级的策略：==
 
 - tree层级
 
@@ -8770,12 +8914,6 @@ Virtual DOM本质上是JavaScript的对象，它可以很方便的跨平台操�
   对于比较同一层级的节点们，每个节点在对应的层级用唯一的`key`作为标识，提供了 3 种节点操作，分别为 `INSERT_MARKUP`(插入)、`MOVE_EXISTING` (移动)和 `REMOVE_NODE` (删除)
 
   <img src="http://tva1.sinaimg.cn/large/005NUwygly1h8cwy29sjbj30p30eygnw.jpg" alt="image.png" style="zoom:50%;" />
-
-具体的流程如下：
-
-- 真实的 DOM 首先会映射为虚拟 DOM；
-- 当虚拟 DOM 发生变化后，就会根据差距计算生成 patch，这个 patch 是一个结构化的数据，内容包含了增加、更新、移除等；
-- 根据 patch 去更新真实的 DOM，反馈到用户的界面上。
 
 ### 3. React key是干嘛用的为什么要加? key主要解决那一类的问题？
 
@@ -9548,7 +9686,7 @@ const EnhancedComponent = highOrderComponent(WrappedComponent);
 
 ### 登陆流程
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h86yucbt56j30ua0t4dtk.jpg" alt="image.png" style="zoom:33%;" />
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h86yucbt56j30ua0t4dtk.jpg" alt="image.png" style="zoom: 50%;" />
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h86yvbhs0nj314k1184qp.jpg" alt="image.png" style="zoom:50%;" />
 
