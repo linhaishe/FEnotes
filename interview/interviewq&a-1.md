@@ -8181,11 +8181,15 @@ React常见生命周期的过程大致如下：
   }, [varA]);
 ```
 
+<img src="https://cdn.nlark.com/yuque/0/2021/png/1500604/1611914193870-a5a93315-a094-40aa-959a-e3e3c58c8a96.png" style="zoom: 25%;" />
 
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
 
-<img src="https://cdn.nlark.com/yuque/0/2021/png/1500604/1611914193870-a5a93315-a094-40aa-959a-e3e3c58c8a96.png" style="zoom: 25%;" /><img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08rj395j31bw0o27b4.jpg" alt="image-20210907110123380.png" style="zoom:33%;" />
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08rj395j31bw0o27b4.jpg" alt="image-20210907110123380.png" style="zoom:33%;" /><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/791da7c43d3c4f45862f909ce38c882c~tplv-k3u1fbpfcp-watermark.awebp" style="zoom: 50%;" />   
+<img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/791da7c43d3c4f45862f909ce38c882c~tplv-k3u1fbpfcp-watermark.awebp" style="zoom: 50%;" />
+
+   
 
 ### 2. React废弃了哪些生命周期?为什么?
 

@@ -495,6 +495,34 @@ import { a } from './test.js'
 5. 使⽤ webpack-uglify-parallel 来提升 uglifyPlugin 的压缩速度。 原理上 webpack-uglify-parallel 采⽤了多核并⾏压缩来提升压缩速度 
 6. 使⽤ Tree-shaking 和 Scope Hoisting 来剔除多余代码
 
+## 1. 页面加载慢如何处理
+
+如何发现 web 页面加载慢的原因
+
+1、Chrome 浏览器打开需要排查性能的页面
+
+2、按 F12 键，查看页面加载的 JS，CSS，Cookie 和调用的后端服务接口
+
+3、查看对应消耗的 Time 时间，把花费时间长的接口记录下来，达到妙级加载的，已经很慢了。
+
+4、排查慢的原因。
+
+前端性能优化
+
+1、减少 http 请求：合并 CSS、合并 JS、合并图片等，将多次 http 请求的减少为一次 http 请求。
+
+2、使用浏览器缓存，可以将实时性要求不高的静态资源缓存到客户端浏览器。
+
+3、启用压缩，对 JS、CSS、图片等进行 GZip 压缩。
+
+4、减少 Cookie 传输，Cookie 包含在每次请求和相应中，太大的 Cookie 会严重影响数据传输。
+
+5、使用 CDN 加速
+
+6、使用反向代理，负载均衡，分布式部署。
+
+7、后端接口相关优化，根据不同的语言不同的方案，具体参考相关资料。
+
 # 二、设计模式
 
 https://tsejx.github.io/javascript-guidebook/design-patterns

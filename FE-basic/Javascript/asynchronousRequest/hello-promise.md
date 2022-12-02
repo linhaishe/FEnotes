@@ -2064,31 +2064,42 @@ new Promise((resolve) => {
     resolve("promise普通结果");
   }, 1000);
 });
-//讲解时写的简单demo
+
 let resolveCommon = () => {
-let result = "普通promise初始值"
-result = new Promise(resolve = {setTimeout(() => { resolve("promise普通结果"); }, 1000); })
-console.log(result)
-//打印结果: Promise { <pending } 
+  let result = "普通promise初始值";
+  result = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("promise普通结果");
+    }, 1000);
+  });
+  console.log(result); //打印结果: Promise { <pending }
 };
-let resolveAsync= async ()=> {
-let result="await+async的promise初始值"
-result=await new Promise(resolve => { setTimeout(() => { resolve("这是async+await结果"); }, 1000);})
-console.log(result)
-//打印结果: 这是async+await结果  这里就是正确的值,你可以在下一步进行正常使用,也可以用在下一步的promise中
-//------------------------------------------------------
-//在第二个promise中调用使用
-let result2=""
-result2= await new Promise(resolve => { setTimeout(function() { resolve(result+"+经过第二个promise加工"); }, 1000);})
-.then(v=>{
-console.log("第二个promise的then()中打印并返回:",v)
-return v+",经过then()加工返回"
-})
-console.log("最终结果:第二个promise外部结果打印,",result2)
-//---------------------------------------------
+
+let resolveAsync = async () => {
+  let result = "await+async的promise初始值";
+  result = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("这是async+await结果");
+    }, 1000);
+  });
+  console.log(result);
+  //打印结果: 这是async+await结果  这里就是正确的值,你可以在下一步进行正常使用,也可以用在下一步的promise中
+  //------------------------------------------------------
+  //在第二个promise中调用使用
+  let result2 = "";
+  result2 = await new Promise((resolve) => {
+    setTimeout(function () {
+      resolve(result + "+经过第二个promise加工");
+    }, 1000);
+  }).then((v) => {
+    console.log("第二个promise的then()中打印并返回:", v);
+    return v + ",经过then()加工返回";
+  });
+  console.log("最终结果:第二个promise外部结果打印,", result2);
+  //---------------------------------------------
 };
-resolveCommon()  //调用普通promise函数
-resolveAsync()    //调用await+async
+resolveCommon(); //调用普通promise函数
+resolveAsync(); //调用await+async
 /**
 运行结果
 1.resolveCommon() 运行结果:    Promise { <pending }
