@@ -3,7 +3,8 @@
 ## 1. 深拷贝
 
 ```js
-const deepClone = (obj: any) => {
+// 只考虑了object / array 这两种类型
+const deepClone = (obj) => {
   if (obj === null) return null;
   // 如果传入的是数组，也拷贝到对象中
   let clone = { ...obj };
@@ -22,9 +23,200 @@ const deepClone = (obj: any) => {
       ? Array.from(obj)
       : clone;
 };
+
+// 性能优化
+function clone(target, map = new WeakMap()) {
+  if (typeof target === "object") {
+    const isArray = Array.isArray(target);
+    let cloneTarget = isArray ? [] : {};
+
+    if (map.get(target)) {
+      return map.get(target);
+    }
+    map.set(target, cloneTarget);
+
+    const keys = isArray ? undefined : Object.keys(target);
+    forEach(keys || target, (value, key) => {
+      if (keys) {
+        key = value;
+      }
+      cloneTarget[key] = clone2(target[key], map);
+    });
+
+    return cloneTarget;
+  } else {
+    return target;
+  }
+}
+
+// date and regexp
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  if (obj instanceof Date) {
+    return new Date(obj.getTime());
+  }
+
+  if (obj instanceof RegExp) {
+    return new RegExp(obj);
+  }
+
+  let clone = new obj.constructor();
+  for (let key in obj) {
+    clone[key] = deepCopy(obj[key]);
+  }
+  
+  return clone;
+}
+
+let date = new Date();
+let regexp = new RegExp("/ab+c/", "i");
+let obj = {
+  array: [1,2,3],
+  jack:{
+    name: 'jack',
+    age: 18
+  },
+  date: date,
+  regexp: regexp
+};
+
+let copiedObj = deepCopy(obj);
+
+console.log(copiedObj.date === date); // false
+console.log(copiedObj.regexp === regexp); // false
+console.log(222, copiedObj);
+
+// 完整版
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  // 处理循环引用
+  let visited = new WeakMap();
+  if (visited.has(obj)) {
+    return visited.get(obj);
+  }
+
+  let clone;
+  if (obj instanceof Date) {
+    clone = new Date(obj.getTime());
+  } else if (obj instanceof RegExp) {
+    clone = new RegExp(obj);
+  } else if (obj instanceof Map) {
+    clone = new Map();
+    for (let [key, value] of obj) {
+      clone.set(key, deepCopy(value));
+    }
+  } else if (obj instanceof Set) {
+    clone = new Set();
+    for (let value of obj) {
+      clone.add(deepCopy(value));
+    }
+  } else {
+    clone = new obj.constructor();
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        // 处理 Symbol 类型
+        if (typeof key === "symbol") {
+          clone[key] = deepCopy(obj[key]);
+        } else {
+          clone[key] = deepCopy(obj[key]);
+        }
+      }
+    }
+  }
+
+  visited.set(obj, clone);
+  return clone;
+}
+
+// 测试
+let obj1 = { a: 1, b: 2, c: new Date(), d: /ewff/g };
+let date = new Date();
+let regexp = new RegExp("/ab+c/", "i");
+let obj = {
+  date: date,
+  regexp: regexp,
+  map: new Map([
+    ["a", 1],
+    ["b", 2]
+  ]),
+  set: new Set([1, 2, 3]),
+  symbol: Symbol("foo")
+};
+
+let copiedObj = deepCopy(obj);
+
+console.log(copiedObj.date === date); // false
+console.log(copiedObj.regexp === regexp); // false
+console.log(copiedObj.map === obj.map); // false
+console.log(copiedObj.set === obj.set); // false
+console.log(copiedObj.symbol === obj.symbol); // false
+
+// 互相没有被影响
+let cloneObj = deepCopy(obj);
+obj.arr.push(5);
+cloneObj.arr.push(8);
+console.log("obj", obj);
+console.log("copy", cloneObj);
+
 ```
 
+在上面的代码中，我们其实只考虑了普通的`object`和`array`两种数据类型，实际上所有的引用类型远远不止这两个，还有很多。
+
+https://juejin.cn/post/6844903929705136141#heading-2
+
 ## 2. 浅拷贝
+
+浅拷贝只拷贝对象的第一层属性，不会拷贝嵌套对象中的属性。
+
+浅拷贝只拷贝对象的第一层属性，不会拷贝嵌套对象中的属性。因此，如果对象中有引用类型属性，浅拷贝只会拷贝该引用类型属性的地址。
+
+浅拷贝一般用于什么情况下
+
+浅拷贝可以用于复制对象时只保留对象的第一层属性，而不会拷贝嵌套对象中的属性。
+
+这种方法通常用于复制简单对象或数组时。例如，如果对象中只包含基本数据类型（如数字、字符串、布尔值），那么使用浅拷贝就可以创建一个新对象，该对象中的属性与源对象相同。
+
+```js
+function shallowCopy(obj) {
+  return Object.assign({}, obj);
+}
+```
+
+```js
+function shallowCopy(obj) {
+  // 如果不是对象或数组，直接返回
+  if (typeof obj !== "object" || obj === null) return obj;
+
+  // 如果是数组，复制数组并返回
+  if (obj instanceof Array) {
+    return obj.slice();
+  }
+
+  // 如果是 Date、Map、Set、RegExp 等类型，直接返回
+  if (
+    obj instanceof Date ||
+    obj instanceof Map ||
+    obj instanceof Set ||
+    obj instanceof RegExp
+  ) {
+    return obj;
+  }
+
+  // 如果是对象，创建一个新对象并复制属性
+  let newObj = {};
+  for (let key in obj) {
+    newObj[key] = obj[key];
+  }
+  return newObj;
+}
+
+```
 
 ```js
 function shallowCopy(object) {
