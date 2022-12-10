@@ -2118,7 +2118,241 @@ resolveAsync(); //调用await+async
 
 2. 而await则是让跟在后面的异步任务转为同步任务(效果如此,就通俗来讲,具体概念需要自学),所以result就能得到一个已经修改状态为成功或者失败的值，所以下面的任务就可以使用到这个值
 
-# 四、宏任务与微任务
+# 四、promise 输出顺序题目
+
+相关资料：
+
+1. [ES6 Promise笔试题](https://segmentfault.com/a/1190000020934020)
+2. [让人头秃的promise-then执行顺序问题](https://juejin.cn/post/7109088946889424932)
+3. [Promise 链式调用顺序引发的思考](https://mp.weixin.qq.com/s/vFluh-_5ou0a_PnfLZacpA)
+4. [对嵌套的 Promise 的理解](https://juejin.cn/post/6871103526786760718)
+5. [JS系列之 Promise 及链式调用顺序](https://juejin.cn/post/6887480063307038734#heading-23)
+6. [深度揭秘 Promise 微任务注册和执行过程](https://juejin.cn/post/6844903987183894535)
+7. [为什么慢两拍：关于promise规范thenable的白话解释](https://juejin.cn/post/7018765637870698503)
+8. [Promise.then 中的交替执行](https://juejin.cn/post/7088595497086091301)
+9. [要就来45道Promise面试题一次爽到底](https://juejin.cn/post/6844904077537574919#heading-34)
+10. [async, await, promise 面试题](https://www.learnnote.site/frontend/async-await-promise)
+11. [一道面试题：还在纠结async/ await、Promise的执行顺序？](https://juejin.cn/post/6871898249578921992)
+
+## 题目一
+
+```js
+function deepClone(target) {
+  if (target instanceof Object) {
+    let dist;
+    if (target instanceof Array) {
+      // 拷贝数组
+      dist = [];
+    } else if (target instanceof Function) {
+      // 拷贝函数
+      dist = function () {
+        return target.call(this, ...arguments);
+      };
+    } else if (target instanceof RegExp) {
+      // 拷贝正则表达式
+      dist = new RegExp(target.source, target.flags);
+    } else if (target instanceof Date) {
+      dist = new Date(target);
+    } else {
+      // 拷贝普通对象
+      dist = {};
+    }
+    for (let key in target) {
+      dist[key] = deepClone(target[key]);
+    }
+    return dist;
+  } else {
+    return target;
+  }
+}
+const obj1 = { a: 1, b: [1], c: new Date(), d: /hi/g };
+const obj2 = deepClone(obj1);
+console.log(obj2);
+```
+
+## 题目二
+
+```js
+   // 说出以下输出顺序
+   setTimeout(function () {
+     console.log(1);
+   }, 0);
+   await new Promise(function (resolve) {
+     console.log(2);
+     resolve();
+     console.log(3);
+   }).then(function () {
+     console.log(4);
+   });
+   console.log(5);
+   
+   // 说出以下输出顺序
+   setTimeout(function () {
+     console.log(1);
+   }, 0);
+   new Promise(function (resolve) {
+     console.log(2);
+     resolve();
+     console.log(3);
+   }).then(function () {
+     console.log(4);
+   });
+   console.log(5);
+```
+
+## 题目三
+
+```js
+setTimeout(() => {
+  console.log("0"), 0;
+});
+
+new Promise((resolve, reject) => {
+  console.log("1");
+  resolve(1);
+})
+  .then(() => {
+    console.log("2");
+    new Promise((resolve, reject) => {
+      console.log("3");
+      resolve();
+    })
+      .then(() => {
+        console.log("4");
+      })
+      .then(() => {
+        console.log("5");
+      });
+  })
+  .then(() => {
+    console.log("6");
+  });
+
+new Promise((resolve, reject) => {
+  console.log("7");
+  resolve();
+}).then(() => {
+  console.log("8");
+});
+
+```
+
+## 题目四
+
+```js
+new Promise((resolve) => {
+  setTimeout(() => {
+    console.log(666);
+    new Promise((resolve) => {
+      resolve();
+    }).then(() => {
+      console.log(777);
+    });
+  });
+  resolve();
+})
+  .then(() => {
+    new Promise((resolve) => {
+      resolve();
+    })
+      .then(() => {
+        console.log(111);
+      })
+      .then(() => {
+        console.log(222);
+      });
+  })
+  .then(() => {
+    new Promise((resolve) => {
+      resolve();
+    })
+      .then(() => {
+        new Promise((resolve) => {
+          resolve();
+        }).then(() => {
+          console.log(444);
+        });
+      })
+      .then(() => {
+        console.log(555);
+      });
+  })
+  .then(() => {
+    console.log(333);
+  });
+
+```
+
+## 题目五
+
+```js
+new Promise((resolve, reject) => {
+  console.log("promisel");
+  resolve();
+})
+  .then(() => {
+    console.log("then11");
+
+    new Promise((resolve, reject) => {
+      console.log("promise2");
+      resolve();
+    })
+      .then(() => {
+        console.log("then21");
+      })
+      .then(() => {
+        console.log("then23");
+      });
+  })
+  .then(() => {
+    console.log("then12");
+  });
+
+```
+
+## 题目六
+
+```js
+new Promise((resolve) => {
+  resolve();
+})
+  .then(
+    // () => {
+    //   return new Promise((r) => {
+    //     console.log("1-1");
+    //     // r();
+    //   }).then(() => {
+    //     console.log("1-1 p1");
+    //   });
+    // }
+    () => {
+      console.log("1-1");
+    }
+  )
+  .then(() => {
+    console.log("1-2");
+  })
+  .then(() => {
+    console.log("1-3");
+  });
+
+new Promise((resolve) => {
+  resolve(2);
+})
+  .then(() => {
+    console.log("2-1");
+  })
+  .then(() => {
+    console.log("2-2");
+  })
+  .then(() => {
+    console.log("2-3");
+  });
+// 。。
+
+```
+
+# 五、宏任务与微任务
 
 ## Ⅰ、说明
 
@@ -2206,7 +2440,9 @@ console.log("代码执行结束");
 
 PS: 可以忽略`undefined`这个打印结果, 因为这会加重我们对于宏任务与微任务的理解负担.
 
-# 五、对浏览器console控制台输出undefined的分析
+# 六、对浏览器console控制台输出undefined的分析
+
+是在控制台输入的内容,它的返回值会显示出来，如果是没有返回值的表达式或语句，则会返回 `undefined`。
 
 ## Ⅰ、出现场景
 
