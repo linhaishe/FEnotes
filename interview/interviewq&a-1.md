@@ -2929,7 +2929,7 @@ testPromise(true).then(
 
 解决了地狱回调的问题
 
-### 6. Promise. all和Promise.race的区别的使用场景
+### 6. ==Promise. all和Promise.race的区别的使用场景==
 
 1. Promise.all
 
@@ -2948,7 +2948,7 @@ testPromise(true).then(
 
 ### 7. 对async/await的理解
 
-async/await其实是Generator 的语法糖，它能实现的效果都能用then链来实现，它是为优化then链而开发出来的。从字面上来看，async是“异步”的简写，await则为等待，所以很好理解async 用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。当然语法上强制规定await只能出现在asnyc函数中。
+async/await其实是 Generator 的语法糖，它能实现的效果都能用then链来实现，它是为优化then链而开发出来的。从字面上来看，async是“异步”的简写，await则为等待，所以很好理解async 用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。当然语法上强制规定await只能出现在asnyc函数中。
 
 async 函数返回的是一个 Promise 对象，所以在最外层不能用 await 获取其返回值的情况下，当然应该用原来的方式：then() 链来处理这个 Promise 对象。
 
@@ -3243,6 +3243,8 @@ p1().then((o) => console.log(o, "p1"));
 
 ### 24. 了解 promiseA+ 规范吗
 
+Promise/A+ 规范是一个定义了 JavaScript 中 Promise 对象的行为规范的标准。Promise 是一种用于异步编程的对象，它允许你通过回调函数处理异步操作的结果。Promise/A+ 规范定义了 Promise 对象的一组行为规则，例如它们如何被创建、解决、拒绝以及如何处理状态的变化。
+
 [原文](https://promisesaplus.com/)
 
 [Promise/A+ 规范](https://tsejx.github.io/javascript-guidebook/standard-built-in-objects/control-abstraction-objects/promise-standard/)
@@ -3374,7 +3376,7 @@ script.src = "http://locallhost:3000/textAJAX?callback=abc"
 1. 这种方式只支持get方式。
 2. jsonp的弊端就是绕过了浏览器的同源策略，必须确保第三方资源能够安全准确的运行我们的回调函数，第一个问题是第三方资源的不安全会导致我们的程序出现安全漏洞，二是jsonp的失败状态不容易检测。
 
-### 29. 什么是跨域
+### 29. ==什么是跨域==
 
 ==违背同源策略就是跨域==
 
@@ -3455,7 +3457,11 @@ Related to clients
 
 ps: `Access-Control-Allow-Origin` 设置为`*`其实意义不大，可以说是形同虚设，实际应用中，上线前我们会将Access-Control-Allow-Origin 值设为我们目标host
 
-#### 3. Proxy
+#### 3. 使用代理服务器
+
+使用代理服务器，将来自客户端的请求转发到目标服务器，并将响应返回给客户端。
+
+代理服务器是一种服务器，它可以作为客户端和其他服务器之间的中间层，将客户端的请求转发到目标服务器，并将响应返回给客户端。
 
 代理（Proxy）也称网络代理，是一种特殊的网络服务，允许一个（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的隐私或安全，防止攻击。
 
@@ -7348,6 +7354,10 @@ Virtual DOM本质上是JavaScript的对象，它可以很方便的跨平台操�
 
 ### 5. ==vue - DIFF算法的原理==
 
+https://juejin.cn/post/6994959998283907102#heading-3
+
+Diff算法是一种对比算法。对比两者是旧虚拟DOM和新虚拟DOM，对比出哪个虚拟节点更改了，找出这个虚拟节点，并只更新这个虚拟节点所对应的真实节点，而不用更新其它数据没发生变化的节点，实现精准地更新真实DOM，进而提高效率。
+
 `diff` 算法是一种通过同层的树节点进行比较的高效算法
 
 `diff`整体策略为：深度优先，同层比较
@@ -7767,7 +7777,7 @@ This，props，hooks
 
 React 中的一个常见模式是一个组件返回多个元素。Fragments 允许你将子列表分组，而无需向 DOM 添加额外节点。
 
-### 16. React如何获取组件对应的DOM元素?
+### 16. React如何获取组件对应的DOM元素?ref
 
 可以用ref来获取某个子节点的实例，然后通过当前class组件实例的一些特定属性来直接获取子节点实例。ref有三种实现方法:
 
@@ -7778,15 +7788,57 @@ React 中的一个常见模式是一个组件返回多个元素。Fragments 允�
 
 注意：我们通过 "current" 来访问 DOM 节点`this.info.current.focus();`
 
-### 17. React中可以在render访问refs吗?为什么？
+### 17. ==React中可以在render访问refs吗?为什么？==
 
 不可以，render 阶段 DOM 还没有生成，无法获取 DOM。DOM 的获取需要在 pre-commit 阶段和 commit 阶段。
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h8csyrvczqj31pk114gxn.jpg" alt="image.png" style="zoom:50%;" />
 
+### 24. ==React中refs的作用是什么?有哪些应用场景？==
+
+ Refs 提供了一种方式，用于访问在 render 方法中创建的 React 元素或 DOM 节点。过多使用`refs`，会使组件的实例或者是`DOM`结构暴露，违反组件封装的原则
+
+   但下面的场景使用`refs`非常有用：
+
+   - 对Dom元素的焦点控制、内容选择、控制
+   - 对Dom元素的内容设置及媒体播放
+   - 对Dom元素的操作和对组件实例的操作
+   - 集成第三方 DOM 库
+   - 用于获取当前节点最新的值
+
+当一个 React 组件被挂载到 DOM 上后，组件的 `ref.current` 属性将引用该组件的 DOM 元素。您可以通过访问 `ref.current` 属性来获取该 DOM 元素，并对其进行操作。
+
+当一个组件被挂载到 DOM 中后，它的 ref.current 属性会引用这个 DOM 节点。这个属性可以被用来访问这个节点的内部属性和方法。
+
+可以通过下面的代码来访问组件的 DOM 元素并修改其背景颜色，它的 `offsetWidth` 和 `scrollIntoView()` 等。
+
+```jsx
+// 在这个例子中，我们在组件挂载到 DOM 后通过 ref.current 属性来访问这个节点的宽度并将它滚动到视图中。
+import React, { useRef } from 'react';
+
+function MyComponent() {
+  const myRef = useRef(null);
+
+  useEffect(() => {
+    console.log(myRef.current.offsetWidth);
+    myRef.current.scrollIntoView();
+  }, []);
+
+  return <div ref={myRef}>Hello World!</div>;
+}
+
+```
+
+### 27. `React.forwardRef`是什么?它有什么作用？
+
+ `React.forwardRef`会创建一个React组件，这个组件能够将其接受的 ref 属性转发到其组件树下的另一个组件中。
+
+   - 转发 refs 到 DOM 组件
+   - 在高阶组件中转发 refs
+
 ### 18. ==对React的插槽(Portals)的理解，如何使用，有哪些使用场景？==
 
-### 19. ==在React中如何避免不必要的render?==
+### 19. ==在React中如何避免不必要的render渲染?==
 
 - **shouldComponentUpdate 和 PureComponent**
 
@@ -7843,18 +7895,6 @@ JS的代码块在执行期间，会创建一个相应的作用域链，这个作
 
    <img src="https://static.vue-js.com/f28aed20-df2f-11eb-ab90-d9ae814b240d.png" style="zoom:33%;" />
 
-### 24. ==React中refs的作用是什么?有哪些应用场景？==
-
- Refs 提供了一种方式，用于访问在 render 方法中创建的 React 元素或 DOM 节点。过多使用`refs`，会使组件的实例或者是`DOM`结构暴露，违反组件封装的原则
-
-   但下面的场景使用`refs`非常有用：
-
-   - 对Dom元素的焦点控制、内容选择、控制
-   - 对Dom元素的内容设置及媒体播放
-   - 对Dom元素的操作和对组件实例的操作
-   - 集成第三方 DOM 库
-   - 用于获取当前节点最新的值
-
 ### 25. React中除了在构造函数中绑定this，还有别的方式吗？
 
 [30. React事件绑定的方式有哪些？区别？](# 30. React事件绑定的方式有哪些？区别？)
@@ -7903,31 +7943,6 @@ constructor(props){
 
 - `constructor () `必须配上 `super()`, 如果要在 constructor 内部使用 this.props 就要传入props , 否则不用
 - JavaScript中的 bind 每次都会返回一个新的函数, 为了性能等考虑, 尽量在constructor中绑定事件
-
-### 27. `React.forwardRef`是什么?它有什么作用？
-
- `React.forwardRef`会创建一个React组件，这个组件能够将其接受的 ref 属性转发到其组件树下的另一个组件中。
-
-   - 转发 refs 到 DOM 组件
-   - 在高阶组件中转发 refs
-
-### 28. ==类组件与函数组件有什么异同?==
-
-**相同点：**
-
-组件是 React 可复用的最小代码片段，它们会返回要在页面中渲染的 React 元素。也正因为组件是 React 的最小编码单位，所以无论是函数组件还是类组件，在使用方式和最终呈现效果上都是完全一致的。
-
-我们甚至可以将一个类组件改写成函数组件，或者把函数组件改写成一个类组件（虽然并不推荐这种重构行为）。从使用者的角度而言，很难从使用体验上区分两者，而且在现代浏览器中，闭包和类的性能只在极端场景下才会有明显的差别。所以，基本可认为两者作为组件是完全一致的。
-
-**不同点**
-
-|                          | 类组件(class)                                                | 函数组件(hooks)                                              |
-| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 开发时的心智模型上的差异 | 基于面向对象编程的，它主打的是继承、生命周期等核心概念       | 内核是函数式编程，主打的是 immutable、没有副作用、引用透明等特 |
-| 使用场景上（class劣势）  | 1. 如果存在需要使用生命周期的组件<br />2. 设计模式上，如果需要使用继承 | 由于 React Hooks 的推出，生命周期概念的淡出，函数组件可以完全取代类组件。其次继承并不是组件最佳的设计模式，官方更推崇“组合优于继承”的设计概念，所以类组件在这方面的优势也在淡出 |
-| 性能优化                 | 类组件主要依靠 shouldComponentUpdate 阻断渲染来提升性能      | 而函数组件依靠 React.memo 缓存渲染结果来提升性能。           |
-| 上手程度                 | 类组件更容易上手                                             | 从未来趋势上看，由于React Hooks 的推出，函数组件成了社区未来主推的方案 |
-| 未来时间切片与并发模式   | 由于生命周期带来的复杂度，并不易于优化                       | 函数组件本身轻量简单，且在 Hooks 的基础上提供了比原先更细粒度的逻辑组织与复用，更能适应 React 的未来发展 |
 
 ### 29. ==React Jsx转换成真实DOM过程？==
 
@@ -8421,7 +8436,359 @@ React16 自上而下地对生命周期做了另一种维度的解读：
    3. React16并没有删除这三个钩子函数，但是不能和新增的钩子函数（getDerivedStateFromProps、getSnapshotBeforeUpdate）混用，React17将会删除componentWillMount、componentWillReceiveProps，componentWillUpdate
    4. 新增了对错误的处理（componentDidCatch）
 
-## 四、组件通信
+## 四、Hooks
+
+### 28. ==类组件与函数组件有什么异同?==
+
+**相同点：**
+
+组件是 React 可复用的最小代码片段，它们会返回要在页面中渲染的 React 元素。也正因为组件是 React 的最小编码单位，所以无论是函数组件还是类组件，在使用方式和最终呈现效果上都是完全一致的。
+
+我们甚至可以将一个类组件改写成函数组件，或者把函数组件改写成一个类组件（虽然并不推荐这种重构行为）。从使用者的角度而言，很难从使用体验上区分两者，而且在现代浏览器中，闭包和类的性能只在极端场景下才会有明显的差别。所以，基本可认为两者作为组件是完全一致的。
+
+**不同点**
+
+|                          | 类组件(class)                                                | 函数组件(hooks)                                              |
+| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 开发时的心智模型上的差异 | 基于面向对象编程的，它主打的是继承、生命周期等核心概念       | 内核是函数式编程，主打的是 immutable、没有副作用、引用透明等特 |
+| 使用场景上（class劣势）  | 1. 如果存在需要使用生命周期的组件<br />2. 设计模式上，如果需要使用继承 | 由于 React Hooks 的推出，生命周期概念的淡出，函数组件可以完全取代类组件。其次继承并不是组件最佳的设计模式，官方更推崇“组合优于继承”的设计概念，所以类组件在这方面的优势也在淡出 |
+| 性能优化                 | 类组件主要依靠 shouldComponentUpdate 阻断渲染来提升性能      | 而函数组件依靠 React.memo 缓存渲染结果来提升性能。           |
+| 上手程度                 | 类组件更容易上手                                             | 从未来趋势上看，由于React Hooks 的推出，函数组件成了社区未来主推的方案 |
+| 未来时间切片与并发模式   | 由于生命周期带来的复杂度，并不易于优化                       | 函数组件本身轻量简单，且在 Hooks 的基础上提供了比原先更细粒度的逻辑组织与复用，更能适应 React 的未来发展 |
+
+```js
+  useEffect(() => {
+    const timeout = setTimeout(() => setVarA(varA + 1), 1000);
+    return () => clearTimeout(timeout);
+  }, [varA]);
+```
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
+
+### 1. 对React Hook的理解，它的实现原理是什么？
+
+Hook是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。通过自定义hook，可以复用代码逻辑。
+
+`Hook` 是 React 16.8 的新增特性。它可以让你在不编写 `class` 的情况下使用 `state` 以及其他的 `React` 特性，在以前，函数组件也被称为无状态的组件，只负责渲染的一些工作。因此，现在的函数组件也可以是有状态的组件，内部也可以维护自身的状态以及做一些逻辑方面的处理。
+
+Hooks 主要是利用闭包来保存状态，使用链表保存一系列Hooks，将链表中的第一个Hook与Fiber 关联。
+
+   - useState
+
+   - useEffect
+
+   - useReducer
+
+   - useCallback
+
+   - useMemo
+
+   - useRef
+
+
+### 2. 为什么useState要使用数组而不是对象
+
+useState 返回的是 array 而不是 object 的原因就是为了降低使用的复杂度，返回数组的话可以直接根据顺序解构，而返回对象的话要想使用多次就需要定义别名了。
+
+- 如果 useState 返回的是数组，那么使用者可以对数组中的元素命名，代码看起来也比较干净
+- 如果 useState 返回的是对象，在解构对象的时候必须要和 useState 内部实现返回的对象同名，想要使用多次的话，必须得设置别名才能使用返回值
+
+### 3. ==useEffect==
+
+`useEffect()` 接收两个参数，第一个是一个回调函数，它会在组件挂载和卸载时调用，第二个是一个数组，用于指定该回调函数在什么时候被调用。
+
+```jsx
+  useEffect(() => {
+    const timeout = setTimeout(() => setVarA(varA + 1), 1000);
+    return () => clearTimeout(timeout);
+  }, [varA]);
+```
+
+1. 你可以把 useEffect函数 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
+2. useEffect什么时候会被触发执行
+   1. 默认情况下，它在第一次渲染之后和每次更新之后都会执行。你可能会更容易接受 effect 发生在“渲染之后”这种概念，不用再去考虑“挂载”还是“更新”。React 保证了每次运行 effect 的同时，DOM 都已经更新完毕。
+   2. 数据获取，设置订阅以及手动更改 React 组件中的 DOM 都属于副作用。有些副作用可能需要清除，所以需要返回一个函数，比如挂载时设置定时器，卸载时取消定时器。
+
+3. 你可以通知 React 跳过对 effect 的调用，只要传递数组作为 useEffect 的第二个可选参数即可，如果想执行只运行一次的 effect（仅在组件挂载和卸载时执行），可以传递一个空数。作为第二个参数。这就告诉 React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。
+
+4. 如果第二个参数为空数组（[]），则useEffect()函数只会在组件初始化时执行一次，不会随组件的更新而重新执行。我们还将第二个参数设置为空数组，表示该回调函数仅在组件挂载和卸载时调用，而不在每次渲染时调用。
+
+#### ==**因为对象是引用类型，如何避免重复渲染**==
+
+为了避免这种情况，我们可以在定义对象时使用Object.freeze()方法，将对象设为不可变。这样，即使我们更新对象的属性，对象的值也不会改变，从而避免了重复渲染的问题。
+
+useEffect的不作为componentDidUnmount的话，传入第二个参数时一定注意：第二个参数不能为引用类型，引用类型比较不出来数据的变化，会造成死循环
+
+由于JavaScript中对象是引用类型，如果使用对象作为useEffect()函数的第二个参数，可能会造成重复渲染的问题。例如，如果我们在组件中定义了一个对象，并将它作为useEffect()函数的第二个参数，则组件会在对象的属性发生变化时重新渲染。
+
+下面是一个例子，展示了这种情况下组件会重复渲染的问题：
+
+```js
+function Example() {
+  // 定义一个对象
+  const obj = {
+    name: 'John Doe',
+    age: 30
+  };
+
+  // 监听obj对象的值
+  useEffect(() => {
+    // TODO: 执行操作
+  }, [obj]);
+
+  // 更新obj对象的name属性
+  obj.name = 'Jane Doe';
+
+  return (
+    // 组件内容
+  );
+}
+
+```
+
+在上面的例子中，我们定义了一个对象obj，并将它作为useEffect()函数的第二个参数。当obj对象的属性发生变化时，组件会重新渲染。但是，在这种情况下，组件会重复渲染，因为我们在更新obj对象的name属性时，也会改变obj对象的值，从而触发useEffect()函数的重新执行，最终导致组件重复渲染。
+
+##### 1. Object.freeze()
+
+为了避免这种情况，我们可以在定义对象时使用Object.freeze()方法，将对象设为不可变。这样，即使我们更新对象的属性，对象的值也不会改变，从而避免了重复渲染的问题。
+
+```js
+function Example() {
+  // 定义一个对象
+  const obj = Object.freeze({
+    name: 'John Doe',
+    age: 30
+  });
+
+  // 监听obj对象的值
+  useEffect(() => {
+    // TODO: 执行操作
+  }, [obj]);
+
+  // 更新obj对象的name属性
+  obj.name = 'Jane Doe';
+
+  return (
+    // 组件内容
+  );
+}
+```
+
+在上面的例子中，我们使用Object.freeze()方法将对象设为不可变，从而避免了重复渲染的问题。即使我们更新了obj对象的name属性，obj对象的值也不会改变，useEffect()函数也不会重新执行，最终避免了组件的重复渲染。
+
+总之，如果使用对象作为useEffect()函数的第二个参数，可能会造成重复渲染的问题。为了避免这种问题，我们可以使用Object.freeze()方法将对象设为不可变，从而保证组件只会在对象的值真正发生变化时才会重新渲染。
+
+##### 2. useMemo()
+
+可以。React的useMemo()钩子函数可以用来避免重复计算。它接受两个参数：第一个参数是一个函数，表示要执行的计算；第二个参数是一个数组，表示该计算依赖的值。
+
+当依赖的值发生变化时，useMemo()函数会重新执行计算，并返回新的结果。否则，useMemo()函数不会重新执行计算，而是直接返回上一次的结果。
+
+下面是一个例子，展示了如何使用useMemo()函数避免重复计算
+
+```jsx
+function Example() {
+  // 定义一个对象
+  const obj = {
+    name: "John Doe",
+    age: 30
+  };
+
+  // 使用useMemo()函数避免重复计算
+  const result = useMemo(() => {
+    // 计算结果
+    return obj.name + " is " + obj.age + " years old.";
+  }, [obj]);
+
+  return (
+    <div>
+      <p>{result}</p>
+    </div>
+  );
+}
+```
+
+### 3. React Hooks解决了哪些问题?
+
+  1. 可以使用 Hook 从组件中提取状态逻辑，使得这些逻辑可以单独测试并复用。
+  2. `hooks`能够更容易解决状态相关的重用的问题
+
+通过对上面的初步认识，可以看到`hooks`能够更容易解决状态相关的重用的问题：
+
+   - 每调用useHook一次都会生成一份独立的状态
+   - 通过自定义hook能够更好的封装我们的功能
+
+编写`hooks`为函数式编程，每个功能都包裹在函数中，整体风格更清爽，更优雅
+
+hooks的出现，使函数组件的功能得到了扩充，拥有了类组件相似的功能，在我们日常使用中，使用`hooks`能够解决大多数问题，并且还拥有代码复用机制，因此优先考虑hooks
+
+### 4. React Hook的使用限制有哪些?
+
+   1. 不要在循环，条件或嵌套函数中调用Hook，必须始终在 React函数的顶层使用Hook
+
+   2. 使用useState时候，使用push，pop，splice等直接更改数组对象的坑
+
+   3. useState设置状态的时候，只有第一次生效，后期需要更新状态，必须通过useEffect
+
+   4. 善用useCallback
+
+      死循环产生的解决，父组件传递给子组件事件句柄时，如果我们没有任何参数变动可能会选用useMemo。但是每一次父组件渲染子组件即使没变化也会跟着渲染一次。
+
+   5. 不要滥用useContext
+
+      因为会破坏组件独立性，可以使用基于useContext封装的状态管理工具。
+
+### 5. ==useEffect与useLayoutEffect的区别==
+
+1. 都是处理副作用的
+2. useEffect 在 React 的渲染过程中是被异步调用的，用于绝大多数场景；而 useLayoutEffect 会在所有的 DOM 变更之后同步调用，主要用于处理 DOM 操作、调整样式、避免页面闪烁等问题。
+3. useLayoutEffect 和 componentDidMount 和 componentDidUpdate 触发时机一致（都在在 DOM 修改后且浏览器渲染之前;
+
+ 4. useLayoutEffect 要比 useEffect 更早的触发执行；
+ 5. useLayoutEffect 会阻塞浏览器渲染，切记执行同步的耗时操作
+
+### 6. React Hooks在平时开发中需要注意的
+
+   1. 不要在循环，条件或嵌套函数中调用Hook，必须始终在 React函数的顶层使用Hook
+
+   2. 使用useState时候，使用push，pop，splice等直接更改数组对象的坑
+
+   3. useState设置状态的时候，只有第一次生效，后期需要更新状态，必须通过useEffect
+
+   4. 善用useCallback
+
+      死循环产生的解决，父组件传递给子组件事件句柄时，如果我们没有任何参数变动可能会选用useMemo。但是每一次父组件渲染子组件即使没变化也会跟着渲染一次。
+
+   5. 不要滥用useContext
+
+      因为会破坏组件独立性，可以使用基于useContext封装的状态管理工具。
+
+### 7. React Hooks和生命周期的关系?
+
+Hooks 组件（使用了Hooks的函数组件）有生命周期，而函数组件（未使用Hooks的函数组件）是没有生命周期的。  
+
+| **class 组件**           | **Hooks 组件**            |
+| ------------------------ | ------------------------- |
+| constructor              | useState                  |
+| getDerivedStateFromProps | useState 里面 update 函数 |
+| shouldComponentUpdate    | useMemo                   |
+| render                   | 函数本身                  |
+| componentDidMount        | useEffect                 |
+| componentDidUpdate       | useEffect                 |
+| componentWillUnmount     | useEffect 里面返回的函数  |
+| componentDidCatch        | 无                        |
+| getDerivedStateFromError | 无                        |
+
+### 8. ==useCallback 和 useMemo的区别==
+
+`useMemo` 和 `useCallback` 是 React 性能优化的一个手段之一。
+
+`useMemo` 会记住回调函数返回的值，只有当它的依赖项改变的时候，才会重新计算。`useMemo` 应该用在一些计算量比较大的场景下，或者是使用它来缓存一些 JSX 对象来避免重渲染。
+
+`useCallback` 其实是 `useMemo` 的语法糖，只不过它是用来缓存函数的，比如一个事件的回调函数。常见的使用场景是，一个较复杂的组件接收一个事件的回调函数，使用 `useCallback` 包装来避免函数的重新创建，从而导致函数的引用发生改变，引起复杂组件的重渲染（前提是该组件使用了 `React.memo` 或者是 `shouldComponentUpdate` API 来优化过）。
+
+但是其实 `useCallback` 有一个非常大的问题，比如在回调函数中，依赖了一个 state，你就不得不在依赖项中添加这个 state，而恰巧这个 state 是频繁变化的值，就会导致回调函数每次都会重新创建，失去了缓存的意义。所以最近 React 团队创建了一个 [RFC](https://github.com/reactjs/rfcs/pull/220) 专门来讨论这个问题。后面 React 会新增一个命名为 `useEvent` 的新 hooks 来解决这个问题。
+
+<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l0a60iuaj312k0jc79k.jpg" alt="image-20210908132743370.png" style="zoom:50%;" />
+
+useMemo 和 useCallback 接收的参数都是一样,第一个参数为回调 第二个参数为要依赖的数据
+
+共同作用：
+
+1.仅仅 依赖数据 发生变化, 才会重新计算结果，也就是起到缓存的作用。
+
+两者区别：
+
+1.useMemo 计算结果是 return 回来的值, 主要用于 缓存计算结果的值 ，应用场景如： 需要 计算的状态
+
+2.useCallback 计算结果是 函数, 主要用于 缓存函数，应用场景如: 需要缓存的函数，因为函数式组件每次任何一个 state 的变化 整个组件 都会被重新刷新，一些函数是没有必要被重新刷新的，此时就应该缓存起来，提高性能，和减少资源浪费。
+
+注意： 不要滥用会造成性能浪费，react中减少render就能提高性能，所以这个仅仅只针对缓存能减少重复渲染时使用和缓存计算结果。
+
+### 9. react hooks 如何替代或部分替代 redux 功能
+
+1. 从服务器端来，如各种 `model`，此时可以使用 `swr` 直接替代。或者封装一个 `useModel`，如 `useUser`，`usePermission`
+2. 客户端全局 store，此时可以使用 `useReducer` 和 `useContext` 来替代
+
+### 10. 如何实现一个 react hook，你有没有自己写过一个
+
+https://github.com/streamich/react-use
+
+### 11. useEffect 中如何使用 async/await
+
+```js
+function useEffect(effect: EffectCallback, deps?: DependencyList): void;
+type EffectCallback = () => (void | (() => void | undefined));
+```
+
+根据文档及 ts 的提示来看，`useEffect` 的回调参数返回的是一个清除副作用的 `clean-up` 函数。因此无法返回 `Promise`，更无法使用 `async/await`
+
+```js
+useEffect(() => {
+  const subscription = props.source.subscribe();
+  return () => {
+    // Clean up the subscription
+    subscription.unsubscribe();
+  };
+});
+```
+
+**此时可以选择再包装一层 async 函数，置于 useEffect 的回调函数中，变相使用 async/await**
+
+```js
+async function fetchMyAPI() {
+  let response = await fetch('api/data')
+  response = await res.json()
+  dataSet(response)
+}
+
+useEffect(() => {
+  fetchMyAPI();
+}, []);
+```
+
+### 12. 为什么不能在表达式里面定义 react hooks
+
+Hook 需要在我们组件的最顶层调用。只要 Hook 的调用顺序在多次渲染之间保持一致，React 就能正确地将内部 state 和对应的 Hook 进行关联。否则关联会错乱。
+
+### 13. 在 React hooks 中如何模拟 forceUpdate
+
+```js
+onst[(ignored, forceUpdate)] = useReducer((x) => x + 1, 0);
+
+function handleClick() {
+  forceUpdate();
+}
+```
+
+### 14. 在 React Hooks 中实现 usePreviouseValue 取上次渲染的值
+
+```js
+// ahook的实现版本
+import { useRef } from "react";
+
+type ShouldUpdateFunc<T> = (prev: T | undefined, next: T) => boolean;
+
+const defalutShouldUpdate = <T>(prev?: T, next?: T) => prev !== next;
+
+function usePrevious<T>(
+  state: T,
+  shouldUpdateFun: ShouldUpdateFunc<T> = defalutShouldUpdate
+): T | undefined {
+  const prev = useRef<T>();
+  const cur = useRef<T>();
+
+  if (shouldUpdateFun(cur.current, state)) {
+    prev.current = cur.current;
+    cur.current = state;
+  }
+  return prev.current;
+}
+
+export default usePrevious;
+```
+
+## 五、组件通信
 
 ### 1. 组件通信的方式有哪些
 
@@ -8455,7 +8822,7 @@ React16 自上而下地对生命周期做了另一种维度的解读：
 - 使用Context API：提供一种组件之间的状态共享，而不必通过显式组件树逐层传递props；
 - 使用Redux等状态库。
 
-## 五、路由 Router
+## 六、路由 Router
 
 ### 1. React-Router的实现原理是什么?
 
@@ -8602,7 +8969,7 @@ Switch 通常被用来包裹 Route，用于渲染与路径匹配的第一个子 
 - switch
 - redirect
 
-## 六、Redux 
+## 七、Redux 
 
 <img src="http://ww1.sinaimg.cn/large/005NUwyggy1gt4z7z98z3j60zk0k078s02.jpg" alt="redux原理图.png" style="zoom: 50%;" />
 
@@ -8804,324 +9171,6 @@ filter/
   2. 操作更新状态方式统一
   3. 支持将store与react组件连接
 
-## 七、Hooks
-
-```js
-  useEffect(() => {
-    const timeout = setTimeout(() => setVarA(varA + 1), 1000);
-    return () => clearTimeout(timeout);
-  }, [varA]);
-```
-
-
-
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
-
-### 1. 对React Hook的理解，它的实现原理是什么？
-
-Hook是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。通过自定义hook，可以复用代码逻辑。
-
-`Hook` 是 React 16.8 的新增特性。它可以让你在不编写 `class` 的情况下使用 `state` 以及其他的 `React` 特性，在以前，函数组件也被称为无状态的组件，只负责渲染的一些工作。因此，现在的函数组件也可以是有状态的组件，内部也可以维护自身的状态以及做一些逻辑方面的处理。
-
-Hooks 主要是利用闭包来保存状态，使用链表保存一系列Hooks，将链表中的第一个Hook与Fiber 关联。
-
-   - useState
-
-   - useEffect
-
-   - useReducer
-
-   - useCallback
-
-   - useMemo
-
-   - useRef
-
-
-### 2. 为什么useState要使用数组而不是对象
-
-useState 返回的是 array 而不是 object 的原因就是为了降低使用的复杂度，返回数组的话可以直接根据顺序解构，而返回对象的话要想使用多次就需要定义别名了。
-
-- 如果 useState 返回的是数组，那么使用者可以对数组中的元素命名，代码看起来也比较干净
-- 如果 useState 返回的是对象，在解构对象的时候必须要和 useState 内部实现返回的对象同名，想要使用多次的话，必须得设置别名才能使用返回值
-
-### 3. useEffect
-
-```jsx
-  useEffect(() => {
-    const timeout = setTimeout(() => setVarA(varA + 1), 1000);
-    return () => clearTimeout(timeout);
-  }, [varA]);
-```
-
-1. 你可以把 useEffect函数 看做 componentDidMount，componentDidUpdate 和 componentWillUnmount 这三个函数的组合。
-2. useEffect什么时候会被触发执行
-   1. 默认情况下，它在第一次渲染之后和每次更新之后都会执行。你可能会更容易接受 effect 发生在“渲染之后”这种概念，不用再去考虑“挂载”还是“更新”。React 保证了每次运行 effect 的同时，DOM 都已经更新完毕。
-   2. 数据获取，设置订阅以及手动更改 React 组件中的 DOM 都属于副作用。有些副作用可能需要清除，所以需要返回一个函数，比如挂载时设置定时器，卸载时取消定时器。
-
-3. 你可以通知 React 跳过对 effect 的调用，只要传递数组作为 useEffect 的第二个可选参数即可，如果想执行只运行一次的 effect（仅在组件挂载和卸载时执行），可以传递一个空数。作为第二个参数。这就告诉 React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。
-
-4. 如果第二个参数为空数组（[]），则useEffect()函数只会在组件初始化时执行一次，不会随组件的更新而重新执行。
-
-#### 因为对象是引用类型，如何避免重复渲染
-
-useEffect的不作为componentDidUnmount的话，传入第二个参数时一定注意：第二个参数不能为引用类型，引用类型比较不出来数据的变化，会造成死循环
-
-由于JavaScript中对象是引用类型，如果使用对象作为useEffect()函数的第二个参数，可能会造成重复渲染的问题。例如，如果我们在组件中定义了一个对象，并将它作为useEffect()函数的第二个参数，则组件会在对象的属性发生变化时重新渲染。
-
-下面是一个例子，展示了这种情况下组件会重复渲染的问题：
-
-```js
-function Example() {
-  // 定义一个对象
-  const obj = {
-    name: 'John Doe',
-    age: 30
-  };
-
-  // 监听obj对象的值
-  useEffect(() => {
-    // TODO: 执行操作
-  }, [obj]);
-
-  // 更新obj对象的name属性
-  obj.name = 'Jane Doe';
-
-  return (
-    // 组件内容
-  );
-}
-
-```
-
-在上面的例子中，我们定义了一个对象obj，并将它作为useEffect()函数的第二个参数。当obj对象的属性发生变化时，组件会重新渲染。但是，在这种情况下，组件会重复渲染，因为我们在更新obj对象的name属性时，也会改变obj对象的值，从而触发useEffect()函数的重新执行，最终导致组件重复渲染。
-
-为了避免这种情况，我们可以在定义对象时使用Object.freeze()方法，将对象设为不可变。这样，即使我们更新对象的属性，对象的值也不会改变，从而避免了重复渲染的问题。
-
-```js
-function Example() {
-  // 定义一个对象
-  const obj = Object.freeze({
-    name: 'John Doe',
-    age: 30
-  });
-
-  // 监听obj对象的值
-  useEffect(() => {
-    // TODO: 执行操作
-  }, [obj]);
-
-  // 更新obj对象的name属性
-  obj.name = 'Jane Doe';
-
-  return (
-    // 组件内容
-  );
-}
-```
-
-在上面的例子中，我们使用Object.freeze()方法将对象设为不可变，从而避免了重复渲染的问题。即使我们更新了obj对象的name属性，obj对象的值也不会改变，useEffect()函数也不会重新执行，最终避免了组件的重复渲染。
-
-总之，如果使用对象作为useEffect()函数的第二个参数，可能会造成重复渲染的问题。为了避免这种问题，我们可以使用Object.freeze()方法将对象设为不可变，从而保证组件只会在对象的值真正发生变化时才会重新渲染。
-
-可以。React的useMemo()钩子函数可以用来避免重复计算。它接受两个参数：第一个参数是一个函数，表示要执行的计算；第二个参数是一个数组，表示该计算依赖的值。
-
-当依赖的值发生变化时，useMemo()函数会重新执行计算，并返回新的结果。否则，useMemo()函数不会重新执行计算，而是直接返回上一次的结果。
-
-下面是一个例子，展示了如何使用useMemo()函数避免重复计算
-
-```jsx
-function Example() {
-  // 定义一个对象
-  const obj = {
-    name: "John Doe",
-    age: 30
-  };
-
-  // 使用useMemo()函数避免重复计算
-  const result = useMemo(() => {
-    // 计算结果
-    return obj.name + " is " + obj.age + " years old.";
-  }, [obj]);
-
-  return (
-    <div>
-      <p>{result}</p>
-    </div>
-  );
-}
-```
-
-### 3. React Hooks解决了哪些问题?
-
-   1. 可以使用 Hook 从组件中提取状态逻辑，使得这些逻辑可以单独测试并复用。
-   2. `hooks`能够更容易解决状态相关的重用的问题
-
-通过对上面的初步认识，可以看到`hooks`能够更容易解决状态相关的重用的问题：
-
-   - 每调用useHook一次都会生成一份独立的状态
-   - 通过自定义hook能够更好的封装我们的功能
-
-编写`hooks`为函数式编程，每个功能都包裹在函数中，整体风格更清爽，更优雅
-
-hooks`的出现，使函数组件的功能得到了扩充，拥有了类组件相似的功能，在我们日常使用中，使用`hooks`能够解决大多数问题，并且还拥有代码复用机制，因此优先考虑`hooks
-
-### 4. React Hook的使用限制有哪些?
-
-   1. 不要在循环、条件或嵌套函数中调用 Hook；
-
-   2. 在 React 的函数组件中调用 Hook。
-
-### 5. ==useEffect与useLayoutEffect的区别==
-
-  1. 都是处理副作用的
-  2. useEffect 在 React 的渲染过程中是被异步调用的，用于绝大多数场景；而 useLayoutEffect 会在所有的 DOM 变更之后同步调用，主要用于处理 DOM 操作、调整样式、避免页面闪烁等问题。
-  3. useLayoutEffect 和 componentDidMount 和 componentDidUpdate 触发时机一致（都在在 DOM 修改后且浏览器渲染之前;
-
-   4. useLayoutEffect 要比 useEffect 更早的触发执行；
-   5. useLayoutEffect 会阻塞浏览器渲染，切记执行同步的耗时操作
-
-### 6. React Hooks在平时开发中需要注意的
-
-   1. 不要在循环，条件或嵌套函数中调用Hook，必须始终在 React函数的顶层使用Hook
-
-   2. 使用useState时候，使用push，pop，splice等直接更改数组对象的坑
-
-   3. useState设置状态的时候，只有第一次生效，后期需要更新状态，必须通过useEffect
-
-   4. 善用useCallback
-
-      死循环产生的解决，父组件传递给子组件事件句柄时，如果我们没有任何参数变动可能会选用useMemo。但是每一次父组件渲染子组件即使没变化也会跟着渲染一次。
-
-   5. 不要滥用useContext
-
-      因为会破坏组件独立性，可以使用基于useContext封装的状态管理工具。
-
-### 7. React Hooks和生命周期的关系?
-
-Hooks 组件（使用了Hooks的函数组件）有生命周期，而函数组件（未使用Hooks的函数组件）是没有生命周期的。  
-
-| **class 组件**           | **Hooks 组件**            |
-| ------------------------ | ------------------------- |
-| constructor              | useState                  |
-| getDerivedStateFromProps | useState 里面 update 函数 |
-| shouldComponentUpdate    | useMemo                   |
-| render                   | 函数本身                  |
-| componentDidMount        | useEffect                 |
-| componentDidUpdate       | useEffect                 |
-| componentWillUnmount     | useEffect 里面返回的函数  |
-| componentDidCatch        | 无                        |
-| getDerivedStateFromError | 无                        |
-
-### 8. ==useCallback 和 useMemo的区别==
-
-`useMemo` 和 `useCallback` 是 React 性能优化的一个手段之一。
-
-`useMemo` 会记住回调函数返回的值，只有当它的依赖项改变的时候，才会重新计算。`useMemo` 应该用在一些计算量比较大的场景下，或者是使用它来缓存一些 JSX 对象来避免重渲染。
-
-`useCallback` 其实是 `useMemo` 的语法糖，只不过它是用来缓存函数的，比如一个事件的回调函数。常见的使用场景是，一个较复杂的组件接收一个事件的回调函数，使用 `useCallback` 包装来避免函数的重新创建，从而导致函数的引用发生改变，引起复杂组件的重渲染（前提是该组件使用了 `React.memo` 或者是 `shouldComponentUpdate` API 来优化过）。
-
-但是其实 `useCallback` 有一个非常大的问题，比如在回调函数中，依赖了一个 state，你就不得不在依赖项中添加这个 state，而恰巧这个 state 是频繁变化的值，就会导致回调函数每次都会重新创建，失去了缓存的意义。所以最近 React 团队创建了一个 [RFC](https://github.com/reactjs/rfcs/pull/220) 专门来讨论这个问题。后面 React 会新增一个命名为 `useEvent` 的新 hooks 来解决这个问题。
-
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l0a60iuaj312k0jc79k.jpg" alt="image-20210908132743370.png" style="zoom:50%;" />
-
-useMemo 和 useCallback 接收的参数都是一样,第一个参数为回调 第二个参数为要依赖的数据
-
-共同作用：
-
-1.仅仅 依赖数据 发生变化, 才会重新计算结果，也就是起到缓存的作用。
-
-两者区别：
-
-1.useMemo 计算结果是 return 回来的值, 主要用于 缓存计算结果的值 ，应用场景如： 需要 计算的状态
-
-2.useCallback 计算结果是 函数, 主要用于 缓存函数，应用场景如: 需要缓存的函数，因为函数式组件每次任何一个 state 的变化 整个组件 都会被重新刷新，一些函数是没有必要被重新刷新的，此时就应该缓存起来，提高性能，和减少资源浪费。
-
-注意： 不要滥用会造成性能浪费，react中减少render就能提高性能，所以这个仅仅只针对缓存能减少重复渲染时使用和缓存计算结果。
-
-### 9. react hooks 如何替代或部分替代 redux 功能
-
-1. 从服务器端来，如各种 `model`，此时可以使用 `swr` 直接替代。或者封装一个 `useModel`，如 `useUser`，`usePermission`
-2. 客户端全局 store，此时可以使用 `useReducer` 和 `useContext` 来替代
-
-### 10. 如何实现一个 react hook，你有没有自己写过一个
-
-https://github.com/streamich/react-use
-
-### 11. useEffect 中如何使用 async/await
-
-```js
-function useEffect(effect: EffectCallback, deps?: DependencyList): void;
-type EffectCallback = () => (void | (() => void | undefined));
-```
-
-根据文档及 ts 的提示来看，`useEffect` 的回调参数返回的是一个清除副作用的 `clean-up` 函数。因此无法返回 `Promise`，更无法使用 `async/await`
-
-```js
-useEffect(() => {
-  const subscription = props.source.subscribe();
-  return () => {
-    // Clean up the subscription
-    subscription.unsubscribe();
-  };
-});
-```
-
-**此时可以选择再包装一层 async 函数，置于 useEffect 的回调函数中，变相使用 async/await**
-
-```js
-async function fetchMyAPI() {
-  let response = await fetch('api/data')
-  response = await res.json()
-  dataSet(response)
-}
-
-useEffect(() => {
-  fetchMyAPI();
-}, []);
-```
-
-### 12. 为什么不能在表达式里面定义 react hooks
-
-Hook 需要在我们组件的最顶层调用。只要 Hook 的调用顺序在多次渲染之间保持一致，React 就能正确地将内部 state 和对应的 Hook 进行关联。否则关联会错乱。
-
-### 13. 在 React hooks 中如何模拟 forceUpdate
-
-```js
-onst[(ignored, forceUpdate)] = useReducer((x) => x + 1, 0);
-
-function handleClick() {
-  forceUpdate();
-}
-```
-
-### 14. 在 React Hooks 中实现 usePreviouseValue 取上次渲染的值
-
-```js
-// ahook的实现版本
-import { useRef } from "react";
-
-type ShouldUpdateFunc<T> = (prev: T | undefined, next: T) => boolean;
-
-const defalutShouldUpdate = <T>(prev?: T, next?: T) => prev !== next;
-
-function usePrevious<T>(
-  state: T,
-  shouldUpdateFun: ShouldUpdateFunc<T> = defalutShouldUpdate
-): T | undefined {
-  const prev = useRef<T>();
-  const cur = useRef<T>();
-
-  if (shouldUpdateFun(cur.current, state)) {
-    prev.current = cur.current;
-    cur.current = state;
-  }
-  return prev.current;
-}
-
-export default usePrevious;
-```
-
 ## 八、虚拟DOM
 
 ### 1. 对虚拟DOM的理解？虚拟DOM主要做了什么？其本身是什么？
@@ -9144,6 +9193,20 @@ Virtual DOM的更新DOM的准备工作耗费更多的时间，也就是JS层面�
 Virtual DOM本质上是JavaScript的对象，它可以很方便的跨平台操作，比如服务端渲染、uniapp等。
 
 ### 2. React diff 算法的原理是什么?
+
+Diff算法是一种对比算法。对比两者是旧虚拟DOM和新虚拟DOM，对比出哪个虚拟节点更改了，找出这个虚拟节点，并只更新这个虚拟节点所对应的真实节点，而不用更新其它数据没发生变化的节点，实现精准地更新真实DOM，进而提高效率。
+
+https://juejin.cn/post/6844903825946624013#heading-1
+
+前面我们讲到传统diff算法的时间复杂度为O(n^3),其中n为树中节点的总数，随着n的增加，diff所耗费的时间将呈现爆炸性的增长。react却利用其特殊的diff算法做到了O(n^3)到O(n)的飞跃性的提升，而完成这一壮举的法宝就是下面这三条看似简单的diff策略：
+
+- **Web UI中DOM节点跨层级的移动操作特别少，可以忽略不计**。
+- **拥有相同类的两个组件将会生成相似的树形结构，拥有不同类的两个组件将会生成不同的树形结构**。
+- **对于同一层级的一组子节点，它们可以通过唯一 id 进行区分**。
+
+在上面三个策略的基础上，React 分别将对应的tree diff、component diff 以及 element diff 进行算法优化，极大地提升了diff效率。
+
+-----
 
 `diff`算法就是更高效地通过对比新旧`Virtual DOM`来找出真正的`Dom`变化之处。
 
@@ -9508,7 +9571,7 @@ HOC 解决了这些问题，并且它们达成的效果也是一致的，同时�
 
 装饰模式。装饰模式的特点是不需要改变被装饰对象 本身，而只是在外面套一个外壳接口。JavaScript 目前已经有了原生装饰器的提案
 
-### 23. 了解 React 中的 ErrorBoundary 吗，它有那些使用场景
+### 23. ==了解 React 中的 ErrorBoundary 吗，它有那些使用场景==
 
 嵌套的比较深的组件存在出错的风险，组件自身没有容错机制，会逐层交给外层组件处理。这个过程会导致整个组件树销毁。页面结果就是白屏。而且生产环境不会报出有效的错误信息，不好定位问题。 使用 ErrorBoundary 就是在可能出错的组件上套一层组件，在这个新的组件中去容错
 

@@ -2,6 +2,8 @@
 
 ## 1. 深拷贝
 
+### 方法一： 只考虑了object / array 这两种类型
+
 ```js
 // 只考虑了object / array 这两种类型
 const deepClone = (obj) => {
@@ -23,72 +25,11 @@ const deepClone = (obj) => {
       ? Array.from(obj)
       : clone;
 };
+```
 
-// 性能优化
-function clone(target, map = new WeakMap()) {
-  if (typeof target === "object") {
-    const isArray = Array.isArray(target);
-    let cloneTarget = isArray ? [] : {};
+### 方法二：考虑到了复杂类型和循环引用做了优化
 
-    if (map.get(target)) {
-      return map.get(target);
-    }
-    map.set(target, cloneTarget);
-
-    const keys = isArray ? undefined : Object.keys(target);
-    forEach(keys || target, (value, key) => {
-      if (keys) {
-        key = value;
-      }
-      cloneTarget[key] = clone2(target[key], map);
-    });
-
-    return cloneTarget;
-  } else {
-    return target;
-  }
-}
-
-// date and regexp
-function deepCopy(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-
-  if (obj instanceof Date) {
-    return new Date(obj.getTime());
-  }
-
-  if (obj instanceof RegExp) {
-    return new RegExp(obj);
-  }
-
-  let clone = new obj.constructor();
-  for (let key in obj) {
-    clone[key] = deepCopy(obj[key]);
-  }
-  
-  return clone;
-}
-
-let date = new Date();
-let regexp = new RegExp("/ab+c/", "i");
-let obj = {
-  array: [1,2,3],
-  jack:{
-    name: 'jack',
-    age: 18
-  },
-  date: date,
-  regexp: regexp
-};
-
-let copiedObj = deepCopy(obj);
-
-console.log(copiedObj.date === date); // false
-console.log(copiedObj.regexp === regexp); // false
-console.log(222, copiedObj);
-
+```js
 // 完整版
 function deepCopy(obj) {
   if (obj === null || typeof obj !== "object") {
@@ -163,10 +104,74 @@ obj.arr.push(5);
 cloneObj.arr.push(8);
 console.log("obj", obj);
 console.log("copy", cloneObj);
-
 ```
 
-在上面的代码中，我们其实只考虑了普通的`object`和`array`两种数据类型，实际上所有的引用类型远远不止这两个，还有很多。
+```js
+// 性能优化
+function clone(target, map = new WeakMap()) {
+  if (typeof target === "object") {
+    const isArray = Array.isArray(target);
+    let cloneTarget = isArray ? [] : {};
+
+    if (map.get(target)) {
+      return map.get(target);
+    }
+    map.set(target, cloneTarget);
+
+    const keys = isArray ? undefined : Object.keys(target);
+    forEach(keys || target, (value, key) => {
+      if (keys) {
+        key = value;
+      }
+      cloneTarget[key] = clone2(target[key], map);
+    });
+
+    return cloneTarget;
+  } else {
+    return target;
+  }
+}
+
+// date and regexp
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  if (obj instanceof Date) {
+    return new Date(obj.getTime());
+  }
+
+  if (obj instanceof RegExp) {
+    return new RegExp(obj);
+  }
+
+  let clone = new obj.constructor();
+  for (let key in obj) {
+    clone[key] = deepCopy(obj[key]);
+  }
+  
+  return clone;
+}
+
+let date = new Date();
+let regexp = new RegExp("/ab+c/", "i");
+let obj = {
+  array: [1,2,3],
+  jack:{
+    name: 'jack',
+    age: 18
+  },
+  date: date,
+  regexp: regexp
+};
+
+let copiedObj = deepCopy(obj);
+
+console.log(copiedObj.date === date); // false
+console.log(copiedObj.regexp === regexp); // false
+console.log(222, copiedObj);
+```
 
 https://juejin.cn/post/6844903929705136141#heading-2
 
@@ -182,11 +187,32 @@ https://juejin.cn/post/6844903929705136141#heading-2
 
 这种方法通常用于复制简单对象或数组时。例如，如果对象中只包含基本数据类型（如数字、字符串、布尔值），那么使用浅拷贝就可以创建一个新对象，该对象中的属性与源对象相同。
 
+### 方法一：只考虑了对象的浅拷贝
+
 ```js
 function shallowCopy(obj) {
   return Object.assign({}, obj);
 }
 ```
+### 方法二： 简单的浅拷贝，没有考虑复杂类型
+
+```js
+function shallowCopy(object) {
+  // 只拷贝对象
+  if (!object || typeof object !== "object") return;
+  // 根据 object 的类型判断是新建一个数组还是对象
+  let newObject = Array.isArray(object) ? [] : {};
+  // 遍历 object，并且判断是 object 的属性才拷贝
+  for (let key in object) {
+    if (object.hasOwnProperty(key)) {
+      newObject[key] = object[key];
+    }
+  }
+  return newObject;
+}
+```
+
+### 方法三：考虑到了复杂类型的浅拷贝
 
 ```js
 function shallowCopy(obj) {
@@ -216,22 +242,6 @@ function shallowCopy(obj) {
   return newObj;
 }
 
-```
-
-```js
-function shallowCopy(object) {
-  // 只拷贝对象
-  if (!object || typeof object !== "object") return;
-  // 根据 object 的类型判断是新建一个数组还是对象
-  let newObject = Array.isArray(object) ? [] : {};
-  // 遍历 object，并且判断是 object 的属性才拷贝
-  for (let key in object) {
-    if (object.hasOwnProperty(key)) {
-      newObject[key] = object[key];
-    }
-  }
-  return newObject;
-}
 ```
 
 ## 1. 实现一个 once 函数，记忆返回结果只执行一次
