@@ -569,7 +569,21 @@ https://juejin.cn/post/7030405236657225735
 
 ## 7. 如何调研移动端适配方案viewport
 
-viewport 和 rem方案的优缺点
+项目中如何设置viewport:
+
+如果项目中我独立开发配置，完全可以利用webpack配置插件的方式支持vw适配，不用自己去手动写 vw.
+
+设置 viewport 是通过在 HTML 页面的 `<head>` 标签中添加一个 `<meta>` 标签来实现的。例如，你可以这样设置 viewport：
+
+```
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+```
+
+在这个例子中，我们通过设置 `<meta>` 标签的 `name` 属性为 `viewport` 来指定这是一个 viewport 标签。然后，通过设置 `content` 属性来指定 viewport 的具体内容。
+
+viewport 和 rem 方案的优缺点
 
 viewport 方案：
 
@@ -594,7 +608,7 @@ rem 方案：
 
 - 如果页面中包含多个不同尺寸的图片，需要使用媒体查询来进行特殊处理。
 - 如果使用 JavaScript 来动态设置 HTML 元素的 font-size 属性，会导致页面在加载过程中出现短暂的白屏现象，不够优雅。
-- 对于高清屏幕的设备，页面的字体会显得过大，造成视
+- 对于高清屏幕的设备，页面的字体会显得过大。
 
 总的来说，viewport 和 rem 方案都是移动端和 PC 端的样式兼容的常用方法。它们各有优缺点，在实际项目中需要根据页面的特点和需求来选择合适的方案。
 
@@ -606,7 +620,17 @@ https://juejin.cn/post/6844903988488306701
 
 去查看现如今有哪几种技术方案。然后根据项目复杂程度自行选用技术方案。
 
-由于viewport单位得到众多浏览器的兼容，lib-flexible这个过渡方案已经可以放弃使用，不管是现在的版本还是以前的版本，都存有一定的问题。建议大家开始使用viewport来替代此方。
+由于viewport单位得到众多浏览器的兼容，==lib-flexible这个过渡方案已经可以放弃使用==，不管是现在的版本还是以前的版本，都存有一定的问题。建议大家开始使用viewport来替代此方。
+
+lib-flexible 是一个用于实现移动端适配的库，它通过动态计算 HTML 根元素的字体大小来实现页面的缩放。
+
+然而，lib-flexible 存在一些问题。
+
+1. 首先，由于它通过修改 HTML 根元素的字体大小来实现缩放，因此会导致页面布局发生变化，可能会影响页面的可读性和用户体验。
+
+2. 其次，lib-flexible 会在页面加载完成后立即执行，因此可能会导致页面的渲染延迟，影响页面的加载速度。
+
+3. 最后，lib-flexible 只能处理纵向的屏幕尺寸，对于横屏设备无能为力。
 
 rem是根据html的最终font-size进行响应： 1rem === finalDocElementFontSize（重点！） 。对于大部分机型，docElementFontSize和finalDocElementFontSize是相等的，但是有些网页在某些情况下打开的话，会得到docElementFontSize和finalDocElementFontSize不相等的情况。
 
@@ -1008,8 +1032,6 @@ worksheet.addRows(excelData);
 // 保存文档
 await workbook.xlsx.writeFile('exported-data.xlsx');
 ```
-
-
 
 ```js
 const fs = require('fs'); // 引入 fs 模块
