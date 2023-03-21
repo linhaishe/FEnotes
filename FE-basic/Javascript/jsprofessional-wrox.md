@@ -1303,45 +1303,45 @@ by default, all function return a value, in below example, the return value is u
 ```javascript
 //basic syntax
 
-function functionName(arg0, arg1,...,argN) {
+function functionName(arg0, arg1, ... , argN) {
  statements
 }
 
 function sayHi(name, message) {
- alert(“Hello “ + name + “, “ + message);
+  alert("Hello " + name + ", " + message);
 }
 
-sayHi("Nicholas", “how are you today?”);
+sayHi("Nicholas", "how are you today?");
 // “Hello Nicholas, how are you today?”
 
 //Any function can return a value at any time by using the return statement followed by the value to return.
 //任何函数，任何时候都可以通过return 语句后跟要返回的值来实现返回值。
 
 function sum(num1, num2) {
- return num1 + num2;
+  return num1 + num2;
 }
 
 // any code that comes after a return statement will never be executed
 function sum(num1, num2) {
- return num1 + num2;
- alert(“Hello world”); //never executed
+  return num1 + num2;
+  alert("Hello world"); //never executed
 }
 
 // possible to have more than one return statement in a function
 function diff(num1, num2) {
- if (num1 < num2) {
- return num2 - num1;
- } else {
- return num1 - num2;
- }
+  if (num1 < num2) {
+    return num2 - num1;
+  } else {
+    return num1 - num2;
+  }
 }
 
 //return statement can be used without specifying a return value
 //the function stops executing immediately and returns undefined as its value
 
 function sayHi(name, message) {
- return;
- alert(“Hello “ + name + “, “ + message); //never called
+  return;
+  alert("Hello " + name + ", " + message); //never called
 }
 ```
 
@@ -1378,16 +1378,16 @@ an arguments object that can be accessed while inside a function to retrieve the
 
 ```javascript
 function sayHi() {
-    alert(“Hello “ + arguments[0] + “, “ + arguments[1]);
+  alert("Hello " + arguments[0] + ", " + arguments[1]);
 }
 
-function printAll(){
-  for(let i = 0 ; i<arguments.length;i++){
-console.log(argument[i]);
+function printAll() {
+  for (let i = 0; i < arguments.length; i++) {
+    console.log(argument[i]);
   }
 }
 
-printAll(1,2,3,4,5);
+printAll(1, 2, 3, 4, 5);
 ```
 
 ###  length property
@@ -1398,7 +1398,7 @@ be used to check the number of arguments passed into the function
 function howManyArgs() {
  alert(arguments.length);
 }
-howManyArgs(“string”, 45); //2
+howManyArgs("string", 45); //2
 howManyArgs(); //0
 howManyArgs(12); //1
 ```
@@ -1407,15 +1407,15 @@ arguments object can be used  in conjunction with named arguments
 
 ```javascript
 function doAdd(num1, num2) {
- if(arguments.length == 1) {
- alert(num1 + 10);
- } else if (arguments.length == 2) {
- alert(arguments[0] + num2);
- }
+  if (arguments.length == 1) {
+    alert(num1 + 10);
+  } else if (arguments.length == 2) {
+    alert(arguments[0] + num2);
+  }
 }
 ```
 
-Another thing to keep in mind: if only one argument is passed in, then setting arguments[1] to a value will not be refl ected by the named argument. 
+Another thing to keep in mind: if only one argument is passed in, then setting arguments[1] to a value will not be reflected by the named argument. 
 
 Any named argument that is not passed into the function is automatically assigned the value undefined
 
@@ -1428,46 +1428,45 @@ Any named argument that is not passed into the function is automatically assigne
 ```javascript
 function addSomeNumber(num){
   return num + 100; 
-}function addSomeNumber(num) {
+}
+function addSomeNumber(num) {
   return num + 200; 
 }
-var result = addSomeNumber(100);    //300 
+var result = addSomeNumber(100); //300 
 ```
 
 ### function context
 
 ```js
-function sayHi(){
-console.log('Hi');
-console.log(this);
+function sayHi1() {
+  console.log("Hi");
+  console.log(this);
 }
 
-sayHi();
+sayHi1();
 //Hi
 //window{...}
 
-let greeting = {};
-greeting.sayHi = funciton(){
+let greeting1 = {};
+greeting1.sayHi2 = function(){
   console.log('Hi');
-  cosole.log(this);
+  console.log(this);
 }
-//excution context in this function is diff
-greeting.sayHi();
-//Hi
-//{sayHi:f}
+// //excution context in this function is diff.
+greeting1.sayHi2();
+// //Hi
+// //{sayHi:f}
 
-function sayHi(){
-console.log('Hi');
-console.log(this);
+function sayHi3() {
+  console.log("Hi");
+  console.log(this);
 }
 
-let greeting = new sayHi();
+let greeting2 = new sayHi3();
 //Hi
-//[obj object]
+//[object object]
 
 ```
-
-
 
 # Chapter 4 : Variable, Scope, and Memory
 
@@ -1605,6 +1604,8 @@ alert(pattern instanceof RegExp);
 ```
 
 ## II. Execution content and scope
+
+执行上下文（Execution Context）
 
 全局执行环境是最外围的执行环境，宿主不同，表示的执行环境的对象也不一样。web中，global context是windows object,When an execution context has executed all of its code, it is destroyed销毁, taking with it all of the variables and functions defined within it
 
@@ -4551,9 +4552,9 @@ var factorial = (function f(num){
 
 ## III. closures
 
-区分匿名函数和闭包。
+> 闭包（Closure）是指函数和函数内部能访问到的变量（即自由变量）的组合。在JavaScript中，函数嵌套函数的情况非常常见，如果内部函数能够访问外部函数的变量，即使外部函数执行完毕，内部函数依然能够访问到这些变量，这种情况就称为闭包。
 
-闭包指的是有权访问另一个函数作用域中的变量的函数。
+区分匿名函数和闭包。
 
 创建闭包的常见方式，就是在一个函数内部创建另一个函数。
 
@@ -4564,6 +4565,7 @@ In JavaScript, a function always has access to the context in which it was creat
 闭包只能取得包含函数中任何变量最后一个值，保存的是整个变量对象，不是某个特殊变量。
 
 ```javascript
+// 只会返回10，即使是遍历函数，最终结果是10，不会返回各自不同的索引值
 function createFunctions(){
   var result = new Array();
   for (var i=0; i < 10; i++){
@@ -4574,10 +4576,7 @@ function createFunctions(){
   return result; 
 } 
 
-//只会返回10，即使是遍历函数，最终结果是10，不会返回各自不同的索引值
-
-//强制返回各自不同的索引值
-
+// 强制返回各自不同的索引值
 function createFunctions(){
   var result = new Array();
   for (var i=0; i < 10; i++){
@@ -4608,10 +4607,10 @@ public property 容易被串改到别的值，所以为了防止数据串改，�
 
 This way, the variable can only be accessed and changed by methods also within the constructor function.
 
- Here `getHatchedEggCount` is a privileged method, because it has access to the private variable `hatchedEgg`. This is possible because `hatchedEgg` is declared in the same context as `getHatchedEggCount`. 
+Here `getHatchedEggCount` is a privileged method, because it has access to the private variable `hatchedEgg`. This is possible because `hatchedEgg` is declared in the same context as `getHatchedEggCount`. 
 
 ```js
-//无论使用何种方式对函数类型的值进行传递，当函数在别处被调用的时候都可以观察到闭包
+// 无论使用何种方式对函数类型的值进行传递，当函数在别处被调用的时候都可以观察到闭包
 function foo(){
   var a = 222222;
   
@@ -4623,18 +4622,18 @@ function foo(){
 }
 
 function bar(fn){
-  fn();//this is clousure
+  fn();// this is clousure
 }
 
 foo();
-//传递函数也可以是间接的
+// 传递函数也可以是间接的
 var fn;
 function foo(){
   var a =2 ;
   function baz(){
     console.log(a);
   }
-  fn = baz;//将baz 分配给全局变量
+  fn = baz;// 将baz 分配给全局变量
 }
 
 function bar(){
@@ -4665,7 +4664,7 @@ let message = {
 
 message.regularFunction();
 message.arrowFunction();
-cnosole.log(this.name)//empty string
+cnosole.log(this.name)// empty string
 cnosole.log(this) // window object
 ```
 
@@ -4687,7 +4686,7 @@ object.getNameFunc()()
 //”The Window” (in non-strict mode) 
 ```
 
-在定义匿名函数之前，我们把对象赋值给了一个名叫that的变量，而在定义了闭包之后，闭包也可以访问这个变量，因为它是我们在包含函数中特意声明的一个变量，即使在函数返回之后，that也仍然引用着object,所以调用object,getNameFunc()()就返回了，my object.
+在定义匿名函数之前，我们把对象赋值给了一个名叫`that`的变量，而在定义了闭包之后，闭包也可以访问这个变量，因为它是我们在包含函数中特意声明的一个变量，即使在函数返回之后，that也仍然引用着object,所以调用`object`,`getNameFunc()()`就返回了，`my object`.
 
 
 ```javascript
