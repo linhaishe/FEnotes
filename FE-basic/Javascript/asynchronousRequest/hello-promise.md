@@ -33,7 +33,7 @@ Promise 用来预定一个不一定能完成的任务，要么成功，要么失
 
 ## 1、Promise是什么?
 
-### Ⅰ、概念
+### a、概念
 
 1. 抽象表达:  Promise 是一门新的技术(ES6 规范)，Promise 是 JS 中进行异步编程的新解决方案 备注：旧方案是单纯使用回调函数
 
@@ -42,7 +42,7 @@ Promise 用来预定一个不一定能完成的任务，要么成功，要么失
 - 从语法上来说: Promise 是一个`构造函数`
 - 从功能上来说: promise 对象用来封装一个异步操作并可以获取其成功/ 失败的结果值
 
-### Ⅱ、promise 的状态
+### b、promise 的状态
 
 ####  a) promise 的状态
 
@@ -60,11 +60,11 @@ Promise 用来预定一个不一定能完成的任务，要么成功，要么失
 
 说明: **只有这 2 种**, 且一个 promise 对象**只能改变一次**无论变为成功还是失败, 都会有一个结果数据成功的结果数据一般称为 value, 失败的结果数据一般称为 reason。
 
-### Ⅲ、promise的基本流程
+### c、promise的基本流程
 
 ![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7vu3tljsej31je0ds79f.jpg)
 
-### Ⅳ-promise的基本使用
+### d、promise的基本使用
 
 #### 1. 使用 promise 封装基于定时器的异步
 
@@ -224,12 +224,12 @@ mineReadFile("./resource/content.txt").then((value) => {
 
 ## 2、为什么要用Promise?
 
-### Ⅰ、指定回调函数的方式更加灵活
+### a、指定回调函数的方式更加灵活
 
 1. 旧的: 必须在启动异步任务前指定 
 2. promise: 启动异步任务 = 返回promie对象 = 给promise对象绑定回调函数(甚至可以在异步任务结束后指定/多个)
 
-### Ⅱ、支持链式调用, 可以解决回调地狱问题
+### b、支持链式调用, 可以解决回调地狱问题
 
 #####  1、什么是回调地狱
 
@@ -255,7 +255,7 @@ mineReadFile("./resource/content.txt").then((value) => {
 
  此处列举几个最常用的API的概述,如果想看详细描述的可以继续往下看下方的Promise方法的具体使用描述
 
-####   Ⅰ、Promise 构造函数: new Promise(executor)
+####   a、Promise 构造函数: new Promise(executor)
 
 - executor 函数: 执行器 (resolve, reject) = {}
 
@@ -275,7 +275,7 @@ const myFirstPromise = new Promise((resolve, reject) => {
 
 说明: executor 会在 Promise ==内部立即**同步调用**==,异步操作在执行器中执行,换话说Promise支持同步也支持异步操作
 
-####   Ⅱ、Promise.prototype.then: (onResolved, onRejected) = {}
+####   b、Promise.prototype.then: (onResolved, onRejected) = {}
 
 (1) onResolved 函数: 成功的回调函数 (value) = {} 
 
@@ -303,7 +303,7 @@ p1.then(
 
 ```
 
-####    Ⅲ、Promise.prototype.catch: (onRejected) = {}
+####    c、Promise.prototype.catch: (onRejected) = {}
 
 - onRejected 函数: 失败的回调函数 (reason) = {}
 
@@ -323,7 +323,7 @@ promise1.catch((error) => {
 
 ```
 
-####   Ⅳ、Promise.resolve: (value) = {}
+####   d、Promise.resolve: (value) = {}
 
 value: 成功的数据或 promise 对象 
 
@@ -339,7 +339,7 @@ promise1.then((value) => {
 
 ```
 
-####   Ⅴ、Promise.reject: (reason) = {}
+####   e、Promise.reject: (reason) = {}
 
 reason: 失败的原因 
 
@@ -359,7 +359,7 @@ Promise.reject(new Error("fail")).then(resolved, rejected);
 
 ```
 
-#### Ⅵ、Promise.all: (promises) = {}
+#### f、Promise.all: (promises) = {}
 
 promises: 包含 n 个 promise 的数组 
 
@@ -373,7 +373,7 @@ const result = Promise.all([p1, p2, p3]);
 console.log(result);
 ```
 
-#### Ⅶ、Promise.race: (promises) = {}
+#### g、Promise.race: (promises) = {}
 
 promises: 包含 n 个 promise 的数组 
 
@@ -397,7 +397,7 @@ console.log(result);
 
 ## 4、Promise的几个关键问题
 
-#### Ⅰ、如何改变 promise 的状态?
+#### a、如何改变 promise 的状态?
 
 - resolve(value): 如果当前是 pending 就会变为 resolved 
 
@@ -405,7 +405,7 @@ console.log(result);
 
 - 抛出异常: 如果当前是 pending 就会变为 rejected
 
-#### Ⅱ、一个 promise 指定多个成功/失败回调函数, 都会调用吗?
+#### b、一个 promise 指定多个成功/失败回调函数, 都会调用吗?
 
 当 promise**改变为对应状态时**都会调用,改变状态后,多个回调函数都会调用,并不会自动停止。
 
@@ -424,7 +424,7 @@ p.then((value) => {
 
 ```
 
-#### Ⅲ、改变 promise 状态和指定回调函数谁先谁后?
+#### c、改变 promise 状态和指定回调函数谁先谁后?
 
 1. 都有可能, 正常情况下是先指定回调再改变状态, 但也可以先改状态再指定回调 
    - 先指定回调再改变状态(**异步**): 先指定回调 -> 再改变状态 -> 改变状态后才进入异步队列执行回调函数
@@ -462,7 +462,7 @@ p.then(
 
 所以promise将传入的`回调函数`拷贝到promise对象实例上,然后在`resolve/reject`的执行过程中再进行调用，达到异步的目的。
 
-#### Ⅳ、promise.then()返回的新 promise 的结果状态由什么决定?
+#### d、promise.then()返回的新 promise 的结果状态由什么决定?
 
 1. 简单表达: 由then()指定的回调函数执行的结果决定 
 
@@ -496,7 +496,7 @@ let result = p.then(
 
 ```
 
-#### Ⅴ、promise 如何串连多个操作任务?
+#### e、promise 如何串连多个操作任务?
 
 1. promise 的 then()返回一个新的 promise, 可以开成 then()的链式调用 
 
@@ -523,7 +523,7 @@ p.then((value) => {
 
 ```
 
-#### Ⅵ-promise 异常传透?
+#### f、promise 异常传透?
 
 
 * 当使用 promise 的 then 链式调用时, 可以在最后指定失败的回调
@@ -556,7 +556,7 @@ p.then((value) => {
 
 注:可以在每个then()的第二个回调函数中进行err处理,也可以利用异常穿透特性,到最后用`catch`去承接统一处理,两者一起用时,前者会生效(因为err已经将其处理,就不会再往下穿透)而走不到后面的catch。
 
-#### Ⅶ、中断 promise 链?
+#### g、中断 promise 链?
 
 在关键问题2中,可以得知,当promise状态改变时,他的链式调用都会生效,那如果我们有这个一个实际需求:我们有5个then(),但其中有条件判断,如当我符合或者不符合第三个then条件时,要直接中断链式调用,不再走下面的then,该如何?
 
@@ -586,7 +586,7 @@ p.then((value) => {
 
 ## 5、 Promise的实际应用
 
-### Ⅰ、加载图片
+### a、加载图片
 
 我们可以将图片的加载写成一个`Promise`，一旦加载完成，`Promise`的状态就发生变化。
 
@@ -603,7 +603,7 @@ const preloadImage = function (path) {
 ```
 
 
-### Ⅱ、Generator 函数与 Promise 的结合
+### b、Generator 函数与 Promise 的结合
 
 使用 Generator 函数管理流程，遇到异步操作的时候，通常返回一个`Promise`对象。
 
@@ -654,9 +654,9 @@ ES6 规定，`Promise`对象是一个构造函数，用来生成`Promise`实例�
 
 此部分是对于 **Promise API 用法的详解** ,尽量详细地列举其常见用法,所以篇幅较长
 
-## Ⅰ、基本用法
+## a、基本用法
 
-### ①  举个创造 Promise 实例的栗子
+### 1. 举个创造 Promise 实例的栗子
 
  下面代码创造了一个`Promise`实例。
 
@@ -675,7 +675,7 @@ ES6 规定，`Promise`对象是一个构造函数，用来生成`Promise`实例�
 
  `resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；`reject`函数的作用是，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
-### ② 使用then方法分别指定 成功/失败 的回调
+### 2. 使用then方法分别指定 成功/失败 的回调
 
 `Promise`实例生成以后，可以用then()方法分别指定`resolved`状态和`rejected`状态的回调函数。
 
@@ -693,7 +693,7 @@ promise.then(
 
 then方法可以接受两个回调函数作为参数。第一个回调函数是`Promise`对象的状态变为`resolved`时调用，第二个回调函数是`Promise`对象的状态变为`rejected`时调用。其中，**第二个函数是可选的，不一定要提供**。这两个函数都接受`Promise`对象传出的值作为参数。
 
-### ③ 举个 Promise 对象的简单栗子
+### 3. 举个 Promise 对象的简单栗子
 
 下面是一个`Promise`对象的简单例子。
 
@@ -717,7 +717,7 @@ timeout(100).then((value) => {
 
 上面代码中，`timeout`方法返回一个`Promise`实例，表示一段时间以后才会发生的结果。过了指定的时间（`ms`参数）以后，`Promise`实例的状态变为`resolved`，就会触发`then`方法绑定的回调函数。
 
-### ④ Promise 新建后就会立即执行
+### 4. Promise 新建后就会立即执行
 
 ```javascript
 let promise = new Promise((resolve, reject) => {
@@ -757,7 +757,7 @@ console.log("Hi!");
    
    每次准备取出第一个`宏任务执行前`,都要将所有的`微任务`一个一个取出来执行
 
-### ⑤ 举个异步加载图片的栗子
+### 5. 举个异步加载图片的栗子
 
 ```javascript
 function loadImageAsync(url) {
@@ -782,7 +782,7 @@ loadImageAsync("错误的url"); //抛出异常
 
 上面代码中，使用`Promise`包装了一个图片加载的异步操作。如果加载成功，就调用`resolve`方法，否则就调用`reject`方法。
 
-### ⑥ 举个用`Promise`对象实现的 Ajax 操作的栗子
+### 6. 举个用`Promise`对象实现的 Ajax 操作的栗子
 
 ```javascript
 const getJSON = function (url) {
@@ -818,7 +818,7 @@ getJSON("./hong.json").then(
 
 ![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7z2oliql2j31ji0n6qj7.jpg)
 
-### ⑦  resolve()  的参数可以是另一个 Promise 实例
+### 7. resolve()  的参数可以是另一个 Promise 实例
 
 如果调用`resolve`函数和`reject`函数时带有参数，那么它们的参数会被传递给回调函数。`reject`函数的参数通常是`Error`对象的实例，表示抛出的错误；`resolve`函数的参数除了正常的值以外，还可能是另一个 Promise 实例，比如像下面这样。
 
@@ -868,7 +868,7 @@ p2.then(
 * `resolve`方法返回的是`p1`。由于`p2`返回的是另一个 Promise，导致`p2`自己的状态无效了，由`p1`的状态决定`p2`的状态
 * 总结来说,promise返回promise这种嵌套形式,将由最内层的promise决定外层的状态
 
-### ⑧ 调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行
+### 8. 调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行
 
 调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行。
 
@@ -886,7 +886,7 @@ new Promise((resolve, reject) => {
 
 上面代码中，调用`resolve(1)`以后，后面的`console.log(2)`还是会执行，并且会首先打印出来。这是因为立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
 
-### ⑨ 建议在修改状态函数前加return 
+### 9. 建议在修改状态函数前加return 
 
 一般来说，调用`resolve`或`reject`以后，Promise 的使命就完成了，后继操作应该放到`then`方法里面，而不应该直接写在`resolve`或`reject`的后面。所以，最好在它们前面加上`return`语句，这样就不会有意外。
 
@@ -901,7 +901,7 @@ new Promise((resolve, reject) => {
 
 有同学可能就会问了,不加感觉也没啥事啊,反正我在这个函数体内就是要做这些操作,放在 `resolve/reject`前后好像都不影响啊! 这里我给举个实际场景
 
-#### a) 不加 return 导致的错误场景
+#### a. 不加 return 导致的错误场景
 
 一般来说,错误发生在 Promise 内,是不会传到外部的,只会在 Promise 内部消化,详见下方API详解部分的 [②Promise.prototype.catch()](#② Promise.prototype.catch())
 
@@ -922,7 +922,7 @@ promise.then((value) => {
 
 上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
 
-## Ⅱ、API 用法详解
+## b、API 用法详解
 
 此处将对于所有API进行详细剖析,参照资料为 [阮一峰的ES6日志]()
 
@@ -2003,12 +2003,12 @@ Promise异步，await异步转同步，async同步转异步
 2. await 后面可以跟任何的JS 表达式。虽然说 await 可以等很多类型的东西，但是它最主要的意图是用来等待 Promise 对象的状态被 resolved。如果await的是 promise对象会造成异步函数停止执行并且等待 promise 的解决,如果等的是正常的表达式则立即执行      
 3. 方法体内部的某个表达式使用await修饰，那么这个方法体所属方法必须要用async修饰所以使用awit方法会自动升级为异步方法
 
-## Ⅰ、async函数
+## a、async函数
 
 1. 函数的返回值为 promise 对象 
 2. promise 对象的结果由 async 函数执行的返回值决定
 
-## Ⅱ、await表达式
+## b、await表达式
 
 1. await 右侧的表达式一般为 promise 对象, 但也可以是其它的值 
 
@@ -2030,12 +2030,12 @@ async function main() {
 
 ```
 
-## Ⅲ、注意
+## c、注意
 
 1. await 必须写在 async 函数中, 但 async 函数中可以没有 await 
 2. 如果 await 的 promise 失败了, 就会抛出异常, 需要通过 try...catch... 捕获处理
 
-## Ⅳ、自己对某些问题理解解答
+## d、自己对某些问题理解解答
 
 ### 1、如何在Promise外部使用Promise的结果
 
@@ -2133,42 +2133,6 @@ resolveAsync(); //调用await+async
 9. [要就来45道Promise面试题一次爽到底](https://juejin.cn/post/6844904077537574919#heading-34)
 10. [async, await, promise 面试题](https://www.learnnote.site/frontend/async-await-promise)
 11. [一道面试题：还在纠结async/ await、Promise的执行顺序？](https://juejin.cn/post/6871898249578921992)
-
-## 题目一
-
-```js
-function deepClone(target) {
-  if (target instanceof Object) {
-    let dist;
-    if (target instanceof Array) {
-      // 拷贝数组
-      dist = [];
-    } else if (target instanceof Function) {
-      // 拷贝函数
-      dist = function () {
-        return target.call(this, ...arguments);
-      };
-    } else if (target instanceof RegExp) {
-      // 拷贝正则表达式
-      dist = new RegExp(target.source, target.flags);
-    } else if (target instanceof Date) {
-      dist = new Date(target);
-    } else {
-      // 拷贝普通对象
-      dist = {};
-    }
-    for (let key in target) {
-      dist[key] = deepClone(target[key]);
-    }
-    return dist;
-  } else {
-    return target;
-  }
-}
-const obj1 = { a: 1, b: [1], c: new Date(), d: /hi/g };
-const obj2 = deepClone(obj1);
-console.log(obj2);
-```
 
 ## 题目二
 
@@ -2354,7 +2318,7 @@ new Promise((resolve) => {
 
 # 五、宏任务与微任务
 
-## Ⅰ、说明
+## a、说明
 
 原理图:
 
@@ -2370,7 +2334,7 @@ new Promise((resolve) => {
     - 每次准备取出第一个`宏任务执行前`,都要将所有的`微任务`一个一个取出来执行
     - **同步任务** -- **微任务** -- **宏任务**
 
-## Ⅱ、代码与示例
+## b、代码与示例
 
 你需要一些栗子来帮助验证自己的想法是否正确,尽量先不看结果去自己思考下打印结果顺序
 
@@ -2444,27 +2408,27 @@ PS: 可以忽略`undefined`这个打印结果, 因为这会加重我们对于宏
 
 是在控制台输入的内容,它的返回值会显示出来，如果是没有返回值的表达式或语句，则会返回 `undefined`。
 
-## Ⅰ、出现场景
+## 1、出现场景
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7z88ff2n9j30ku0em42z.jpg" alt="image.png" style="zoom:50%;" />
 
-## Ⅱ、尝试输入其他内容进行分析
+## 2、尝试输入其他内容进行分析
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7z8anisw8j30mu0jy42p.jpg" alt="image.png" style="zoom:50%;" />
 
 那么做个合理推测: 应该是在控制台输入的内容,它的 `返回值` 会显示出来,这让我们不禁想到JS的 [ **eval()** ]
 
-## Ⅲ、eval（string） 
+## 3、eval（string） 
 
 其作用是将 接收的 string 字符串作为参数，对其进行JavaScript 表达式或语句计算，返回得到的值；
 
 如果是没有返回值的表达式或语句，则会返回 undefined；如果没有合法的表达式和语句，则会抛出 SyntaxError 异常 。于是我们可以猜测console控制台的实质就是调用了`eval()`函数
 
-## Ⅳ、验证一下
+## 4、验证一下
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7z8c0k7o6j30kw074dgx.jpg" alt="image.png" style="zoom:50%;" />
 
-## Ⅴ、分析其在宏任务与微任务的打印顺序
+## 5、分析其在宏任务与微任务的打印顺序
 
 <img src="http://tva1.sinaimg.cn/large/005NUwygly1h7z88ff2n9j30ku0em42z.jpg" alt="image.png" style="zoom:50%;" />
 

@@ -6,9 +6,9 @@
 
 JavaScript 中的事件循环是一个持续运行的过程，它不断监听call stack（调用栈）。它的主要功能是检查调用栈是否为空。如果调用栈为空，事件循环继续执行任务队列中等待的所有回调。在任务队列中，任务大致分为两类，即微任务和宏任务
 
-宏任务：setTimeout、setInterval、DOM事件、AJAX请求
+宏任务：setTimeout, setInterval, setImmediate, requestAnimationFrame, I/O, UI Rendering
 
-微任务：Promise, async/await
+微任务：Promise, async/await, process.nextTick, Promises, queueMicrotask, MutationObserver
 
 ![](https://miro.medium.com/max/4800/1*_0CnS0bHNX7HMBLri3gNng.gif)
 
@@ -294,7 +294,7 @@ function hd() {
 
 ```
 
-## 8. promisec 微任务处理复杂任务
+## 8. promise 微任务处理复杂任务
 
 ```js
 // 利用异步执行先执行完同步任务后再去执行微任务
@@ -325,22 +325,22 @@ console.log("同步任务");
 <div id="progress"></div>
 
 <script>
-  let i = 0;
+let i = 0;
 
-  function count() {
-    // 做繁重的任务的一部分 (*)
-    do {
-      i++;
-      progress.innerHTML = i;
-    } while (i % 1e3 != 0);
+function count() {
+  // 做繁重的任务的一部分 (*)
+  do {
+    i++;
+    progress.innerHTML = i;
+  } while (i % 1e3 != 0);
 
-    if (i < 1e6) {
-      queueMicrotask(count);
-    }
-
+  if (i < 1e6) {
+    queueMicrotask(count);
   }
+}
 
-  count();
+count();
+
 </script>
 ```
 
@@ -354,17 +354,14 @@ Web Workers 可以与主线程交换消息，但是它们具有自己的变量�
 
 Web Workers 没有访问 DOM 的权限，因此，它们对于同时使用多个 CPU 内核的计算非常有用。
 
-## refs:
+## 11. refs
 
-[javascript.info](https://zh.javascript.info/event-loop#shi-jian-xun-huan)
+1. [javascript.info](https://zh.javascript.info/event-loop#shi-jian-xun-huan)
 
-[Event Loop | Macro Vs Micro task | Javascript](https://suneetbansal.medium.com/event-loop-macro-vs-micro-task-javascript-bd4296768b64)
+3. [SZX 的开发笔记](https://szxio.gitee.io/hexoblog/JavaScript/MacroTask/)
 
-[SZX 的开发笔记](https://szxio.gitee.io/hexoblog/JavaScript/MacroTask/)
+4. [loop playground](http://latentflip.com/loupe/?code=JC5vbignYnV0dG9uJywgJ2NsaWNrJywgZnVuY3Rpb24gb25DbGljaygpIHsKICAgIHNldFRpbWVvdXQoZnVuY3Rpb24gdGltZXIoKSB7CiAgICAgICAgY29uc29sZS5sb2coJ1lvdSBjbGlja2VkIHRoZSBidXR0b24hJyk7ICAgIAogICAgfSwgMjAwMCk7Cn0pOwoKY29uc29sZS5sb2coIkhpISIpOwoKc2V0VGltZW91dChmdW5jdGlvbiB0aW1lb3V0KCkgewogICAgY29uc29sZS5sb2coIkNsaWNrIHRoZSBidXR0b24hIik7Cn0sIDUwMDApOwoKY29uc29sZS5sb2coIldlbGNvbWUgdG8gbG91cGUuIik7!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D)
 
-http://latentflip.com/loupe/?code=JC5vbignYnV0dG9uJywgJ2NsaWNrJywgZnVuY3Rpb24gb25DbGljaygpIHsKICAgIHNldFRpbWVvdXQoZnVuY3Rpb24gdGltZXIoKSB7CiAgICAgICAgY29uc29sZS5sb2coJ1lvdSBjbGlja2VkIHRoZSBidXR0b24hJyk7ICAgIAogICAgfSwgMjAwMCk7Cn0pOwoKY29uc29sZS5sb2coIkhpISIpOwoKc2V0VGltZW91dChmdW5jdGlvbiB0aW1lb3V0KCkgewogICAgY29uc29sZS5sb2coIkNsaWNrIHRoZSBidXR0b24hIik7Cn0sIDUwMDApOwoKY29uc29sZS5sb2coIldlbGNvbWUgdG8gbG91cGUuIik7!!!PGJ1dHRvbj5DbGljayBtZSE8L2J1dHRvbj4%3D
-
-
-
-https://dev.to/lydiahallie/javascript-visualized-event-loop-3dif
+5. [✨♻️ JavaScript Visualized: Event Loop](https://dev.to/lydiahallie/javascript-visualized-event-loop-3dif)
+6. [geeksforgeeks](https://www.geeksforgeeks.org/what-are-the-microtask-and-macrotask-within-an-event-loop-in-javascript/)
 
