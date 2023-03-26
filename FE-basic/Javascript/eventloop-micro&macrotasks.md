@@ -10,9 +10,9 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 微任务：Promise, async/await, process.nextTick, Promises, queueMicrotask, MutationObserver
 
-![](https://miro.medium.com/max/4800/1*_0CnS0bHNX7HMBLri3gNng.gif)
+![eventloop](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/eventloop.gif)
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h8890qho1zj31ca0r4jxw.jpg" alt="image.png" style="zoom:33%;" />
+![image-20230325195936478](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325195936478.png)
 
 ## 1. 同步/宏/微任务的执行顺序
 
@@ -47,7 +47,7 @@ for (let a = 0; a < 10000; a++) {
 }
 ```
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h888md9hmnj31ci0rewko.jpg" alt="image.png" style="zoom:33%;" />
+![image-20230325200033496](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325200033496.png)
 
 **倒计时任务会根据时间长短进行顺序输出**
 
@@ -69,7 +69,7 @@ for (let a = 0; a < 10; a++) {
 // '' -> 倒计时2 -> 倒计时1
 ```
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h888zez6n0j31cy0retg6.jpg" alt="image.png" style="zoom:33%;" />
+![image-20230325200053734](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325200053734.png)
 
 **多个倒计时会同时输出**。
 

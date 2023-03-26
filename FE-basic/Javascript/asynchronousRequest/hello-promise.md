@@ -35,7 +35,7 @@ Promise 用来预定一个不一定能完成的任务，要么成功，要么失
 
 ### a、概念
 
-1. 抽象表达:  Promise 是一门新的技术(ES6 规范)，Promise 是 JS 中进行异步编程的新解决方案 备注：旧方案是单纯使用回调函数
+1. 抽象表达:  Promise 是一门新的技术(ES6 规范)，Promise 是 JS 中进行异步编程的新解决方案 (备注：旧方案是单纯使用回调函数)
 
 2. 具体表达: 
 
@@ -62,7 +62,7 @@ Promise 用来预定一个不一定能完成的任务，要么成功，要么失
 
 ### c、promise的基本流程
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7vu3tljsej31je0ds79f.jpg)
+![image-20230325202628753](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/promise/image-20230325202628753.png)
 
 ### d、promise的基本使用
 
@@ -235,7 +235,18 @@ mineReadFile("./resource/content.txt").then((value) => {
 
 回调函数嵌套调用, 外部回调函数异步执行的结果是嵌套的回调执行的条件
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7yy39p0otj30vm0fi0wh.jpg" alt="image.png" style="zoom:33%;" />
+```js
+// 地狱回调
+asyncFunc1(opt, (...args1) => {
+  asyncFunc2(opt, (...args2) => {
+    asyncFunc3(opt, (...args3) => {
+      asyncFunc4(opt, (...args4) => {
+        // some operation
+      });
+    });
+  });
+});
+```
 
 #####  2、回调地狱的缺点?
 
@@ -243,7 +254,7 @@ mineReadFile("./resource/content.txt").then((value) => {
 
 #####  3、解决方案?
 
- promise链式调用,用来解决回调地狱问题，但是只是简单的改变格式，并没有彻底解决上面的问题真正要解决上述问题，一定要利用promise再加上await和async关键字实现异步传同步。
+promise链式调用,用来解决回调地狱问题，但是只是简单的改变格式，并没有彻底解决上面的问题真正要解决上述问题，一定要利用promise再加上await和async关键字实现异步传同步。
 
 #####  4、终极解决方案?
 
@@ -438,6 +449,40 @@ p.then((value) => {
    - 如果先指定的回调, 那当状态发生改变时, 回调函数就会调用, 得到数据 
    - 如果先改变的状态, 那当指定回调时, 回调函数就会调用, 得到数据
 
+当我们创建一个 Promise 实例时，我们通常会指定一个异步操作，并在操作完成后改变 Promise 的状态。
+
+```js
+const myPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Operation completed successfully!"); // 改变 Promise 状态为 fulfilled
+  }, 1000);
+});
+
+myPromise.then((result) => {
+  console.log(result); // 在 Promise 状态变为 fulfilled 后执行回调函数
+});
+```
+
+在上面的例子中，我们创建了一个 Promise 实例并指定了一个异步操作（在这里是一个定时器）。当定时器完成时，我们调用 resolve 方法并传递一个成功的消息，这会将 Promise 的状态从 pending 改变为 fulfilled。然后，我们调用 then 方法并指定一个回调函数，当 Promise 状态变为 fulfilled 后，这个回调函数将被执行并输出 "Operation completed successfully!"。
+
+如果我们先指定回调函数，再改变 Promise 的状态，回调函数将在状态改变后立即被执行，如下所示：
+
+```js
+const myPromise = new Promise((resolve, reject) => {
+  // ...
+});
+
+myPromise.then((result) => {
+  console.log(result); // 在 Promise 状态变为 fulfilled 后执行回调函数
+});
+
+setTimeout(() => {
+  myPromise.resolve("Operation completed successfully!"); // 改变 Promise 状态为 fulfilled
+}, 1000);
+```
+
+在上面的例子中，我们先调用 then 方法并指定一个回调函数，在这个回调函数中我们输出一个消息。然后，我们通过 setTimeout 方法在 1 秒钟后调用 resolve 方法来改变 Promise 的状态。由于 Promise 的状态在 1 秒钟后被改变，因此回调函数会在这个时候立即被执行，并输出 "Operation completed successfully!"。
+
 ```js
 let p = new Promise((resolve, reject) => {
   //异步写法,这样写会先指定回调,再改变状态
@@ -456,9 +501,9 @@ p.then(
 
 ```
 
-4. 个人理解--结合源码
+4. 个人理解
 
-源码中,promise的状态是通过一个`默认为padding`的变量进行判断,所以当你`resolve/reject`延时(异步导致当then加载时,状态还未修改)后,这时直接进行p.then()会发现,目前状态还是`进行中`,所以只是这样导致只有同步操作才能成功。
+源码中,promise的状态是通过一个`默认为pendding`的变量进行判断,所以当你`resolve/reject`延时(异步导致当then加载时,状态还未修改)后,这时直接进行p.then()会发现,目前状态还是`进行中`,所以只是这样导致只有同步操作才能成功。
 
 所以promise将传入的`回调函数`拷贝到promise对象实例上,然后在`resolve/reject`的执行过程中再进行调用，达到异步的目的。
 
