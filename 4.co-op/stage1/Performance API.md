@@ -1,5 +1,9 @@
 # Performance API
 
+![image-20230408184929657](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230408184929657.png)
+
+ref: https://css-tricks.com/breaking-performance-api/
+
 ## performance timeline
 
 浏览器的性能时间轴（Performance Timeline）是浏览器开发者工具的一部分，用于收集和展示网页的性能数据。它提供了一个交互式的时间轴，记录了网页的主要活动，包括DOM构建、CSS样式计算、JavaScript执行、网络请求和渲染等过程，以及这些活动在时间轴上的耗时。通过分析这些性能数据，开发者可以找到网页中的性能瓶颈，优化网页的性能，提升用户体验。浏览器的性能时间轴是开发者工具中非常实用的性能分析工具之一。
@@ -219,7 +223,7 @@ https://www.w3.org/TR/paint-timing/#performancepainttiming
 
 https://developer.mozilla.org/zh-CN/docs/Web/API/PerformanceEntry
 
-### 4. PerformanceObserver 对象
+### 4. PerformanceObserver
 
 `PerformanceObserver` 是一个用于监听和收集 Web 应用程序性能数据的接口，它提供了一种简单但有效的方法来获取各种性能条目的详细信息，并在指定条件满足时发送通知。通过 `PerformanceObserver` 接口，我们可以实时监测应用程序的性能表现，并对其进行分析和优化。
 
@@ -283,7 +287,7 @@ https://codepen.io/linhaishe/pen/xxyKzaP?editors=0011
 
  `myFunction()` 函数将创建两个标记 `start-myFunction` 和 `end-myFunction`，并使用这两个标记来创建测量点 `myFunction`。`usePerformanceObserver()` 钩子会在这个测量点完成后触发，并将测量点信息添加到 `performanceEntries` 中
 
-### PerformanceObserverEntryList
+### 5. PerformanceObserverEntryList
 
 The PerformanceObserverEntryList interface is a list of performance events that were explicitly observed via the observe() method.
 
@@ -338,7 +342,7 @@ const observer = new PerformanceObserver(perfObserver);
 observer.observe({ entryTypes: ["measure", "mark"] });
 ```
 
-### 5. `PerformanceResourceTiming` 接口
+### 6. `PerformanceResourceTiming`
 
 可通过 `window.performance.getEntriesByType("resource")`获取
 
@@ -349,6 +353,8 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 开发人员可以通过 `PerformanceResourceTiming` 接口的各种属性和方法，对资源的性能进行分析和优化，例如计算资源加载时间，查看DNS解析时间，分析网络传输性能等。
 
 `PerformanceResourceTiming` 还继承了 `PerformanceEntry` 接口的属性，如 `name`、`entryType`、`startTime` 和 `duration` 等。
+
+![image-20230408173426796](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230408173426796.png)
 
 | 属性名                | 类型                  | 描述                                                   |
 | --------------------- | --------------------- | ------------------------------------------------------ |
@@ -375,7 +381,7 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 | transferSize          | `number`              | 在网络上发送的数据量（单位：字节），包括响应头的大小   |
 | workerStart           | `DOMHighResTimeStamp` | Service Worker 开始处理请求的时间                      |
 
-### 6. PerformanceNavigationTiming 接口
+### 7. PerformanceNavigationTiming
 
 ![image-20230406000306587](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230406000306587.png)
 
@@ -421,7 +427,7 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 | `type`                       | 页面的类型，可以是 `navigate`（初始导航）、`reload`（刷新）、`back_forward`（前进/后退）等 |
 | `redirectCount`              | 页面进行重定向的次数                                         |
 
-### 7. PerformanceElementTiming
+### 8. PerformanceElementTiming
 
 The PerformanceElementTiming interface contains render timing information for image and text node elements the developer annotated with an elementtiming attribute for observation.
 
@@ -444,7 +450,7 @@ const observer = new PerformanceObserver((list) => {
 observer.observe({ type: "element", buffered: true });
 ```
 
-### 8. PerformanceEventTiming
+### 9. PerformanceEventTiming
 
 #### info
 
@@ -492,7 +498,7 @@ First Input Delay（FID）是一项度量用户首次与页面交互（例如，
 
 通常，FID的计算需要考虑两个因素：首次交互和响应时间。首次交互是指用户首次与页面交互的时间，可以是点击按钮、键入文本或选择下拉列表等。响应时间是指浏览器处理该交互所需的时间，包括JavaScript执行时间、布局和样式计算等。
 
-### 9. User Timing API 
+### 10. User Timing API 
 
 由两个主要组件组成：performance.mark() 和 performance.measure()。
 
@@ -530,7 +536,7 @@ function MyComponent(props) {
 }
 ```
 
-### 10. PerformanceLongTaskTiming
+### 11. PerformanceLongTaskTiming
 
 Long Tasks 接口是用于检测浏览器中长任务的API，它可以让开发者了解到在页面渲染过程中哪些任务会阻塞主线程，从而导致页面性能下降。Long Tasks 接口主要涉及到以下两个概念：
 
@@ -554,7 +560,7 @@ PerformanceObserver 可以通过观察 PerformanceEntry 对象的 duration 和 s
 
 要确定长任务的来源，可以使用开发者工具中的 Performance 分析功能，并查看相关函数的耗时和时间轴。也可以使用类似于 trace 功能的工具来自动跟踪每个函数的执行时间，然后输出长时间执行的函数。还有其他一些类似的工具可以帮助你自动化函数追踪，例如：Visual Studio Code 的 CPU Profiling 和 Node.js 的 v8-profiler。
 
-### TaskAttributionTiming
+### 12. TaskAttributionTiming
 
 The TaskAttributionTiming interface returns information about the work involved in a long task and its associate frame context. The frame context, also called the container, is the iframe, embed or object that is being implicated, on the whole, for a long task.
 You usually work with TaskAttributionTiming objects when observing long tasks.
@@ -569,7 +575,7 @@ For tasks that don't occur within the top-level page and for figuring out which 
 
 举个例子，假设 `www.example.com`中嵌套了一个iframe，iframe 中又嵌套了一个 `www.sub-example.com` 的页面，那么 `www.sub-example.com` 不是顶级页面，而是嵌套在iframe中的页面。如果这个iframe中发生了一个长任务，TaskAttributionTiming 接口提供的 containerId、containerName 和 containerSrc 属性可以帮助确定该长任务的源是哪个iframe。
 
-### 11. PerformancePaintTiming
+### 13. PerformancePaintTiming
 
 Paint Timing API是浏览器提供的API之一，它用于测量页面的渲染性能。该API可以捕获在呈现过程中发生的重要事件，并以有意义的方式返回这些事件的时间戳，从而有助于开发人员分析网页的渲染性能。
 
@@ -587,7 +593,7 @@ Paint Timing API包含以下指标：
 
 
 
-### LargestContentfulPaint
+### 14. LargestContentfulPaint
 
 `largest-contentful-paint`  最大内容渲染时间，即页面上最大的可见元素（例如文本、图像、背景图像或 SVG）绘制完成的时间
 
@@ -613,7 +619,7 @@ const observer = new PerformanceObserver((list) => {
 observer.observe({ type: "largest-contentful-paint", buffered: true });
 ```
 
-### LayoutShift
+### 15. LayoutShift
 
 The LayoutShift interface of the Performance API provides insights into the layout stability of web pages based on movements of the elements on the page.
 
@@ -645,6 +651,28 @@ const observer = new PerformanceObserver((list) => {
 observer.observe({ type: "layout-shift", buffered: true });
 ```
 
+### 16. Frame Timing API
+
+Measures frames, which represent a loop of the amount of work a browser needs to do to process things like DOM events, resizing, scrolling and CSS animations.
+
+This work is **NO LONGER BEING PURSUED**. It's left here for historical purposes. 被废弃
+
+```js
+if (window.performance && window.performance.timing && window.performance.getEntriesByType) {
+  // 获取性能条目
+  var performanceEntries = performance.getEntriesByType("frame");
+  for (var i = 0; i < performanceEntries.length; i++) {
+    var startTime = performanceEntries[i].startTime;
+    var duration = performanceEntries[i].duration;
+    console.log("Frame " + i + " started at " + startTime + " and lasted " + duration + " milliseconds.");
+  }
+}
+```
+
+The PerformanceFrameTiming interface exposes timing information about the processing costs of the browser event loop. To limit the exposed information the interface is restricted to reporting slow frames only, which are already observable through other means (e.g. requestAnimationFrame), and the user agent is allowed to set and exercise own thresholds for delivery of slow frame events.
+
+相关性能可以通过requestAnimationFrame进行测量。
+
 # Performance API 实践
 
 
@@ -667,13 +695,25 @@ FP(first-paint)，从页面加载开始到第一个像素绘制到屏幕上的�
 2. 判断该 DOM 元素是否在首屏内，如果在，则在 `requestAnimationFrame()` 回调函数中调用 `performance.now()` 获取当前时间，作为它的绘制时间。
 3. 将最后一个 DOM 元素的绘制时间和首屏中所有加载的图片时间作对比，将最大值作为首屏渲染时间。
 
-https://stackblitz.com/edit/react-ts-gszu5i?file=App.tsx,performance%2FobserveLCP.ts
+https://stackblitz.com/edit/react-ts-gszu5i?file=App.tsx
 
 ### 3. 获取接口请求耗时
 
 https://codepen.io/linhaishe/pen/MWPYpvX?editors=0011
 
 https://codepen.io/linhaishe/pen/yLRyXXa?editors=0012
+
+### 4. FPS
+
+FPS 指的是“每秒帧数”（Frames Per Second），是衡量视频、游戏等多媒体应用程序流畅度的一个指标。它表示在每秒钟内，显示设备能够更新多少次屏幕图像。如果 FPS 越高，说明应用程序的动画和图像会更加流畅自然，反之则会更加卡顿和不自然。
+
+利用 requestAnimationFrame() 我们可以计算当前页面的 FPS。
+
+先记录一个初始时间，然后每次触发 requestAnimationFrame() 时，就将帧数加 1。过去一秒后用帧数/流逝的时间就能得到当前帧率。
+
+当连续三个低于 20 的 FPS 出现时，我们可以断定页面出现了卡顿，详情请看 [如何监控网页的卡顿](https://zhuanlan.zhihu.com/p/39292837)。
+
+https://codepen.io/linhaishe/pen/qBJEPqN?editors=0011
 
 Ref: [前端监控 SDK 的一些技术要点原理分析](https://github.com/woai3c/Front-end-articles/issues/26)
 
