@@ -243,27 +243,3 @@ BOM 操作的性能问题主要表现在以下两个方面：
 
 为了避免 BOM 操作的性能问题，我们需要尽可能地减少与浏览器的交互次数，批量处理数据，避免使用循环，减少重绘和重排的次数，以及减少 DOM 操作的次数。
 
-# localstorage & sessionstorage & cookie & indexDB
-
-localStorage，sessionStorage，cookie和IndexedDB是浏览器本地存储数据的四种主要方法。它们之间的区别如下：
-
-1. localStorage和sessionStorage
-
-   localStorage和sessionStorage都是在浏览器中存储数据的方法。它们都使用键值对的形式存储数据，可以在页面关闭后保留数据。主要区别在于，localStorage的数据存储没有时间限制，而sessionStorage的数据仅在会话期间保留，当浏览器关闭时数据将被清除。另外，localStorage的数据可以被其他页面和标签访问，而sessionStorage只能在同一标签页中访问。
-
-2. Cookie
-
-   Cookie是一种在Web浏览器中存储数据的技术。Cookie的数据存储在用户的计算机上，可以在服务器和浏览器之间传递。Cookie通常用于身份验证和跟踪用户的行为，如购物车和广告定位。
-
-   Cookie可以设置过期时间，可以是一次性的或长期的。但是，Cookie的大小限制较小，通常为4KB左右，且Cookie数据可以在网络中被截获和篡改，存在一定的安全风险。
-
-3. IndexedDB
-
-   IndexedDB是浏览器中的一种数据库存储技术。它支持高性能、复杂的查询和数据索引，可以存储大量数据。与localStorage、sessionStorage和Cookie不同，IndexedDB可以存储复杂的数据类型，如对象和数组。
-
-IndexedDB的API比较复杂，需要使用异步调用来访问数据，但它提供了更多的功能和灵活性，特别是在处理大量数据时非常有用。
-
-综上所述，localStorage和sessionStorage适合存储少量数据，cookie适合用于身份验证和跟踪用户行为，而IndexedDB适合存储大量数据和复杂的数据类型。根据不同的使用场景，选择不同的存储方法。
-
-# WebSocket
-

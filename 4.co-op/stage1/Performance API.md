@@ -2,9 +2,13 @@
 
 ![image-20230408184929657](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230408184929657.png)
 
+Performance API 包括 Performance Timeline API，它们一起构成了范围广泛的方法，可以获取有关网页性能的有用指标。
+
 ref: https://css-tricks.com/breaking-performance-api/
 
 ## performance timeline
+
+performance timeline API 可以让我们访问几乎所有来自整个performance API 的测量和值。这是一种使用单个 API 就能掌握大量信息的方式，这也是本文开头的图表将它们几乎显示在同一水平线上的原因。
 
 浏览器的性能时间轴（Performance Timeline）是浏览器开发者工具的一部分，用于收集和展示网页的性能数据。它提供了一个交互式的时间轴，记录了网页的主要活动，包括DOM构建、CSS样式计算、JavaScript执行、网络请求和渲染等过程，以及这些活动在时间轴上的耗时。通过分析这些性能数据，开发者可以找到网页中的性能瓶颈，优化网页的性能，提升用户体验。浏览器的性能时间轴是开发者工具中非常实用的性能分析工具之一。
 
@@ -342,7 +346,9 @@ const observer = new PerformanceObserver(perfObserver);
 observer.observe({ entryTypes: ["measure", "mark"] });
 ```
 
-### 6. `PerformanceResourceTiming`
+### 6. PerformanceResourceTiming
+
+`PerformanceResourceTiming` 接口记录了单个资源的加载时间信息，包括了发出资源请求的开始时间、接收到资源响应的时间、开始下载资源的时间、下载资源结束的时间等。
 
 可通过 `window.performance.getEntriesByType("resource")`获取
 
@@ -382,6 +388,8 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 | workerStart           | `DOMHighResTimeStamp` | Service Worker 开始处理请求的时间                      |
 
 ### 7. PerformanceNavigationTiming
+
+`PerformanceNavigationTiming` 接口则记录了整个页面导航的时间信息，包括了页面开始导航的时间、重定向的时间、DNS 查询的时间、建立连接的时间、发送请求和接收响应的时间、解析 DOM 的时间等。
 
 ![image-20230406000306587](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230406000306587.png)
 
@@ -581,6 +589,11 @@ Paint Timing API是浏览器提供的API之一，它用于测量页面的渲染�
 
 Paint Timing API包含以下指标：
 
+- FP(first-paint)，从页面加载开始到第一个像素绘制到屏幕上的时间
+- FCP(first-contentful-paint)，从页面加载开始到页面内容的任何部分在屏幕上完成渲染的时间
+- LCP(largest-contentful-paint)，从页面加载开始到最大文本块或图像元素在屏幕上完成渲染的时间
+- CLS(layout-shift)，从页面加载开始和其[生命周期状态](https://developers.google.com/web/updates/2018/07/page-lifecycle-api)变为隐藏期间发生的所有意外布局偏移的累积分数
+
 | 指标                       | 含义                                                         |
 | -------------------------- | ------------------------------------------------------------ |
 | `first-paint`              | 首次像素渲染时间，即浏览器首次绘制文档的时间，其实把 FP 理解成白屏时间也是没问题的。 |
@@ -591,11 +604,9 @@ Paint Timing API包含以下指标：
 
 ![image-20230408132301396](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230408132301396.png)
 
-
-
 ### 14. LargestContentfulPaint
 
-`largest-contentful-paint`  最大内容渲染时间，即页面上最大的可见元素（例如文本、图像、背景图像或 SVG）绘制完成的时间
+LCP(largest-contentful-paint)，从页面加载开始到最大文本块或图像元素在屏幕上完成渲染的时间。LCP 指标会根据页面[首次开始加载](https://w3c.github.io/hr-time/#timeorigin-attribute)的时间点来报告可视区域内可见的最大[图像或文本块](https://web.dev/lcp/#what-elements-are-considered)完成渲染的相对时间。
 
 ![image-20230408132416540](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/performance-api/image-20230408132416540.png)
 
@@ -607,7 +618,7 @@ LCP 考察的元素类型为：
 - 内嵌在`<svg>`元素内的`<image>`元素
 - `<video>`元素（使用封面图像）
 - 通过[`url()`](https://link.juejin.cn/?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fdocs%2FWeb%2FCSS%2Furl())函数（而非使用 [CSS 渐变](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Images/Using_CSS_gradients)）加载的带有背景图像的元素
-- 包含文本节点或其他行内级文本元素子元素的[块级元素](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Block-level_elements)。
+- 包含文本节点或其他行内级文本元素子元素的[块级元素](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Block-level_elements)。`<p>`等
 
 ```js
 const observer = new PerformanceObserver((list) => {
@@ -724,6 +735,17 @@ Ref: [前端监控 SDK 的一些技术要点原理分析](https://github.com/woa
 3. 跨域限制：Performance API 在某些情况下可能受到跨域限制，例如如果尝试获取其他域名下的资源的性能数据时，可能会遇到跨域问题。
 4. 误差和不精确性：Performance API 提供的数据都是估算值，可能会存在误差和不精确性。例如，对于某些 API，浏览器可能只提供毫秒级别的精度。
 5. 性能开销：使用 Performance API 会产生一定的性能开销，尤其是在对于大型网站和复杂应用程序的性能分析时，可能会增加额外的性能负担。
+6. `Date.now()` 和 `performance.now()`
+
+在性能测量时，`Date.now()` 和 `performance.now()`都可以用来获取当前时间，但它们有一些重要的区别。
+
+`Date.now()`方法返回当前时间距离1970年1月1日午夜UTC（Coordinated Universal Time）之间的毫秒数，也就是时间戳。它的精度通常为1毫秒，并且受到系统时钟的影响，这意味着当系统时钟被修改时，`Date.now()`返回的值可能会受到影响。
+
+`performance.now()`方法返回自页面加载以来的毫秒数，精度通常为5微秒（即0.005毫秒），它是基于高精度的时间戳，而不是系统时钟。由于它的精度更高，因此更适合用于测量较小的时间间隔，例如函数执行时间或动画帧率。
+
+需要注意的是，`performance.now()`只能在现代浏览器中使用，而`Date.now()`则是通用的 JavaScript 方法，可在任何支持 JavaScript 的环境中使用。
+
+因此，如果需要高精度的性能测量，应该使用`performance.now()`方法，否则可以使用`Date.now()`方法。
 
 # 性能优化
 
