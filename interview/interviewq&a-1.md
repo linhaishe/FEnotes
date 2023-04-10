@@ -3306,7 +3306,6 @@ https://vue3js.cn/interview/vue/axios.html#%E4%B8%80%E3%80%81axios%E6%98%AF%E4%B
 `Ajax`的原理简单来说通过`XmlHttpRequest`对象来向服务器发异步请求，从服务器获得数据，然后用`JavaScript`来操作`DOM`而更新页面
 
 ```js
-//封装一个ajax请求
 function ajax(options) {
   //创建XMLHttpRequest对象
   const xhr = new XMLHttpRequest();
@@ -3319,25 +3318,48 @@ function ajax(options) {
 
   //发送请求
   if (options.type === "GET") {
-    xhr.open("GET", options.url + "?" + params, true);
+    xhr.open("GET", options.url + (params ? ("?" + params) : ""), true);
     xhr.send(null);
   } else if (options.type === "POST") {
+    const contentType = options.dataType === "json"
+      ? "application/json"
+      : "application/x-www-form-urlencoded";
+    const postData = options.dataType === "json"
+      ? JSON.stringify(params)
+      : params;
     xhr.open("POST", options.url, true);
-    xhr.send(params);
-    //接收请求
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        let status = xhr.status;
-        if (status >= 200 && status < 300) {
-          options.success && options.success(xhr.responseText, xhr.responseXML);
-        } else {
-          options.fail && options.fail(status);
-        }
-      }
-    };
+    xhr.setRequestHeader("Content-Type", contentType);
+    xhr.send(postData);
   }
+
+  //接收请求
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      const status = xhr.status;
+      if (status >= 200 && status < 300) {
+        let responseText = xhr.responseText;
+        if (options.dataType === "json") {
+          responseText = JSON.parse(responseText);
+        }
+        options.success && options.success(responseText, xhr);
+      } else {
+        options.fail && options.fail(status);
+      }
+    }
+  };
 }
+
 ```
+
+xhr.onreadystatechange 事件会在 XMLHttpRequest 对象的状态发生变化时被触发。XMLHttpRequest 对象的状态是由 readyState 属性来表示的。readyState 属性有 5 种可能的值，分别是：
+
+1. 0 (uninitialized)：已创建 XMLHttpRequest 对象，但尚未调用 open() 方法。
+2. 1 (opened)：已经调用 open() 方法，但尚未调用 send() 方法。
+3. 2 (headers_received)：已经调用 send() 方法，并且已经接收到了响应头。
+4. 3 (loading)：已经接收到响应头，并正在接收响应体（response body）。
+5. 4 (done)：已经接收到完整的响应，且可以在客户端使用。
+
+在使用 xhr.onreadystatechange 事件时，通常只需要检查 readyState 的值是否为 4，表示请求已完成并成功接收到响应。此时可以通过 status 属性来获取服务器返回的状态码（如 200 表示请求成功，404 表示请求的资源不存在等），通过 responseText 或者 responseXML 属性获取服务器返回的数据。
 
 ### 28. JSONP 的原理是什么, 如何实现
 
