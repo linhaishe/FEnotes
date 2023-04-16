@@ -158,7 +158,19 @@ alert(document.cookie); // ...; my%20name=John%20Smith
 - Name/value must be encoded.
 - One cookie may not exceed 4KB in size. The number of cookies allowed on a domain is around 20+ (varies by browser).
 
-Cookie options:
+### Cookie options:
+
+| 属性名   | 描述                                                        |
+| -------- | ----------------------------------------------------------- |
+| Domain   | 定义 cookie 的有效域名。                                    |
+| Expires  | 定义 cookie 的过期时间。(使用的是UTC或GMT时间格式)          |
+| HttpOnly | 设置 cookie 只能通过 HTTP 和 HTTPS 协议访问，防止脚本攻击。 |
+| Max-Age  | 定义 cookie 的最大生命周期。                                |
+| Path     | 定义 cookie 的有效路径。                                    |
+| Secure   | 设置 cookie 只能通过 HTTPS 协议传输。                       |
+| SameSite | 控制 cookie 的跨站点访问。                                  |
+| Value    | 存储在 cookie 中的值。                                      |
+| Name     | cookie 的名称。                                             |
 
 - `path=/`, by default current path, makes the cookie visible only under that path.
 
@@ -378,3 +390,174 @@ localStorage和sessionStorage适合存储少量数据，cookie适合用于身份
 2. SessionStorage：它允许您在浏览器的会话存储中存储键值对，该数据仅在当前会话或页面重新加载期间可用。该数据仅可由创建它的窗口或标签访问。
 3. Cookie：它允许您在浏览器中存储少量数据，该数据将随每个请求发送到服务器。Cookie可用于本地或远程存储，并可由同源下的任何窗口或标签访问。
 4. IndexedDB：它是一种先进的存储机制，允许您在浏览器中存储结构化数据以供离线使用或减轻服务器负载。它没有固定的大小限制，并可由同源下的任何窗口或标签访问。
+
+# Cookie Security Pitfalls
+
+## CSRF
+
+CSRF跨站点请求伪造(Cross—Site Request Forgery)。当目标网站目标用户浏览器渲染HTML文档的过程中，出现了不被预期的脚本指令并执行时，XSS就发生了。
+
+![image-20230416113738701](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416113738701.png)
+
+![image-20230416161024263](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416161024263.png)
+
+![image-20230416161052635](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416161052635.png)
+
+![image-20230416160949575](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416160949575.png)
+
+![image-20230416161128026](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416161128026.png)
+
+![image-20230416161143765](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416161143765.png)
+
+### csrf攻击的根本原因
+
+是因为web服务器对用户信息的验证不够，例子中的对用户身份的验证只是验证了当前用户的session是否存在，无法保证某次请求是这个用户触发的。
+
+### 防御
+
+1. 尽量使用POST，相对程度上能降低攻击的风险。
+
+2. 加入验证码。能够确保是用户行为。
+
+3. 验证referer: referer能记录当前请求的来源地址。但是也会被窜改
+
+4. Anti CSRF Token:
+
+   黑客可以拿到用户的信息，是因为用户的信息放在了cookie中，容易被人获取。
+
+   我们可以在form表单，或http请求头中传递token，token存在服务端，服务端通过拦截器验证有效性，校验失败的拒绝请求。
+
+   token一般放在head区域使用js去调取或者表单里面。
+
+   服务端生成token后会把token放在session 或者 reddis 缓存中，前端在post请求的时候会把，token一并发送给服务端，服务端进行相关验证。验证后销毁。
+
+   ![image-20230416115312399](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416115312399.png)
+
+   ![image-20230416115504020](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416115504020.png)
+
+5. 加入自定义Header
+
+   逻辑和第四点相同，区别在于第四种有可能是通过form表单传输的，但是第五点一定是通过header里面传输的。
+
+## Cross-site scripting（XSS）
+
+当目标网站目标用户浏览器渲染HTML文档的过程中，出现了不被预期的脚本指令并执行时，XSS就发生了。攻击者通过插入的脚本获取用户的信息。
+
+![image-20230416120340599](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416120340599.png)
+
+危害：
+
+1. 挂马
+2. 盗取用户的cookie
+3. DDOS(拒绝服务)客户端浏览器
+4. 钓鱼攻击，高级的钓鱼技巧
+5. 删除目标、呃恶意篡改数据、嫁祸
+6. 劫持用户Web行为，甚至进一步渗透内网
+7. 爆发web2.0 蠕虫
+8. 蠕虫式的DDOS攻击
+9. 蠕虫式挂马攻击、刷广告、刷流量、破坏网上数据。
+
+XSS的种类
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154050516.png" alt="image-20230416154050516" style="zoom:33%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154150714.png" alt="image-20230416154150714" style="zoom:33%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154211353.png" alt="image-20230416154211353" style="zoom:33%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154225212.png" alt="image-20230416154225212" style="zoom:33%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154432168.png" alt="image-20230416154432168" style="zoom:33%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154439889.png" alt="image-20230416154439889" style="zoom: 50%;" />
+
+<img src="https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/webstorage/image-20230416154518033.png" alt="image-20230416154518033" style="zoom:33%;" />
+
+### 根本原因
+
+我们对url的参数或者是用户提交输入的地方没有做一个充分的过滤，有一些不合法的参数，或者输入的内容，传输到web服务器。用户在访问页面的时候，浏览器会执行相关的代码。
+
+### 防御
+
+1. 对输入(和URL参数)进行过滤，对输出进行编码。Cookie设置http-only等。
+
+2. 输入处理
+
+   包括用户输入、URL参数、POST请求、Ajax
+
+   黑名单过滤：列出不能出现的脚本清单，一旦遇到惊醒处理（富文本）/白名单过滤（用户名，密码等）：列出我们可以接受的内容，比如用户名，规定大小6-14位，只能字母数字下划线，其他都是非法的。
+
+3. 输出处理
+
+   对潜在的不安全的字符串做一个编码和转译。根据上下文进行转移。比如(html entity) `<` 转译为 `&lt;`
+
+4. Cookie 设置为 http-only
+
+Ref:
+
+1. https://www.youtube.com/watch?v=gEPii2y3ISQ
+2. https://www.youtube.com/watch?v=QJzkifQ-Cuk
+3. [Sanitize untrusted HTML (to prevent XSS) with a configuration specified by a Whitelist.](https://www.npmjs.com/package/xss)
+4. https://www.rfc-editor.org/
+5. [[XSS 1] 從攻擊自己網站學 XSS (Cross-Site Scripting)](https://medium.com/hannah-lin/%E5%BE%9E%E6%94%BB%E6%93%8A%E8%87%AA%E5%B7%B1%E7%B6%B2%E7%AB%99%E5%AD%B8-xss-cross-site-scripting-%E5%8E%9F%E7%90%86%E7%AF%87-fec3d1864e42)
+6. https://www.freecodecamp.org/chinese/news/what-is-cross-site-request-forgery/
+7. https://tech.meituan.com/2018/10/11/fe-security-csrf.html
+8. https://www.freecodecamp.org/chinese/news/everything-you-need-to-know-about-cookies-for-web-development/
+
+# JWT vs Cookie
+
+## JWT
+
+> JWT 是一种 Token，它的全名是 JSON Web Token。它由服务端产生后，交付给客户端使用，Token 中会夹带取多资讯，包含用户的验证资料或其他。
+
+JWT 的表现形式是一个纯粹的字串，这个字串有三个部分，分别为 Header、Payload、Signature，这三个部分会串接起来，用 . 来分隔，形成这样的格式：`{Header}.{Payload}.{Signature}`，实际范例如下：
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.B3GHLnjMFsZJc3K97UIWN68E8WovKxO0Qp6Ye4sVLzo
+```
+
+其中Header和payload使用 Base64 进行编码，Signature则是对Header、payload和一个密钥(HS256)进行加密得到的。
+
+## jwt的验证流程
+
+JWT 的验证原理是基于数字签名的验证。当客户端收到一个 JWT 后，需要先对其进行解码，然后使用相同的密钥对 JWT 中的签名进行验证，确保 JWT 的真实性和完整性。验证过程如下：
+
+1. Client登入，Server认证成功之后送一组JWT到Client。
+2. Client储存JWT在local，通常是放在localstorage。
+3. 当使用者想要访问受到保护的route或是资源的时候，需要在header的Authorization加入Bearer模式
+4. Server的Router将会检查Authorization
+5. JWT可夹带使用者讯息，因此减少了访问资料库的动作
+6. JWT不会使用到Cookie，因此可以使用任意网域的服务
+7. 使用者的状态不再储存到Server，所以是一种无状态验证机制
+
+## 使用方式
+
+WT（JSON Web Token）可以通过多种方式进行传输，以下是一些常见的方式：
+
+1. HTTP 头部（Header）：JWT 可以作为 HTTP 头部中的 Authorization 字段的值进行传输。例如：
+
+```js
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+2. URL 查询参数（Query Parameter）：JWT 可以作为 URL 的查询参数进行传输。（不建议）例如：
+
+```js
+http://example.com/path?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+3. 表单数据（Form Data）：JWT 可以作为表单数据的值进行传输。
+4. HTTP Cookie：JWT 可以存储在 HTTP Cookie 中进行传输。但是這樣就無法進行跨域
+
+## diff
+
+1. JWT 是一种资料格式；Cookie 是一种储存方式。
+2. Cookie 的 value 可以储存任何字串，包含 JWT。
+4. 针对身分验证用途，服务端通常不储存产生的 JWT，但使用 Cookie 时，通常会在服务端储存一份 Session 资料。
+
+ref:
+
+1. https://devindeving.blogspot.com/2022/01/jwt-concept-vs-cookie.html
+2. https://blog.yyisyou.tw/5d272c64/
+3. https://juejin.cn/post/6844904034181070861
+
