@@ -354,7 +354,7 @@ IndexedDB is a database that is built into a browser, much more powerful than lo
 2. 获取store对象
 3. 对象store进行crud的操作
 
-# localstorage & sessionstorage & cookie & indexDB
+# Diff for four
 
 
 
