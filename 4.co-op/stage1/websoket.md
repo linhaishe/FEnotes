@@ -1,5 +1,3 @@
-# websoket
-
 # WebSocket介绍
 
 ## 1. intro
@@ -37,6 +35,59 @@ WebSockets 则是一种基于 TCP 的协议，一种双向通信协议，它可�
 | 支持的数据类型 | 支持传输文本和二进制数据                                 | 主要支持传输文本数据                              |
 | 安全性         | 支持 SSL/TLS 加密传输，保证通信的安全性                  | 支持 SSL/TLS 加密传输，但是只能加密请求和响应数据 |
 | 使用场景       | 适用于实时通信、推送通知、在线游戏等实时性要求较高的场景 | 适用于获取静态资源、发送表单数据等场景            |
+
+##  WebSocket 握手请求和 HTTP 握手请求的不同点
+
+| 特点               | WebSocket 握手请求                                           | HTTP 握手请求                                                |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 握手地址           | ws:// 或 wss://                                              | http:// 或 https://                                          |
+| 握手协议           | WebSocket                                                    | HTTP协议                                                     |
+| 是否支持压缩       | 支持                                                         | 支持                                                         |
+| 是否支持二进制数据 | 支持                                                         | 支持（但不如 WebSocket 处理二进制数据高效）                  |
+| 数据格式           | 帧（Frame）                                                  | 报文（Message）                                              |
+| 传输方式           | 双向传输                                                     | 单向传输                                                     |
+| 连接保持时间       | 持续连接（不需要每次请求建立连接）                           | 短连接（每次请求需要重新建立连接）                           |
+| 适用场景           | 实时数据传输、在线游戏、实时聊天等                           | 请求-响应模式的数据传输                                      |
+| 请求头             | `Upgrade`, `Connection`, `Sec-WebSocket-Key`, `Sec-WebSocket-Version`, `Sec-WebSocket-Extensions` | `Host`, `User-Agent`, `Accept`, `Accept-Language`, `Accept-Encoding`, `Connection`, `Upgrade`, `Sec-WebSocket-Version`, `Sec-WebSocket-Key`, `Sec-WebSocket-Extensions` |
+| 请求方法           | `GET`                                                        | `GET`, `POST`, `PUT`, `DELETE` 等                            |
+| 响应头             | `Upgrade`, `Connection`, `Sec-WebSocket-Accept`, `Sec-WebSocket-Extensions` | `Connection`, `Upgrade`, `Sec-WebSocket-Accept`, `Sec-WebSocket-Extensions` |
+| 响应状态码         | `101 Switching Protocols`                                    | `101 Switching Protocols`, `200 OK`, `404 Not Found`, `500 Internal Server Error` 等 |
+
+WebSocket 握手请求和 HTTP 握手请求虽然有不同的特点，但是 WebSocket 握手请求是基于 HTTP 协议实现的，因此在 WebSocket 握手过程中，依然需要 HTTP 协议来进行数据传输。
+
+一个典型的Websocket握手请求如下[[15\]](https://zh.wikipedia.org/wiki/WebSocket#cite_note-15)：
+
+客户端请求：
+
+```
+GET /chat HTTP/1.1
+Host: server.example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Origin: http://example.com
+Sec-WebSocket-Protocol: chat, superchat
+Sec-WebSocket-Version: 13
+```
+
+服务器回应：
+
+```
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+Sec-WebSocket-Protocol: chat
+```
+
+### 字段说明
+
+- Connection必须设置Upgrade，表示客户端希望连接升级。
+- Upgrade字段必须设置Websocket，表示希望升级到Websocket协议。
+- Sec-WebSocket-Key是随机的字符串，服务器端会用这些数据来构造出一个SHA-1的信息摘要。把“Sec-WebSocket-Key”加上一个特殊字符串“258EAFA5-E914-47DA-95CA-C5AB0DC85B11”，然后计算[SHA-1](https://zh.wikipedia.org/wiki/SHA-1)摘要，之后进行[Base64](https://zh.wikipedia.org/wiki/Base64)编码，将结果做为“Sec-WebSocket-Accept”头的值，返回给客户端。如此操作，可以尽量避免普通HTTP请求被误认为Websocket协议。
+- Sec-WebSocket-Version 表示支持的Websocket版本。RFC6455要求使用的版本是13，之前草案的版本均应当弃用。
+- Origin字段是必须的。如果缺少origin字段，WebSocket服务器需要回复HTTP 403 状态码（禁止访问）。[[16\]](https://zh.wikipedia.org/wiki/WebSocket#cite_note-16)
+- 其他一些定义在HTTP协议中的字段，如[Cookie](https://zh.wikipedia.org/wiki/Cookie)等，也可以在Websocket中使用。
 
 # WebSockets 安全性
 
