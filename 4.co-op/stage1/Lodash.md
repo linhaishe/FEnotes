@@ -91,4 +91,40 @@ _.dropRightWhile(users,'active');
 
 有空去看下源码
 
+## `_.pullAllBy(array, values, [iteratee=_.identity])`
+
+#### 参数
+
+1. `array` *(Array)*: 要修改的数组。
+2. `values` *(Array)*: 要移除值的数组。
+3. `[iteratee=_.identity]` *(Array|Function|Object|string)*: iteratee（迭代器）调用每个元素。
+
+```js
+var array = [{ 'x': 1 }, { 'x': 2 }, { 'x': 3 }, { 'x': 1 }];
+ 
+_.pullAllBy(array, [{ 'x': 1 }, { 'x': 3 }], 'x');
+console.log(array);
+// => [{ 'x': 2 }]
+```
+
+我们想要从`array`数组中移除所有具有`'x'`属性值为`1`或`3`的对象。我们传递了一个包含这两个对象的数组作为`values`参数，并将`'x'`作为`iteratee`参数传递，这样lodash会根据对象的`'x'`属性进行匹配。因此，`{ 'x': 1 }`和`{ 'x': 3 }`这两个对象将被从`array`数组中移除。
+
+## `_.sortedUniq(array)`
+
+*(Array)*: 返回一个新的不重复的数组。
+
+## `_.sortedUniqBy(array, [iteratee])`
+
+## _.uniq(array)
+
+创建一个去重后的`array`数组副本。使用了[`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero) 做等值比较。只有第一次出现的元素才会被保留。
+
+## `_.without(array, [values])`
+
+*(Array)*: 返回过滤值后的新数组。
+
+## `_.xor([arrays])`
+
+*Array)*: 返回过滤值后的新数组。
+
 tbc.
