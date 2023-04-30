@@ -29,6 +29,8 @@ const deepClone = (obj) => {
 
 ### 方法二：考虑到了复杂类型和循环引用做了优化
 
+`cloneDeep` 需要关注的几个问题：类型判断、循环引用，内置类型可以用调用 `Object.prototype.toString.call` 这个方法来判断类型，自定义类型的拷贝可以使用 `new constructor` 的方式拷贝
+
 ```js
 // 完整版
 function deepCopy(obj) {
