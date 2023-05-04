@@ -418,16 +418,12 @@ ajax({
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | API 设计   | Promise API，简单易用，支持链式调用，语法简洁易读。          | 基于事件的 API，使用起来稍微复杂一些，需要手动处理多个回调函数。 |
 | 请求类型   | 基于 Promise，可以使用 async/await 和其他 Promise 方法来处理响应结果 | 基于回调函数，需要使用回调函数来处理响应结果                 |
-|            |                                                              |                                                              |
 | 凭证信息   | 默认情况下不发送 cookies 和 HTTP 认证信息，但可以通过设置 credentials 选项来启用 | 可以通过设置 withCredentials 属性来启用                      |
 | 取消请求   | 支持通过 AbortController 和 AbortSignal 接口来取消请求       | 可以通过 abort() 方法来取消请求                              |
 | 错误处理   | 可以使用 try-catch 和 catch() 方法来处理异常                 | 可以使用 onerror 和 onabort 事件来处理异常                   |
 | 浏览器支持 | 需要比较新的浏览器支持，但支持程度在逐渐提高                 | 较老的浏览器也支持，但一些新特性可能不支持                   |
-|            |                                                              |                                                              |
 | 请求头处理 | 请求头和请求体分离，可以用 Headers 对象来设置请求头。        | 直接通过 setRequestHeader() 方法设置请求头。                 |
 | CORS支持   | 原生支持跨域请求，但是在某些情况下仍然会受到跨域限制。       | 需要额外设置                                                 |
-
-
 
 取消请求
 
@@ -638,6 +634,14 @@ https://javascript.info/proxy
 
 Proxy 和 Reflect 是 ES6 引入的两个新特性，它们可以帮助我们更加方便、灵活地处理对象的操作和行为。
 
+代理（Proxy）和反射（Reflect）是 JavaScript 中允许开发人员以独特方式操作对象的两个特性。
+
+代理是一个对象，允许您拦截并自定义对另一个对象执行的操作。当访问代理对象的属性或方法时，代理会拦截操作并可以对其进行自定义处理。代理对象可以用来实现数据绑定、访问控制等功能。
+
+反射是一组内置的方法，可以让您在运行时操作对象的属性和方法。Reflect 对象提供了许多方法，如 Reflect.get()、Reflect.set()、Reflect.has() 等，可以替代传统的对象操作方法，提供更严谨的语法和错误处理。
+
+虽然两者都可以用来操作对象，但它们的使用场景略有不同。代理通常用于实现高级功能，如数据绑定、访问控制等，而反射则用于对象操作的基础功能，例如读取、设置属性等。
+
 ## Proxy
 
 Proxy 是一种用于创建对象代理的机制，可以在对象操作前后拦截并自定义处理。它通过在目标对象之前架设一层拦截器，可以对目标对象的读取、赋值、删除、函数调用等操作进行拦截和自定义处理。我们可以通过 Proxy 对象的 `get()`、`set()`、`deleteProperty()` 等方法拦截这些操作，并在其中添加自定义逻辑。
@@ -735,22 +739,32 @@ Proxy有以下限制：
 
 # Map vs Set
 
+Map 是一种以键值对的形式存储数据的集合。其中，键可以是任何类型的值（包括对象、函数等），值也可以是任何类型的值。与 JavaScript 中的普通对象相比，Map 对象支持更多的操作方法，例如迭代、批量操作等。Map 中的键是唯一的，可以通过 get() 和 set() 方法访问和修改对应的值。
+
+Set 是一种存储唯一值的集合，其中的值可以是任何类型的值。与数组相比，Set 保证了其中的值是唯一的，且可以进行更高效的操作，例如查找、删除等。Set 中的值是唯一的，可以使用 add() 和 delete() 方法添加和删除值。
+
+两者的使用场景有所不同。Map 主要用于存储具有一定结构的数据，例如用键值对存储的配置信息、对象之间的关系等；而 Set 则主要用于存储一组唯一的值，例如存储用户的标签、去重等。
+
+需要注意的是，Map 和 Set 都是可迭代的对象，可以使用 for...of 循环遍历其中的元素。同时，它们都支持批量操作方法，例如 Map 的 set() 方法可以接受一个数组或另一个 Map 对象作为参数，从而快速初始化一个 Map。
+
+## Map
+
+Map – is a collection of keyed values.
+
 JavaScript 中的 Map 是一种数据结构，用于存储键值对，其中键可以是任何 JavaScript 对象（包括原始类型、对象和函数），值也可以是任何 JavaScript 对象。
 
 与普通的 JavaScript 对象不同，Map 允许使用对象作为键，并且可以迭代其元素。Map 还提供了一些有用的方法，如 set(key, value)、get(key)、has(key) 和 delete(key)，这些方法可以用来添加、获取、检查和删除键值对。另外，Map 的键和值是有序的，因此它可以按照插入的顺序迭代元素。
 
 与数组相比，Map 可以提供更灵活的键和更快的查找速度，但是它的缺点是占用更多的内存。Map 在许多情况下都可以用来替代普通的 JavaScript 对象，尤其是当需要使用对象作为键时。
 
-|      |      |      |
-| :--- | :--- | :--- |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-|      |      |      |
-
-
+| 方法                | 描述                                                         |      |
+| :------------------ | :----------------------------------------------------------- | :--- |
+| new Map([iterable]) | 创建一个 Map 对象，可选地使用可迭代对象（例如数组）进行初始化，包含一组 [key, value] 键值对。 |      |
+| map.set(key, value) | 存储一个键值对，使用给定的 key 和 value，返回 map 对象本身。 |      |
+| map.get(key)        | 返回与给定 key 关联的值，如果 key 不存在则返回 undefined。   |      |
+| map.has(key)        | 如果 key 存在则返回 true，否则返回 false。                   |      |
+| map.delete(key)     | 删除指定 key 对应的元素，返回一个布尔值，如果 key 存在则为 true，否则为 false。 |      |
+| map.clear()         | 删除 Map 中的所有元素。                                      |      |
 
 ```js
 // 使用数组初始化 Map，其中每个子数组都包含一个键和一个对象
@@ -764,11 +778,28 @@ const myMap = new Map([
 console.log(myMap.get('banana').color); // 输出 'yellow'
 ```
 
+## Set
+
+Set – is a collection of unique values.
+
+Methods and properties:
+
+| 方法                | 描述                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| new Set([iterable]) | 创建一个 Set 对象，可选地使用可迭代对象（例如数组）进行初始化，包含一组元素。 |
+| set.add(value)      | 添加一个元素到 Set 中，如果该元素已存在则不进行任何操作，返回 set 对象本身。 |
+| set.delete(value)   | 删除 Set 中的指定元素，返回一个布尔值，如果元素存在则为 true，否则为 false。 |
+| set.has(value)      | 如果 Set 中存在给定元素则返回 true，否则返回 false。         |
+| set.clear()         | 删除 Set 中的所有元素。                                      |
+| set.size            | 返回 Set 中元素的数量。                                      |
+
 # WeakMap vs WeakSet
 
-https://javascript.info/map-set#set
+The first difference between `Map` and `WeakMap` is that keys must be objects, not primitive values:
 
-https://javascript.info/weakmap-weakset
+需要注意的是，由于 WeakMap 的键必须是对象，并且在没有其他引用时会被自动删除，因此 WeakMap 通常用于实现私有属性、缓存和垃圾回收等场景。而 Map 则适用于通用的键值对存储场景。
+
+总体来说，Map 适用于存储任意类型的数据，并且需要在整个生命周期内保留键值对，而 WeakMap 适用于存储对象，并且需要在对象被销毁时自动删除键值对。
 
 WeakMap is Map-like collection that allows only objects as keys and removes them together with associated value once they become inaccessible by other means.
 
@@ -779,6 +810,12 @@ Their main advantages are that they have weak reference to objects, so they can 
 That comes at the cost of not having support for clear, size, keys, values…
 
 WeakMap 和 WeakSet 被用作“辅助”数据结构，以补充“主要”对象存储。一旦对象从主存储中移除，如果它仅作为 WeakMap 的键或在 WeakSet 中找到，它将自动清除。
+
+https://javascript.info/map-set#set
+
+https://javascript.info/weakmap-weakset
+
+
 
 | 特性     | Map                                                  | WeakMap                                              |
 | :------- | :--------------------------------------------------- | :--------------------------------------------------- |

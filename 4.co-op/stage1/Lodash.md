@@ -296,85 +296,11 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
 
 ```
 
+## pvorb/clone
+
 https://github.com/pvorb/clone
 
 https://npmtrends.com/clone-vs-clone-deep-vs-deep-copy-vs-deepcopy-vs-lodash.clonedeep
-
-```js
-function deepCopy(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-
-  // 处理循环引用
-  let visited = new WeakMap();
-  if (visited.has(obj)) {
-    return visited.get(obj);
-  }
-
-  let clone;
-  if (obj instanceof Date) {
-    clone = new Date(obj.getTime());
-  } else if (obj instanceof RegExp) {
-    clone = new RegExp(obj);
-  } else if (obj instanceof Map) {
-    clone = new Map();
-    for (let [key, value] of obj) {
-      clone.set(key, deepCopy(value));
-    }
-  } else if (obj instanceof Set) {
-    clone = new Set();
-    for (let value of obj) {
-      clone.add(deepCopy(value));
-    }
-  } else {
-    clone = new obj.constructor();
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        // 处理 Symbol 类型
-        if (typeof key === "symbol") {
-          clone[key] = deepCopy(obj[key]);
-        } else {
-          clone[key] = deepCopy(obj[key]);
-        }
-      }
-    }
-  }
-
-  visited.set(obj, clone);
-  return clone;
-}
-
-// 测试
-let obj1 = { a: 1, b: 2, c: new Date(), d: /ewff/g };
-let date = new Date();
-let regexp = new RegExp("/ab+c/", "i");
-let obj = {
-  date: date,
-  regexp: regexp,
-  map: new Map([
-    ["a", 1],
-    ["b", 2]
-  ]),
-  set: new Set([1, 2, 3]),
-  symbol: Symbol("foo")
-};
-
-let copiedObj = deepCopy(obj);
-
-console.log(copiedObj.date === date); // false
-console.log(copiedObj.regexp === regexp); // false
-console.log(copiedObj.map === obj.map); // false
-console.log(copiedObj.set === obj.set); // false
-console.log(copiedObj.symbol === obj.symbol); // false
-
-// 互相没有被影响
-let cloneObj = deepCopy(obj);
-obj.arr.push(5);
-cloneObj.arr.push(8);
-console.log("obj", obj);
-console.log("copy", cloneObj);
-```
 
 ```js
 // https://github.com/pvorb/clone source code
@@ -723,11 +649,11 @@ if (typeof prototype == "undefined") {
 
 该代码段根据输入参数 `parent` 和 `prototype` 创建一个新的对象 `child`，并将其原型设置为 `prototype`（如果 `prototype` 存在），或者 `parent` 的原型（如果 `prototype` 不存在）。
 
-具体来说，代码首先检查 `prototype` 是否为 `undefined`。如果是，则说明用户没有传递 `prototype` 参数。此时，代码通过 `Object.getPrototypeOf()` 方法获取 `parent` 的原型 `proto`，然后使用 `Object.create()` 方法创建一个新对象 `child`，并将其原型设置为 `proto`。这样，`child` 的原型就和 `parent` 的原型相同。
+具体来说，首先检查 `prototype` 是否为 `undefined`。如果是，则说明用户没有传递 `prototype` 参数。此时，代码通过 `Object.getPrototypeOf()` 方法获取 `parent` 的原型 `proto`，然后使用 `Object.create()` 方法创建一个新对象 `child`，并将其原型设置为 `proto`。这样，`child` 的原型就和 `parent` 的原型相同。
 
 如果 `prototype` 不是 `undefined`，则说明用户传递了 `prototype` 参数。此时，代码直接使用 `Object.create()` 方法创建一个新对象 `child`，并将其原型设置为 `prototype`。这样，`child` 的原型就和用户指定的 `prototype` 相同。
 
-需要注意的是，`Object.create()` 方法用于创建一个新对象，并将其原型设置为指定的原型。它的第一个参数是原型对象，第二个参数是可选的属性描述符对象，用于定义新对象的属性。`Object.getPrototypeOf()` 方法用于获取一个对象的原型。它的参数是一个对象，返回值是该对象的原型。
+`Object.create()` 方法用于创建一个新对象，并将其原型设置为指定的原型。它的第一个参数是原型对象，第二个参数是可选的属性描述符对象，用于定义新对象的属性。`Object.getPrototypeOf()` 方法用于获取一个对象的原型。它的参数是一个对象，返回值是该对象的原型。
 
 ```mermaid
 flowchart TD
@@ -790,46 +716,6 @@ flowchart TD
 
 ```
 
-
-
-```js
-graph TD
-    parent((parent))
-    typeofObject["typeof parent == 'object'"]
-    nativeMap(Map)
-    nativeSet(Set)
-    nativePromise(Promise)
-    isArray(Array)
-    isRegExp(RegExp)
-    isDate(Date)
-    isBuffer(Buffer)
-    isError(Error)
-    ObjectCreate("Object.create()")
-    ObjectCreateProto("Object.create(prototype)")
-    ObjectNew("new Object()")
-    typeofNotObject["typeof parent != 'object'"]
-    parent-->|yes|typeofObject
-    parent-->|no|typeofNotObject
-    typeofObject-->|nativeMap|nativeMap
-    typeofObject-->|nativeSet|nativeSet
-    typeofObject-->|nativePromise|nativePromise
-    typeofObject-->|isArray|isArray
-    typeofObject-->|isRegExp|isRegExp
-    typeofObject-->|isDate|isDate
-    typeofNotObject-->|isBuffer|isBuffer
-    typeofNotObject-->|isError|isError
-    nativePromise-->|clone thenables|clone
-    isBuffer-->|Buffer.from|clone
-    isError-->|Object.create|clone
-    isArray-->|new array|clone
-    isRegExp-->|new RegExp|clone
-    isDate-->|new Date|clone
-    ObjectCreate-->|ObjectNew|ObjectNew
-    ObjectCreate-->|ObjectCreateProto|ObjectCreateProto
-    ObjectCreateProto-->ObjectNew
-
-```
-
 `Object.getOwnPropertyDescriptor()` 方法用来获取一个对象某个属性的描述符（descriptor），包括属性的值，可写性，可枚举性，可配置性。如果对象上没有这个属性，则返回 undefined。
 
 `Object.getOwnPropertyDescriptor(obj, prop)` 方法接收两个参数，第一个参数是要获取属性描述符的对象，第二个参数是要获取描述符的属性名。
@@ -852,13 +738,88 @@ graph TD
 例如，以下是使用 `Object.getOwnPropertyDescriptor()` 方法获取对象属性描述符的示例：
 
 ```js
-javascriptCopy code
 const obj = { a: 1 }
 const descriptor = Object.getOwnPropertyDescriptor(obj, 'a')
 console.log(descriptor)
 // Output: { value: 1, writable: true, enumerable: true, configurable: true }
 ```
 
-在上面的示例中，我们定义了一个包含一个属性 `a` 的对象。我们使用 `Object.getOwnPropertyDescriptor()` 方法获取 `a` 属性的属性描述符，并将其存储在变量 `descriptor` 中。最后，我们将描述符打印到控制台中，输出的结果是 `{ value: 1, writable: true, enumerable: true, configurable: true }`，这表明 `a` 属性是可写、可枚举和可配置的。
+在上面的示例中，定义了一个包含一个属性 `a` 的对象。我们使用 `Object.getOwnPropertyDescriptor()` 方法获取 `a` 属性的属性描述符，并将其存储在变量 `descriptor` 中。最后，将描述符打印到控制台中，输出的结果是 `{ value: 1, writable: true, enumerable: true, configurable: true }`，这表明 `a` 属性是可写、可枚举和可配置的。
 
-需要注意的是，`Object.getOwnPropertyDescriptor()` 方法只能获取单个属性的描述符。如果需要获取对象上的所有属性描述符，可以使用 `Object.getOwnPropertyDescriptors()` 方法。
+`Object.getOwnPropertyDescriptor()` 方法只能获取单个属性的描述符。如果需要获取对象上的所有属性描述符，可以使用 `Object.getOwnPropertyDescriptors()` 方法。
+
+```js
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  // 处理循环引用
+  let visited = new WeakMap();
+  if (visited.has(obj)) {
+    return visited.get(obj);
+  }
+
+  let clone;
+  if (obj instanceof Date) {
+    clone = new Date(obj.getTime());
+  } else if (obj instanceof RegExp) {
+    clone = new RegExp(obj);
+  } else if (obj instanceof Map) {
+    clone = new Map();
+    for (let [key, value] of obj) {
+      clone.set(key, deepCopy(value));
+    }
+  } else if (obj instanceof Set) {
+    clone = new Set();
+    for (let value of obj) {
+      clone.add(deepCopy(value));
+    }
+  } else {
+    clone = new obj.constructor();
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        // 处理 Symbol 类型
+        if (typeof key === "symbol") {
+          clone[key] = deepCopy(obj[key]);
+        } else {
+          clone[key] = deepCopy(obj[key]);
+        }
+      }
+    }
+  }
+
+  visited.set(obj, clone);
+  return clone;
+}
+
+// 测试
+let obj1 = { a: 1, b: 2, c: new Date(), d: /ewff/g };
+let date = new Date();
+let regexp = new RegExp("/ab+c/", "i");
+let obj = {
+  date: date,
+  regexp: regexp,
+  map: new Map([
+    ["a", 1],
+    ["b", 2]
+  ]),
+  set: new Set([1, 2, 3]),
+  symbol: Symbol("foo")
+};
+
+let copiedObj = deepCopy(obj);
+
+console.log(copiedObj.date === date); // false
+console.log(copiedObj.regexp === regexp); // false
+console.log(copiedObj.map === obj.map); // false
+console.log(copiedObj.set === obj.set); // false
+console.log(copiedObj.symbol === obj.symbol); // false
+
+// 互相没有被影响
+let cloneObj = deepCopy(obj);
+obj.arr.push(5);
+cloneObj.arr.push(8);
+console.log("obj", obj);
+console.log("copy", cloneObj);
+```
