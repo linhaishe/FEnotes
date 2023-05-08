@@ -1,4 +1,4 @@
-# Classes
+# classes
 
 # Class basic syntax
 
@@ -72,7 +72,7 @@ user.sayHi();
 const Animal = class {};
 ```
 
-## class in pure functions/普通构造函数
+## function constructor/普通构造函数
 
 与函数表达式类似，类表达式在它们被求值前也不能引用。不过，与函数定义不同的是，虽然函数声明可以提升，但类定义不能。
 
@@ -197,7 +197,7 @@ class Person {
 new Person("John", 39)
 ```
 
-## Class fields/类字段
+## Class fields / 类字段
 
 “Class fields” is a syntax that allows to add any properties.
 
@@ -244,6 +244,68 @@ console.log(person1.name); // output: ''
 console.log(person1.age); // output: 0
 ```
 
+类字段重写
+
+如果一个类扩展了另一个类并且没有 constructor，那么将生成下面这样的“空” constructor
+
+```js
+class Rabbit extends Animal {
+  // 为没有自己的 constructor 的扩展类生成的,调用了父类的 constructor，并传递了所有的参数
+  constructor(...args) {
+    super(...args);
+  }
+}
+```
+
+```js
+class Animal {
+  name = 'animal';
+
+  constructor() {
+    alert(this.name); // (*)
+  }
+}
+// 一个类扩展了另一个类并且没有 constructor
+class Rabbit extends Animal {
+  name = 'rabbit';
+}
+
+new Animal(); // animal
+new Rabbit(); // animal
+
+// new Rabbit() 调用了 super()，因此它执行了父类构造器，并且（根据派生类规则）只有在此之后，它的类字段才被初始化。在父类构造器被执行的时候，Rabbit 还没有自己的类字段，这就是为什么 Animal 类字段被使用了。
+
+// 父类构造器总是会使用它自己字段的值，而不是被重写的那一个。
+```
+
+```js
+class Animal {
+  showName() {  // 而不是 this.name = 'animal'
+    alert('animal');
+  }
+
+  constructor() {
+    this.showName(); // 而不是 alert(this.name);
+  }
+}
+
+class Rabbit extends Animal {
+  showName() {
+    alert('rabbit');
+  }
+}
+
+new Animal; // animal
+new Rabbit(); // rabbit
+```
+
+原因在于字段初始化的顺序。类字段是这样初始化的：
+
+- 对于基类(base class)（还未继承任何东西的那种），在构造函数调用前初始化。
+- 对于派生类，在 `super()` 后立刻初始化。
+
+
+
 #  The Class Constructor
 
 类构造函数
@@ -267,10 +329,10 @@ console.log(person.age); // Output: 30
 
 在这个例子中，虽然没有显式地定义构造函数，但在创建 `Person` 类的实例时，仍会默认调用一个空的构造函数来初始化实例的属性。因此，`person` 实例的 `name` 属性被初始化为字符串 "John"，`age` 属性被初始化为数字 30。
 
-## 使用 new 调用类的构造函数会执行如下操作
+**使用 new 调用类的构造函数会执行如下操作**
 
 1. 在内存中创建一个新对象。 
-2. 这个新对象内部的[[Prototype]]指针被赋值为构造函数的 prototype 属性。 
+2. 这个新对象内部的`[[Prototype]]`指针被赋值为构造函数的 prototype 属性。 
 3. 构造函数内部的 this 被赋值为这个新对象（即 this 指向新对象）
 4. 执行构造函数内部的代码（给新对象添加属性）
 5. 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象。
@@ -359,13 +421,15 @@ let foo = createInstance(classList[0], 3141); // instance 3141
 
 # Instance, Prototype, and Class Members 
 
+类块(class body)
+
 笔记中涉及到prototype的内容：
 
 [d. Prototype pattern](# d. Prototype pattern)
 
 [prototype chaining](# prototype chaining)
 
-#### Instance Members
+## Instance Members
 
 实例成员
 
@@ -418,7 +482,7 @@ p2.sayName(); // J-Dog
 
 ```
 
-#### Prototype Methods and Accessors  
+## Prototype Methods and Accessors  
 
 **原型方法与访问器**
 
@@ -442,10 +506,12 @@ Person.prototype.locate(); // prototype
 
 ```
 
-**可以把方法定义在类构造函数中或者类块中， 但不能在类块中给原型添加原始值或对象作为成员数据： **
+**可以把方法定义在类构造函数中或者类块(class body)中， 但不能在类块中给原型添加原始值或对象作为成员数据： **
 
 ```js
-class Person {  name: 'Jake' } // Uncaught SyntaxError: Unexpected token 
+class Person {  
+  name: 'Jake' 
+} // caught SyntaxError: Unexpected identifier 'name'
 ```
 
 **虽然类定义并不显式支持在原型或类上添加成员数据，但在类定义外部，可以手动添加：**
@@ -463,24 +529,7 @@ p.sayName(); // My name is Jake
 
 ```
 
-**类定义也支持获取和设置访问器。语法与行为跟普通对象一样**
-
-```js
-class Person {
-  set name(newName) {
-    this.name_ = newName;
-  }
-  get name() {
-    return this.name_;
-  }
-}
-let p = new Person();
-p.name = "Jake";
-console.log(p.name); // Jake
-
-```
-
-#### Static Class Methods and Accessors
+## Static Class Methods and Accessors
 
 **静态类方法**
 
@@ -492,6 +541,8 @@ new 出来的对象访问不到父类的 static methods。
 
 ==Static methods aren’t available for individual objects.==, 但是extends的类available，就可以用static的方法/属性。
 
+一个类可以通过 `extends` 关键字继承另一个类。这个新的类可以使用父类中的静态方法和属性，因为这些方法和属性是属于类本身的，而不是类的实例。
+
 Static methods are callable on classes, not on individual objects.
 
 ```js
@@ -501,7 +552,7 @@ class Person {
     this.locate = () => console.log("instance", this);
   } 
   
-  // 定义在类的原型对象上
+  // 定义在类的原型对象上 / Defined on the class prototype object
   locate() {
     console.log("prototype", this);
   } 
@@ -556,7 +607,20 @@ console.log(22,Article.publisher);
 
 ==class里的静态方法写法等同于在class外面进行赋值==
 
-![image-20221104212058224](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/regexp/image-20221104212058224.png)
+```js
+class MyClass {
+  static property = ...;
+
+  static method() {
+    ...
+  }
+}
+```
+
+```js
+MyClass.property = ...
+MyClass.method = ...
+```
 
 ```js
 // 但是extends的类available，就可以用static的方法/属性。
@@ -592,33 +656,54 @@ rabbits.sort(Rabbit.compare);
 rabbits[0].run(); // Black Rabbit runs with speed 5.
 
 alert(Rabbit.planet); // Earth
+```
+
+```js
+// 定义一个父类 Animal
+class Animal {
+  static sayHello() {
+    console.log('Hello from Animal!');
+  }
+}
+
+// 定义一个子类 Dog
+class Dog extends Animal {
+  static sayHello() {
+    console.log('Hello from Dog!');
+    // 调用父类的静态方法
+    super.sayHello();
+  }
+}
+
+// 调用父类的静态方法
+Animal.sayHello(); // 输出 "Hello from Animal!"
+
+// 调用子类的静态方法
+Dog.sayHello(); // 输出 "Hello from Dog!" 和 "Hello from Animal!"
 
 ```
 
-How does it work? Again, using prototypes. As you might have already guessed, `extends` gives `Rabbit` the `[[Prototype]]` reference to `Animal`.
-
-![image.png](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/regexp/005NUwygly1h7terukl9wj30so0iugpl.jpg)
-
 **Summary**
 
-Static methods are used for the functionality that belongs to the class “as a whole”. It doesn’t relate to a concrete class instance.
+静态方法用于属于整个类的功能。它与具体的类实例无关。
 
-Static properties are used when we’d like to store class-level data, also not bound to an instance.
+静态属性用于存储与实例无关的类级别数据。
 
-For `class B extends A` the prototype of the class `B` itself points to `A`: `B.[[Prototype]] = A`. So if a field is not found in `B`, the search continues in `A`.
+对于 `class B extends A`，类 `B` 本身的原型指向 `A`：`B.[[Prototype]] = A`。因此，如果在 `B` 中找不到一个字段，搜索会继续在 `A` 中进行。
 
-#### Private and protected properties and methods
+## Private and protected properties and methods
 
-##### protected properties and methods
+### protected properties and methods
+
+- 利用get/set accessor 处理 property, 使用方法是直接赋值。
+- 利用getter/setter function 处理  property，使用方法是函数传参。
 
 Protected properties are usually prefixed with an underscore _.
 
-- 利用get/set accessor 处理 private property, 使用方法是直接赋值。
-- 利用getter/setter function 处理 private property，使用方法是函数传参。
-
 ```js
+// get/set accessor 处理 property
 class CoffeeMachine {
-  _waterAmount = 0;
+  _waterAmount = 0;// 内部的水量
 
   set waterAmount(value) {
     if (value < 0) {
@@ -626,6 +711,7 @@ class CoffeeMachine {
     }
     this._waterAmount = value;
   }
+
 
   get waterAmount() {
     return this._waterAmount;
@@ -645,6 +731,8 @@ coffeeMachine.waterAmount = -10; // _waterAmount will become 0, not -10
 ```
 
 ```js
+// getter/setter function 处理  property
+// 函数更灵活。它们可以接受多个参数
 class CoffeeMachine {
   _waterAmount = 0;
 
@@ -662,9 +750,15 @@ new CoffeeMachine().setWaterAmount(100);
 
 ```
 
-**只读方法**
+==Protected fields are inherited==
+
+If we inherit class MegaMachine extends CoffeeMachine, then nothing prevents us from accessing this._waterAmount or this._power from the methods of the new class.
+
+### readonly
 
 不设置setter即可。
+
+设为只读。有时候一个属性必须只能被在创建时进行设置，之后不再被修改。
 
 ```js
 class CoffeeMachine {
@@ -688,11 +782,10 @@ coffeeMachine.power = 25; // Error (no setter)
 
 ```
 
-==Protected fields are inherited==
+### Private properties and methods
 
-If we inherit class MegaMachine extends CoffeeMachine, then nothing prevents us from accessing this._waterAmount or this._power from the methods of the new class.
-
-##### Private properties and methods
+- 利用get/set accessor 处理 private property, 使用方法是直接赋值。
+- 利用getter/setter function 处理 private property，使用方法是函数传参。
 
 **Privates should start with #. They are only accessible from inside the class.**
 
@@ -738,11 +831,11 @@ With private fields that’s impossible: `this['#name']` doesn’t work. That’
 
 # Inheritance
 
-## Inheritance Basics
+## Inheritance Basics / 继承基础
 
-**extends**
+### extends
 
-ES6类支持单继承。使用`extends`关键字，就可以继承任何拥有[[Construct]]和原型的对象。很大程度上，这意味着不仅可以继承一个类，也可以继承普通的构造函数（保持向后兼容）。==**Any expression is allowed after** `extends`==
+ES6类支持单继承。使用`extends`关键字，就可以继承任何拥有`[[Construct]]`和原型的对象。很大程度上，这意味着不仅可以继承一个类，也可以继承普通的构造函数（保持向后兼容）。
 
 ```js
 // 继承类 Inherit from class 
@@ -827,315 +920,294 @@ rabbit.run(5); // White Rabbit runs with speed 5.
 rabbit.hide(); // White Rabbit hides!
 ```
 
-## Constructors, HomeObjects, and super() 
+==**Any expression is allowed after** `extends`==
 
-**构造函数、HomeObject 和super() **
-
-### [Overriding a method](https://javascript.info/class-inheritance#overriding-a-method)
-
-派生类的方法可以通过 super 关键字引用它们的原型。这个关键字只能在派生类中使用，而且仅限于类构造函数、实例方法和静态方法内部。在类构造函数中使用super 可以调用父类构造函数。
-
-Classes provide "super" keyword for that.
-
-- super.method(...) to call a parent method.
-- super(...) to call a parent constructor (inside our constructor only).
+在`extends`后允许任意表达式
 
 ```js
-class Animal {
-  constructor(name) {
-    this.speed = 0;
-    this.name = name;
-  }
-
-  run(speed) {
-    this.speed = speed;
-    alert(`${this.name} runs with speed ${this.speed}.`);
-  }
-
-  stop() {
-    this.speed = 0;
-    alert(`${this.name} stands still.`);
-  }
+function f(phrase) {
+  return class {
+    sayHi() { alert(phrase); }
+  };
 }
 
-class Rabbit extends Animal {
-  hide() {
-    alert(`${this.name} hides!`);
-  }
+class User extends f("Hello") {}
 
-  stop() {
-    super.stop(); // call parent stop
-    this.hide(); // and then hide
-  }
-}
-
-let rabbit = new Rabbit("White Rabbit");
-
-rabbit.run(5); // White Rabbit runs with speed 5.
-rabbit.stop(); // White Rabbit stands still. White Rabbit hides!
-
+new User().sayHi(); // Hello
 ```
 
-![image.png](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/regexp/005NUwygly1h7te5iwulej31b20uudqd.jpg)
+## Constructors and super() 
 
-### [Overriding constructor](https://javascript.info/class-inheritance#overriding-constructor)
+这块内容主要介绍继承时，super、Constructors的使用和说明
 
-According to the [specification](https://tc39.github.io/ecma262/#sec-runtime-semantics-classdefinitionevaluation), if a class extends another class and has no `constructor`, then the following “empty” `constructor` is generated:
+我们不希望完全替换父类的方法，而是希望在父类方法的基础上进行调整或扩展其功能。我们在我们的方法中做一些事儿，但是在它之前或之后或在过程中会调用父类方法
 
-当一个类中没有明确写出constructor时，class中会默认给到  `constructor(...args) { super(...args); }`
+派生类(derived class)指的是从另一个类（称为基类或父类）继承属性和方法的类。派生类可以使用`extends`关键字定义，并在其中实现新的功能或覆盖基类的行为。派生类还可以添加新的实例变量和方法，以扩展基类的功能。
+
+派生类的方法可以通过`super`关键字引用它们的原型。这个关键字只能在派生类中使用，而且仅限于类构造函数、实例方法和静态方法内部。在类构造函数中使用`super`可以调用父类构造函数。
+
+如果一个类扩展了另一个类并且没有 constructor，那么将生成下面这样的“空” constructor
 
 ```js
 class Rabbit extends Animal {
-  // generated for extending classes without own constructors
+  // 为没有自己的 constructor 的扩展类生成的,调用了父类的 constructor，并传递了所有的参数
   constructor(...args) {
     super(...args);
   }
 }
 ```
 
+派生的 constructor 必须调用 super 才能执行其父类（base）的 constructor，否则 this 指向的那个对象将不会被创建。并且我们会收到一个报错。
+
+Classes provide "super" keyword for that.
+
+- `super.method(...)` to call a parent method.
+- `super(...)` to call a parent constructor (inside our constructor only).
+
+具体而言，super 关键字有以下作用：
+
+1. 在子类中调用父类的构造函数，以便初始化对象时使用父类的属性；
+2. 在子类中调用父类的实例方法，以便在子类中重写父类方法但仍能够使用父类的行为；
+3. 在子类中调用父类的静态方法，以便在子类中扩展父类的行为但仍能够使用父类的功能。
+
 ```js
-// Constructors in inheriting classes must call super(...), and (!) do it before using this.
-class Vehicle {
-  constructor() {
-    this.hasEngine = true;
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  static run() {
+    console.log(this.name + ' has run away.');
+  }
+  
+  speak() {
+    console.log(this.name + ' makes a noise.');
   }
 }
 
-class Bus extends Vehicle {
-  constructor() {
+class Dog extends Animal {
+  constructor(name, breed) {
     // 不要在调用super()之前引用this，否则会抛出ReferenceError
-    super(); // 相当于super.constructor()
-    console.log(this instanceof Vehicle); // true
-    console.log(this); // Bus { hasEngine: true }
+    super(name); // 调用父类的构造函数
+    this.breed = breed;
+  }
+  
+  speak() {
+    console.log(this.name + ' barks.'); // 重写了父类的 speak 方法
+    super.speak(); // 调用父类的 speak 方法
+  }
+  
+  // 在静态方法中可以通过 super 调用继承的类上定义的静态方法
+  static info() {
+    console.log('Dogs are loyal animals.');
+    super.speak(); // 调用父类的 speak 方法
+  }
+
+  static run() {
+    super.run();
   }
 }
 
-new Bus();
+let fido = new Dog('Fido', 'Labrador Retriever');
+
+fido.speak(); // 输出：Fido barks. Fido makes a noise.
+Dog.info(); // 输出：Dogs are loyal animals. undefined makes a noise.
+Dog.run();
+
 ```
-
-```js
-// 在静态方法中可以通过super 调用继承的类上定义的静态方法：
-class Vehicle {
-  static identify() {
-    console.log("vehicle");
-  }
-}
-
-class Bus extends Vehicle {
-  static identify() {
-    super.identify();
-  }
-}
-
-Bus.identify(); // vehicle
-```
-
-We can override not only methods, but also class fields. 原生方法会被继承类重写时覆盖，字段也会。
 
 ```js
 class Animal {
-  name = 'animal';
 
-  constructor() {
-    alert(this.name); // (*)
+  constructor(name) {
+    this.speed = 0;
+    this.name = name;
   }
+
+  // ...
 }
 
 class Rabbit extends Animal {
-  name = 'rabbit';
+
+  constructor(name, earLength) {
+    super(name);
+    this.earLength = earLength;
+  }
+
+  // ...
 }
 
-new Animal(); // animal
-new Rabbit(); // animal
+// 现在可以了
+let rabbit = new Rabbit("White Rabbit", 10);
+alert(rabbit.name); // White Rabbit
+alert(rabbit.earLength); // 10
 ```
 
-In other words, the parent constructor always uses its own field value, not the overridden one.
+**在使用`super`时，要注意的7个问题**
 
-Well, the reason is the field initialization order. The class field is initialized:
-
-- Before constructor for the base class (that doesn’t extend anything),
-- Immediately after `super()` for the derived class.
-
-In our case, `Rabbit` is the derived class. There’s no `constructor()` in it. As said previously, that’s the same as if there was an empty constructor with only `super(...args)`.
-
-So, `new Rabbit()` calls `super()`, thus executing the parent constructor, and (per the rule for derived classes) only after that its class fields are initialized. At the time of the parent constructor execution, there are no `Rabbit` class fields yet, that’s why `Animal` fields are used. 因为我们在`new Rabbit()`的时候调用了`super()`，运行了父类的构造函数，之后才会初始化Rabbit自己的字段。当父类构造函数运行时，就没有`Rabbit`的字段存在了。所以才会输出animal。
-
-This subtle difference between fields and methods is specific to JavaScript.
-
-If it becomes a problem, one can fix it by using methods or getters/setters instead of fields.
-
-被覆盖后的解决方法即：==using methods or getters/setters instead of fields.==，用访问器和修改器重写，而不使用字段处理，就好了。
+1. `super`只能在派生类构造函数和静态方法中使用。
+2. 不能单独引用`super`关键字，要么用它调用构造函数，要么用它引用静态方法
+3. 调用`super()`会调用父类构造函数，并将返回的实例赋值给`this`。
+4. `super()`的行为如同调用构造函数，如果需要给父类构造函数传参，则需要手动传入。
+5. 如果没有定义类构造函数，在实例化派生类时会调用`super()`，而且会传入所有传给派生类的参数。
+6. 在类构造函数中，不能在调用`super()`之前引用`this`。
+7. 如果在派生类中显式定义了构造函数，则要么必须在其中调用`super()`，要么必须在其中返回一个对象。
+8. 箭头函数没有`super`
 
 ```js
-class Animal {
-  showName() {  // instead of this.name = 'animal'
-    alert('animal');
-  }
-
-  constructor() {
-    this.showName(); // instead of alert(this.name);
-  }
-}
-
 class Rabbit extends Animal {
-  showName() {
-    alert('rabbit');
+  stop() {
+    setTimeout(() => super.stop(), 1000); // 1 秒后调用父类的 stop
+    setTimeout(function() { super.stop() }, 1000); // 意料之外的 super
   }
 }
-
-new Animal(); // animal
-new Rabbit(); // rabbit
 ```
 
-==在使用super 时要注意几个问题==
+## Abstract Base Classes / 抽象基类
 
-1. super 只能在派生类构造函数和静态方法中使用
+抽象基类它可供其他类继承，但本身不会被实例化。
 
-2. 不能单独引用super 关键字，要么用它调用构造函数，要么用它引用静态方法。
-
-3. 调用super()会调用父类构造函数，并将返回的实例赋值给this。
-
-4. super()的行为如同调用构造函数，如果需要给父类构造函数传参，则需要手动传入。
-
-5. 如果没有定义类构造函数，在实例化派生类时会调用super()，而且会传入所有传给派生类的 
-
-   参数。 
-
-6. 在类构造函数中，不能在调用super()之前引用this。
-
-7. 如果在派生类中显式定义了构造函数，则要么必须在其中调用 super()，要么必须在其中返回 
-
-   一个对象。
-
-That label affects its behavior with `new`.
-
-- When a regular function is executed with new, it creates an empty object and assigns it to this.
-
-- But when a derived constructor runs, it doesn’t do this. It expects the parent constructor to do this job.
-
-So a derived constructor must call super in order to execute its parent (base) constructor, otherwise the object for this won’t be created. And we’ll get an error.
+1. 通过`new.target`，在实例化时检测是不是抽象基类，可以阻止对抽象基类的实例化
+2. 通过在抽象基类构造函数中进行检查，可以要求派生类必须定义某个方法
 
 ```js
-// 1.
-class Vehicle {
+class Animal { // 定义一个抽象基类
   constructor() {
-    super(); // SyntaxError: 'super' keyword unexpected
+    if (new.target === Animal) { // 判断是否是通过 Animal 实例化
+      throw new Error('Cannot instantiate abstract class.'); // 抛出错误
+    }
   }
+  
+  // 定义一个抽象方法
+  makeSound() {
+    throw new Error('Method must be implemented in derived classes.');
+  }
+
+  // 要求派生类必须定义某个方法
+  if (!this.foo) {
+    throw new Error('Inheriting class must define foo()');
+    }
 }
+
+class Dog extends Animal { // 继承抽象类并实现 makeSound 方法
+  makeSound() {
+    console.log('Woof!');
+  }
+  foo() {}
+}
+
+const animal = new Animal(); // 抛出错误：Cannot instantiate abstract class.
+const dog = new Dog();
+dog.makeSound(); // 输出：Woof!
 ```
 
+## Inheriting from Built-in Types / 继承内置类型
+
+... skip ...
+
+## (待优化)class mixin / 类混入
+
+把不同类的行为集中到一个类
+
+很多JavaScript框架(特别是React)已经抛弃混入模式，转向了组合模式(把方法 提取到独立的类和辅助对象中，然后把它们组合起来，但不使用继承)。“组合胜过继承(composition over inheritance)。”
+
+一个策略是定义一组“可嵌套”的函数，每个函数分别接收一个超类作为参数，而将混入类定义为这个参数的子类，并返回这个类。这些组合函数可以连缀调用，最终组合成超类表达式。
+
+`Person extends C extends B extends A`
+
 ```js
-// 2. 
 class Vehicle {}
-class Bus extends Vehicle {
-  constructor() {
-    console.log(super); // SyntaxError: 'super' keyword unexpected here
-  }
+let FooMixin = (Superclass) =>
+  class extends Superclass {
+    foo() {
+      console.log("foo");
+    }
+  };
+let BarMixin = (Superclass) =>
+  class extends Superclass {
+    bar() {
+      console.log("bar");
+    }
+  };
+let BazMixin = (Superclass) =>
+  class extends Superclass {
+    baz() {
+      console.log("baz");
+    }
+  };
+function mix(BaseClass, ...Mixins) {
+  return Mixins.reduce(
+    (accumulator, current) => current(accumulator),
+    BaseClass
+  );
 }
-```
 
+class Bus extends mix(Vehicle, FooMixin, BarMixin, BazMixin) {}
+let b = new Bus();
+b.foo(); // foo
+b.bar(); // bar
+b.baz(); // baz
+
+```
+https://zh.javascript.info/mixins
+
+ERROR
+
+然后我们定义了一个空白类 Child，让它继承 Father 类，并使用 Object.assign() 方法将 Father、Mother 和 Mixin 混入到 Child 类中
 ```js
-// 3. 
-class Vehicle {}
-class Bus extends Vehicle {
-  constructor() {
-    super();
-    console.log(this instanceof Vehicle);
+// 定义一个 Father 类和一个 Mother 类
+class Father {
+  constructor(x) {
+    this.x = x;
+  }
+  
+  say() {
+    console.log('I am the father!');
   }
 }
 
-new Bus(); // true
+class Mother {
+  constructor(y, z) {
+    this.y = y;
+    this.z = z;
+  }
+  
+  tell() {
+    console.log('I am the mother!');
+  }
+}
+
+// 定义一个空白类，用于接受 mixin 的方法和属性并最终输出到目标类
+class Child extends Father { }
+
+// 定义一个 mixin 类，包含需要混入到 Child 类中的方法和属性
+class Mixin {
+  constructor(y, z) {
+    this.y = y;
+    this.z = z;
+  }
+  
+  speak() {
+    console.log('I can speak!');
+  }
+}
+
+// 使用 Object.assign() 方法将 Father、Mother 和 Mixin 混合到 Child 类中
+Object.assign(Child.prototype, Father.prototype, Mother.prototype, Mixin.prototype);
+
+// 测试
+const child = new Child(1, 2);
+console.log(child.x); // 输出: 1
+console.log(child.y); // 输出: 2
+console.log(child.z); // 输出: 2
+child.say(); // 输出: "I am the father!"
+child.tell(); // 输出: "I am the mother!"
+child.speak(); // 输出: "I can speak!"
 ```
 
-```js
-// 4.
-class Vehicle {
-  constructor(licensePlate) {
-    this.licensePlate = licensePlate;
-  }
-}
-class Bus extends Vehicle {
-  constructor(licensePlate) {
-    super(licensePlate);
-  }
-}
-console.log(new Bus("1337H4X")); // Bus { licensePlate: '1337H4X' }
-```
+# refs
 
-```js
-// 5.
-class Vehicle {
-  constructor(licensePlate) {
-    this.licensePlate = licensePlate;
-  }
-}
-class Bus extends Vehicle {}
-console.log(new Bus("1337H4X")); // Bus { licensePlate: '1337H4X' }
-
-```
-
-```js
-// 6.
-class Vehicle {}
-class Bus extends Vehicle {
-  constructor() {
-    console.log(this);
-  }
-}
-new Bus(); 
-// ReferenceError: Must call super constructor in derived class 
-// before accessing 'this' or returning from derived constructor
-```
-
-```js
-// 7.
-class Vehicle {}
-class Car extends Vehicle {}
-class Bus extends Vehicle {
-  constructor() {
-    super();
-  }
-}
-class Van extends Vehicle {
-  constructor() {
-    return {};
-  }
-}
-console.log(new Car()); // Car {}
-console.log(new Bus()); // Bus {}
-console.log(new Van()); // {}
-```
-
-## Don't Repeat Yourself (DRY)
-
-// inheritance ,关于继承，但是没有相关联，cat和dog 如何获取animal的方法？
-
-[Don't Repeat Yourself (DRY)](https://learn.freecodecamp.org/javascript-algorithms-and-data-structures/object-oriented-programming/use-inheritance-so-you-dont-repeat-yourself)
-
-```javascript
-function Cat(name) {
-  this.name = name;
-}
-
-Cat.prototype = {
-  constructor: Cat
-};
-
-function Bear(name) {
-  this.name = name;
-}
-
-Bear.prototype = {
-  constructor: Bear
-};
-
-function Animal() {}
-
-Animal.prototype = {
-  constructor: Animal,
-  eat: function () {
-    console.log("nom nom nom");
-  }
-};
-
-```
+1. https://javascript.info/classes
+2. js 高程 4th chapter8
+3. https://www.boldare.com/blog/how-to-use-javascript-classes/#prototype-based-classes
+4. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/constructor
