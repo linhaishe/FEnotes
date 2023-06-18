@@ -8485,7 +8485,19 @@ React16 自上而下地对生命周期做了另一种维度的解读：
   }, [varA]);
 ```
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7l08g6kesj310a0lg0we.jpg" alt="image-20210906144816223.png" style="zoom:33%;" />
+| class component          | Function component          |
+| ------------------------ | --------------------------- |
+| constructor              | useState                    |
+| getDerivedStateFromProps | useState里的update function |
+| shouldComponentUpdate    | useMemo                     |
+| render                   | render                      |
+| componentDidMount        | useEffect                   |
+| componentDidUpdate       | useEffect                   |
+| componentWillUnmount     | useEffect 里的返回函数      |
+| componentDidMatch        | -                           |
+| getDerivedStateFromError | -                           |
+
+
 
 ### 1. 对React Hook的理解，它的实现原理是什么？
 
