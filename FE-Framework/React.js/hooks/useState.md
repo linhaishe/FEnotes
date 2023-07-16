@@ -95,7 +95,7 @@ export default function Counter() {
 }
 ```
 
-# usestate中用object作为state variable的使用和注意事项
+## usestate中用object作为state variable的使用和注意事项
 
 There are two things you need to keep in mind about updates when using objects:
 
@@ -106,7 +106,7 @@ About the first point, if you use the same value as the current state to update 
 
 setter function 中如果传入的引用类型是引用指针相同的数值，则会导致组件无法触发re-render，因为setter function会认为数据没有被修改。
 
-## one-dimensional arrays / objects
+### one-dimensional arrays / objects
 
 ```js
 // 需要依赖原有的数据进行更新
@@ -127,7 +127,7 @@ onChange={e => {
 }}
 ```
 
-## multi-dimensional arrays and nested objects
+### multi-dimensional arrays and nested objects
 
 be careful when using state objects with a complex structure (nested objects). 
 
@@ -215,21 +215,21 @@ For this reason, the first thing you need to consider is trying to flatten your 
 
 If this is not possible, the recommendation is to use libraries that help you work with immutable objects, such as [immutable.js or immer](https://blog.logrocket.com/immer-and-immutable-js-how-do-they-compare/).
 
-# Rules for using `useState`
+## Rules for using `useState`
 
 `useState` abides by the same [rules that all Hooks follow](https://reactjs.org/docs/hooks-rules.html):
 
 - Only call Hooks at the top level
 - Only call Hooks from React functions
 
-# refs
+## refs
 
-[State: A Component's Memory](https://react.dev/learn/state-a-components-memory)
+1. [State: A Component's Memory](https://react.dev/learn/state-a-components-memory)
 
-[react.dev](https://react.dev/)
+2. [react.dev](https://react.dev/)
 
-[useState in React: A complete guide](https://blog.logrocket.com/guide-usestate-react/)
+3. [useState in React: A complete guide](https://blog.logrocket.com/guide-usestate-react/)
 
-[useState hook - behind the hood](Behind the hood implementation of useState react hook)
+4. [useState hook - behind the hood](Behind the hood implementation of useState react hook)
 
-[useState react dev](https://react.dev/reference/react/useState)
+5. [useState react dev](https://react.dev/reference/react/useState)
