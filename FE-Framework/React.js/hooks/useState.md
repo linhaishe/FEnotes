@@ -230,6 +230,6 @@ If this is not possible, the recommendation is to use libraries that help you wo
 
 3. [useState in React: A complete guide](https://blog.logrocket.com/guide-usestate-react/)
 
-4. [useState hook - behind the hood](Behind the hood implementation of useState react hook)
+4. [useState hook - behind the hood](https://rajatexplains.com/usestate-hook-behind-the-hood)
 
 5. [useState react dev](https://react.dev/reference/react/useState)
