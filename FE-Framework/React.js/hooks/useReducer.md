@@ -1,14 +1,80 @@
 # useReducer
 
+使用例子都在refs里，作者都写的很好，如果想要看写法和使用方式，可以参考refs的内容，忘记使用了的话记得看哈。
+
+大概就是能把useState通过三个步骤转换成useReducer，两者的主要区别在于，useReducer更适合做复杂的状态的统一管理，useState适合做简单的状态的管理。
+
+## what is useReducer
+
+The `useReducer` Hook is used to store and update states, just like the `useState` Hook. It accepts a `reducer` function as its first parameter and the initial state as the second. `useReducer` returns an array that holds the current state value and a `dispatch` function to which you can pass an action and later invoke it. While this is similar to the pattern Redux uses, there are a few differences.
+
 当组件中存在许多状态更新并分散在多个事件处理程序中时，会变得非常繁琐。对于这些情况，你可以将所有状态更新逻辑整合到组件外部，放在一个称为"reducer"的单一函数中。
 
 It is common to see useState hook used for state management, However React also have another hook to manage component's state, Which is useReducer hook. In fact, useState is built on useReducer!
 
-## 1. when should i useReducer()
+`const [state, dispatch] = useReducer(reducer, initialArg, init?)`
+
+- Parameters 
+  - reducer: The reducer function that specifies how the state gets updated. It must be pure, should take the state and action as arguments, and should return the next state. State and action can be of any types.
+  - initialArg: The value from which the initial state is calculated. It can be a value of any type. How the initial state is calculated from it depends on the next init argument.
+  - optional init: The initializer function that should return the initial state. If it’s not specified, the initial state is set to initialArg. Otherwise, the initial state is set to the result of calling init(initialArg).如果不传入第三个参数，则以第二个参数作为initial state,如果传入，则已第三个函数的返回值作为inital state.
+
+<mark>the golden rules of Redux state management: the state should be updated by emitting actions. Never write directly to the state.</mark>
+
+关于第三个参数：
+
+Creating the initial state lazily
+In programming, lazy initialization is the tactic of delaying the creation of an object, the calculation of a value, or some other expensive process until the first time it is needed.
+
+As mentioned above, useReducer can accept a third parameter, which is an optional init function for creating the initial state lazily. It lets you extract logic for calculating the initial state outside of the reducer function, as seen below:
+
+```js
+const initFunc = (initialCount) => {
+  if (initialCount !== 0) {
+      initialCount=+0
+  }
+	return {count: initialCount};
+}
+
+// wherever our useReducer is located
+const [state, dispatch] = useReducer(reducer, initialCount, initFunc);
+```
+
+## basic usage
+
+```jsx
+import { useReducer } from 'react';
+
+function reducer(state, action) {
+  if (action.type === 'incremented_age') {
+    return {
+      age: state.age + 1
+    };
+  }
+  throw Error('Unknown action.');
+}
+
+export default function Counter() {
+  const [state, dispatch] = useReducer(reducer, { age: 42 });
+
+  return (
+    <>
+      <button onClick={() => {
+        dispatch({ type: 'incremented_age' })
+      }}>
+        Increment age
+      </button>
+      <p>Hello! You are {state.age}.</p>
+    </>
+  );
+}
+```
+
+## when should i `useReducer()`
 
 As stated above, The useReducer hook handles more complex logic regarding the state updates. So if you're state is a single `boolean`, `number`, or `string`, Then it's obvious to use useState hook. However if your state is an object (example: person's information) or an array (example: array of products ) useReducer will be more appropriate to use.
 
-## 2. diff with useState
+## `useState` vs. `useReducer`
 
 1. `useState` 的底層其實是用 `useReducer` 做的
 
@@ -24,7 +90,9 @@ As stated above, The useReducer hook handles more complex logic regarding the st
 
 6. 个人偏好：有些人喜欢reducers，有些人不喜欢。这是可以理解的，这取决于个人偏好。你总是可以在useState和useReducer之间进行相互转换：它们是等价的！
 
-## 3. 如何写好reducer
+7. [`useState` is a basic Hook](https://reactjs.org/docs/hooks-reference.html#basic-hooks) for managing simple state transformation, and [`useReducer` is an additional Hook](https://reactjs.org/docs/hooks-reference.html#additional-hooks) for managing more complex state logic.
+
+## 如何写好reducer
 
 1. Reducers必须是纯函数。
 
@@ -33,6 +101,24 @@ As stated above, The useReducer hook handles more complex logic regarding the st
 2. 每个action描述了单个用户交互，即使这导致对数据进行多个更改。
 
    例如，如果用户在一个由reducer管理的包含五个字段的表单上按下“重置”按钮，与其分发五个单独的“设置字段”action，不如分发一个“重置表单”action更合理。如果在reducer中记录每个action，该日志应该足够清晰，让您能够重构交互或响应的发生顺序。这有助于调试！
+
+## When not to use the useReducer Hook
+
+Despite being able to use the `useReducer` Hook to handle complex state logic in our app, it’s important to note that there are some scenarios where a third-party state management library like [Redux may be a better option](https://blog.logrocket.com/why-use-redux-reasons-with-clear-examples-d21bffd5835/):
+
+1. When your application needs a single source of truth
+2. When you want a more predictable state
+3. When state-lifting to the top-level component no longer suffices
+4. When you need to persist state even after a page refresh
+
+With all these benefits, it’s also worth noting that using a library like Redux, as opposed to using pure React with `useReducer`, comes with some tradeoffs. For example, Redux has a hefty learning curve that is minimized by [using Redux Toolkit](https://blog.logrocket.com/smarter-redux-redux-toolkit/), and it’s definitely not the fastest way to write code. Rather, it’s intended to give you an absolute and predictable way of managing state in your app.
+
+## Bailing out of a dispatch（放弃调度
+If the useReducer Hook returns the same value as the current state, React will bail out without rendering the children or firing effects because it uses the Object.is comparison algorithm.
+
+如果`useReducer` Hook返回的值与当前状态相同，React将会中止渲染子组件或触发副作用，这是因为React使用了`Object.is`比较算法。
+
+"Bailing out of a dispatch"的中文翻译是"放弃调度"。在React中，当使用`useReducer` Hook时，如果在dispatch一个action后，reducer函数返回的新状态与当前状态相同（使用`Object.is`比较算法进行比较），React会放弃对组件的重新渲染和触发副作用，以避免不必要的更新。这样的优化称为"放弃调度"。
 
 ## Recap
 
