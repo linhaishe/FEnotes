@@ -2,6 +2,8 @@
 
 React 18 新加的功能之一，就是 `Transition`， 作用在於將State分為 `緊急(Urgent)` 及 `非緊急(Non-urgent)` 兩種，Transition 對應的也就是 `非緊急的state` 更新。
 
+它可以延遲渲染指定的元件，讓優先度較低或是比較要耗時的元件稍後渲染。
+
 just setting the priority. 
 
 `useTransition()` is the hook that lets you access concurrent mode features inside of the React component.
