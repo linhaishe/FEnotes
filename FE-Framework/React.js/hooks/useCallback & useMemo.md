@@ -2,6 +2,8 @@
 
 ## useCallBack
 
+stackblitz: https://stackblitz.com/edit/stackblitz-starters-rcrmbp?file=src%2FApp.tsx
+
 `useCallback` is a React Hook that lets you cache a function definition between re-renders(重复渲染).
 
 These Hooks help developers improve the rendering performance of components, preserve objects between React component renderings, and help improve application performance.
@@ -14,8 +16,6 @@ const cachedFn = useCallback(fn, dependencies)
 `fn:` The function value that you want to cache. It can take any arguments and return any values. React will return (not call!) your function back to you during the initial render. On next renders, React will give you the same function again if the dependencies have not changed since the last render. Otherwise, it will give you the function that you have passed during the current render, and store it in case it can be reused later. React will not call your function. The function is returned to you so you can decide when and whether to call it.
 
 `dependencies:`The list of all reactive values referenced inside of the fn code. Reactive values include props, state, and all the variables and functions declared directly inside your component body. If your linter is configured for React, it will verify that every reactive value is correctly specified as a dependency. The list of dependencies must have a constant number of items and be written inline like [dep1, dep2, dep3]. React will compare each dependency with its previous value using the Object.is comparison algorithm.
-
-Code sandbox: https://codesandbox.io/s/elegant-chatelet-cjkjg5?from-embed=&file=/src/App.js:716-722
 
 ```jsx
 import { memo, useState } from "react";
@@ -96,6 +96,8 @@ If the second argument is omitted, the value will never be memoized, and the `us
 
 ## useMemo
 
+stackblitz: https://stackblitz.com/edit/stackblitz-starters-ygxwdj?file=src%2FApp.tsx
+
 `useMemo` is a React Hook that lets you cache the result of a calculation between re-renders.
 
 The `useMemo` Hook typically returns a cached value until a dependency gets changed. 
@@ -103,8 +105,6 @@ The `useMemo` Hook typically returns a cached value until a dependency gets chan
 `const cachedValue = useMemo(calculateValue, dependencies)`
 
 `useMemo(() => calculateMagicNumber(count), [count]);`
-
-Code sandbox:https://codesandbox.io/s/funny-cloud-cod1gh?from-embed
 
 ```jsx
 import { useState } from "react";

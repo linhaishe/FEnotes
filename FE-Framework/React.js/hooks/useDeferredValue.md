@@ -3,6 +3,8 @@
 # Definition
 
 > `useDeferredValue` lets you defer re-rendering a non-urgent part of the tree. It is similar to debouncing, but has a few advantages compared to it. There is no fixed time delay, so React will attempt the deferred render right after the first render is reflected on the screen. The deferred render is interruptible and doesn't block user input.
+>
+> `useDeferredValue` 允许您延迟重新渲染树中不紧急的部分。它类似于防抖动（debouncing），但与之相比具有一些优点。它没有固定的时间延迟，因此 React 会尝试在第一次渲染在屏幕上反映之后立即执行延迟渲染。延迟渲染是可中断的，不会阻塞用户输入。
 
 The `useDeferredValue` hook allows us to fix this slow render problem by implementing a delay before some information is calculated. 
 
