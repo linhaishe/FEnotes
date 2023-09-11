@@ -47,6 +47,14 @@ What are the effects, really? Examples are:
 - You have to understand that functions defined in the body of your function component get recreated on every render cycle. This has an impact if you use it inside of your effect. There are strategies to cope with it (hoist them outside of the component, define them inside of the effect, use `useCallback`)
 - You have to understand basic JavaScript concepts such as [stale closures](https://dmitripavlutin.com/react-hooks-stale-closures/), otherwise, you might have trouble tackling problems with outdated props or state values inside of your effect. There are strategies to solve this, e.g., with an effect’s dependency array or with the [`useRef`](https://blog.logrocket.com/react-reference-guide-hooks-api/#useref) Hook
 
+> - 获取数据
+> - 从本地存储中读取数据
+> - 注册和注销事件监听器
+> - 您必须充分了解组件何时（重新）渲染，因为效果在每个渲染周期后运行。
+> - 您应该确保组件不会不必要地重新渲染。这构成了跳过不必要的效果重新运行的另一种策略。
+> - 您必须了解，函数在函数组件的主体中定义时，会在每次渲染周期都重新创建。如果在效果内部使用它，这会产生影响。有一些策略可以处理这个问题（将它们移到组件外部，将它们定义在效果内部，使用 `useCallback` 等）。
+> - 您必须了解基本的 JavaScript 概念，比如[陈旧闭包（stale closures）](https://dmitripavlutin.com/react-hooks-stale-closures/)，否则，您可能会在效果内部遇到使用过时的属性或状态值的问题。有一些策略可以解决这个问题，例如使用效果的依赖数组或 [`useRef`](https://blog.logrocket.com/react-reference-guide-hooks-api/#useref) Hook。
+
 > The question is not ‘when does this effect run,’ the question is ‘with which state does this effect synchronize?’ ”
 > – Ryan Florence
 
@@ -79,6 +87,16 @@ Dependencies are array items provided as the optional second argument of the `us
 1. After the execution of every effect, scheduling of new effects occurs based on every effect’s dependencies. If an effect does not specify a dependency array at all, it means that this effect is executed after every render cycle.
 2. [Cleanup](https://blog.logrocket.com/understanding-react-useeffect-cleanup-function/) is an optional step for every effect if the body of the `useEffect` callback function (first argument) returns a so-called “cleanup callback function.” In this case, <mark>the cleanup function gets invoked before the execution of the effect, beginning with the second scheduling cycle. This also means that if there is no second execution of an effect scheduled, the cleanup function is invoked before the React component gets destroyed.</mark>
 
+> 如果一个功能性的React组件定义了至少一个effect，将会执行以下步骤：
+>
+> 1. 组件将会根据状态（state）、属性（props）或上下文（context）的变化而重新渲染。
+> 2. 如果组件存在一个或多个`useEffect`声明，React将检查每个`useEffect`以确定它是否满足执行实现的条件（作为第一个参数提供的回调函数体）。在这种情况下，“条件”意味着自上次渲染周期以来至少有一个依赖项发生了变化。
+>
+> 依赖项是作为`useEffect`调用的可选第二个参数提供的数组项。数组中的值必须来自组件作用域（例如，props、state、context或从前述内容派生的值）：
+>
+> 1. 在每个effect执行后，基于每个effect的依赖项，将调度新的effects。如果一个effect根本没有指定依赖项数组，这意味着该effect会在每次渲染周期后执行。
+> 2. [清理](https://blog.logrocket.com/understanding-react-useeffect-cleanup-function/)是每个effect的可选步骤，如果`useEffect`的回调函数体（第一个参数）返回一个所谓的“清理回调函数”。在这种情况下，清理函数会在执行effect之前调用，从第二个调度周期开始。这也意味着，如果没有安排第二次执行effect，清理函数会在React组件被销毁之前被调用。
+
 ## Dependencies array
 
 What items should be included in the dependency array? According to the [React docs](https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects), you must include all values from the component scope that change their values between re-renders.
@@ -91,9 +109,9 @@ React仅在自上次运行以来提供的依赖项中至少有一个发生变化
 
 It’s also possible to add an empty dependency array. In this case, effects are only executed once; 
 
-empty array: empty array as our second argument. the effect is only executed once after the first render and skipped for the following render cycles.
+==empty array:== empty array as our second argument. the effect is only executed once after the first render and skipped for the following render cycles.
 
-missing array:  `useEffect` statement is executed whenever one of the state variables change.
+==missing array:==  `useEffect` statement is executed whenever one of the state variables change.
 
 Remember that if at least one of the dependencies in the array is different from the previous render, the effect will be rerun.
 
@@ -119,8 +137,8 @@ More detail in [here](https://blog.logrocket.com/useeffect-hook-complete-guide/#
 
 ## refs
 
-[useEffect - react dev](https://react.dev/reference/react/useEffect)
+1. [useEffect - react dev](https://react.dev/reference/react/useEffect)
 
-[A complete guide to the `useEffect` React Hook](https://blog.logrocket.com/useeffect-hook-complete-guide/)
+2. [A complete guide to the `useEffect` React Hook](https://blog.logrocket.com/useeffect-hook-complete-guide/)
 
 *For more information on React Hooks, check out this [cheat sheet](https://blog.logrocket.com/react-hooks-cheat-sheet-unlock-solutions-to-common-problems-af4caf699e70/).*
