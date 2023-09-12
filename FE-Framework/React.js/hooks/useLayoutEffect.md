@@ -12,11 +12,25 @@ Another important thing to remember is that the ==useEffect function is fired as
 
 you should choose the useEffect Hook for cases where you want to be unobtrusive in the dealings of the browser paint process.
 
+> "useEffect" 钩子是 React 中的一个强大工具，帮助开发者在函数组件中管理副作用。它在浏览器重新绘制屏幕之后以异步方式运行。
+>
+> 这个钩子通常用于处理诸如获取数据、处理订阅或与 DOM 交互等副作用。
+>
+> 另一个重要的事情要记住是，"useEffect" 函数被异步触发，以避免阻塞浏览器绘制过程。
+>
+> 当你希望在处理浏览器绘制过程时保持不干扰时，应该选择使用 "useEffect" 钩子。
+
 ## useLayoutEffect
+
+*The function passed to* `useLayoutEffect` *will be run before the browser updates the screen.*
 
 The `useLayoutEffect` Hook is a variation of the `useEffect` Hook that runs ==synchronously== before the browser repaints the screen. It was designed to handle side effects that require immediate DOM layout updates.
 
 ==`useLayoutEffect` ensures that any changes made within the hook are applied synchronously before the browser repaints the screen.==While this might not seem ideal, it is highly encouraged in specific use cases, such as when measuring DOM elements, or animating or transitioning elements. ==For example, a DOM mutation that must be visible to the user should be fired synchronously before the next paint, preventing the user from receiving a visual inconsistency.==
+
+> `useLayoutEffect` 钩子是 `useEffect` 钩子的一种变体，它在浏览器重新绘制屏幕之前以==同步方式==运行。它设计用于处理需要立即更新 DOM 布局的副作用。
+>
+> `useLayoutEffect` 确保在浏览器重新绘制屏幕之前，钩子内部所做的任何更改都会同步应用。尽管这可能在某些情况下不太理想，但在特定的使用案例中，如测量 DOM 元素或对元素进行动画或过渡时，这是极为鼓励的。例如，必须在下次绘制之前同步触发的 DOM 变化，以防止用户看到视觉不一致性。
 
 # differs between useEffect and useLayoutEffect
 
@@ -42,9 +56,19 @@ useEffect调用触发的流程
 4. The browser then paints this DOM change to the browser’s screen
 5. The useEffect function is fired only after the browser has painted the DOM change(s)
 
+> 1. 用户执行一个操作，比如点击按钮。
+> 2. React 在内部更新了计数状态变量。
+> 3. React 处理 DOM 的变化。
+> 4. 然后浏览器将这个 DOM 变化绘制到屏幕上。
+> 5. `useEffect` 函数只在浏览器已经绘制完 DOM 变化后才会触发。
+
 The function passed to `useEffect` will be fired only after the DOM changes are painted on the screen. The [official docs](https://react.dev/reference/react/useEffect) put it this way, “Even if your Effect was caused by an interaction (like a click), the browser may repaint the screen before processing the state updates inside your Effect”.
 
 Another important thing to remember is that the ==useEffect function is fired asynchronously to not block the browser paint process.==
+
+> `useEffect` 中传递的函数只会在 DOM 变化被绘制到屏幕上后才会触发。正如[官方文档](https://react.dev/reference/react/useEffect)所述，"即使你的 Effect 是由交互触发的（比如点击），浏览器可能会在处理 Effect 内部的状态更新之前重新绘制屏幕"。
+>
+> 另一个重要的事情要记住是，`useEffect` 函数是异步触发的，以避免阻塞浏览器的绘制过程。
 
 ## useLayoutEffect
 
@@ -59,6 +83,18 @@ If you replaced the `useEffect` Hook with `useLayoutEffect`, the following would
 The `useLayoutEffect` Hook doesn’t wait for the browser to paint the DOM changes. It triggers the function right after the DOM mutations are computed. Also, keep in mind that updates scheduled inside `useLayoutEffect` will be flushed synchronously and will block the browser paint process.
 
 However, if your effect is mutating the DOM (via a DOM node ref) ***and\*** the DOM mutation will change the appearance of the DOM node between the time that it is rendered and your effect mutates it, then you **don't** want to use `useEffect`. You'll want to use `useLayoutEffect`.
+
+> 如果你将 `useEffect` 钩子替换为 `useLayoutEffect`，会发生以下情况：
+>
+> 1. 用户执行一个操作，比如点击按钮。
+> 2. React 在内部更新 `count state` 变量。
+> 3. React 处理 DOM 的变化。
+> 4. `useLayoutEffect` 函数被触发。
+> 5. 浏览器等待 `useLayoutEffect` 完成，然后才将这个 DOM 变化绘制到屏幕上。
+>
+> `useLayoutEffect` 钩子不会等待浏览器绘制 DOM 变化。它会在计算完 DOM 变化后立即触发函数。此外，要记住，在 `useLayoutEffect` 中安排的更新将会同步执行，会阻塞浏览器的绘制过程。
+>
+> 然而，如果你的 Effect 在 DOM 上进行了变异（通过 DOM 节点引用），***并且*** DOM 的变化将在渲染和 Effect 进行变异之间改变 DOM 节点的外观，那么你**不应该**使用 `useEffect`，而应该使用 `useLayoutEffect`。
 
 # Examples to differentiate useEffect and useLayoutEffect
 
@@ -116,19 +152,25 @@ We can see that before our screen is updated, the name state is updated. The use
 ... 
 return (
 ...
-   <section
-        style={{
-            display: "column",
-            columnCount: "5",
-            marginTop: "10px" }}>
-        {new Array(count).fill(count).map(c => (
-          <div style={{
-                height: "20px",
-                background: "red",
-                margin: "5px"
-         }}> {c}
-         </div> ))}
-   </section>
+<section
+  style={{
+    display: 'column',
+    columnCount: '5',
+    marginTop: '10px',
+  }}
+>
+  {new Array(count).fill(count).map((c) => (
+    <div
+      style={{
+        height: '20px',
+        background: 'red',
+        margin: '5px',
+      }}
+    >
+      {c}
+    </div>
+  ))}
+</section>
 )
 ```
 
@@ -156,6 +198,8 @@ useEffect(() => {
 In the real world, this is most of the time, except for when you’re reading layout from the DOM or doing something DOM-related that needs to be painted ASAP. In the next section, we’ll see an example in action.
 
 `useLayoutEffect` truly shines when handling inconsistent visual changes.
+
+https://blog.logrocket.com/react-useeffect-vs-uselayouteffect-hooks-examples/#examples-differentiate-useeffect-uselayouteffect
 
 [Measuring layout before the browser repaints the screen](https://react.dev/reference/react/useLayoutEffect#measuring-layout-before-the-browser-repaints-the-screen)
 
@@ -187,4 +231,3 @@ However, if your effect is mutating the DOM (via a DOM node ref) ***and\*** the 
 2. https://react.dev/reference/react/useLayoutEffect
 3. https://www.telerik.com/blogs/uselayouteffect-powerful-hook
 4. https://refine.dev/blog/uselayouteffect-vs-useeffect/#introduction
-5. https://itnext.io/%EF%B8%8F-best-practices-of-using-uselayouteffect-in-react-8044a68e699e

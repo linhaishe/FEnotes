@@ -133,8 +133,9 @@ If the useReducer Hook returns the same value as the current state, React will b
 
 ## refs:
 
-1. [React Hooks | 既生 useState 何生 useReducer ?](https://medium.com/%E6%89%8B%E5%AF%AB%E7%AD%86%E8%A8%98/react-hooks-usestate-vs-usereducer-b14966ad37dd)
-2. [useState vs useReducer: What are they and when to use them?](https://dev.to/m0nm/usestate-vs-usereducer-what-are-they-and-when-to-use-them-2c5c)
-3. [A guide to the React useReducer Hook](https://blog.logrocket.com/react-usereducer-hook-ultimate-guide/#usestate-vs-usereducer)
-4. [Extracting State Logic into a Reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer#comparing-usestate-and-usereducer)
-5. [useReducer](https://react.dev/reference/react/useReducer)
+1. https://react-hooks-cheatsheet.com/usereducer
+2. [React Hooks | 既生 useState 何生 useReducer ?](https://medium.com/%E6%89%8B%E5%AF%AB%E7%AD%86%E8%A8%98/react-hooks-usestate-vs-usereducer-b14966ad37dd)
+3. [useState vs useReducer: What are they and when to use them?](https://dev.to/m0nm/usestate-vs-usereducer-what-are-they-and-when-to-use-them-2c5c)
+4. [A guide to the React useReducer Hook](https://blog.logrocket.com/react-usereducer-hook-ultimate-guide/#usestate-vs-usereducer)
+5. [Extracting State Logic into a Reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer#comparing-usestate-and-usereducer)
+6. [useReducer](https://react.dev/reference/react/useReducer)
