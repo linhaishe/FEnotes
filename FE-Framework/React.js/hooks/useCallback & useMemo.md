@@ -2,7 +2,7 @@
 
 ## useCallBack
 
-stackblitz: https://stackblitz.com/edit/stackblitz-starters-rcrmbp?file=src%2FApp.tsx
+demo stackblitz: https://stackblitz.com/edit/stackblitz-starters-rcrmbp?file=src%2FApp.tsx
 
 `useCallback` is a React Hook that lets you cache a function definition between re-renders(重复渲染).
 
@@ -96,7 +96,7 @@ If the second argument is omitted, the value will never be memoized, and the `us
 
 ## useMemo
 
-stackblitz: https://stackblitz.com/edit/stackblitz-starters-ygxwdj?file=src%2FApp.tsx
+demo stackblitz: https://stackblitz.com/edit/stackblitz-starters-ygxwdj?file=src%2FApp.tsx
 
 `useMemo` is a React Hook that lets you cache the result of a calculation between re-renders.
 

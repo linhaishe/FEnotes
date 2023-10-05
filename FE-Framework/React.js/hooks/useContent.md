@@ -1,6 +1,6 @@
 # useContent
 
-stackblitz: https://stackblitz.com/edit/stackblitz-starters-k2dpsv?file=src%2FApp.tsx
+demo stackblitz: https://stackblitz.com/edit/stackblitz-starters-k2dpsv?file=src%2FApp.tsx
 
 # what is useContent
 
