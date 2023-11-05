@@ -86,7 +86,7 @@ React optimises performance by reusing synthetic event objects, which means that
 
    - 使用Redux等状态库。
 
-## 发布订阅模式粗解
+## 发布订阅模式粗解🌟
 
 ```js
 const MessageState = {
@@ -124,9 +124,9 @@ const MessageState = {
 export default MessageState;
 ```
 
-![image-20231016111929967](/Users/lichunxian/Library/Application Support/typora-user-images/image-20231016111929967.png)
+![image-20231105172234129](https://s2.loli.net/2023/11/05/Wap74vocTYzMbQt.png)
 
-![image-20231016111939767](/Users/lichunxian/Library/Application Support/typora-user-images/image-20231016111939767.png)
+![image-20231105172304627](https://s2.loli.net/2023/11/05/WCVlORYwFtaErGi.png)
 
 缺点： 
 
@@ -206,7 +206,7 @@ In React, there are two ways of handling form data:
 
 React表单事件处理一般包括两个方面：受控组件的值管理和事件处理函数的编写。下面是一个简单的示例，说明如何在React中处理表单事件：
 
-```js
+```jsx
 import React, { useState } from 'react';
 
 const MyForm = () => {
@@ -250,7 +250,7 @@ const MyForm = () => {
 
 React Suspense 是 React 的一个新特性，用于处理异步数据的加载和渲染。它提供了一种简单的方式来暂停组件的渲染，直到异步操作完成或者等待时间结束。通过使用 Suspense 组件和相关的属性和方法，可以轻松地实现数据的异步获取和渲染的暂停。
 
-1. React Suspense 的介绍
+### 1. React Suspense 的介绍
 
    React Suspense 是 React 的一个新特性，它用于处理异步数据的加载和渲染。它提供了一种简单的方式来暂停组件的渲染，直到异步操作完成或者等待时间结束。
 
@@ -260,7 +260,7 @@ React Suspense 是 React 的一个新特性，用于处理异步数据的加载�
 
    此外，React Suspense 还支持代码分割和懒加载，可以使得应用程序的加载速度更快，并减少了不必要的资源消耗。它还提供了错误边界的功能，可以更好地处理组件内部的错误，使得应用程序更加健壮和稳定。总的来说，React Suspense 为开发者提供了一种简单且强大的方式来处理异步数据的加载和渲染，提升了应用程序的性能和用户体验。
 
-2. 异步渲染
+### 2. 异步渲染
 
    - 传统的异步数据加载方式
 
@@ -306,7 +306,7 @@ React Suspense 是 React 的一个新特性，用于处理异步数据的加载�
 
      这就是 React Suspense 的基本使用方法，它简化了处理异步渲染的流程，提供了更好的用户体验和开发体验。
 
-3. fallback 属性
+### 3. fallback 属性
 
    - fallback 属性的作用
 
@@ -324,7 +324,7 @@ React Suspense 是 React 的一个新特性，用于处理异步数据的加载�
 
      总结来说，fallback 属性是 Suspense 组件的一个重要属性，它用于展示在等待异步操作完成时的加载中状态。它可以是任何 React 元素，用于提供更好的用户体验和反馈。
 
-4. Suspense for Data Fetching
+### 4. Suspense for Data Fetching
 
    - 使用 React Suspense 进行数据获取
    - 使用 Suspense 组件和 React.lazy 进行代码分割
@@ -506,7 +506,7 @@ React Suspense 是 React 的一个新特性，用于处理异步数据的加载�
      
      ```
 
-6. Suspense 的最佳实践
+### 6. Suspense 的最佳实践
 
    - 使用 Suspense 进行代码分割和懒加载
 
@@ -525,13 +525,13 @@ React Suspense 是 React 的一个新特性，用于处理异步数据的加载�
      - 当组件内部发生错误时，错误边界只会捕获其子组件的错误，不会捕获其父组件或其他兄弟组件的错误。
 
      通过遵循这些最佳实践和注意事项，我们可以更好地使用 Suspense 组件进行代码分割、懒加载和错误处理，提高应用程序的性能和用户体验。
-   
+
    同时使用ErrorBoundary和Suspense来提供更全面的错误处理和加载状态管理。
-   
+
    当在React应用程序中使用异步加载的组件时，可以将ErrorBoundary用于捕获和处理这些异步组件中可能发生的错误。这样，如果异步组件发生错误，错误边界将会捕获到错误并根据需要展示错误信息。
-   
+
    同时，可以在Suspense组件中使用fallback属性来指定一个加载状态的UI。这样，在异步组件加载期间，可以显示备选UI（如加载指示器）来提供更好的用户体验。如果异步组件加载成功，Suspense会自动渲染出异步组件的内容。
-   
+
    通过同时使用ErrorBoundary和Suspense，可以实现更好的错误处理和加载状态管理。错误边界用于捕获和处理错误，Suspense用于展示加载状态的UI，结合起来可以提供更好的用户体验和应用程序的稳定性。
 
 ## 2. React.lazy
@@ -564,53 +564,53 @@ React.lazy 是 React 提供的一个用于实现组件懒加载的函数。它�
 1. 旧版Context： 旧版Context是在React v16.3之前引入的。使用旧版Context时，您需要使用`React.createContext()`来创建一个Context对象，并使用`Context.Provider`组件包裹提供给子组件的数据。
 
 ```jsx
-1// 创建一个旧版Context对象
-2const MyContext = React.createContext();
-3
-4// 使用Context.Provider包裹提供给子组件的数据
-5function ParentComponent() {
-6  const data = "Hello, World!";
-7
-8  return (
-9    <MyContext.Provider value={data}>
-10      <ChildComponent />
-11    </MyContext.Provider>
-12  );
-13}
-14
-15// 在子组件中使用Context.Consumer来访问数据
-16function ChildComponent() {
-17  return (
-18    <MyContext.Consumer>
-19      {value => <p>{value}</p>}
-20    </MyContext.Consumer>
-21  );
-22}
+// 创建一个旧版Context对象
+const MyContext = React.createContext();
+
+// 使用Context.Provider包裹提供给子组件的数据
+function ParentComponent() {
+  const data = "Hello, World!";
+
+  return (
+    <MyContext.Provider value={data}>
+      <ChildComponent />
+    </MyContext.Provider>
+  );
+}
+
+// 在子组件中使用Context.Consumer来访问数据
+function ChildComponent() {
+  return (
+    <MyContext.Consumer>
+      {value => <p>{value}</p>}
+   </MyContext.Consumer>
+  );
+}
 ```
 
 2. 新版Context： 新版Context是在React v16.3中引入的改进版本。使用新版Context时，您可以使用`React.createContext()`创建一个Context对象，并将其作为静态类属性或使用`useContext` Hook在函数组件中访问。
 
 ```jsx
-1// 创建一个新版Context对象
-2const MyContext = React.createContext();
-3
-4// 在父组件中提供数据
-5function ParentComponent() {
-6  const data = "Hello, World!";
-7
-8  return (
-9    <MyContext.Provider value={data}>
-10      <ChildComponent />
-11    </MyContext.Provider>
-12  );
-13}
-14
-15// 在子组件中使用useContext Hook来访问数据
-16function ChildComponent() {
-17  const value = React.useContext(MyContext);
-18
-19  return <p>{value}</p>;
-20}
+// 创建一个新版Context对象
+const MyContext = React.createContext();
+
+// 在父组件中提供数据
+function ParentComponent() {
+  const data = "Hello, World!";
+
+  return (
+    <MyContext.Provider value={data}>
+      <ChildComponent />
+    </MyContext.Provider>
+  );
+}
+
+// 在子组件中使用useContext Hook来访问数据
+function ChildComponent() {
+  const value = React.useContext(MyContext);
+
+  return <p>{value}</p>;
+}
 ```
 
 无论使用旧版Context还是新版Context，它们的目标都是为了在组件树中共享数据。但是在使用上有一些差异，新版Context通过Hook的方式更加简洁方便，而旧版Context则需要使用`Context.Consumer`来获取数据。同时，新版Context还提供了更好的性能优化和更好的开发者体验。因此，推荐在React v16.3及以上的版本中使用新版Context。
@@ -903,7 +903,7 @@ ErrorBoundary和Suspense是React提供的两个不同的特性，用于不同的
    
    ```
 
-   哈哈哈，真的大可不必啊。
+   哈哈哈，真的大可不必。
 
 ### 4. 错误处理和错误边界的最佳实践
 
@@ -1041,356 +1041,503 @@ ErrorBoundary和Suspense是React提供的两个不同的特性，用于不同的
 
 总之，错误边界是一个有用的工具，可以帮助我们在React应用程序中捕获和处理错误。但是，我们应该谨慎使用它们，避免过度使用，并在使用时注意性能特性和注意事项。这样可以确保错误边界的有效性，并避免引入不必要的开销或隐藏真实问题。
 
-## ReactDom.createPortal()
+## StrictMode
 
-[`createPortal(children, domNode, key?)`](https://react.dev/reference/react-dom/createPortal#createportal)
+`<StrictMode>` lets you find common bugs in your components early during development.
 
-### 1.  Portal 是什么
+StrictMode是React中的一个特性，它用于帮助开发者编写更干净、更可靠的代码。StrictMode可以在开发环境下进行使用，它可以帮助你检测一些潜在的问题，并给出相应的警告信息。
 
-   Portal 的概念，即允许将组件渲染到 DOM 结构中的不同位置。为什么需要 Portal 以及在哪些场景下它们特别有用。
+下面是StrictMode的一些关键特点和知识点：
 
-   Portal 是 React 的一项功能，它允许你将组件渲染到 DOM 结构中的不同位置。通常情况下，React 组件会在它们自身的父组件内渲染，但 Portal 允许你将组件渲染到 DOM 结构中的任何位置，甚至是位于 React 组件层次结构之外的位置。
+识别不安全的生命周期函数使用：在React中，某些生命周期函数在未来版本中可能会被废弃或改变行为。StrictMode可以帮助你找出并警告这些不安全的生命周期函数的使用。
 
-   React Portals are an advanced concept that allows developers to [render their elements](https://blog.logrocket.com/react-render-props-vs-custom-hooks/) outside the React hierarchy tree without comprising the parent-child relationship between components.
+识别过时的API使用：React会不断更新和改进，一些旧版本的API可能已经被废弃或改变了行为。StrictMode可以帮助你找出并警告这些过时的API的使用。
 
-   Usually, typical React components are located within the [DOM](https://blog.logrocket.com/what-virtual-dom-react/). This means that it might be tricky for you to render modals or pop-up windows.
+检测意外的副作用：在React的渲染过程中，某些副作用的调用可能会导致不可预测的问题。StrictMode可以帮助你识别并警告这些意外的副作用。
 
-   Portals are great for places where you want to render elements on top of each other. 
+检测不安全的用法：React有一些用法可能引起潜在的问题，例如对于某些事件处理函数，使用了过时的方法或属性。StrictMode可以帮助你找出并警告这些不安全的用法。
 
-   **为什么需要 Portal**
-
-   Portal 在以下情况下特别有用：
-
-   1. **解决样式和布局问题**：Portal 可以帮助你处理复杂的样式和布局需求。你可以在不影响父组件布局的情况下，将内容渲染到需要的位置。有时，父组件和子组件之间的 CSS 样式可能会发生冲突，导致不希望的布局问题。通过使用 Portal，你可以将子组件的内容渲染到 DOM 结构的不同层次结构中，使其脱离父组件的 CSS 影响。
-   2. **模态对话框和弹出菜单**：Portal 是创建模态对话框、弹出菜单和其他覆盖全局内容的常见方式。这允许你创建交互性强的用户界面元素。
-   3. **处理全局状态**：Portal 可用于将组件渲染到全局状态管理器（如 Redux 或 Mobx）所管理的 DOM 结构中，以确保组件能够访问全局状态。
-   4. **处理第三方库集成**：当你需要在 React 中集成第三方库或外部组件时，Portal 可以用于将这些组件渲染到 React 应用的特定部分。
-   5. **处理滚动固定元素**：Portal 还可以用于创建滚动固定元素，例如固定在页面某一位置的工具栏或侧边栏。这些元素可以独立于页面的滚动而保持固定，从而提供更好的用户体验。
-   6. Cookie alerts: Provides the user with options to let them choose what cookies they want to allow in their web browser:
-
-### 2. 基本的 createPortal 示例
-
-   - 创建一个简单的 React 组件，其中使用 **`ReactDOM.createPortal()`** 将内容渲染到另一个 DOM 元素中。
-
-   - 创建一个目标容器（目标 DOM 元素），以便将 Portal 渲染到特定位置。确保目标容器在组件渲染之前已存在。
-
-Step 1: Adding an extra mount point in a `DOM` outside of `react-root`
+使用StrictMode非常简单，只需要在应用的根组件中包裹上标签即可。
 
 ```jsx
-<div id="root"></div>
-<div id="portal-root"></div>
+import React from 'react';
+
+function App() {
+  return (
+    <React.StrictMode>
+      {/* 你的应用组件 */}
+    </React.StrictMode>
+  );
+}
+
+export default App;
+
 ```
 
-Step 2: Build a reusable React Portal wrapper component using `createPortal` in React
+在开发环境中，启用StrictMode后，会在开发者控制台中显示出相应的警告信息，帮助你发现潜在的问题并进行修复。请注意，StrictMode只在开发环境下有效，在生产环境中不会产生任何影响。
 
-`createPortal(children, domNode, key?)`
+总结一下，StrictMode是React中的一个特性，它可以帮助开发者检测一些潜在问题，并给出相应的警告信息，帮助我们编写更干净、更可靠的代码。
+
+### 性能缺点
+
+使用StrictMode可能会带来一些性能上的缺点，尽管这些影响通常是暂时的，并且在生产环境中并不会产生影响。下面是一些可能的性能缺点：
+
+1. 频繁的重新渲染：StrictMode会增加React的重新渲染次数。它会在开发者控制台中重复执行组件的渲染，以检查是否存在不符合React最佳实践的代码。这可能会导致在开发环境下出现额外的重复渲染，从而影响应用的性能。
+2. 静态类型检查：StrictMode可能会触发静态类型检查器（如Flow或TypeScript）中的额外检查过程。这可能会导致增加的编译时间，特别是在大型项目中。
+3. 额外的警告信息：使用StrictMode会导致在开发者控制台中显示更多的警告和提示信息。尽管这些警告对于调试和发现潜在问题非常有用，但它们在某些情况下可能会导致噪音，并影响开发者体验。
+
+需要注意的是，这些性能缺点通常只在开发环境下存在，并且在生产环境中使用StrictMode不会产生任何性能影响。因此，建议在开发阶段使用StrictMode来发现和解决潜在问题，而在生产环境中禁用StrictMode以获得更好的性能。
+
+### 使用方式
+
+要使用StrictMode，在React应用的根组件中包裹你的应用组件即可。以下是使用StrictMode的几种方式：
+
+1. 使用函数组件：
 
 ```jsx
-import { createPortal } from 'react-dom';
+import React from 'react';
 
-// ...
+function App() {
+  return (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
 
-<div>
-  <p>This child is placed in the parent div.</p>
-  {createPortal(
-    <p>This child is placed in the document body.</p>,
-    document.body
-  )}
-</div>
+export default App;
+```
+
+2. 使用类组件：
+
+```jsx
+import React from 'react';
+
+class App extends React.Component {
+  render() {
+    return (
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  }
+}
+
+export default App;
+```
+
+3. 使用ReactDOM进行渲染：
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+```
+
+无论你使用哪种方式，将应用组件包裹在`<React.StrictMode>`标签内后，StrictMode的特性就会应用到整个应用程序中。
+
+在开发环境中，启用StrictMode后，React会在控制台中显示出潜在的问题和警告信息，以帮助你发现和修复代码中的问题。但请注意，StrictMode只在开发环境中有效，在生产环境中不会产生任何影响。
+
+## React.memo 
+
+React.memo 是 React 提供的一个高阶组件，用于优化 React 组件的性能。它可以将一个函数组件进行记忆化，只有在传入的 props 发生变化时，才会重新渲染组件，否则会使用之前的渲染结果。
+
+React.memo 的使用方法和语法如下：
+
+```js
+const MemoizedComponent = React.memo(FunctionComponent);
+```
+
+React.memo 接受一个函数组件作为参数，并返回一个记忆化的组件。记忆化组件将会记住前一次渲染的结果，只有在传入的 props 发生变化时，才会重新渲染组件。
+
+React.memo 还可以接受一个自定义的比较函数作为第二个参数，用于比较传入的 props 是否发生变化。可以通过这个比较函数来控制哪些 props 的变化应该触发重新渲染。
+
+React.memo 的特点和使用场景如下：
+
+1. 仅在 props 发生变化时重新渲染组件，可以提高性能；
+2. 可以避免不必要的渲染，减少不必要的计算和副作用；
+3. 对于无状态的函数组件，可以直接使用 React.memo 进行优化；
+4. 对于有状态的类组件，可以使用 PureComponent 进行优化。
+
+React.memo 的注意事项如下：
+
+1. React.memo 只会对 props 进行浅层比较，如果传入的 props 是一个对象或数组，需要确保对象的引用或数组的引用不发生变化，否则会导致不正确的渲染结果；
+2. React.memo 不能用于对组件内部状态的优化，只能优化组件的 props；
+3. React.memo 会在渲染期间进行比较，如果比较的代价过大，则不适合使用 React.memo 进行优化。
+
+综上所述，React.memo 是一个用于优化 React 组件性能的工具，可以通过记忆化函数组件的方式，避免不必要的重新渲染。但需要注意使用时的限制和注意事项。
+
+使用 React.memo 进行组件优化的步骤如下：
+
+```jsx
+import React from 'react';
+
+function MyComponent(props) {
+  // 组件的内容
+}
+
+// 或者使用箭头函数
+const MyComponent = (props) => {
+  // 组件的内容
+}
+
+const MemoizedComponent = React.memo(MyComponent);
 ```
 
 ```jsx
-function Modal({ isOpen, onClose, children }) {
-  if (!isOpen) return null
-  return createPortal(
-    <div className="modal">
-      <button onClick={onClose}>Close</button>
-      {children}
-    </div>,
-    document.getElementById('portal-root')
-  )
+function App() {
+  return (
+    <div>
+      {/* 使用 MemoizedComponent 替代原来的组件 */}
+      <MemoizedComponent />
+    </div>
+  );
 }
 ```
 
-```jsx
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
+这样就完成了对组件的优化。React.memo 会自动记忆组件的渲染结果，只有在传入的 props 发生变化时，才会重新渲染组件。
 
-const Portal = ({children}) => {
-  const mount = document.getElementById("portal-root");
-  const el = document.createElement("div");
+React.memo 只能优化组件的 props，无法优化组件内部的状态。如果需要优化有状态的类组件，可以使用 React.PureComponent。
 
-  useEffect(() => {
-    mount.appendChild(el);
-    return () => mount.removeChild(el);
-  }, [el, mount]);
-
-  return createPortal(children, el)
-};
-
-export default Portal;
-```
+另外，如果需要自定义比较函数来控制 props 的变化触发重新渲染的逻辑，可以将自定义比较函数作为 React.memo 的第二个参数传入。比较函数接收两个参数，分别是前一次的 props 和当前的 props，返回一个布尔值，表示是否需要重新渲染组件。
 
 ```jsx
-const App = () => {
-  const [coords, setCoords] = useState({}); // takes current button coordinates
-  const [isOn, setOn] = useState(false); // toggles button visibility
-
-  return <Card style={{...styles.card, overflow: "hidden"}}> // [ 2 ]
-      <Button
-        onClick={e => {
-          const rect = e.target.getBoundingClientRect();
-          setCoords({
-            left: rect.x + rect.width / 2,
-            top: rect.y + window.scrollY
-          });
-          setOn(!isOn); // [ 3 ]
-        }}
-      >
-        Click me
-      </Button>
-      {
-        isOn &&
-        <Portal>
-          <TooltipPopover coords={coords}>
-            <div>Awesome content that is never cut off by its parent container!</div>
-          </TooltipPopover>
-        </Portal>
-      }
-  </Card>
-}
+const MemoizedComponent = React.memo(MyComponent, (prevProps, nextProps) => {
+  // 自定义比较逻辑，返回 true 或 false
+});
 ```
 
-### 3. Creating our custom React Hook
+## React.cloneElement
 
-```jsx
-//file name: usePortal.js
-// The complete breakdown of this code is in the comments
-import { useState, useCallback, useEffect } from "react";
-import ReactDOM from "react-dom";
-const usePortal = (el) => {
-  const [portal, setPortal] = useState({
-    render: () => null,
-    remove: () => null,
-  });
+`React.cloneElement` 是 React 提供的一个方法，用于克隆和修改已有的 React 元素。它可以克隆一个元素，并为克隆后的元素添加新的 props 或子元素。
 
-  const createPortal = useCallback((el) => {
-    //render a portal at the given DOM node:
-    const Portal = ({ children }) => ReactDOM.createPortal(children, el);
-    //delete the portal from memory:
-    const remove = () => ReactDOM.unmountComponentAtNode(el);
-    return { render: Portal, remove };
-  }, []);
+`React.cloneElement`的使用方法和语法如下：
 
-  useEffect(() => {
-    //if there is an existing portal, remove the new instance.
-    //is prevents memory leaks
-    if (el) portal.remove();
-    //otherwise, create a new portal and render it
-    const newPortal = createPortal(el);
-    setPortal(newPortal);
-    //when the user exits the page, delete the portal from memory.
-    return () => newPortal.remove(el);
-  }, [el]);
+`React.cloneElement(element, [props], [...children])`
+React.cloneElement 接受一个 React 元素作为第一个参数，可以传入额外的 props 和子元素作为可选参数。它会返回一个新的 React 元素，保留原来元素的类型和属性，并且可以修改或扩展新的属性和子元素。
 
-  return portal.render;
-};
-export default usePortal; //link this Hook with the project
-```
+React.cloneElement 的特点和使用场景如下：
 
-### 4. 处理事件传递
+1. 克隆 React 元素，并为克隆后的元素添加新的 props 或子元素；
+2. 可以用于在组件树中传递额外的 props，而不需要通过组件的层层嵌套来传递；
+3. 可以用于动态地修改或扩展已有的 React 元素。
 
-   通过 Portal 渲染的组件中的事件。事件冒泡和捕获如何在 Portal 中工作。
+React.cloneElement 的注意事项如下：
 
-   In normal JavaScript code if an element is interacted with, for example a click event, that interaction will propagate up through the parent elements. We can see this in action by adding a click handler to the component outer div.
-
-   Now whenever the button to open the modal is clicked the click event on the component div will fire since the click event will propagate up through the button element to its parent element and in the end **click** will be logged to the console.
-
-   As we know from normal JavaScript this only works for elements that are children of the element with the click event listener. In our example with React portal, the modal is not a child of the component div since it is rendered to the document body and thus should not trigger the click event when clicked, but it does. This is because React uses the component hierarchy to determine propagation of events and the `Modal` component is a child of the component div in JSX.
-
-   This is nice since when working with React you never have to worry about the actual DOM structure and only ever need to worry about the component structure when determining event propagation.
-
-   1. 在普通JavaScript中，事件（例如点击事件）会从子元素传播到父元素，这是DOM事件传播的标准行为。
-   2. 在React中，事件传播也遵循类似的模式，但是React使用组件层次结构而不是实际的DOM结构来确定事件如何传播。
-   3. 使用React Portal时，如果一个组件将内容呈现到文档主体之外，例如模态框，它在组件层次结构上可能不是父组件的子组件。尽管它在DOM结构上不是子元素，但React仍然根据组件层次结构来处理事件传播。
-   4. 这种行为是React的一种便利，因此无需担心实际的DOM结构，只需要关注组件层次结构，这简化了事件传播的处理。
-
-   ```jsx
-   function Modal({ isOpen, onClose, children }) {
-     if (!isOpen) return null
-     return ReactDOM.createPortal(
-       <div className="modal">
-         <button onClick={onClose}>Close</button>
-         {children}
-       </div>,
-       document.body
-     )
-   }
-   
-   function Component() {
-     const [open, setOpen] = useState(false)
-     return (
-       <div className="component" onClick={() => console.log("click")}>
-         <button onClick={() => setOpen(true)}>Open Modal</button>
-         <Modal isOpen={open} onClose={() => setOpen(false)}>
-           Fancy Modal
-         </Modal>
-       </div>
-     )
-   }
-   ```
-
-### 5. 性能考虑
-
-   - 探讨 Portal 的性能考虑，如何避免不必要的重新渲染和提高性能。
-   - 讨论 React 16 版本引入的异步渲染和其对 Portal 的影响。
-
-   Portal 在React中是强大的工具，但在使用它时需要考虑性能因素，特别是在处理大型应用或频繁更新的情况下。以下是一些有关Portal性能的考虑以及React 16版本引入的异步渲染对Portal的影响：
-
-- Portal 的性能考虑：
-
-   1. **不必要的重新渲染**：Portal 可能会导致组件重新渲染，尤其是在Portal内容发生变化时。为了避免不必要的重新渲染，可以使用React的`React.memo`或`shouldComponentUpdate`（对于类组件）来优化组件，以确保只在必要的情况下进行重新渲染。
-   2. **避免频繁更新**：Portal内容的频繁更新可能会导致性能问题，特别是在需要大量重新渲染时。考虑使用状态管理工具（如Redux或Mobx）来管理Portal内容，以减少不必要的重新渲染。
-   3. **事件处理和事件委托**：Portal中的事件处理需要谨慎处理。确保事件处理程序不会导致不必要的重新渲染。还可以使用事件委托技术，将事件处理程序附加到Portal容器上，而不是每个Portal子组件上。
-   4. **内存泄漏**：如果Portal不被正确地清理，可能会导致内存泄漏。确保在不再需要Portal时卸载组件和事件处理程序。
-
-- React 16 中的异步渲染对Portal的影响：
-
-   React 16引入了异步渲染，其中渲染工作可以分成多个任务。这对Portal的性能和用户体验有一些积极影响：
-
-   1. **更流畅的用户体验**：异步渲染可以使React更具响应性，因为在处理Portal时，React可以在主任务之外执行渲染工作，从而减少阻塞用户交互的情况。
-   2. **性能优化**：异步渲染可以优化Portal的性能，尤其是在处理大量内容或频繁更新内容时。它可以确保渲染工作在适当的时机完成，而不会阻塞主线程。
-   3. **并发模式**：React 18及以后版本引入了并发模式，可以进一步改进Portal的性能。它允许React在多个任务之间平衡渲染工作，以提供更好的性能。
-
-   总之，Portal是处理复杂布局需求的重要工具，但需要注意性能方面的考虑。使用React的性能优化技巧，如`React.memo`、`shouldComponentUpdate`、事件委托以及合理的异步渲染，可以帮助避免性能问题并提高用户体验。异步渲染和未来的并发模式将进一步增强Portal的性能。
-
-### 6. 处理全局状态
-
-   嵌套 Portal、使用 React 的 Context API 传递数据。
-
-   嵌套 Portal 和使用 React 的 Context API 传递数据是两个强大的功能，可以让你更灵活地组织你的组件树，同时在组件之间传递数据。以下是如何嵌套 Portal 和使用 Context API 来传递数据的示例：
-
-   首先，假设你有一个 App 组件，它包含一个模态框和一些内容，你希望在模态框和内容之间传递数据：
-
-   ```jsx
-   jsxCopy code
-   import React, { useState, useContext, createContext } from 'react';
-   import { createPortal } from 'react-dom';
-   
-   // 创建一个 Context，用于在组件之间传递数据
-   const MyContext = createContext();
-   
-   const Modal = ({ children }) => {
-     return createPortal(
-       <div className="modal">
-         {children}
-       </div>,
-       document.getElementById('modal-root')
-     );
-   };
-   
-   const ModalContent = () => {
-     const data = useContext(MyContext); // 使用 Context 获取数据
-   
-     return (
-       <div className="modal-content">
-         <p>{data}</p>
-       </div>
-     );
-   };
-   
-   const App = () => {
-     const [modalData, setModalData] = useState("Data from App Component");
-   
-     return (
-       <MyContext.Provider value={modalData}>
-         <div>
-           <p>Some content in the main app</p>
-           <Modal>
-             <ModalContent />
-           </Modal>
-           <button onClick={() => setModalData("Updated Data")}>
-             Update Modal Data
-           </button>
-         </div>
-       </MyContext.Provider>
-     );
-   };
-   
-   export default App;
-   ```
-
-   在上面的示例中，我们首先创建了一个名为 `MyContext` 的 Context，然后在 `ModalContent` 组件中使用 `useContext` 钩子来获取数据。在 `App` 组件中，我们将数据放入 `MyContext.Provider` 中，这样在模态框中的 `ModalContent` 组件就能够访问到这些数据。
-
-   这个示例演示了如何使用 Portal 和 Context API 在嵌套的组件之间传递数据，允许你在复杂的布局结构中更轻松地共享状态和信息。当你点击 "Update Modal Data" 按钮时，模态框中的内容会更新为新的数据，而不需要重新渲染整个页面。这显示了 Portal 和 Context API 的强大组合。
-
+1. React.cloneElement 只能克隆单个元素，无法克隆多个元素；
+2. 克隆后的元素会继承原来元素的 key，ref 和 props；
+3. 如果传入了额外的 props，会覆盖原来元素的同名属性；
+4. 如果传入了新的子元素，会替换原来元素的子元素。
+5. 克隆元素时需要注意属性的继承问题。对于一些特殊的属性，如 key 和 ref，需要手动进行处理。
+6. 如果需要修改子元素，可以使用 React.Children.map 或 React.Children.toArray 来遍历和处理子元素。
 
 ### refs
 
-1. https://react.dev/reference/react-dom/createPortal
-2. https://www.youtube.com/watch?v=LyLa7dU5tp8
-3. https://blog.webdevsimplified.com/2019-12/how-to-use-react-portal/
-4. https://blog.logrocket.com/learn-react-portals-example/
+1. https://blog.logrocket.com/using-react-cloneelement-function/
+2. https://react.dev/reference/react/cloneElement
 
-## 核心
+## isValidElement 
 
-- `React.Children`：提供了一些静态方法，用于操作React元素的子节点。
-  - `React.Children.map(children, function[(thisArg)])`：对子元素逐个执行一个函数，并收集结果。
-  - `React.Children.forEach(children, function[(thisArg)])`：对子元素逐个执行一个函数，不收集结果。
-  - `React.Children.count(children)`：返回子元素的数量。
-  - `React.Children.only(children)`：验证子元素只有一个，并返回它。
-- `React.createRef()`：创建一个ref对象，用于引用组件或DOM元素。该对象可以通过`current`属性获取被引用的组件或DOM元素。
-- `React.Component`：所有React组件的基类，提供了一些生命周期函数和其他方法。
-- `React.PureComponent`：与`React.Component`类似，但提供了浅比较实现的`shouldComponentUpdate`方法，可以优化组件的性能。
-- `React.memo()`：高阶组件，用于优化纯函数组件的性能。
-- `React.cloneElement(element, [props], [...children])`：复制并返回一个新的React元素，带有新的props和children。如果原始元素带有ref属性，则也会被复制。
-- `React.isValidElement(object)`：判断一个对象是否为React元素。
-- `React.Suspense`：用于在等待异步组件加载时显示占位符组件，避免用户界面的闪烁。
-  - `fallback`：必选属性，指定在异步组件加载完成前显示的占位符组件。
-- `React.lazy()`：用于懒加载组件，返回一个可渲染的React组件。
+isValidElement 是 React 提供的一个方法，用于判断一个对象是否是一个有效的 React 元素。它可以用来检查一个对象是否符合 React 元素的规范，并且可以作为条件判断的依据。
 
-## DOM
+大纲如下：
 
-- `ReactDOM.render(element, container[, callback])`：将React元素渲染到指定的容器中。
-- `ReactDOM.unmountComponentAtNode(container)`：从指定的容器中卸载React组件。
-- `ReactDOM.createPortal(children, container)`：将React元素渲染到DOM树的另一个位置，跨越组件层级。
-- `ReactDOM.findDOMNode(component)`：获取被引用组件的DOM元素。
-- `ReactDOM.hydrate()`：与`ReactDOM.render()`类似，但是针对已经存在的页面，不会重新创建DOM结构。
-- `ReactDOM.createRoot(container[, options])`：创建一个可交互的根节点，支持并发模式和批量更新。
-- `ReactDOM.createBlockingRoot(container[, options])`：创建一个阻塞式的、可交互的根节点，不支持并发模式。
+1. 概述
 
-## 错误边界
+   - isValidElement 是 React 提供的一个方法，用于判断一个对象是否为有效的 React 元素。
+   - 有效的 React 元素是指符合 React 元素规范的对象，可以被渲染到页面上。
 
-- `componentDidCatch(error, info)`：生命周期函数，用于捕获渲染阶段中的JavaScript错误，并处理它们。
+2. 使用方法
+
+   - React.isValidElement(object)
+     - object：要检查的对象。
+   - 返回值：如果对象是有效的 React 元素，则返回 true，否则返回 false。
+
+3. 示例
+
+   ```jsx
+   const element = <div>Hello, world!</div>;
+   const notElement = 'Hello, world!';
+   
+   // 判断是否为有效的 React 元素
+   console.log(React.isValidElement(element)); // 输出：true
+   console.log(React.isValidElement(notElement)); // 输出：false
+   ```
+
+4. 注意事项
+
+   - isValidElement 只能判断对象是否为有效的 React 元素，而不能判断是否为组件实例或其他类型的对象。
+   - isValidElement 并不会验证元素的内容或属性是否正确，仅用于判断对象是否符合 React 元素规范。
+   - 如果一个对象是有效的元素，它仍然可能不是有效的组件。因为组件必须是一个函数或类，而不仅仅是一个对象。
+
+## flushSync
+
+flushSync 是 React 中的一个方法，用于在同步模式下立即执行更新操作。
+
+大纲如下：
+
+1. 概述
+
+   - flushSync 是 React 提供的一个方法，用于在同步模式下立即执行更新操作。
+   - 在 React 中，通常情况下更新操作会被放入异步队列中，等待下次事件循环时批量执行，以提高性能。
+   - 但有时需要立即执行更新操作，此时可以使用 flushSync 方法。
+
+2. 使用方法
+
+   - React.flushSync(callback)
+     - callback：可选参数，更新操作的回调函数。
+   - 返回值：无返回值。
+
+3. 示例
+
+   flushSync 方法会在当前渲染周期中同步执行 callback 函数中的更新操作。这意味着 callback 函数中的所有更新会立即生效，而不会等到下一个渲染周期。
+
+   flushSync 的特点和使用场景如下：
+
+   1. 可以用于手动控制 React 的更新过程，使得更新操作立即生效。
+   2. 可以用于在某些特定情况下，需要立即更新 UI 的场景，如在用户交互的回调函数中执行更新操作。
+
+   ```jsx
+   Codefunction MyComponent() {
+     const [count, setCount] = useState(0);
+   
+     function handleClick() {
+       // 立即执行更新操作
+       React.flushSync(() => {
+         setCount(count + 1);
+       });
+   
+       console.log('count:', count); // 输出：count: 1
+     }
+   
+     return (
+       <div>
+         <button onClick={handleClick}>Click me</button>
+         <p>Count: {count}</p>
+       </div>
+     );
+   }
+   ```
+
+4. 注意事项
+
+   - flushSync 方法仅在 React 16 及以上版本中可用。
+   - flushSync 方法会立即执行更新操作，可能会导致性能问题，应谨慎使用。只在必要的情况下才使用。因为它会中断 React 的正常更新流程，可能会导致不可预测的问题。
+   - flushSync 方法只能用于同步模式下的更新操作，异步模式下仍然需要使用 setState 或其他更新方法。
+   - 在使用 flushSync 时，应该确保 callback 函数中的更新操作尽可能简单，避免耗时的计算或副作用。
 
 ## Profiler
 
-- `React.Profiler`：用于测量React组件的性能。
-  - `onRender(id, phase, actualDuration, baseDuration, startTime, commitTime, interactions)`：用于记录一次组件的渲染时间和交互信息。
+Profiler 是 React 提供的一个组件，用于测量和分析应用程序中的性能。它可以帮助开发者找出应用程序中渲染过程中的性能瓶颈，并在每次渲染完成后调用 onRender 回调函数。开发者可以通过这个回调函数获取相关的性能信息，并进行分析和优化。
 
-## 测试test delete
+`<Profiler onRender={callback} id={id}>`
 
-- `React.TestUtils`：提供了一些测试相关的工具函数，用于编写React组件的单元测试。
-- `react-testing-library`：提供了一套通用的测试工具库，用于测试React组件的行为和交互。
+- onRender：必需的回调函数，在每次组件渲染完成后执行。
 
-```
-Suspense ✅
-lazy✅
-新旧 Context ✅
-错误边界 ✅
-createPortal ✅
-StrictMode
-memo✅
-cloneElement
-isValidElement✅
-flushSync
-Profiler✅
+- id：可选参数，用于标识 Profiler 组件的唯一 ID。
 
-React.Children✅
-map✅
-forEach✅
-count✅
-only✅
-toArray
+- 返回值：包裹在 Profiler 组件中的子组件。
+
+```jsx
+import { Profiler } from 'react';
+
+function MyComponent() {
+  return (
+    <Profiler id="MyComponent" onRender={(id, phase, actualDuration) => {
+      console.log(`Component ${id} took ${actualDuration}ms to render in ${phase} phase.`);
+    }}>
+      {/* 子组件 */}
+    </Profiler>
+  );
+}
 ```
 
+Profiler 组件的特点和使用场景如下：
+
+1. 可以帮助开发者找出应用程序中渲染过程中的性能瓶颈。
+2. 可以提供详细的性能分析报告，包括组件的渲染时间、调用次数等信息。
+3. 可以用于定位和优化性能较差的组件，提高整体应用程序的性能。
+
+Profiler 组件的注意事项如下：
+
+1. 使用 Profiler 组件可能会对性能产生一定的影响，应谨慎使用，避免在生产环境中过度使用。因为它会产生一定的性能开销。
+2. 建议将 Profiler 组件放在应用程序的主要组件层级中，以便对整个应用程序进行性能分析。
+3. 在开发环境中，Profiler 组件会自动记录和显示性能分析信息。但在生产环境中，需要手动启用 Profiler 并提供数据存储、分析和展示的方式。
+4. onRender 回调函数会在组件渲染完成后被调用，可以获取到组件的 ID、渲染阶段（mount/update）和实际渲染时间等信息。
+
+Profiler 组件如果包围在根组件app外，会获取到什么是性能数据：
+
+如果Profiler组件包围在根组件app外，它将获取整个应用程序的性能数据。这包括渲染根组件及其子组件的时间、组件的更新次数、组件渲染的时间等等。
+
+Profiler组件只会跟踪和测量直接包裹在其中的组件。孙子组件的性能数据不会被Profiler组件直接获取。但是，如果孙子组件在其父组件中包含了Profiler组件，那么Profiler组件将能够获取孙子组件的性能数据。如果想获取孙子组件的性能数据，您需要在每个组件层次结构中包含Profiler组件。
+
+## React.Children
+
+React.Children是一个用于处理React组件子元素的工具集，它提供了几个方法，包括map、forEach、count、only和toArray。
+
+1. `React.Children.map(children, function(child, index))` - 这个方法对于每个子元素都会调用一个提供的函数，并返回一个新的数组，数组中的每个元素都是该函数返回的结果。它类似于JavaScript的Array.map()方法。
+2. `React.Children.forEach(children, function(child, index))` - 这个方法对于每个子元素都会调用一个提供的函数，但它没有返回值。它类似于JavaScript的Array.forEach()方法。
+3. `React.Children.count(children)` - 这个方法返回子元素的数量。它类似于JavaScript的Array.length属性。
+4. `React.Children.only(children)` - 这个方法用于确保子元素只有一个，并返回这个唯一的子元素。如果子元素不是唯一的，或者没有子元素，则会抛出错误。
+5. `React.Children.toArray(children)` - 这个方法将子元素转换为一个数组，便于对其进行处理和操作。它类似于JavaScript的Array.from()方法或扩展运算符(...)。
+
+`React.Children`是React提供的一个工具类，用于处理React组件的子元素。它提供了一些方法来遍历、操作和查询子元素。
+
+下面是一些常用的React.Children方法的示例用法：
+
+### 1. map：
+对子元素进行映射操作，并返回一个新的子元素数组。
+
+```jsx
+import React from 'react';
+
+function MyComponent({ children }) {
+  return (
+    <div>
+      {React.Children.map(children, (child) => {
+        // 对每个子元素进行操作或包装
+        return <span>{child}</span>;
+      })}
+    </div>
+  );
+}
+
+// 使用示例
+<MyComponent>
+  <p>Hello</p>
+  <p>World</p>
+</MyComponent>
+```
+
+输出：
+
+```html
+<div>
+  <span><p>Hello</p></span>
+  <span><p>World</p></span>
+</div>
+```
+
+### 2. forEach
+
+对子元素进行迭代操作，没有返回值。
+
+```jsx
+import React from 'react';
+
+function MyComponent({ children }) {
+  React.Children.forEach(children, (child) => {
+    // 对每个子元素进行操作或处理
+    console.log(child);
+  });
+
+  return null;
+}
+
+// 使用示例
+<MyComponent>
+  <p>Hello</p>
+  <p>World</p>
+</MyComponent>
+```
+
+输出：
+
+```html
+<p>Hello</p>
+<p>World</p>
+```
+
+### 3. count
+
+获取子元素的数量。
+
+```jsx
+import React from 'react';
+
+function MyComponent({ children }) {
+  const count = React.Children.count(children);
+
+  return <div>子元素数量: {count}</div>;
+}
+
+// 使用示例
+<MyComponent>
+  <p>Hello</p>
+  <p>World</p>
+</MyComponent>
+```
+
+输出：
+
+```html
+<div>子元素数量: 2</div>
+```
+
+### 4. only
+
+确保只有一个子元素，并返回该子元素，否则抛出错误。
+
+```jsx
+import React from 'react';
+
+function MyComponent({ children }) {
+  const onlyChild = React.Children.only(children);
+
+  return <div>唯一子元素: {onlyChild}</div>;
+}
+
+// 使用示例
+<MyComponent>
+  <p>Hello</p>
+</MyComponent>
+```
+
+输出：
+
+```html
+<div>唯一子元素: <p>Hello</p></div>
+```
+
+### 5. toArray
+
+将子元素转换为数组。
+
+```jsx
+import React from 'react';
+
+function MyComponent({ children }) {
+  const childArray = React.Children.toArray(children);
+
+  return (
+    <ul>
+      {childArray.map((child, index) => (
+        <li key={index}>{child}</li>
+      ))}
+    </ul>
+  );
+}
+
+// 使用示例
+<MyComponent>
+  <p>Hello</p>
+  <p>World</p>
+</MyComponent>
+```
+
+输出：
+
+```html
+<ul>
+  <li><p>Hello</p></li>
+  <li><p>World</p></li>
+</ul>
+```
+
+以上是React.Children的一些常用方法的示例用法。通过这些方法，我们可以更方便地操作和处理React组件的子元素。
