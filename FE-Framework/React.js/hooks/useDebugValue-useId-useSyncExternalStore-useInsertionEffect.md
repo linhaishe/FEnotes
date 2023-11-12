@@ -1,31 +1,30 @@
-
 # useDebugValue
 
 ## defiend
 
 `useDebugValue`的作用是，将你需要关心的变量动态地与其他同域变量一起显示在`DevTools`面板中，其体验，明显优于`console.log`。
 
-`useDebugValue`适用于：调试（输出）自定义Hook中用到的状态值。
+`useDebugValue`适用于：调试（输出）自定义 Hook 中用到的状态值。
 
 大家通常使用`console.log`来输出一些中间变量，并在浏览器的`console`面板中查看。
 
-而`useDebugValue`的优势在于，用`useDebugValue`输出的值，是和DevTools中的Hook状态一起动态显示的，不需要在DevTools和Console面板中切换查看Hook状态和`console.log`输出。
+而`useDebugValue`的优势在于，用`useDebugValue`输出的值，是和 DevTools 中的 Hook 状态一起动态显示的，不需要在 DevTools 和 Console 面板中切换查看 Hook 状态和`console.log`输出。
 
 ```js
-import { useEffect, useDebugValue, useState } from "react";
+import { useEffect, useDebugValue, useState } from 'react';
 
 export const useFetch = (url) => {
   useDebugValue(url);
   const [response, setResponse] = useState([]);
-  const clown = "🤡";
+  const clown = '🤡';
   useDebugValue(`crazy ${clown}`);
   const [error, setError] = useState(null);
   const [httpResponse, setHttpResponse] = useState();
   useDebugValue(
-    httpResponse ? "status code " + httpResponse.status : "no response"
+    httpResponse ? 'status code ' + httpResponse.status : 'no response'
   );
   useDebugValue(error, (e) =>
-    e ? `fetch failed due to ${e.message}` : "fetch successful"
+    e ? `fetch failed due to ${e.message}` : 'fetch successful'
   );
   useEffect(() => {
     async function fetchFiles() {
@@ -41,21 +40,21 @@ export const useFetch = (url) => {
     fetchFiles();
   }, [setError, setResponse, url]);
   useDebugValue(response, (mp3s) =>
-    mp3s.length > 0 ? mp3s.map((mp3) => mp3.label) : "no mp3s loaded"
+    mp3s.length > 0 ? mp3s.map((mp3) => mp3.label) : 'no mp3s loaded'
   );
   return [response, error];
-}
+};
 ```
 
-1. 一切都有代价：使用useDebugValue在生产代码中频繁调用可能会对应用程序的性能产生负面影响。
-2. 不建议在生产代码中保留useDebugValue，但官方文档提到，可以在共享库中的自定义Hooks代码中留下它可能是可以接受的。
-3. 我们目前无法根据环境变量有条件地渲染useDebugValue，因为Hooks规则不允许在条件代码中调用Hook。
-4. useDebugValue是另一种工具，只在开发自定义Hooks时使用它，并在将Hook推送到Git存储库之前将其删除。它确实是传统的console.log调用和调试断点的替代选择。
+1. 一切都有代价：使用 useDebugValue 在生产代码中频繁调用可能会对应用程序的性能产生负面影响。
+2. 不建议在生产代码中保留 useDebugValue，但官方文档提到，可以在共享库中的自定义 Hooks 代码中留下它可能是可以接受的。
+3. 我们目前无法根据环境变量有条件地渲染 useDebugValue，因为 Hooks 规则不允许在条件代码中调用 Hook。
+4. useDebugValue 是另一种工具，只在开发自定义 Hooks 时使用它，并在将 Hook 推送到 Git 存储库之前将其删除。它确实是传统的 console.log 调用和调试断点的替代选择。
 
 ## refs
 
 1. [Improve custom Hook debugging with `useDebugValue`](https://blog.logrocket.com/improve-custom-hook-debugging-with-usedebugvalue/)
-2. [React Hooks之useDebugValue - 代替console.log来调试Hook](https://segmentfault.com/a/1190000042535705)
+2. [React Hooks 之 useDebugValue - 代替 console.log 来调试 Hook](https://segmentfault.com/a/1190000042535705)
 3. https://blog.webdevsimplified.com/2021-11/use-debug-value/
 4. https://react.dev/reference/react/useDebugValue
 
@@ -71,13 +70,13 @@ function PasswordField() {
   // ...
 ```
 
-Caveats 
+Caveats
 
 1. useId is a Hook, so you can only call it at the top level of your component or your own Hooks. You can’t call it inside loops or conditions. If you need that, extract a new component and move the state into it.
 
 2. useId should not be used to generate keys in a list. Keys should be generated from your data.
 
-list里的keys，服务端并不会返回唯一的key，也只能在组件外部生成唯一key，针对因为keys的问题，出现图片留在页面上，但其实已经是别的图片了，因为keys没更新。
+list 里的 keys，服务端并不会返回唯一的 key，也只能在组件外部生成唯一 key，针对因为 keys 的问题，出现图片留在页面上，但其实已经是别的图片了，因为 keys 没更新。
 
 ## refs
 
@@ -113,7 +112,7 @@ It returns the snapshot of the data in the store. You need to pass two functions
 
 1. https://milkmidi.medium.com/react-18-usesyncexternalstore-a427bf82c198
 2. https://medium.com/@mrovinsky/how-to-use-usesyncexternalstore-a9926f8c7e60
-3. https://deadsimplechat.com/blog/usesyncexternalstore-in-react/ 🌟🌟🌟🌟🌟 
+3. https://deadsimplechat.com/blog/usesyncexternalstore-in-react/ 🌟🌟🌟🌟🌟
 4. https://react.dev/reference/react/useSyncExternalStore#usesyncexternalstore
 5. https://www.zhihu.com/question/502917860
 6. https://lo-victoria.com/a-look-at-react-hooks-usesyncexternalstore
@@ -134,3 +133,4 @@ useInsertionEffect 应仅限于 css-in-js 库作者使用。优先考虑使用 u
 3. https://medium.com/@stheodorejohn/useinsertioneffect-hook-in-react-a-comprehensive-guide-4448096cf227
 4. https://blog.saeloun.com/2022/06/02/react-18-useInsertionEffect/
 
+test
