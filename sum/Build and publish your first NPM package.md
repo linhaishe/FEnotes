@@ -1,4 +1,6 @@
-# uni-app cli开发方式配置eslint + commitlint + stylelint
+# Build and publish your first NPM package
+
+# Vue
 
 团队的项目小程序所使用的框架最后确定使用Uni-app，官方的框架未配置eslint等相关规则，则需要我们手动去配置。由于是第一次搭建项目框架，需要学习的地方还有很多，如果有不足的可以友善提建议，和善沟通。
 
@@ -16,27 +18,21 @@
 
 ### 1. Installing and Configuring ESLint
 
-根据[eslint npm](https://www.npmjs.com/package/eslint)的教程，选择官网写好的初始化命令`npm init @eslint/config`进行安装和配置。会有相关的问题针对你的项目特性来安装对应的依赖。会自动在根目录下生成.`eslintre.js`配置文件。在rules中添加系列规则后，能正常检测出代码规范问题。
+根据[eslint npm](https://www.npmjs.com/package/eslint)的教程，选择官网写好的初始化命令`npm init @eslint/config` or `pnpm create @eslint/config`进行安装和配置。会有相关的问题针对你的项目特性来安装对应的依赖。会自动在根目录下生成.`eslintre.js`配置文件。在rules中添加系列规则后，能正常检测出代码规范问题。
 
 我们团队使用airbnb的code style,初始化命令根据我所选择的内容下载了这些依赖。
 
 `eslint-plugin-vue@latest eslint-config-airbnb-base@latest eslint@^7.32.0 || ^8.2.0 eslint-plugin-import@^2.25.2`
 
+<img src="https://s2.loli.net/2023/11/28/wDBe6faGQPlzcLS.jpg" alt="img" style="zoom:50%;" />
 
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4qczbrh0dj21140oqwmx.jpg" alt="image.png" style="zoom:50%;" />
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4qd21vz17j20n00sw436.jpg" alt="image.png" style="zoom:50%;" />
+<img src="https://s2.loli.net/2023/11/28/5E6psXCe3DmvJxI.jpg" alt="image.png" style="zoom:50%;" />
 
 到这一步其实已经算是配置成功了，但我们还需要单独处理下vue文件的格式问题。可以看到`App.vue`文件下的`<script>`标签的缩进有问题，`export default`是处于一个顶格的状态，我们需要的是每级标签缩进为2，这边我们就需要通过新增`overrides`去覆盖原有的代码风格规则。并在`rules`中添加针对vue文件`script`标签的缩进规则。即可。
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rbcpra4bj20qk0oe0xb.jpg" alt="image.png" style="zoom: 50%;" />
+<img src="https://s2.loli.net/2023/11/28/9i24QmCevgJHaWM.jpg" alt="image.png" style="zoom:50%;" /><img src="https://s2.loli.net/2023/11/28/yGIaieWVkldUEMs.jpg" alt="image.png" style="zoom:50%;" />
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rblk9dr2j20l40pctcf.jpg" alt="image.png" style="zoom:50%;" />
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rbmgyxjsj20qw0s6gr8.jpg" alt="image.png" style="zoom: 50%;" />
-
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rbmgyxjsj20qw0s6gr8.jpg" alt="image.png" style="zoom: 50%;" />
+<img src="https://s2.loli.net/2023/11/28/gPGvhIXTdlbqrHa.jpg" alt="image.png" style="zoom: 50%;" />
 
 ```js
 // .eslintrc.js
@@ -176,13 +172,13 @@ fix all vue and scss files:
 
   `npm i --save-dev postcss`
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4rdx7r017j21pm0bcdnz.jpg)
+![image.png](https://s2.loli.net/2023/11/28/UyfYFhbtBISOEgX.jpg)
 
 #### 2. 无法解析vue文件
 
 vue文件中的script 和 style 标签中的代码检测失败。 stylelint 是不能直接解析 vue 文件、 html 文件等的，会报出一堆错误
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rf9an2i4j21ca100ap2.jpg" alt="image.png" style="zoom:50%;" />
+![image-20231128222534551](https://s2.loli.net/2023/11/28/7Jlru84GOd26Ipe.png)
 
 需要用内置的自定义语法 `postcss-html` 来解析
 
@@ -190,9 +186,9 @@ vue文件中的script 和 style 标签中的代码检测失败。 stylelint 是�
 
 添加`customSyntax: 'postcss-html',`
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4rfexyv2uj21a80jytfv.jpg)
+![image-20231128222615862](https://s2.loli.net/2023/11/28/xndLb9MySArT1DK.png)
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4rfdw1u6gj21j016swsm.jpg)
+![image-20231128222640031](https://s2.loli.net/2023/11/28/3hx2fobBescTJdU.png)
 
 #### 3. vue中style标签的缩进问题
 
@@ -269,7 +265,7 @@ Download [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.p
 
 Then, add `"prettier"` to the "extends" array in your `.eslintrc.*` file. Make sure to put it **last,** so it gets the chance to override other configs.
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4smd4twjmj20y808q76m.jpg)
+![image-20231128222731280](https://s2.loli.net/2023/11/28/q1K2CDfFLaQYA9T.png)
 
 ### 2. format with prettier
 
@@ -299,6 +295,8 @@ You may run `prettier --write app/` to format a certain directory, or `prettier 
 
 创建`commitlint.config.js`文件, 并写入`module.exports = {extends: ['@commitlint/config-conventional']}`
 
+或使用以下命令创建
+
 `echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js`
 
 ### 3. Ref
@@ -321,11 +319,15 @@ You may run `prettier --write app/` to format a certain directory, or `prettier 
 
 安装成功后，husky给我们一个创建了一个pre-commit的钩子的例子。在根目录的.husky文件夹中。
 
-将commitlint加到husky的钩子中
+将commitlint加到husky的钩子中，使用以下命令创建或手动创建文件
 
 `npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"' `
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4sjiz5orjj21240gk44u.jpg)
+![image-20231129231021304](https://s2.loli.net/2023/11/29/je7J1YDnaEFqCH2.png)
+
+![image-20231129231839956](https://s2.loli.net/2023/11/29/9yrsd3vBqoxYS6b.png)
+
+可以看到该脚本的功能就是执行npm run test这个命令
 
 接下来我们可以尝试提交
 
@@ -334,7 +336,7 @@ You may run `prettier --write app/` to format a certain directory, or `prettier 
 
 因为格式不对，出现报错。
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4sj2kx0qjj20uk0343zs.jpg)
+![image-20231129231046687](https://s2.loli.net/2023/11/29/9tOzKaJC8UEG7Sq.png)
 
 ### 2. Ref
 
@@ -386,15 +388,19 @@ You may run `prettier --write app/` to format a certain directory, or `prettier 
 
 提交做测试看看
 
-![image-20220802180812169](/Users/chenruo/Library/Application Support/typora-user-images/image-20220802180812169.png)
+![image-20240409213633940](https://s2.loli.net/2024/04/09/nUsA8rReH9ku7VY.png)
+
+![image-20231129233133145](https://s2.loli.net/2023/11/29/nlWGTYeK1E97ONU.png)
+
+https://juejin.cn/s/eslint%20configuration%20in%20.eslintrc.js%20is%20invalid%20-%20unexpected%20top-level%20property%20global
 
 解决完报错，发现commit message 没有按照规则书写。
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h4skynl36wj21380kc46f.jpg)
+![](https://s2.loli.net/2024/04/09/ozMZPuqQadYKw3X.jpg)
 
 修改commit message,成功提交。
 
-![image-20220802181027105](/Users/chenruo/Library/Application Support/typora-user-images/image-20220802181027105.png)
+![image-20240409213700830](https://s2.loli.net/2024/04/09/yqthfg2QRXaNweV.png)
 
 
 ## Questions
@@ -403,15 +409,40 @@ You may run `prettier --write app/` to format a certain directory, or `prettier 
 
 要在preferences中进行设置，我发现每个项目都需要设置一次...
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4reawhdwdj20fu0c8wgl.jpg" alt="image.png" style="zoom:50%;" />
+<img src="https://s2.loli.net/2024/04/09/p8MuWcgoANra5dD.png" alt="image-20240409214057378" style="zoom:50%;" />
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h4rebfbmmyj21hs13i7em.jpg" alt="image.png" style="zoom: 33%;" />
+![](https://s2.loli.net/2024/04/09/3iKSeQo4Ibdu7xn.png)
 
-<img src="/Users/chenruo/Library/Application Support/typora-user-images/image-20220801173209868.png" alt="image-20220801173209868" style="zoom:33%;" />
+# React
 
-# react eslint airbnb typescript prettier
+## eslint err
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h5690trc9cj222k0mak1c.jpg)
+1. Parsing error: ESLint was configured to run on ... using `parserOptions.project`: ... However, that TSConfig does not include this file
+
+https://github.com/vitejs/vite/issues/13747
+
+https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
+
+https://stackoverflow.com/questions/58510287/parseroptions-project-has-been-set-for-typescript-eslint-parser
+
+![image-20231128211122958](https://s2.loli.net/2023/11/28/PSbL3y4EI26pqQY.png)
+
+<img src="https://s2.loli.net/2023/11/28/nUbAYLOcmTFC68l.png" alt="image-20231128211216168" style="zoom:50%;" />
+
+<img src="https://s2.loli.net/2023/11/28/qemOIJFcLdG4PzE.png" alt="image-20231128194454735" style="zoom:50%;" />
+
+```
+eslint-plugin-react@latest 
+eslint-config-standard-with-typescript@latest 
+@typescript-eslint/eslint-plugin@^6.4.0 
+eslint@^8.0.1 
+eslint-plugin-import@^2.25.2 
+eslint-plugin-n@^15.0.0 || ^16.0.0  
+eslint-plugin-promise@^6.0.0 
+typescript@*
+```
+
+![image.png](https://s2.loli.net/2023/11/28/T3Jufz8QNeE1ILy.jpg)
 
 ```
 eslint-plugin-react@^7.28.0 
@@ -453,8 +484,35 @@ eslint-config-prettier
 --dev
 ```
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h56a5769btj219a0toqby.jpg)
+![image-20240409214156950](https://s2.loli.net/2024/04/09/C1OGaLoH7h3vIUs.png)
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h56boee7lrj215c0fa79e.jpg)
+![image-20240409214229812](https://s2.loli.net/2024/04/09/JAQTUSsqyE5bWlh.png)
 
-![image.png](http://tva1.sinaimg.cn/large/6fc56815gy1h56btwmnhpj217g0f847q.jpg)
+![image-20240409214255939](https://s2.loli.net/2024/04/09/t7lmYxUInaCyjbo.png)
+
+# next step
+
+## int react 
+
+## add ts npm pkg
+
+Imports are only used as types.
+
+```
+import React, { Component } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
+
+https://github.com/microsoft/TypeScript/issues/39861
+```
+
+typescript with invalid interface loaded as resolver
+
+https://stackoverflow.com/questions/69446204/resolve-error-typescript-with-invalid-interface-loaded-as-resolver-eslint
+
+```
+npm install -D eslint-import-resolver-typescript
+
+```
+
+# storybook install
+
