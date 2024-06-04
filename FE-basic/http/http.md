@@ -2,7 +2,9 @@
 
 # notes-back-up
 
-## Header
+# parts of Headers
+
+## Headers
 
 ---------------------
 
@@ -196,3 +198,246 @@ Referrer-Policy: no-referrer
 ```
 
 在山月的工具网站 [MDTU](https://markdown.devtool.tech/app) 中便通过 `no-referrer` 策略来避免防盗链，你可以将某个防盗链的图片使用 Markdown 格式添加至该工具编辑器中，发现任何防盗链图片都可以正常显示。
+
+# 缓存
+
+## 强缓存
+
+强制缓存（又称为浏览器缓存或 HTTP 缓存）是 Web 技术的一部分，用于提升 Web 应用程序的性能。通过缓存机制，浏览器可以存储一部分资源（如 HTML 页面、图像、CSS 文件、JavaScript 文件等），以减少向服务器发送重复的请求，从而加快页面加载速度，减轻服务器负担。
+
+强制缓存主要通过 HTTP 头部中的缓存控制字段来实现，以下是关键的 HTTP 头字段及其作用：
+
+1. **Expires**：
+   - 这个头字段指定资源的过期时间，即在此时间之前，浏览器可以直接使用缓存，而不必向服务器发送请求。
+   - 例子：`Expires: Wed, 21 Oct 2021 07:28:00 GMT`
+2. **Cache-Control**：
+   - 这是一个更现代、更灵活的缓存控制机制，通过一系列指令来控制缓存行为。
+   - 常见指令：
+     - `max-age=<seconds>`：资源在 `<seconds>` 秒内有效。
+     - `no-cache`：每次使用资源前都必须向服务器验证。
+     - `no-store`：资源不应被缓存。
+     - `public`：资源可以被任何缓存存储。
+     - `private`：资源只能被用户的浏览器缓存。
+   - 例子：`Cache-Control: max-age=3600, public`
+
+### 强制缓存的工作流程
+
+1. 浏览器第一次请求资源时，服务器返回资源并带有缓存控制头部。
+2. 浏览器根据这些头部决定缓存资源及缓存多长时间。
+3. 在缓存有效期内，浏览器直接从缓存中取资源，而不与服务器通信。
+4. 缓存过期后，浏览器会向服务器验证资源是否更新。如果资源没有更新，服务器会返回 `304 Not Modified` 状态，浏览器继续使用缓存资源。
+
+### 强制缓存示例
+
+服务器响应头：
+
+```
+arduino
+复制代码
+HTTP/1.1 200 OK
+Cache-Control: max-age=3600
+ETag: "abc123"
+```
+
+浏览器后续请求：
+
+```
+sql
+复制代码
+GET /resource HTTP/1.1
+If-None-Match: "abc123"
+```
+
+如果资源未变，服务器响应：
+
+```
+mathematica
+复制代码
+HTTP/1.1 304 Not Modified
+```
+
+这种机制显著提升了 Web 应用的性能，减少了带宽消耗和服务器压力，同时提供了版本控制和缓存更新的能力。
+
+## 协商缓存
+
+再次请求时，需要向服务器校验新鲜度，如果资源是新鲜的，返回 304，从浏览器获取资源
+
+1. **ETag**：
+   - 实体标签（Entity Tag），用于资源的版本控制。服务器会生成一个唯一的标识符（通常是资源内容的哈希值），每次资源变化时标识符也会变化。
+   - 例子：`ETag: "123456"`
+2. **Last-Modified**：
+   - 表示资源的最后修改时间。浏览器可以通过 `If-Modified-Since` 请求头来询问服务器资源是否自该时间之后被修改过。
+   - 例子：`Last-Modified: Wed, 21 Oct 2020 07:28:00 GMT`
+3. **Pragma**：
+   - 这是一个较旧的 HTTP 1.0 头字段，用于控制缓存行为。
+   - 常用值：`Pragma: no-cache`（效果类似于 `Cache-Control: no-cache`）
+
+- `Last-Modified`/`If-Modified-Since`，匹配 Response Header 的 `Last-Modified` 与 Request Header 的 `If-Modified-Since` 是否一致
+- `Etag`/`If-None-Match`，匹配 Response Header 的 `Etag` 与 Request Header 的 `If-None-Match` 是否一致
+
+-----
+
+要验证某个网站资源是否启用了强制缓存，可以通过以下几种方法：
+
+### 使用浏览器开发者工具
+
+1. **打开开发者工具**：
+   - 在大多数浏览器中（如 Chrome、Firefox），按 `F12` 或 `Ctrl+Shift+I` 打开开发者工具。
+2. **访问网络（Network）面板**：
+   - 在开发者工具中，找到并点击“Network”标签。
+3. **加载资源**：
+   - 访问你想要检查的页面并刷新，确保资源被加载。
+4. **检查资源请求**：
+   - 在“Network”面板中，找到你要检查的资源。点击资源查看详细信息。
+5. **查看响应头**：
+   - 在资源详细信息的“Headers”标签中，查看服务器返回的响应头信息。查找 `Cache-Control`、`Expires`、`ETag`、`Last-Modified` 等字段。
+
+### 示例：
+
+假设你在检查某个 CSS 文件 `styles.css`，以下是可能的响应头信息及其解释：
+
+#### 响应头示例
+
+```
+HTTP/1.1 200 OK
+Date: Tue, 04 Jun 2024 12:00:00 GMT
+Cache-Control: max-age=3600, public
+Expires: Tue, 04 Jun 2024 13:00:00 GMT
+ETag: "abcdef123456"
+Last-Modified: Mon, 03 Jun 2024 12:00:00 GMT
+Content-Type: text/css
+```
+
+- `Cache-Control: max-age=3600, public`：表示该资源可以被缓存 3600 秒（1 小时）。
+- `Expires: Tue, 04 Jun 2024 13:00:00 GMT`：指定资源的过期时间。
+- `ETag: "abcdef123456"`：资源的唯一标识符，用于版本控制。
+- `Last-Modified: Mon, 03 Jun 2024 12:00:00 GMT`：资源的最后修改时间。
+
+### 使用命令行工具
+
+1. **使用 `curl`**：
+
+   - `curl` 是一个命令行工具，可以用来查看 HTTP 请求和响应头信息。
+
+   - 运行以下命令以获取响应头：
+
+     ```
+     sh
+     复制代码
+     curl -I https://example.com/path/to/resource
+     ```
+
+   - 例如：
+
+     ```
+     sh
+     复制代码
+     curl -I https://example.com/styles.css
+     ```
+
+   - 输出示例：
+
+     ```
+     yaml
+     复制代码
+     HTTP/1.1 200 OK
+     Date: Tue, 04 Jun 2024 12:00:00 GMT
+     Cache-Control: max-age=3600, public
+     Expires: Tue, 04 Jun 2024 13:00:00 GMT
+     ETag: "abcdef123456"
+     Last-Modified: Mon, 03 Jun 2024 12:00:00 GMT
+     Content-Type: text/css
+     ```
+
+2. **使用 `wget`**：
+
+   - `wget` 也是一个命令行工具，可以获取 HTTP 请求和响应头信息。
+
+   - 运行以下命令以获取响应头：
+
+     ```
+     wget --server-response --spider https://example.com/path/to/resource
+     ```
+     
+   - 例如：
+
+     ```
+     wget --server-response --spider https://example.com/styles.css
+     ```
+     
+   - 输出示例：
+   
+     ```
+     Spider mode enabled. Check if remote file exists.
+     --2024-06-04 12:00:00--  https://example.com/styles.css
+     Resolving example.com (example.com)... 93.184.216.34
+     Connecting to example.com (example.com)|93.184.216.34|:443... connected.
+     HTTP request sent, awaiting response...
+       HTTP/1.1 200 OK
+       Date: Tue, 04 Jun 2024 12:00:00 GMT
+       Cache-Control: max-age=3600, public
+       Expires: Tue, 04 Jun 2024 13:00:00 GMT
+       ETag: "abcdef123456"
+       Last-Modified: Mon, 03 Jun 2024 12:00:00 GMT
+       Content-Type: text/css
+     ```
+
+### 结论
+
+通过浏览器开发者工具和命令行工具（如 `curl` 和 `wget`），你可以轻松地检查某个网站资源的缓存设置，确认是否启用了强制缓存及其具体配置。
+
+### 协商缓存如何校验新鲜度
+
+协商缓存（Conditional Caching）是HTTP协议中的一种缓存机制，它允许客户端和服务器之间协商以确定缓存内容的有效性和新鲜度。这种机制可以减少不必要的数据传输，提高网络性能。协商缓存主要使用以下两种HTTP头来校验缓存的新鲜度：
+
+1. **ETag（实体标签，Entity Tag）**：
+   - **ETag 头**：服务器为每个资源生成一个唯一的标识符（ETag），并在响应头中返回。例如：`ETag: "abc123"`.
+   - **If-None-Match 头**：客户端在后续请求中将之前获取到的ETag值通过这个头发送给服务器。例如：`If-None-Match: "abc123"`.
+   - **服务器行为**：服务器检查客户端发送的ETag值是否与当前资源的ETag匹配。如果匹配，则表示资源未改变，服务器返回HTTP 304 Not Modified响应；如果不匹配，服务器返回新的资源和新的ETag。
+2. **Last-Modified 和 If-Modified-Since**：
+   - **Last-Modified 头**：服务器在响应头中返回资源的最后修改时间。例如：`Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT`.
+   - **If-Modified-Since 头**：客户端在后续请求中将之前获取到的最后修改时间通过这个头发送给服务器。例如：`If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT`.
+   - **服务器行为**：服务器检查客户端发送的时间戳是否与当前资源的最后修改时间一致。如果一致，则表示资源未改变，服务器返回HTTP 304 Not Modified响应；如果不一致，服务器返回新的资源和新的Last-Modified时间。
+
+#### 工作流程
+
+1. **初始请求**：
+   - 客户端请求资源。
+   - 服务器返回资源，同时附带ETag和Last-Modified头。
+2. **后续请求**：
+   - 客户端再次请求相同资源时，带上If-None-Match和/或If-Modified-Since头。
+   - 服务器根据头信息检查资源是否有更新。
+
+#### 例子
+
+1. **初次请求**：
+
+   ```
+   yaml
+   复制代码
+   GET /resource HTTP/1.1
+   Host: example.com
+   
+   HTTP/1.1 200 OK
+   ETag: "abc123"
+   Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
+   Content-Type: application/json
+   Content-Length: 1234
+   
+   { ... JSON data ... }
+   ```
+
+2. **后续请求**：
+
+   ```
+   mathematica
+   复制代码
+   GET /resource HTTP/1.1
+   Host: example.com
+   If-None-Match: "abc123"
+   If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT
+   
+   HTTP/1.1 304 Not Modified
+   ```
+
+通过这种方式，协商缓存可以有效减少带宽消耗和服务器负载，同时确保客户端获取到最新的资源。
