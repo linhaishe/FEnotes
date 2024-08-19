@@ -127,3 +127,100 @@ contract FunctionTypes{
 }
 ```
 
+```
+pragma solidity ^0.8.0;
+
+contract Example {
+    bytes1 public defaultValue;
+
+    function getDefaultValue() public view returns (bytes1) {
+        return defaultValue;
+    }
+}
+
+```
+
+在Solidity中，mapping 是一种数据结构，类似于键值对。在ERC20合约中，_balances 映射用于存储每个地址的代币余额。
+
+```
+solidity
+复制代码
+mapping(address => uint256) private _balances;
+```
+
+这行代码定义了一个名为 _balances 的映射，它将以 address 类型作为键，并将 uint256 类型的值与之关联。在ERC20合约中，每个地址（即每个用户的账户）都会对应一个 uint256 类型的余额值。
+
+因为这个映射被定义为 private，所以它只能在合约内部访问，不能从外部直接读取。但是，通常会有一个公共函数来获取某个地址的余额，例如：
+
+```
+solidity
+复制代码
+function balanceOf(address account) public view returns (uint256) {
+    return _balances[account];
+}
+```
+
+通过这个 balanceOf 函数，外部可以查询某个地址的余额。
+
+如果某个地址（用户）从未被记录过（即从未接收过任何代币），那么这个地址的 _balances 值将默认是 0。这是因为在Solidity中，未初始化的映射条目会默认返回其值类型的默认值，对于 uint256 类型，默认值是 0。
+
+总结来说，未记录的用户在 _balances 映射中的值为 0。
+
+## 常量
+
+```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
+contract Constant {
+    // constant变量必须在声明的时候初始化，之后不能改变
+    uint256 public constant CONSTANT_NUM = 10;
+    string public constant CONSTANT_STRING = "0xAA";
+    bytes public constant CONSTANT_BYTES = "WTF";
+    address public constant CONSTANT_ADDRESS = 0x0000000000000000000000000000000000000000;
+
+    // immutable变量可以在constructor里初始化，之后不能改变
+    uint256 public immutable IMMUTABLE_NUM = 9999999999;
+    address public immutable IMMUTABLE_ADDRESS;
+    uint256 public immutable IMMUTABLE_BLOCK;
+    uint256 public immutable IMMUTABLE_TEST;
+
+    // 利用constructor初始化immutable变量，因此可以利用
+    constructor(){
+        IMMUTABLE_ADDRESS = address(this);
+        IMMUTABLE_NUM = 1118;
+        IMMUTABLE_TEST = test();
+    }
+
+    function test() public pure returns(uint256){
+        uint256 what = 9;
+        return(what);
+    }
+}
+```
+
+说是改变会报错，但实际跑出来没有报错
+
+1.下面定义变量的语句中，会报错的一项是： 选择一个答案 A. uint256 public constant x1;
+
+B. uint256 public constant x2 = 10;
+
+C. uint256 public immutable x3;
+
+D. uint256 public immutable x4 = 10;
+
+ChatGPT
+答案是：
+
+A. uint256 public constant x1;
+
+理由如下：
+
+A. uint256 public constant x1; 会报错，因为 constant 变量必须在声明时初始化。如果不初始化，就会出现编译错误。constant 变量的值在编译时必须确定，并且在合约部署后不能改变。
+
+B. uint256 public constant x2 = 10; 不会报错，因为 constant 变量 x2 在声明时被正确初始化为 10。
+
+C. uint256 public immutable x3; 不会报错，因为 immutable 变量可以在声明时或在构造函数中初始化。在这种情况下，x3 还没有被初始化，但可以在构造函数中赋值。
+
+D. uint256 public immutable x4 = 10; 不会报错，因为 immutable 变量 x4 在声明时被正确初始化为 10。
+
+总结来说，constant 变量必须在声明时初始化，而 immutable 变量可以在声明时或构造函数中初始化。因此，选项 A 会导致编译错误。
