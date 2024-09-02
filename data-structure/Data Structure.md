@@ -6,12 +6,11 @@ https://miro.com/app/board/uXjVPEXED68=/
 
 # 数据结构/算法定义
 
-> *A data structure is a way of organizing and storing data in a computer so that it can be accessed and used efficiently. It refers to the logical or mathematical representation of data, as well as the implementation in a computer program.*
+> _A data structure is a way of organizing and storing data in a computer so that it can be accessed and used efficiently. It refers to the logical or mathematical representation of data, as well as the implementation in a computer program._
 >
 > 计算机中存储、组织数据的方式。
 
-> *The word* [***\*Algorithm\****](https://www.geeksforgeeks.org/fundamentals-of-algorithms) *means ”* **A set of finite rules or instructions to be followed in calculations or other problem-solving operations** *”*
-> *Or**”* **A procedure for solving a mathematical problem in a finite number of steps that frequently involves recursive operations”***.*
+> _The word_ [**\*\*Algorithm\*\***](https://www.geeksforgeeks.org/fundamentals-of-algorithms) _means ”_ **A set of finite rules or instructions to be followed in calculations or other problem-solving operations** _”_ > _Or\*\*”_ **A procedure for solving a mathematical problem in a finite number of steps that frequently involves recursive operations”\***.\*
 >
 > An [algorithm](https://www.techtarget.com/searchenterpriseai/definition/clustering-in-machine-learning) is a procedure used for solving a problem or performing a computation. Algorithms act as an exact list of instructions that conduct specified actions step by step in either hardware- or software-based routines.
 >
@@ -27,17 +26,17 @@ study video: https://www.bilibili.com/video/BV1x7411L7Q7?p=13&vd_source=5d5cb206
 
 数组是一种线性结构，并且可以在数组的任意位置差如何删除数据。
 
-数组在JS中的方法被封装的非常完善，查看API文档即可。
+数组在 JS 中的方法被封装的非常完善，查看 API 文档即可。
 
-普通语言的数组封装 (比如Java的数组列表)
+普通语言的数组封装 (比如 Java 的数组列表)
 
-1. 常见语言的数组不能存放不同的数据类型，因此所有在封装时通常存放在数组中的是Object类型
+1. 常见语言的数组不能存放不同的数据类型，因此所有在封装时通常存放在数组中的是 Object 类型
 2. 常见语言的数组容量不会自动改变(需要进行扩容操作)
 3. 常见语言的数组进行中间插入和删除操作性能比较低.
 
 ## stack / 栈
 
-There are two data structures that have some similarities to arrays, but which give us more control over the addition and removal of elements. These data structures are **stacks** and **queues**. 
+There are two data structures that have some similarities to arrays, but which give us more control over the addition and removal of elements. These data structures are **stacks** and **queues**.
 
 我们为了实现某些功能，必须对数组的任意性插入和任意性删除加以限制，从而产生的具有限制性的线性结构，则为栈和队列。
 
@@ -45,7 +44,7 @@ A stack is an ordered collection of items that follows the last in, first out **
 
 ![Lightbox](https://s2.loli.net/2024/08/19/fxFAzsd7mhbZUSJ.png)
 
-栈举例： 递归 - 递归容易出现栈溢出，如果没有做break
+栈举例： 递归 - 递归容易出现栈溢出，如果没有做 break
 
 **Creating an array-based Stack class**
 
@@ -160,7 +159,7 @@ export default class Stack {
 
 ### inro
 
-A queue is an ordered collection of items that follows the first in, first out (FIFO), also known as the first come, first served, principle. 
+A queue is an ordered collection of items that follows the first in, first out (FIFO), also known as the first come, first served, principle.
 
 先进先出，尾进端出。
 
@@ -306,13 +305,13 @@ export default class Deque {
 
 ### priority queue / 优先级队列
 
-A **priority queue** is a type of queue that arranges elements based on their priority values. 
+A **priority queue** is a type of queue that arranges elements based on their priority values.
 
 优先队列是计算机科学中的一类抽象数据类型。优先队列中的每个元素都有各自的优先级，优先级最高的元素最先得到服务；优先级相同的元素按照其在优先队列中的顺序得到服务。优先队列通常使用“堆”实现。
 
-There are several ways to implement a priority queue, including using an array, linked list, heap, or binary search tree, [binary heap](https://www.geeksforgeeks.org/binary-heap/) being the most common method to implement. heap的实现方式之后再展开。此处使用array的方式处理。
+There are several ways to implement a priority queue, including using an array, linked list, heap, or binary search tree, [binary heap](https://www.geeksforgeeks.org/binary-heap/) being the most common method to implement. heap 的实现方式之后再展开。此处使用 array 的方式处理。
 
-实现优先级队列相对队列主要有两方面需要考虑: 
+实现优先级队列相对队列主要有两方面需要考虑:
 
 1. 封装元素和优先级放在一起(可以封装一个新的构造函数
 2. 添加元素时，将新插入元素的优先级和队列中已经存在的元素优先级进行比较,以获得自己正确的位置
@@ -363,17 +362,17 @@ PriorityQueue.prototype.enqueue = function (element, priority) {
 
 ## linked lists / 链表
 
-数组的创建通常需要申请一段连续的内存空间(一整块的内存)，并且大小是固定的(大多数编程语言数组都是固定的)，所以当当前数组不能满足容量需求时，需要扩容。(一般情况下是申请一个更大的数组，比如2倍。然后将原数组中的元素复制过去)，而且在数组开头或中间位置插入数据的成本很高，需要进行大量元素的位移，尽管我们已经学过的JavaScript的Array类方法可以帮我们做这些事，但背后的原理依然是这样。
+数组的创建通常需要申请一段连续的内存空间(一整块的内存)，并且大小是固定的(大多数编程语言数组都是固定的)，所以当当前数组不能满足容量需求时，需要扩容。(一般情况下是申请一个更大的数组，比如 2 倍。然后将原数组中的元素复制过去)，而且在数组开头或中间位置插入数据的成本很高，需要进行大量元素的位移，尽管我们已经学过的 JavaScript 的 Array 类方法可以帮我们做这些事，但背后的原理依然是这样。
 
 - 要存储多个元素，另外一个选择就是链表
 - 但不同于数组，链表中的元素在内存中不必是连续的空间
 - 链表的每个元素由一个存储元素本身的节点和一个指向下一个元素的引用(有些语言称为指针或者连接)组成
 
-| Pros                                                         | Cons                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Pros                                                                     | Cons                                                                                 |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | 内存空间不是必须连续的。可以充分利用计算机的内存，实现灵活的内存动态管理 | 链表访问任何一个位置的元素时,都需要从头开始访问.(无法跳过第一个元素访问任何一个元素) |
-| 链表不必在创建时就确定大小，并且大小可以无限的延伸下去       | 无法通过下标直接访问元素,需要从头一个个访问,直到找到对应的元素 |
-| 链表在插入和删除数据时，时间复杂度可以达到O(1)。相对数组效率高很多 |                                                              |
+| 链表不必在创建时就确定大小，并且大小可以无限的延伸下去                   | 无法通过下标直接访问元素,需要从头一个个访问,直到找到对应的元素                       |
+| 链表在插入和删除数据时，时间复杂度可以达到 O(1)。相对数组效率高很多      |                                                                                      |
 
 ### 单向链表 / Singly LinÏked List
 
@@ -390,27 +389,18 @@ PriorityQueue.prototype.enqueue = function (element, priority) {
 链表的方法
 
 - push/append(element): This method adds a new element to the end of the list.
-- insert(element, position): This method inserts a new element at a specified position in the list. 
-- removeAt(position): This method removes an item from a specified position in the list. 
-- remove(element): This method removes an element from the list. 
-- update(position,element): 修改某个位置的元素 
-- getElementAt(index): This method returns the element of a specific position in the list. If the element does not exist in the list, it returns undefined. 
+- insert(element, position): This method inserts a new element at a specified position in the list.
+- removeAt(position): This method removes an item from a specified position in the list.
+- remove(element): This method removes an element from the list.
+- update(position,element): 修改某个位置的元素
+- getElementAt(index): This method returns the element of a specific position in the list. If the element does not exist in the list, it returns undefined.
 - indexOf(element): This method returns the index of the element in the list. If the element does not exist in the list, it returns -1.
-- isEmpty(): This method returns true if the linked list does not contain any elements, and false if the size of the linked list is bigger than 0. 
-- size(): This method returns the number of elements the linked list contains. It is similar to the length property of the array. 
+- isEmpty(): This method returns true if the linked list does not contain any elements, and false if the size of the linked list is bigger than 0.
+- size(): This method returns the number of elements the linked list contains. It is similar to the length property of the array.
 - toString(): This method returns a string representation of the linked list. As the list uses a Node class as an element, we need to overwrite the default .toString method inherited from the JavaScript Object class to output only the element values.
 
-### 双向链表 / Doubly Linked List
-
-> A **doubly linked list** is a data structure that consists of a set of nodes, each of which contains a **value** and **two pointers**, one pointing to the **previous node** in the list and one pointing to the **next node** in the list. This allows for efficient traversal of the list in **both directions**, making it suitable for applications where frequent **insertions** and **deletions** are required.
-
-![image-20240825213530496](https://s2.loli.net/2024/08/25/tnpBjNiQzcVWTo9.png)
-
-![image-20240825213615719](https://s2.loli.net/2024/08/25/7DvUTmSozLFk6qa.png)
-
-![image-20240825213603777](https://s2.loli.net/2024/08/25/SMrdtjnTZuagUGe.png)
-
 ```js
+// 单向链表
 function defaultEquals(a, b) {
   return a === b;
 }
@@ -554,3 +544,332 @@ export default class LinkedList {
 }
 ```
 
+### 双向链表 / Doubly Linked List
+
+> A **doubly linked list** is a data structure that consists of a set of nodes, each of which contains a **value** and **two pointers**, one pointing to the **previous node** in the list and one pointing to the **next node** in the list. This allows for efficient traversal of the list in **both directions**, making it suitable for applications where frequent **insertions** and **deletions** are required.
+
+双向列表的缺点：
+
+TBC
+
+![image-20240825213530496](https://s2.loli.net/2024/08/25/tnpBjNiQzcVWTo9.png)
+
+![image-20240825213615719](https://s2.loli.net/2024/08/25/7DvUTmSozLFk6qa.png)
+
+![image-20240825213603777](https://s2.loli.net/2024/08/25/SMrdtjnTZuagUGe.png)
+
+```js
+import { defaultEquals } from '../util';
+import LinkedList from './linked-list';
+import { DoublyNode } from './models/linked-list-models';
+
+// 1. 创建节点
+// 2. 判断头中尾
+// 3. 修改指针
+export default class DoublyLinkedList extends LinkedList {
+  constructor(equalsFn = defaultEquals) {
+    super(equalsFn);
+    this.tail = undefined;
+  }
+  push(element) {
+    const node = new DoublyNode(element);
+    if (this.head == null) { // 如果只有一个节点
+      this.head = node;
+      this.tail = node; // NEW
+    } else { // last item, 非第一个节点，放在最后面
+      // attach to the tail node // NEW
+      this.tail.next = node;
+      node.prev = this.tail;
+      this.tail = node;
+    }
+    this.count++;
+  }
+  insert(element, index) {
+    if (index >= 0 && index <= this.count) {
+      const node = new DoublyNode(element);
+      let current = this.head;
+      // 如果插入的位置是第一个位置，需要判断第一个位置后面是否存在别的数据。分为有或者没有的情况
+      // is first elements
+      if (index === 0) {
+        if (this.head == null) { // NEW
+          this.head = node;
+          this.tail = node; // NEW
+        } else { // has other elements
+          node.next = this.head;
+          this.head.prev = node; // NEW
+          this.head = node;
+        }
+      } else if (index === this.count) { // is last item / NEW
+        current = this.tail;
+        current.next = node;
+        node.prev = current;
+        this.tail = node;
+      } else { // middle item
+        const previous = this.getElementAt(index - 1);
+        current = previous.next;
+        node.next = current;
+        previous.next = node;
+        current.prev = node; // NEW
+        node.prev = previous; // NEW
+      }
+      this.count++;
+      return true;
+    }
+    return false;
+  }
+  removeAt(index) {
+    if (index >= 0 && index < this.count) {
+      let current = this.head;
+      if (index === 0) {
+        this.head = this.head.next;
+        // if there is only one item, then we update tail as well //NEW
+        if (this.count === 1) {
+          // {2}
+          this.tail = undefined;
+        } else {
+          this.head.prev = undefined;
+        }
+      } else if (index === this.count - 1) {
+        // last item //NEW
+        current = this.tail;
+        this.tail = current.prev;
+        this.tail.next = undefined;
+      } else {
+        current = this.getElementAt(index);
+        const previous = current.prev;
+        // link previous with current's next - skip it to remove
+        previous.next = current.next;
+        current.next.prev = previous; // NEW
+      }
+      this.count--;
+      return current.element;
+    }
+    return undefined;
+  }
+  indexOf(element) {
+    let current = this.head;
+    let index = 0;
+    while (current != null) {
+      if (this.equalsFn(element, current.element)) {
+        return index;
+      }
+      index++;
+      current = current.next;
+    }
+    return -1;
+  }
+  getHead() {
+    return this.head;
+  }
+  getTail() {
+    return this.tail;
+  }
+  clear() {
+    super.clear();
+    this.tail = undefined;
+  }
+  toString() {
+    if (this.head == null) {
+      return '';
+    }
+    let objString = `${this.head.element}`;
+    let current = this.head.next;
+    while (current != null) {
+      objString = `${objString},${current.element}`;
+      current = current.next;
+    }
+    return objString;
+  }
+  inverseToString() {
+    if (this.tail == null) {
+      return '';
+    }
+    let objString = `${this.tail.element}`;
+    let previous = this.tail.prev;
+    while (previous != null) {
+      objString = `${objString},${previous.element}`;
+      previous = previous.prev;
+    }
+    return objString;
+  }
+}
+
+```
+
+# set / 集合
+
+> A set is a collection of items that are unordered and consists of unique elements (meaning they cannot be repeated). This data structure uses the same mathematical concept as finite sets, but it is applied to a computer science data structure.
+>
+> 1. 无序的
+> 2. 不能重复
+
+ECMAScript 2015 introduced the Set class as part of the JavaScript API
+
+具体需要实现的方法
+
+- add(element): This adds a new element to the set.
+- delete(element): This removes the element from the set.
+- has(element): This returns true if the element exists in the set and false otherwise.
+- clear(): This removes all the elements from the set.
+- size(): This returns how many elements the set contains. It is similar to the length property of an array.
+- values(): This returns an array of all the values (elements) of the set.
+
+Set operations 
+
+- Union / 并集: Given two sets, this returns a new set of elements from both of the given sets
+
+  对于给定的两个集合，返回一个包含两个集合中所有元素的新集合
+
+- Intersection / 交集: Given two sets, this returns a new set with the elements that exist in both sets
+
+  对于给定的两个集合，返回一个包含两个集合中共有元素的新集合
+
+- Difference / 差集: Given two sets, this returns a new set with all the elements that exist in the first set and do not exist in the second set
+
+  对于给定的两个集合，返回一个包含所有存在于第一个集合且不存在于第二个集合的元素的新集合
+
+- Subset / 子集: This confirms whether a given set is a subset of another set
+
+  验证一个给定集合是否是另一集合的子集
+
+```js
+export default class Set {
+  constructor() {
+    this.items = {};
+  }
+
+  add(element) {
+    if (!this.has(element)) {
+      // 集合的元素是不能重复的，需要判断是否已经存在
+      this.items[element] = element;
+      return true;
+    }
+    return false;
+  }
+
+  delete(element) {
+    if (this.has(element)) {
+      delete this.items[element];
+      return true;
+    }
+    return false;
+  }
+
+  has(element) {
+    return Object.prototype.hasOwnProperty.call(this.items, element);
+  }
+
+  values() {
+    return Object.values(this.items);
+  }
+  // Set operations / 集合间的操作
+  /**
+   * 并集
+   */
+
+  // 在你的代码中，Set 是一个你自定义的类，它并不是 JavaScript 内置的 Set 类。当你在 union 方法内部使用 new Set() 时，你实际上是创建了一个新的 Set 实例，这个实例是基于你自定义的 Set 类而不是JavaScript的内置 Set 类。
+
+  // 这是因为当你定义了一个类（如 export default class Set { ... }），这个类就变成了一个构造函数，你可以使用 new 关键字来调用这个构造函数以创建该类的新实例。所以在 union 方法中，new Set() 这一行代码就是用来创建一个新的 Set 类的实例，这个新实例将用于存储两个集合的并集。
+
+  // 简而言之，因为 Set 在这里是你自己定义的一个类，所以你完全有权使用 new Set() 来创建它的实例，就像你可以对任何其他自定义类或JavaScript内置类（如 Array、Object 等）做的一样。
+  union(otherSet) {
+    const unionSet = new Set(); // 创建新的集合，为什么这里可以直接new？⬆
+    this.values().forEach((value) => unionSet.add(value)); // this 指向当前的Set
+    otherSet.values().forEach((value) => unionSet.add(value));
+    return unionSet;
+  }
+
+  /**
+   * 交集
+   */
+  intersection(otherSet) {
+    const intersectionSet = new Set();
+    const values = this.values();
+    const otherValues = otherSet.values();
+    // Fewer iterations means a cheaper processing cost,
+    // 找到最小的集合用最短的数据进行遍历
+    let biggerSet = values;
+    let smallerSet = otherValues;
+    if (otherValues.length - values.length > 0) {
+      biggerSet = otherValues;
+      smallerSet = values;
+    }
+    smallerSet.forEach((value) => {
+      if (biggerSet.includes(value)) {
+        intersectionSet.add(value);
+      }
+    });
+    return intersectionSet;
+  }
+
+  /**
+   * 差集
+   * 数据在setA里，但不在setB里
+   */
+  difference(otherSet) {
+    const differenceSet = new Set();
+    this.values().forEach((value) => {
+      if (!otherSet.has(value)) {
+        differenceSet.add(value);
+      }
+    });
+    return differenceSet;
+  }
+
+  /**
+   * 子集
+   */
+  isSubsetOf(otherSet) {
+    if (this.size() > otherSet.size()) {
+      return false;
+    }
+    let isSubset = true;
+    this.values().every((value) => {
+      if (!otherSet.has(value)) {
+        isSubset = false;
+        return false;
+      }
+      return true;
+    });
+    return isSubset;
+  }
+
+  isEmpty() {
+    return this.size() === 0;
+  }
+
+  size() {
+    return Object.keys(this.items).length;
+  }
+
+  clear() {
+    this.items = {};
+  }
+
+  toString() {
+    if (this.isEmpty()) {
+      return '';
+    }
+    const values = this.values();
+    let objString = `${values[0]}`;
+    for (let i = 1; i < values.length; i++) {
+      objString = `${objString},${values[i].toString()}`;
+    }
+    return objString;
+  }
+}
+
+```
+
+# Hash / 哈希
+
+哈希表通常是基于数组进行实现的,但是相对于数组,它也很多的优势:
+
+- 它可以提供非常快速的插入-删除-查找操作
+- 无论多少数据,插入和删除值需要接近常量的时间: 即O(1)的时间级.实际上,只需要几个机器指令即可完成哈希表的速度比树还要快,基本可以瞬间查找到想要的元素
+- 哈希表相对于树来说编码要容易很多。
+
+哈希表相对于数组的一些不足:
+
+- 哈希表中的数据是没有顺序的,所以不能以一种固定的方式(比如从小到大)来遍历其中的元素。
+- 通常情况下，哈希表中的key是不允许重复的,不能放置相同的key, 用于保存不同的元素。
