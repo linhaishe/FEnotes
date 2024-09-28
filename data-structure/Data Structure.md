@@ -873,3 +873,253 @@ export default class Set {
 
 - 哈希表中的数据是没有顺序的,所以不能以一种固定的方式(比如从小到大)来遍历其中的元素。
 - 通常情况下，哈希表中的key是不允许重复的,不能放置相同的key, 用于保存不同的元素。
+
+霍纳算法 - 计算哈希值
+
+![image-20240925220637602](https://s2.loli.net/2024/09/25/8DYvourVJnHeN9F.png)
+
+
+2024/09/04
+
+HashTable class, also known as HashMap, a hash implementation of the Dictionary class. Hashing consists of finding a value in a data structure in the shortest time possible.
+
+TBC - unicode 的前世今生 to be add
+
+解决冲突的方法：
+
+1. 链地址法（拉链法）：每个数组单元中存储的不再是单个数据，而是一个链条。
+
+2. 开放地址法：寻找空白的单元格莱添加重复的数据。
+
+   探索空白的的位置方式不同，有三种方法：
+
+   - 线性探测：每次步长+1，一个一个位置去查找空白单元
+   - 二次探测：二次探测可以解决线性探测的聚集问题。对步长进行了优化，1，4，9，16
+   - 再哈希法：把关键字用另外一个哈希函数，再进行一次哈希化，用这次哈希化的结果作为步长
+     - 哈希函数：1. stepSize = constant - (key % constant); 2. 其中 constant 是质数，且小于数组的容量。
+     - 优秀的哈希函数应该具有快速的计算且尽可能的将元素映射到不同的位置，让元素在哈希表中均匀的分布。
+
+## 哈希函数
+
+- 哈希函数：1. stepSize = constant - (key % constant); 2. 其中 constant 是质数，且小于数组的容量。
+- 优秀的哈希函数应该具有快速的计算，尽最快的速度获取元素对应的 hashcode 且尽可能的将元素映射到不同的位置，让元素在哈希表中均匀的分布。
+
+快速计算：霍纳法则/秦九韶算法，提升时间复杂度
+
+均匀分布：链地址法/开放地址法，在使用常量的地方，尽量使用质数
+
+质数的使用：哈希表的长度/N 次幂的底数
+
+The hash function we will use in this book is the most common one, called a lose-lose hash function, in which we simply sum up the ASCII values of each character of the key length:
+
+![image-20240928232651450](https://s2.loli.net/2024/09/28/Q1pz32uWo64Dah5.png)
+
+```js
+loseloseHashCode(key) {
+  if (typeof key === 'number') {
+    return key;
+  }
+  const tableKey = this.toStrFn(key);
+  let hash = 0;
+  for (let i = 0; i < tableKey.length; i++) {
+    hash += tableKey.charCodeAt(i);
+  }
+  return hash % 37;
+}
+djb2HashCode(key) {
+  const tableKey = this.toStrFn(key);
+  let hash = 5381; // consists of initializing the hash variable with a prime number,most implementations use 5381
+  for (let i = 0; i < tableKey.length; i++) {
+    // multiply the hash value by 33 (used as a magical number)
+    hash = (hash * 33) + tableKey.charCodeAt(i); // sum it with the ASCII value of the characte
+  }
+  // use the rest of the division of the total by another random prime number ({5}), greater than the size we think the HashTable instance can have. just random, size in what we need.
+  return hash % 1013;
+}
+```
+
+- put(key, value): This method adds a new item to the hash table (or it can also update it)
+
+- remove(key): This method removes the value from the hash table using the key
+
+- get(key): This method returns a specific value searched by the key
+
+collisions: separate chaining, linear probing, and double hashing.
+
+### separate chaining
+
+separate chaining（分离链接法）：做法是将散列到同一个值的所有元素保留到一个链表中。
+
+![image-20240928232755130](https://s2.loli.net/2024/09/28/oAQdDkfS89nztTN.png)
+
+### linear probing
+
+linear probing（线性探测）**Open Addressing**：all elements are stored in the **hash table** itself. So at any point, the size of the table must be greater than or equal to the total number of keys (Note that we can increase table size by copying old data if needed). This approach is also known as closed hashing.
+
+每个数据都会直接被存储在 hash table 里，如果有相同的数据，则 index+1.如果需要查询到相同的 key，就 index+1 一个一个找下去。
+
+![image-20240928232851124](https://s2.loli.net/2024/09/28/sEUYgVbTc4JBa8n.png)
+
+1. soft delete: 一个一个判断是否是需要删除的数据。删除的数据的位置会被放置一个 flag，每次查询的时候，会通过判断是否是 delete flag，如果是，则跳过，检查下一个数据。如果不是且是对应的数据，则删除，并添加 delte flag.
+
+   ![image-20240928232938744](https://s2.loli.net/2024/09/28/RZ89q2naKFYIBeE.png)
+
+2. lazy delete
+
+   second approach requires verifying whether it is necessary to move one or more elements to a backward position.
+
+   The second approach requires verifying whether it is necessary to move one or more elements to a backward position. When searching for a key, this approach prevents finding an empty spot, but if it is necessary to move elements, this means we will need to shift key-values within the hash table. The following diagram exemplifies this process.
+
+   From there, when doing a deletion, you can shift elements backwards one spot to fill the gap from the removed element until you either hit a blank or an element that's already in the right place and doesn't need to be moved.
+
+   删除之后移动后面的元素向前面的位置移动，直到你已经遇到空白处或者对应的元素的位置则会停止查找。
+
+   ![image-20240928233030197](https://s2.loli.net/2024/09/28/nfJ6DByxCRm3Sgd.png)
+
+# Tree / 树
+
+a tree, which is very useful for storing information that needs to be found easily.
+
+- Tree terminology
+- Creating a binary search tree
+- Traversing a tree / 树遍历 / tree traversal
+- Adding and removing nodes
+- The AVL tree
+
+## tree terminology
+
+A tree is an abstract model of a hierarchical structure
+
+![image-20240928233224039](https://s2.loli.net/2024/09/28/vPGrnx3LzgsqBJ5.png)
+
+- <mark>root</mark>: The top node of a tree
+- <mark>internal nodes</mark>: is a node with at least one child (7, 5, 9, 15, 13, and 20).
+- <mark>external nodes / leaf</mark>: is a node that does not have children.
+- <mark>ancestors / descendants</mark> : The ancestors of a node (except the root) are the parent, grandparent, great-grandparent, and so on.The descendants of a node are children (child), grandchildren (grandchild), great-grandchildren (great-grandchild), and so on. node 5 has 7 and 11 as its ancestors and 3 and 6 as its descendants.
+- <mark>subtree</mark>: A subtree consists of a node and its descendants.
+
+  the nodes 13, 12, and 14 constitute a subtree from the tree of the preceding diagram.
+
+- <mark>The depth of a node</mark>: The depth of a node consists of the number of ancestors. For example, node 3 has a depth of 3 because it has three ancestors (5, 7, and 11).
+
+- <mark>The height of a tree</mark>: The height of a tree consists of the maximum depth of any node. A tree can also be broken down into levels.
+
+  The root is on level 0, its children are on level 1, and so on. The tree from the preceding diagram has a height of 3 (the maximum depth is 3, as shown in the preceding figure on level 3).
+
+## The binary and binary search trees
+
+A node in a binary tree has two children at most: one left child and one right child.
+
+A binary search tree (BST) is a binary tree, but it only allows you to store nodes with lesser values on the left-hand side and nodes with greater values on the right-hand side.
+
+![image-20240928233303837](https://s2.loli.net/2024/09/28/GBRbTn2PsdqjlQg.png)
+
+the function we need:
+
+- insert(key): This method inserts a new key in the tree
+- search(key): This method searches for the key in the tree and returns true if it exists and false if the node does not exist
+- inOrderTraverse(): This method visits all nodes of the tree using in-order traverse
+- preOrderTraverse(): This method visits all nodes of the tree using pre-order traverse
+- postOrderTraverse(): This method visits all the nodes of the tree using postorder traverse
+- min(): This method returns the minimum value/key in the tree
+- max(): This method returns the maximum value/key in the tree
+- remove(key): This method removes the key from the tree
+
+## Traversing (or walking) a tree
+
+Traversing (or walking) a tree is the process of visiting all the nodes of a tree and performing an operation at each node.
+
+有非常多的方式可以做树遍历，从上从下从左从右，接下来的章节会使用: in-order, pre-order, and post-order.这三种方式。
+
+### in-order traversal
+
+An in-order traversal visits all the nodes of a BST in an ascending order, meaning it will visit the nodes from the smallest to the largest. An application of in-order traversal would be to sort a tree. 从最小的 node 开始遍历依次到最大的
+
+```
+3 5 6 7 8 9 10 11 12 13 14 15 18 20 25
+```
+
+![image-20240928233424130](https://s2.loli.net/2024/09/28/DsIl2fGiazOjBw7.png)
+
+### pre-order traversal
+
+A pre-order traversal visits the node prior to its descendants. 从祖先开始再到子辈进行遍历获得数据
+
+```
+11 7 5 3 6 9 8 10 15 13 12 14 20 18 25
+```
+
+![image-20240928233518668](https://s2.loli.net/2024/09/28/mf9JpROVaHAB2vz.png)
+
+### post-order traversal
+
+A post-order traversal visits the node after it visits its descendants. An application of post-order traversal could be computing the space used by a file in a directory and its subdirectories.先遍历子辈节点再遍历祖先节点，会在没有子辈节点后再遍历祖辈节点，所以 7,15,11 都在每个子节点遍历完后才能遍历到。
+
+```
+3 6 5 8 10 9 7 12 14 13 18 25 20 15 11
+```
+
+![image-20240928233554353](https://s2.loli.net/2024/09/28/gzF5fbVsy7Gq2nJ.png)
+
+## Searching for values in a tree
+
+### Searching for minimum/maximum values
+
+### Searching for a specific value
+
+## removing
+
+// 1 - a leaf node
+
+// 2 - a node with only 1 child / a left or right child
+
+// 3 - a node with 2 children
+
+## self-balancing tree
+
+### <mark>AVL tree??</mark>
+
+Adelson-Velskii and Landi’s tree
+
+The AVL tree is a self-balancing tree, meaning the tree tries to self-balance whenever a node is added to it or removed from it. The height of the left or right subtree of any node (and any level) differs by 1 at most. This means the tree will try to become a complete tree whenever possible while adding or removing a node.
+
+### Red-Black tree
+
+# Graphs
+
+## Graph terminology
+
+a _vertex_ ( pl. : _vertices_ or *vertex*es)
+
+A graph is an abstract model of a network structure. A graph is a set of nodes (or vertices) connected by edges. Learning about graphs is important because any binary relationship can be represented by a graph.
+
+A graph G = (V, E) is composed of:
+
+- V: A set of vertices
+- E: A set of edges connecting the vertices in V
+
+![image-20240928233724498](https://s2.loli.net/2024/09/28/Y7JXeD9EVnZqa4W.png)
+
+1. adjacent verticesÏ
+
+2. degree of a vertex: 有多少个相邻顶点被链接，A 有 3 dgree，B 有 2 degree
+
+3. path: is a sequence of consecutive vertices. (一系列连续的顶点), A - B - E - W - I.
+
+   A simple path does not contain repeated vertices. A - D - G
+
+   cycle: is a simple path, except for the last vertex which is the same as the first vertex. A - D - C - A
+
+4. A graph is acyclic(无环的) if it does not have cycles. A graph is connected if there is a path between every pair of vertices.
+
+## Representing a graph in three different ways
+
+### adjacency matrix / 邻接矩阵
+
+## The graph data structure
+
+## Graph search algorithms
+
+## Shortest path algorithms
+
+## Minimum spanning tree algorithms
