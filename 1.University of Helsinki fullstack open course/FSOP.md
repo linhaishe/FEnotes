@@ -27,3 +27,67 @@ Large language models such as [ChatGPT](https://chat.openai.com/auth/login), [Cl
 Personally, I mainly use Copilot, which integrates seamlessly with VS Code thanks to the [plugin](https://visualstudio.microsoft.com/github-copilot/).
 
 Copilot is useful in a wide variety of scenarios. Copilot can be asked to generate code for an open file by describing the desired functionality in text:
+
+# Part 2
+
+[Create your own snippets](https://code.visualstudio.com/docs/editing/userdefinedsnippets#_create-your-own-snippets)
+
+```
+{
+  "console.log": {
+    "prefix": "clog",
+    "body": [
+      "console.log('$1')",
+    ],
+    "description": "Log output to console"
+  }
+}
+```
+
+## web workers
+
+In today's browsers, it is possible to run parallelized code with the help of so-called [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). The event loop of an individual browser window is, however, still only handled by a [single thread](https://medium.com/techtrument/multithreading-javascript-46156179cf9a).
+
+Web Workers are a simple means for web content to run scripts in background threads. The worker thread can perform tasks without interfering with the user interface. 
+
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers#see_also
+
+https://medium.com/techtrument/multithreading-javascript-46156179cf9a
+
+## run server
+
+https://github.com/typicode/json-server
+
+```js
+npm install json-server --save-dev
+```
+
+```js
+npx json-server --port 3001 db.json
+```
+
+# Part 3
+
+Representational State Transfer, aka REST, was introduced in 2000 in Roy Fielding's [dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm). REST is an architectural style meant for building scalable web applications.
+
+If you use Visual Studio Code, you can use the VS Code [REST client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) plugin instead of Postman.
+
+## Debugging Node applications
+
+visit Visual Studio Code's [Debugging documentation](https://code.visualstudio.com/docs/editor/debugging).
+
+## Chrome dev tools
+
+Debugging is also possible with the Chrome developer console by starting your application with the command:
+
+```bash
+node --inspect index.js
+```
+
+![dev tools with green node logo icon](https://s2.loli.net/2025/08/24/tw5NO8uSLXDsEla.png)
+
+You can access the debugger by clicking the green icon - the node logo - that appears in the Chrome developer console:
+
+The [Jidoka](https://leanscape.io/principles-of-lean-13-jidoka/) (stop and fix) principle from Toyota Production Systems is very effective in this situation as well.
+
+Recently many projects have adopted the Airbnb [Javascript style guide](https://github.com/airbnb/javascript) by taking Airbnb's [ESlint](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb) configuration into use.
