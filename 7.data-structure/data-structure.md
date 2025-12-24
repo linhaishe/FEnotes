@@ -20,6 +20,30 @@ all source code in: https://stackblitz.com/edit/vitejs-vite-iznntc?file=data-str
 
 study video: https://www.bilibili.com/video/BV1x7411L7Q7?p=13&vd_source=5d5cb2062ab059c137f6aa8f9809b93c
 
+# 专有名词
+
+## 1. O(1)
+
+**O(1)** 里的 **O** 来自 **Big-O 表示法**，用来描述**算法的时间复杂度或空间复杂度**。
+
+**O(1) 表示“常数复杂度”**：不管数据有多少，执行时间（或占用空间）都是固定的。O(1) 不是“很快”，是执行次数不随数据规模变化
+
+- O(1)：一次就拿到。你有一个抽屉，你知道钥匙就在第 3 个格子不管抽屉有 10 个还是 1 万个👉 **直接拿第 3 个，一步完成**
+- O(n)：**数据搬移，给新元素腾地方**：一个个找：不知道钥匙在哪，从第 1 个翻到第 n 个，数据越多，时间越长
+- O(log n)：对半找：类似二分查找，每次排除一半
+
+```js
+const arr = [10, 20, 30];
+arr[1]; // O(1)
+
+const map = new Map();
+map.get('key'); // O(1)
+
+arr.find(x => x === 30); // O(n)
+```
+
+
+
 # 线性结构
 
 ## array / 数组
@@ -362,17 +386,29 @@ PriorityQueue.prototype.enqueue = function (element, priority) {
 
 ## linked lists / 链表
 
+数组就是一块连续的内存空间，有了这块内存空间的首地址，就能直接通过索引计算出任意位置的元素地址。
+
+链表不一样，一条链表并不需要一整块连续的内存空间存储元素。链表的元素可以分散在内存空间的天涯海角，通过每个节点上的 `next, prev` 指针，将零散的内存块串联起来形成一个链式结构。
+
 数组的创建通常需要申请一段连续的内存空间(一整块的内存)，并且大小是固定的(大多数编程语言数组都是固定的)，所以当当前数组不能满足容量需求时，需要扩容。(一般情况下是申请一个更大的数组，比如 2 倍。然后将原数组中的元素复制过去)，而且在数组开头或中间位置插入数据的成本很高，需要进行大量元素的位移，尽管我们已经学过的 JavaScript 的 Array 类方法可以帮我们做这些事，但背后的原理依然是这样。
 
 - 要存储多个元素，另外一个选择就是链表
 - 但不同于数组，链表中的元素在内存中不必是连续的空间
 - 链表的每个元素由一个存储元素本身的节点和一个指向下一个元素的引用(有些语言称为指针或者连接)组成
 
-| Pros                                                                     | Cons                                                                                 |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+数组最大的优势是支持通过索引快速访问元素，而链表就不支持。
+
+| Pros                                                         | Cons                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
 | 内存空间不是必须连续的。可以充分利用计算机的内存，实现灵活的内存动态管理 | 链表访问任何一个位置的元素时,都需要从头开始访问.(无法跳过第一个元素访问任何一个元素) |
-| 链表不必在创建时就确定大小，并且大小可以无限的延伸下去                   | 无法通过下标直接访问元素,需要从头一个个访问,直到找到对应的元素                       |
-| 链表在插入和删除数据时，时间复杂度可以达到 O(1)。相对数组效率高很多      |                                                                                      |
+| 链表不必在创建时就确定大小，并且大小可以无限的延伸下去       | 无法通过下标直接访问元素,需要从头一个个访问,直到找到对应的元素 |
+| 链表在插入和删除数据时，时间复杂度可以达到 O(1)。相对数组效率高很多 |                                                              |
+
+| 操作                        | 数组       | 链表       |
+| --------------------------- | ---------- | ---------- |
+| **按下标访问**              | ✅ **O(1)** | ❌ O(n)     |
+| **插入 / 删除（中间）**     | ❌ **O(n)** | ✅ **O(1)** |
+| **插入 / 删除（已知节点）** | —          | ✅ **O(1)** |
 
 ### 单向链表 / Singly Linked List
 
@@ -385,6 +421,29 @@ PriorityQueue.prototype.enqueue = function (element, priority) {
 <img src="https://s2.loli.net/2024/08/25/2qDvI4osxFZdlgX.png" alt="image-20240825194807509" style="zoom:50%;" />
 
 <img src="https://s2.loli.net/2024/08/25/ILhtwMAjK4PGvC2.png" alt="image-20240825195031042" style="zoom: 33%;" />
+
+```js
+var ListNode = function(x) {
+    this.val = x;
+    this.next = null;
+};
+
+// 输入一个数组，转换为一条单链表
+var createLinkedList = function(arr) {
+    if (arr == null || arr.length == 0) {
+        return null;
+    }
+    var head = new ListNode(arr[0]);
+    var cur = head;
+    for (var i = 1; i < arr.length; i++) {
+        cur.next = new ListNode(arr[i]);
+        cur = cur.next;
+    }
+    return head;
+}
+```
+
+
 
 链表的方法
 
@@ -548,9 +607,36 @@ export default class LinkedList {
 
 > A **doubly linked list** is a data structure that consists of a set of nodes, each of which contains a **value** and **two pointers**, one pointing to the **previous node** in the list and one pointing to the **next node** in the list. This allows for efficient traversal of the list in **both directions**, making it suitable for applications where frequent **insertions** and **deletions** are required.
 
+```js
+function DoublyListNode(x) {
+  this.val = x;
+  this.next = this.prev = null;
+}
+
+var createDoublyLinkedList = function(arr) {
+  if (arr === null || arr.length === 0) {
+    return null;
+  }
+
+  var head = new DoublyListNode(arr[0]);
+  var cur = head;
+
+  // for 循环迭代创建双链表
+  for (var i = 1; i < arr.length; i++) {
+    var newNode = new DoublyListNode(arr[i]);
+    cur.next = newNode;
+    newNode.prev = cur;
+    cur = cur.next;
+  }
+
+  return head;
+}
+```
+
 双向列表的缺点：
 
-TBC
+**单向链表：省内存，逻辑简单**
+ **双向链表：省时间，逻辑复杂**
 
 <img src="https://s2.loli.net/2024/08/25/tnpBjNiQzcVWTo9.png" alt="image-20240825213530496" style="zoom: 50%;" />
 

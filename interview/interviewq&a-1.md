@@ -826,6 +826,26 @@ https://vue3js.cn/interview/css/sass_less_stylus.html#%E4%BA%8C%E3%80%81%E6%9C%8
 
 ### 1. JavaScript有哪些数据类型，它们的区别？
 
+#### 可分为原始数据类型和引用数据类型
+
+- 栈：Primitive Types 原始数据类型（Undefined、Null、Number、String、Boolean、BigInt、Symbol） 
+
+- 堆：Reference Type 引用数据类型（Object）
+
+  - Object
+    Array
+    Function
+    Date
+    RegExp
+    Map / Set
+    WeakMap / WeakSet
+    Error
+
+    Json
+
+BigInt / Symbol 是“值本身” - 原始类型
+Date / RegExp / Error / Set / Map 是“对象能力” - Object
+
 JavaScript 中常见数据类型有Number、String、Boolean、Object、Array、Json、Function、Date、RegExp、Error、undefined、Null等十几种。ES6还有新增的数据类型有BigInt、Symbol、Set、Map等。
 
 #### Symbol BigInt Set Map
@@ -837,13 +857,7 @@ JavaScript 中常见数据类型有Number、String、Boolean、Object、Array、
 
 - `Map` 是一个带键的数据项的集合，就像一个对象一样。但是它们直接最大的差别是 Map 允许任何类型的键。
 
-#### 可分为原始数据类型和引用数据类型
-
-- 栈：原始数据类型（Undefined、Null、Boolean、Number、String） 
-
-- 堆：引用数据类型（对象、数组和函数）
-
-### 2. 数据类型检测方式
+### 2. ==数据类型检测方式==
 
 #### a. typeof
 
@@ -948,7 +962,7 @@ getType(function(){}) // "function" typeof能判断，因此首字母小写
 getType(/123/g)      //"RegExp" toString返回
 ```
 
-### 3. 检测数组的方式有哪些
+### 3. ==检测数组的方式有哪些==
 
 ```js
 Object.prototype.toString.call(obj).slice(8,-1) === 'Array';
@@ -975,7 +989,7 @@ Array.prototype.isPrototypeOf(obj)
 
      - `pop()`: 用于删除数组的最后一项，同时减少数组的`length` 值，返回被删除的项 ⭕️
      - `shift()`: 用于删除数组的第一项，同时减少数组的`length` 值，返回被删除的项 ⭕️
-     - `splice()`: 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组 ⭕️
+     - `splice()`: 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组，开始位置不会被删除 ⭕️
      - `slice()`: 不影响原数组：创建一个包含原有数组中一个或多个元素的新数组 ❌
 
    - 改
@@ -1029,9 +1043,53 @@ Array.prototype.isPrototypeOf(obj)
 | `find()` 和 `findIndex()`     | 否                 | 数组方法，find()返回的是第一个符合条件的值；findIndex()返回的是第一个返回条件的值的索引值 |
 | `reduce()` 和 `reduceRight()` | 否                 | 数组方法，reduce()对数组正序操作；reduceRight()对数组逆序操作 |
 
-### 5. forEach() / map() / for...of 跳出循环
+### 5. forEach() / map() / for...of forof跳出循环
 
-在 forEach 中，不能使用 continue 和 break ，都会报错。可以使用 return 或 return false 跳出循环，但是效果与 for 中 continue 一样。 这种方法无法一次结束所有循环。
+`map` / `forEach` 里不能用 `break` 和 `continue`，
+ 因为它们是回调函数，不是循环语句；
+ 如果需要中断遍历，应使用 `for...of`、`some` 或 `every`。
+
+在 forEach 中，不能使用 continue 和 break ，都会报错。可以使用 return 或 return false 跳出循环，但是效果与 for 中 continue 一样。 这种方法无法一次结束所有循环。`map` 内部是一个 **函数作用域**回调函数 ≠ 循环体
+
+| 方法        | 能 break  | 能 continue | 说明          |
+| ----------- | --------- | ----------- | ------------- |
+| for / while | ✅         | ✅           | 传统循环      |
+| for...of    | ✅         | ✅           | 推荐          |
+| forEach     | ❌         | ❌           | 回调函数      |
+| map         | ❌         | ❌           | 映射          |
+| filter      | ❌         | ❌           | 筛选          |
+| some        | ✅（自动） | ❌           | 遇 true 结束  |
+| every       | ✅（自动） | ❌           | 遇 false 结束 |
+
+```js
+for (初始化; 条件; 每次循环后的操作) {
+  // 循环体
+}
+
+for (let i = 1; i <= 5; i++) {
+  if (i === 3) {
+    break;
+  }
+  console.log(i);
+}
+
+let i = 1;
+
+while (true) {
+  if (i === 4) {
+    break;
+  }
+  console.log(i);
+  i++;
+}
+
+for (let i = 1; i <= 5; i++) {
+  if (i === 3) {
+    continue; // 跳过当前这一次循环
+  }
+  console.log(i);
+} // 1 2 4 5
+```
 
 如何在forEach/map中跳出循环的总结：
 
@@ -1144,6 +1202,22 @@ for (let i = 0; i < arr.length; i++) {
 
 ### 6. 字符串的操作方法
 
+`slice(start, end)` 里如果 `end` 是负数，表示：`字符串.length + end`
+
+| 方法                      | 一句话                         |
+| ------------------------- | ------------------------------ |
+| **slice(start, end)**     | 按索引区间切（最推荐 ✅）       |
+| **substr(start, length)** | 从 start 取 length（已废弃 ❌） |
+| **substring(start, end)** | 按区间切，但会自动“纠正”参数   |
+
+| 对比点           | slice         | substr   | substring     |
+| ---------------- | ------------- | -------- | ------------- |
+| 第二个参数       | end（不包含） | length   | end（不包含） |
+| 是否支持负数     | ✅ 支持        | ⚠️ 不可靠 | ❌ 不支持      |
+| start > end      | 返回空        | 正常取   | **自动交换**  |
+| 是否修改原字符串 | ❌             | ❌        | ❌             |
+| 标准状态         | ✅ 推荐        | ❌ 已废弃 | ✅ 仍可用      |
+
 1. 操作方法
 
    - 增
@@ -1154,9 +1228,46 @@ for (let i = 0; i < arr.length; i++) {
 
      这里的删的意思并不是说删除原字符串的内容，而是创建字符串的一个副本，再进行操作
 
+     `substr()` 已废弃，不建议再用，新代码只用 `substring()` 或 `slice()`，都只传1-2个参数
+
      - slice()
      - substr()
-     - substring()
+     - substring() 
+
+     ```js
+     const str = "abcdef";
+     
+     str.slice(1, 4);      // "bcd"
+     str.substring(1, 4); // "bcd"
+     str.substr(1, 3);    // "bcd"
+     
+     // 第二个参数含义不同（关键）
+     str.slice(1, 4);    // 1 → 4 // "bcd"
+     str.substring(1,4);// 1 → 4 // "bcd"
+     str.substr(1,4);   // 从 1 开始取 4 个 // "bcde"
+     
+     
+     // 负数的差异（最重要）
+     str.slice(-3);      // "def"
+     str.substring(-3); // "abcdef"（负数当 0）
+     str.substr(-3);    // ❌ 行为不稳定（不推荐）
+     
+     // start > end 的情况（面试常考）
+     str.slice(4, 1);      // ""
+     str.substring(4, 1); // "bcd" **自动交换**...
+     
+     // 只传一个参数
+     str.slice(2);      // "cdef"
+     str.substring(2); // "cdef"
+     str.substr(2);    // "cdef"
+     
+     str.slice(-2); // "ef" ✅ 推荐
+     
+     'abcdef'.slice(1, -1);  // 'bcde'
+     'abcdef'.slice(0, -2);  // 'abcd'
+     'abcdef'.slice(-3);     // 'def'
+     'abcdef'.slice(-3, -1); // 'de'
+     ```
 
    - 改
 
@@ -1182,10 +1293,10 @@ for (let i = 0; i < arr.length; i++) {
    - search():接收一个参数，可以是一个正则表达式字符串，也可以是一个`RegExp`对象，找到则返回匹配索引，否则返回 -1
    - replace():接收两个参数，第一个参数为匹配的内容，第二个参数为替换的元素（可用函数
 
-### 7. ⚡️检测对象的方式有哪些
+### 7. ==⚡️检测对象的方式有哪些==
 
 ```js
-Object.prototype.toString.call({}) === 'Object';
+Object.prototype.toString.call({}) === '[object Object]'
 obj instanceof object
 console.log(({}).constructor === Object); // true
 ```
@@ -1200,7 +1311,7 @@ console.log(({}).constructor === Object); // true
 
 - 当对这两种类型使用 typeof 进行判断时，Null 类型化会返回 “object”，这是一个历史遗留的问题。当使用双等号对两种类型的值进行比较时会返回 true，使用三个等号时会返回 false。
 
-### 9. intanceof 操作符的实现原理及实现 
+### 9. ==intanceof 操作符的实现原理及实现==
 
 instanceof 运算符用于判断构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
 
@@ -1275,6 +1386,33 @@ Object.prototype.toString.call(window)   //"[object Window]"
 
 ### 10. 为什么`0.1+0.2 ! == 0.3`，如何让其相等
 
+JavaScript 的 `Number` 使用 **64 位双精度浮点数（double）**，尾数是**有限长度的二进制**，小数无法用有限二进制精确表示时，会发生**舍入误差**
+
+因为 JavaScript 使用 IEEE 754 浮点数 Floating Point Number，0.1 和 0.2 在二进制中是无限循环小数，只能近似存储，导致相加产生精度误差。
+
+`0.2 + 0.2 === 0.4` 成立，是因为浮点舍入后恰好等于 0.4；
+
+**金额或者电商场景**，我会把金额转成整数去算，比如用“分”代替“元”，避免小数精度问题。
+
+**比较大小的时候**，不会直接用 `===`，会用一个误差范围，可以用 `Number.EPSILON` 来判断。
+
+**UI 展示**的时候，为了好看，会用 `toFixed` 四舍五入显示，但注意这是展示，不影响计算精度。
+
+**金融或者利率等高精度计算**，我会用专门的高精度库，比如 `decimal.js`。
+
+**普通的计算**，如果不涉及精确要求，就直接接受浮点数的误差。
+
+如果**数值超过安全整数范围**，为了避免精度丢失，会使用 `BigInt`。”
+
+| 场景                       | 推荐方案             |
+| -------------------------- | -------------------- |
+| 金额 / 电商                | 整数化               |
+| 比较大小                   | epsilon              |
+| UI 显示                    | toFixed              |
+| 金融 / 利率                | 高精度库             |
+| 普通计算                   | 接受误差             |
+| 超过安全整数就可能丢失精度 | 可以用 `BigInt` 替代 |
+
 [Javascript 数字精度丢失的问题](https://vue3js.cn/interview/JavaScript/loss_accuracy.html#%E4%B8%80%E3%80%81%E5%9C%BA%E6%99%AF%E5%A4%8D%E7%8E%B0)
 
 计算机是通过二进制的方式存储数据的，所以计算机计算0.1+0.2的时候，实际上是计算的两个数的二进制的和。
@@ -1282,6 +1420,9 @@ Object.prototype.toString.call(window)   //"[object Window]"
 0.1，0.2 表示为二进制会有精度的损失，比较时可引入一个很小的数值 `Number.EPSILON` 容忍误差，其值为 2^-52。
 
 在ES6中，提供了`Number.EPSILON`属性，而它的值就是2^-52.
+
+Number.MAX_SAFE_INTEGER = 2^53 - 1
+Number.MIN_SAFE_INTEGER = -(2^53 - 1)
 
 判断`0.1 + 0.2 - 0.3`是否小于`Number.EPSILON`，如果小于，就可以判断为`0.1 + 0.2 === 0.3`
 
@@ -1291,6 +1432,39 @@ function equal(a, b) {
 }
 
 console.log(numberepsilon(0.1 + 0.2, 0.3)); // true
+```
+
+```js
+// 金额统一用“分”
+const price1 = 10; // 0.1 元 → 10 分
+const price2 = 20; // 0.2 元 → 20 分
+
+(price1 + price2) / 100; // 0.3
+
+// 比较大小
+function isEqual(a, b, epsilon = Number.EPSILON) {
+  return Math.abs(a - b) < epsilon;
+}
+
+isEqual(0.1 + 0.2, 0.3); // true
+
+// 比较时引入误差容忍（epsilon）
+function isEqual(a, b, epsilon = Number.EPSILON) {
+  return Math.abs(a - b) < epsilon;
+}
+
+isEqual(0.1 + 0.2, 0.3); // true
+
+// 结果取舍（toFixed / Math.round）
+(0.1 + 0.2).toFixed(2); // "0.30"
+Math.round((0.1 + 0.2) * 100) / 100; // 0.3
+
+// 使用高精度库
+import Decimal from 'decimal.js';
+new Decimal(0.1).plus(0.2).toNumber();
+// 0.3
+
+
 ```
 
 ### 11. 如何获取安全的 undefined 值？ 
@@ -1351,7 +1525,7 @@ Number.isNaN("123");
 '1' == '[object Object]'
 ```
 
-![image](http://ww1.sinaimg.cn/large/005NUwyggy1gu01mn6mg6j60rx0bujsf02.jpg)
+![image-20251223170348186](https://s2.loli.net/2025/12/23/5FKYnfAQBy146JM.png)
 
 ### 15. 谈谈 Javascript 中的类型转换机制
 
@@ -1362,15 +1536,23 @@ Number.isNaN("123");
 
 1. Number()
 
-![number()](http://tva1.sinaimg.cn/large/005NUwygly1h7ndy9bjjqj30kx082myl.jpg)
+![image-20251223170419471](https://s2.loli.net/2025/12/23/PV91FpxNB3CSOuW.png)
 
 2. String()
 
-![string()](http://tva1.sinaimg.cn/large/005NUwygly1h7ndynt2dgj30kn072gmy.jpg)
+![](https://s2.loli.net/2025/12/23/zmds1t49yDauxMA.png)
 
 3. Boolean()
 
-![boolean()](https://static.vue-js.com/53bdad10-6692-11eb-ab90-d9ae814b240d.png)
+```js
+Boolean(0)      // false
+Boolean(1)      // true
+Boolean("")     // false
+Boolean("abc")  // true
+Boolean(null)   // false
+Boolean([])     // true
+Boolean({})     // true
+```
 
 - `+` **操作符**
 - `-`、`*`、`\` **操作符** `NaN` 也是一个数字
@@ -1520,7 +1702,7 @@ if (!a) {
 
 JavaScript中Number.MAX_SAFE_INTEGER表示最⼤安全数字，计算结果是9007199254740991，即在这个数范围内不会出现精度丢失（⼩数除外）。但是⼀旦超过这个范围，js就会出现计算不准确的情况，这在⼤数计算的时候不得不依靠⼀些第三⽅库进⾏解决，因此官⽅提出了BigInt来解决此问题。
 
-### 25. ==object.assign和扩展运算法是深拷贝还是浅拷贝，两者区别==
+### 25. ==object.assign和扩展运算法是深拷贝还是浅拷贝，两者区别/合并对象==
 
 1. 扩展运算符
 
@@ -1582,7 +1764,7 @@ function isEmpty(obj) {
 
 typeof null 的结果是Object。 因为历史遗留问题。
 
-在 JavaScript 第一个版本中，所有值都存储在 32 位的单元中，每个单元包含一个小的 类型标签(1-3 bits) 以及当前要存储值的真实数据。类型标签存储在每个单元的低位中，共有五种数据类型
+在 JavaScript 第一个版本中，所有值都存储在 32 位的单元中，每个单元包含一个小的类型标签(1-3 bits) 以及当前要存储值的真实数据。类型标签存储在每个单元的低位中，共有五种数据类型
 
 ```
 000: object   - 当前存储的数据指向一个对象。
@@ -1655,7 +1837,11 @@ console.log({} instanceof Object);                   // true
 
 如果把所有事件都用事件代理，可能会出现事件误判，即本不该被触发的事件被绑定上了事件
 
-### 30. 事件捕捉/事件冒泡
+### 30. 事件捕捉/事件冒泡/事件流 eventflow
+
+> **Event Flow 就是一个事件在页面上从触发到处理的传播路径。**
+
+比如你点击一个按钮，事件会**经过 DOM 树上的多个元素**，浏览器会决定**哪些元素先处理事件，哪些后处理**。
 
 #### 1. 冒泡（bubbling）
 
@@ -1673,12 +1859,47 @@ console.log({} instanceof Object);                   // true
 
 **事件首先通过祖先链向下到达元素（捕获阶段），然后到达目标（目标阶段），最后上升（冒泡阶段），在途中调用处理程序。**
 
-### 31. Object.keys() 与 Object.getOwnPropertyNames() 有何区别
+```js
+捕获阶段：html → body → div → button
+目标阶段：button
+冒泡阶段：button → div → body → html
+
+const html = document.querySelector('html');
+const div = document.querySelector('#parent');
+const btn = document.querySelector('#btn');
+
+html.addEventListener('click', () => console.log('html'), true); // 捕获阶段
+div.addEventListener('click', () => console.log('div'), true);   // 捕获阶段
+btn.addEventListener('click', () => console.log('button'));       // 默认冒泡阶段
+
+btn.click();
+
+// 输出顺序：
+// html
+// div
+// button
+// 捕获阶段的处理器先执行，再执行目标元素事件
+
+你点击 button#btn。
+捕获阶段 = 事件从顶楼往下爬
+html → body → div → button
+事件从祖先元素开始“走到”按钮
+如果祖先元素在 捕获阶段 注册了事件处理器，会在事件到达目标前触发
+目标阶段 = 事件到达按钮
+按钮本身的事件处理器触发
+冒泡阶段 = 事件从一楼回到顶楼
+button → div → body → html
+事件逐级向上冒泡，冒泡阶段注册的事件处理器依次触发
+```
+
+
+
+### 31. ==Object.keys() 与 Object.getOwnPropertyNames()==有何区别
 
 - `Object.keys`: 列出可枚举的属性值
 - `Object.getOwnPropertyNames`: 列出所有属性值(包括可枚举与不可枚举)
 
-### 32. 如何把对象转化为 key/value 的二维数组
+### 32. ==如何把对象转化为 key/value 的二维数组==
 
 **方法一：**
 
@@ -1726,15 +1947,110 @@ console.log(objectToArray(obj));
 
 块级作用域，重复声明，变量提升，暂时性死区
 
+块级作用域: 用 `{}` 包起来的一段代码，形成一个独立的作用域，在这个作用域里声明的变量，**外面访问不到**。
+
+**减少变量污染**、**避免意外覆盖**、**让循环变量更符合直觉**、**为 TDZ 提供语义基础**、**让代码更容易推理**
+
+```js
+{
+  let a = 1;
+  const b = 2;
+}
+
+try {
+  let errMsg = 'oops';
+} catch (e) {
+  // e 只在 catch 块中有效
+}
+
+```
+
 ES6规定，`let/const` 命令会使区块形成封闭的作用域。若在声明之前使用变量，就会报错。总之，在代码块内，使用 `let` 命令声明变量之前，该变量都是不可用的。这在语法上，称为 **“暂时性死区”**（ temporal dead zone，简称 **TDZ**）。
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7nmhw2phaj316e0ja41z.jpg)
+使用 let 声明的变量不会挂在全局对象 window 上，因此无法通过 window.variableName 的方式访问。这与使用 var 声明的变量不同，var 声明的变量会被挂载在全局对象上，因此可以通过 window.variableName 的方式访问
+
+![image-20251224155827191](https://s2.loli.net/2025/12/24/yEHXRW5r6jL9KZ3.png)
+
+```js
+// `function foo() {}` 是 **函数声明**，在作用域创建阶段：函数体就已经被创建并绑定,所以可以在定义之前调用。
+
+foo(); // ✅ 正常执行
+
+function foo() {
+  console.log('hello');
+}
+
+// --
+
+baz(); // ❌ ReferenceError（TDZ）
+
+let baz = function () {
+  console.log('yo');
+};
+
+// --
+
+qux(); // ❌ ReferenceError（TDZ）
+
+const qux = () => {
+  console.log('yo');
+};
+```
+
+| 写法                   | 是否 TDZ | 定义前调用结果   |
+| ---------------------- | -------- | ---------------- |
+| `function f(){}`       | ❌        | ✅ 正常           |
+| `var f = function(){}` | ❌        | ❌ TypeError      |
+| `let f = function(){}` | ✅        | ❌ ReferenceError |
+| `const f = () => {}`   | ✅        | ❌ ReferenceError |
 
 ### 2. const 对象的属性可以更改吗
 
-const保证的并不是变量的值不能改动，而是变量指向的那个内存地址不能改动。对于基本类型的数据（数值、字符串、布尔值），其值就保存在变量指向的那个内存地址，因此等同于常量。
+`const`保证的并不是变量的值不能改动，而是变量指向的那个内存地址不能改动。对于基本类型的数据（数值、字符串、布尔值），其值就保存在变量指向的那个内存地址，因此等同于常量。
 
 但对于引用类型的数据（主要是对象和数组）来说，变量指向数据的内存地址，保存的只是一个指针，const只能保证这个指针是固定不变的，至于它指向的数据结构是不是可变的，就完全不能控制了。
+
+```js
+// const + 基本类型（真的“不能改”）
+const a = 10
+a = 20 // ❌ TypeError: Assignment to constant variable
+
+const obj = {
+  name: 'Alice',
+  age: 18
+}
+
+// const + 引用类型（指针不可变，但内容可变）
+// 修改对象内部属性 —— ✅ 可以
+obj.age = 20
+console.log(obj) 
+// { name: 'Alice', age: 20 }
+
+// 重新赋值整个对象 —— ❌ 不可以
+obj = {
+  name: 'Bob',
+  age: 30
+}
+// TypeError: Assignment to constant variable
+
+const user = Object.freeze({
+  name: 'Tom',
+  age: 18
+})
+
+user.age = 20 // ❌ 严格模式下报错，非严格模式静默失败
+
+function deepFreeze(obj) {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      deepFreeze(obj[key])
+    }
+  })
+  return Object.freeze(obj)
+}
+
+
+```
 
 ### 3. 如果new一个箭头函数会怎样
 
@@ -1757,13 +2073,92 @@ new操作符的实现步骤如下：
 
 ### 5. ==箭头函数的this指向哪里==
 
+ ✔ 回调函数
+ ✔ 定时器 / Promise / 事件包装
+ ✔ 不希望 `this` 被改掉
+
+箭头函数没有自己的 `this`，它的 `this` 在定义时就从外层作用域“静态捕获”，之后无法通过 call / apply / bind 改变。
+
 箭头函数并没有属于⾃⼰的this，它所谓的this是捕获其所在上下⽂的 this 值，作为⾃⼰的 this 值。
 
 箭头函数体内的 this 对象，就是定义该函数时所在的作用域指向的对象，而不是使用时所在的作用域指向的对象。
 
+==普通函数的this，谁调用的this就指向谁==
+
+```js
+const obj = {
+  name: 'Alice',
+  sayName1: function () {
+    console.log(this.name) // **普通函数**`this` 由**调用方式**决定,obj.sayName1() → this === obj
+  },
+  sayName2: () => {
+    console.log(this.name) // 定义在对象字面量中，本质仍在全局作用域 , this === window / globalThis
+  }
+}
+
+obj.sayName1() // ✅ 'Alice'
+obj.sayName2() // ❌ undefined
+
+```
+
 ### 6. ==this指向的理解==
 
+==普通函数的this，谁调用的this就指向谁==
+
 `this` 关键字是函数运行时自动生成的一个内部对象，只能在函数内部使用，总指向调用它的对象。
+
+箭头函数没有自己的 `this`，它的 `this` 在定义时就从外层作用域“静态捕获”，之后无法通过 call / apply / bind 改变。
+
+```js
+const obj = {
+  name: 'Tom',
+  say() {
+    setTimeout(function () {
+      console.log(this.name)
+    }, 100)
+  }
+}
+
+obj.say() // ❌ undefined
+// setTimeout 里的回调是普通函数
+// 调用时没有宿主对象
+// this 默认指向 window / undefined（严格模式）
+```
+
+```js
+const obj = {
+  name: 'Tom',
+  say() {
+    setTimeout(() => {
+      console.log(this.name)
+    }, 100)
+  }
+}
+
+obj.say() // ✅ 'Tom'
+```
+
+**调用方式**：`obj.say()`
+
+**普通方法调用** → `this === obj`
+
+所以此时，say 方法的执行上下文里的 `this` 指向 `obj`
+
+**箭头函数没有自己的 this**
+
+它的 this **静态绑定**到它**定义时所在的作用域**
+
+这里的定义作用域就是 `say` 方法体内
+
+say 方法内的 this = obj
+
+👉 箭头函数捕获 this === obj
+
+setTimeout 会在 100ms 后调用这个箭头函数
+
+**调用方式无所谓**，箭头函数的 this 已经被“锁死”在 obj
+
+执行 `console.log(this.name)` → 输出 `Tom`
 
 ### 6. 扩展运算符的作用
 
@@ -1954,7 +2349,7 @@ p.a; // 'a' = 2
    - 将this指向这个空对象，执行构造函数中的代码，以获取私有属性
    - 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7s351qy4lj30wq0ksgo3.jpg" alt="image.png" style="zoom: 33%;" />
+<img src="https://s2.loli.net/2025/12/24/RToxy8knGcFVgBd.png" alt="image-20251224170807859" style="zoom:50%;" />
 
 ### 2. Map和Object的区别
 
@@ -2034,7 +2429,7 @@ JSON 是一种基于文本的轻量级的数据交换格式。它可以被任何
 
 JSON 中对象格式更加严格，比如说在 JSON 中属性值不能为函数，不能出现 NaN 这样的属性值等，因此大多数的 js 对象是不符合 JSON 对象的格式的。
 
-### 7. JavaScript脚本延迟加载的方式有哪些
+### 7. JavaScript脚本延迟加载的方式有哪些/js脚本异步加载
 
 延迟加载就是等页面加载完成之后再加载 JavaScript 文件。 js 延迟加载有助于提高页面加载速度。
 
@@ -2064,6 +2459,23 @@ Array.prototype.concat.apply([], arrayLike);
 
 // 通过 Array.from 方法来实现转换
 Array.from(arrayLike);
+```
+
+```js
+function demo(a, b, c) {
+  console.log(arguments[0]) // 1
+  console.log(arguments.length) // 3
+  console.log(arguments.push) // undefined
+}
+
+demo(1, 2, 3)
+
+// --
+
+const divs = document.querySelectorAll('div')
+console.log(divs[0]) // 第一个 div
+console.log(divs.length) // div 的数量
+console.log(divs.map) // undefined
 ```
 
 ### 12. 为什么函数的arguments参数是类数组而不是数组？如何遍历类数组？
@@ -2097,7 +2509,7 @@ function foo(){
 
 ### 13. 什么是DOM和BOM?
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7po61fusnj30sz06jju0.jpg)
+![image-20251224172324262](https://s2.loli.net/2025/12/24/HeuBjgIG2iqd6VP.png)
 
 - DOM 指的是文档对象模型，它指的是把文档当做一个对象，这个对象主要定义了处理网页内容的方法和接口。
 - BOM 指的是浏览器对象模型，它指的是把浏览器当做一个对象来对待，这个对象主要定义了与浏览器进行交互的法和接口。BOM的核心是 window，而 window 对象具有双重角色，它既是通过 js 访问浏览器窗口的一个接口，又是一个 Global（全局）对象。这意味着在网页中定义的任何对象，变量和函数，都作为全局对象的一个属性或者方法存在。window 对象含有 location 对象、navigator 对象、screen 对象等子对象，并且 DOM 的最根本的对象 document 对象也是 BOM 的 window 对象的子对象。
@@ -2157,8 +2569,6 @@ container.insertBefore(content, title)
 
 ### 15. 说说你对BOM的理解，常见的BOM对象你了解哪些？
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7po61fusnj30sz06jju0.jpg)
-
 **1. Window**
 
 - `moveBy(x,y)`：从当前位置水平移动窗体x个像素，垂直移动窗体y个像素，x为负数，将向左移动窗体，y为负数，将向上移动窗体
@@ -2183,13 +2593,13 @@ container.insertBefore(content, title)
 
 **3. navigator**
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7poa5b1fkj30qt0iu43k.jpg" alt="image.png" style="zoom:50%;" />
+![image-20251224172445256](https://s2.loli.net/2025/12/24/rwb5tf8OqsYRyv2.png)
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7poaae43xj30on0imdkh.jpg" alt="image.png" style="zoom:50%;" />
+![image-20251224172507004](https://s2.loli.net/2025/12/24/nmA4v7jRTf5UPSZ.png)
 
 **4. screen**
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h7po9y88gij30p00a6tar.jpg)
+![image-20251224172525327](https://s2.loli.net/2025/12/24/TIvCdzMKr7kmloG.png)
 
 **5. history**
 
@@ -2198,6 +2608,27 @@ container.insertBefore(content, title)
 - `history.length`：获取历史记录数
 
 ### 16. escape、 encodeURI、encodeURIComponent的区别
+
+这三个函数都是 JavaScript 中用来对 URL 或字符串进行编码的，但用途、范围和实现机制不同
+
+| 函数                 | 编码对象        | 编码范围                              | 建议用途                 |
+| -------------------- | --------------- | ------------------------------------- | ------------------------ |
+| `escape`             | 字符串          | ASCII 字符保留，其余 `%XX` / `%uXXXX` | **不推荐使用**，历史遗留 |
+| `encodeURI`          | 整个 URI        | 不编码 `: / ? # , ; & = @`            | 编码完整 URL             |
+| `encodeURIComponent` | URI 组件/参数值 | 编码几乎所有非字母数字字符            | 编码单独参数或片段       |
+
+```js
+const url = 'http://example.com/你好?name=Tom&age=20'
+
+console.log(escape(url))
+// "http://example.com/%u4F60%u597D?name=Tom&age=20"
+
+console.log(encodeURI(url))
+// "http://example.com/%E4%BD%A0%E5%A5%BD?name=Tom&age=20"
+
+console.log(encodeURIComponent(url))
+// "http%3A%2F%2Fexample.com%2F%E4%BD%A0%E5%A5%BD%3Fname%3DTom%26age%3D20"
+```
 
 ### 17. ==JavaScript为什么要进行变量提升，他导致了什么问题？==
 
@@ -2267,7 +2698,7 @@ use strict 是一种 ECMAscript5 添加的（严格模式）运行模式，这�
 
 两者对比：强类型语言在速度上可能略逊色于弱类型语言，但是强类型语言带来的严谨性可以有效地帮助避免许多错误。
 
-### 24. 解释性语言和编译型语言的区品
+### 24. 解释性语言和编译型语言的区别
 
 （1）解释型语言
 
@@ -2362,11 +2793,80 @@ for (var [k, v] of obj) {
 }
 ```
 
-### 33. 如何遍历一个对象
+### 33. ==如何遍历一个对象==
 
 1. for in
 2. object.keys()
 3. object.entries()
+
+| 方法                  | 遍历对象类型   | 遍历原型链 | 返回值              | 备注                                       |
+| --------------------- | -------------- | ---------- | ------------------- | ------------------------------------------ |
+| `for…in`              | 可枚举属性     | ✅          | key                 | 顺序不保证；需 `hasOwnProperty` 过滤原型链 |
+| `Object.keys(obj)`    | 自身可枚举属性 | ❌          | key 数组            | 常用，可配合 `for…of`                      |
+| `Object.entries(obj)` | 自身可枚举属性 | ❌          | `[key, value]` 数组 | 遍历键值对，方便解构或 Map 转换            |
+
+1. for…in
+
+**遍历对象所有可枚举属性**（包括原型链上的可枚举属性）返回 **属性名**（key）;可以遍历数组，但会遍历自定义属性和原型链上的可枚举属性；顺序不保证严格按照插入顺序（对象属性是无序的，但 ES6+ 对于非整数键有顺序保证）
+
+```js
+const obj = { a: 1, b: 2 }
+Object.prototype.c = 3  // 原型链属性
+
+for (let key in obj) {
+  console.log(key)
+}
+
+// 输出
+// a
+// b
+// c （原型链属性）
+
+// ⚠️ 注意：会遍历原型链上的属性，需要 hasOwnProperty 过滤掉
+
+for (let key in obj) {
+  if (obj.hasOwnProperty(key)) {
+    console.log(key)
+  }
+}
+
+// a
+// b
+```
+
+2. Object.keys(obj)
+
+返回 **对象自身可枚举属性名组成的数组**,不会遍历原型链,数组形式，可直接使用数组方法
+
+```js
+const obj = { a: 1, b: 2 }
+Object.prototype.c = 3
+
+console.log(Object.keys(obj))
+// ["a", "b"]
+
+// 可以配合 for…of 遍历：also
+for (let key of Object.keys(obj)) {
+  console.log(key)
+}
+```
+
+3. Object.entries(obj)
+
+返回 **对象自身可枚举属性的键值对数组**,格式：`[ [key1, value1], [key2, value2], ... ]`,不会遍历原型链,常用于 **解构 + 遍历** 或 **转换成 Map**
+
+```js
+const obj = { a: 1, b: 2 }
+
+console.log(Object.entries(obj))
+// [["a", 1], ["b", 2]]
+
+for (let [key, value] of Object.entries(obj)) {
+  console.log(key, value)
+}
+// a 1
+// b 2
+```
 
 ### 32. JS 如何检测到对象中有循环引用
 
@@ -2426,6 +2926,13 @@ const result = math(2)(4); // 14
 ```
 
 ### 31. Number 中最大数、最大安全整数、EPSILON 都是多少，原理是什么
+
+| 常量                      | 值                        | 含义 / 原理                                   |
+| ------------------------- | ------------------------- | --------------------------------------------- |
+| `Number.MAX_VALUE`        | 1.7976931348623157e+308   | JS 能表示的最大正数，超过就是 Infinity        |
+| `Number.MAX_SAFE_INTEGER` | 9007199254740991 (2^53-1) | JS 能安全表示的最大整数，超过可能精度丢失     |
+| `Number.EPSILON`          | 2.220446049250313e-16     | JS 能表示的最小浮点间隔，1 与最小可分辨数的差 |
+
 ### 34. 什么是 TypedArray
 
 [ArrayBuffer，二进制数组](https://zh.javascript.info/arraybuffer-binary-arrays)
@@ -2454,7 +2961,9 @@ obj?.a?.[0];
 obj?.b?.();
 ```
 
-### 36. eventLoop事件循环
+### 36. ==eventLoop事件循环/事件轮询==
+
+JavaScript 是单线程的，一次只能做一件事，但它通过事件循环实现非阻塞执行。事件循环不断检查调用栈，如果栈空，就从任务队列取出任务执行。任务分为 **宏任务**（setTimeout、setInterval、I/O 等）和 **微任务**（Promise.then、process.nextTick 等），微任务优先执行。
 
 `JavaScript`是一门单线程的语言，意味着同一时间内只能做一件事，但是这并不意味着单线程就是阻塞，而实现单线程非阻塞的方法就是事件循环
 
@@ -2464,7 +2973,7 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 微任务：Promise, async/await
 
-![](https://miro.medium.com/max/4800/1*_0CnS0bHNX7HMBLri3gNng.gif)
+![ttt.gif](https://s2.loli.net/2025/12/24/8lUM2deRKaiQuhy.gif)
 
 ### 37. 对闭包的理解
 
@@ -2526,7 +3035,7 @@ init();
 1. 能不用闭包就不用
 2. 及时释放
 
-### 38. 对作用域、作用域链的理解
+### 38. 对作用域、作用域链的理解 Scope / Scope Chain
 
 #### **作用域**
 
@@ -2554,7 +3063,9 @@ init();
 - call 传入的参数数量不固定，跟 apply 相同的是，第一个参数也是代表函数体内的 this 指向，从第二个参数开始往后，每个参数被依次传入函数。
 - bind与call的参数相同，只不过返回的是函数，需要进行调用。
 
-<img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z37e4p7uj20xc0s2gs9.jpg" alt="image.png" style="zoom:33%;" /><img src="http://tva1.sinaimg.cn/large/6fc56815gy1h6z3dinhgdj215c0ykdsg.jpg" alt="image.png" style="zoom:33%;" />
+![image-20251224182101198](https://s2.loli.net/2025/12/24/GlYoKHAZpsOTW82.png)
+
+![image-20251224182125879](https://s2.loli.net/2025/12/24/gz1lCaUA2eRn3bd.png)
 
 ### 41. 实现call、apply 及bind函数
 
@@ -2999,7 +3510,7 @@ await 表达式的运算结果取决于它等的是什么。
 3. 不能使用 `try catch` 捕获错误
 4. 不能直接 `return`
 
-### 14. setTimeout、setInterval、requestAnimationFrame 各有什么特点？
+### 14. setTimeout、setInterval、requestAnimationFrame、requestIdleCallback 各有什么特点？
 
 异步编程当然少不了定时器了，常见的定时器函数有 `setTimeout`、`setInterval`、`requestAnimationFrame`。最常用的是`setTimeout`，很多人认为 `setTimeout` 是延时多久，那就应该是多久后执行。
 
