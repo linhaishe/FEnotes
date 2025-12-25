@@ -949,6 +949,23 @@ export default class Set {
 
 # Hash / 哈希
 
+哈希冲突本质是不同 key 映射到同一位置，工程上常通过链地址法、开放定址法（线性/二次/双重探测）和再哈希来解决。
+
+Hash（哈希） = 用一种算法，把 key 转换成一个位置（索引）。
+```js
+map.set("name", "Tom")
+// 内部其实做的是类似
+hash("name") → 5
+table[5] = "Tom"
+
+// 当你取值时：
+map.get("name")
+
+// 过程是：⚡ 不需要遍历整个数据结构
+hash("name") → 5
+直接去 table[5] 取
+```
+
 哈希表通常是基于数组进行实现的,但是相对于数组,它也很多的优势:
 
 - 它可以提供非常快速的插入-删除-查找操作
@@ -960,6 +977,14 @@ export default class Set {
 - 哈希表中的数据是没有顺序的,所以不能以一种固定的方式(比如从小到大)来遍历其中的元素。
 - 通常情况下，哈希表中的key是不允许重复的,不能放置相同的key, 用于保存不同的元素。
 
+## 哈希冲突（Hash Collision）
+
+不同的 key，经过哈希函数计算后，得到了相同的哈希值（或相同的数组下标）
+
+```js
+hash("abc") === hash("cba")  // true
+```
+
 霍纳算法 - 计算哈希值
 
 <img src="https://s2.loli.net/2024/09/25/8DYvourVJnHeN9F.png" alt="image-20240925220637602" style="zoom:33%;" />
@@ -968,6 +993,8 @@ export default class Set {
 2024/09/04
 
 HashTable class, also known as HashMap, a hash implementation of the Dictionary class. Hashing consists of finding a value in a data structure in the shortest time possible.
+
+哈希表类，也称为 HashMap，是 Dictionary（字典）类的一种基于哈希的实现。哈希的目的，是在数据结构中用尽可能短的时间找到一个值。
 
 TBC - unicode 的前世今生 to be add
 
@@ -1001,6 +1028,7 @@ The hash function we will use in this book is the most common one, called a lose
 <img src="https://s2.loli.net/2024/09/28/Q1pz32uWo64Dah5.png" alt="image-20240928232651450" style="zoom:33%;" />
 
 ```js
+// function: 👉 把一个 key 转换成一个数字（hash 值）,用来当作哈希表数组的下标
 loseloseHashCode(key) {
   if (typeof key === 'number') {
     return key;
@@ -1012,6 +1040,20 @@ loseloseHashCode(key) {
   }
   return hash % 37;
 }
+```
+```js
+hashTable.loseloseHashCode('name');
+'n' 110
+'a' 97
+'m' 109
+'e' 101
+总和 = 417
+417 % 37 = 10
+// table[10] = 'Tom'
+
+```
+
+```js
 djb2HashCode(key) {
   const tableKey = this.toStrFn(key);
   let hash = 5381; // consists of initializing the hash variable with a prime number,most implementations use 5381
