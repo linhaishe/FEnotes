@@ -1045,9 +1045,7 @@ Array.prototype.isPrototypeOf(obj)
 
 ### 5. forEach() / map() / for...of forof跳出循环
 
-`map` / `forEach` 里不能用 `break` 和 `continue`，
- 因为它们是回调函数，不是循环语句；
- 如果需要中断遍历，应使用 `for...of`、`some` 或 `every`。
+`map` / `forEach` 里不能用 `break` 和 `continue`，因为它们是回调函数，不是循环语句；如果需要中断遍历，应使用 `for...of`、`some` 或 `every`。
 
 在 forEach 中，不能使用 continue 和 break ，都会报错。可以使用 return 或 return false 跳出循环，但是效果与 for 中 continue 一样。 这种方法无法一次结束所有循环。`map` 内部是一个 **函数作用域**回调函数 ≠ 循环体
 
@@ -1845,9 +1843,14 @@ console.log({} instanceof Object);                   // true
 
 #### 1. 冒泡（bubbling）
 
+事件从目标元素开始触发，然后逐层向上传递到父元素，直到最外层。
+
 **当一个事件发生在一个元素上，它会首先运行在该元素上的处理程序，然后运行其父元素上的处理程序，然后一直向上到其他祖先上的处理程序。**
 
 用于停止冒泡的方法是 `event.stopPropagation()`。
+
+`stopPropagation` 只阻止事件传播；
+ `stopImmediatePropagation` 既阻止传播，也阻止当前元素上的其他监听器执行。
 
 `event.stopPropagation()` 停止向上移动，但是当前元素上的其他处理程序都会继续运行。
 
@@ -1857,7 +1860,7 @@ console.log({} instanceof Object);                   // true
 
 #### 2. 捕获（capturing）
 
-**事件首先通过祖先链向下到达元素（捕获阶段），然后到达目标（目标阶段），最后上升（冒泡阶段），在途中调用处理程序。**
+事件从最外层的祖先元素开始，逐层向内传递，直到到达目标元素。DOM 事件流分为 **捕获阶段 → 目标阶段 → 冒泡阶段**，捕获阶段是事件“自上而下”的传递过程。
 
 ```js
 捕获阶段：html → body → div → button
@@ -1891,8 +1894,6 @@ html → body → div → button
 button → div → body → html
 事件逐级向上冒泡，冒泡阶段注册的事件处理器依次触发
 ```
-
-
 
 ### 31. ==Object.keys() 与 Object.getOwnPropertyNames()==有何区别
 
@@ -3203,7 +3204,11 @@ Function.prototype.softBind = function (obj, ...rest) {
 
 每个构造函数都有一个原型对象，原型有一个属性指回构造函数，而实例有一个内部指针指向原型。这样就在实例和原型之间构造了一条原型链。
 
-<img src="http://tva1.sinaimg.cn/large/005NUwygly1h7s351qy4lj30wq0ksgo3.jpg" alt="image.png" style="zoom: 33%;" /><img src="http://tva1.sinaimg.cn/large/005NUwygly1h8aogs0sksj30h60lpgqm.jpg" alt="image.png" style="zoom: 50%;" />
+prototype 是对象；constructor 是这个对象上的一个普通属性
+
+<img src="https://s2.loli.net/2025/12/25/Nw75QrtVOWBgvhT.png" alt="image-20251225141508414" style="zoom: 33%;" />
+
+<img src="https://s2.loli.net/2025/12/25/WPlgAmSITOZUBR5.png" alt="image-20251225141534774" style="zoom:33%;" />
 
 ### 2. 原型修改、重写
 
@@ -3211,16 +3216,22 @@ Function.prototype.softBind = function (obj, ...rest) {
 function Person(name) {
   this.name = name;
 }
+
 // 修改原型
 Person.prototype.getName = function () {};
+
 var p = new Person("hello");
 console.log(p.__proto__ === Person.prototype); // true
 console.log(p.__proto__ === p.constructor.prototype); // true
-// 重写原型
+
+// 重写原型，这里不是“修改原型”，而是“换了一个全新的原型对象”，直接赋予新的值了
+// 而这个新对象默认的 constructor 指向的是 Object，不是 Person。
 Person.prototype = {
   getName: function () {}
 };
+
 var p = new Person("hello");
+
 console.log(p.__proto__ === Person.prototype); // true
 console.log(p.__proto__ === p.constructor.prototype); // false
 ```
@@ -3256,6 +3267,14 @@ Person.prototype.constructor; // Person
 原型链上的所有原型都是对象，所有的对象最终都是由`Object`构造的，而`Object.prototype`的下一级是`Object.prototype.__proto__`。
 
 ### 5. 如何获得对象非原型链上的属性?
+
+| 方法                                | 是否只取自身属性 | 是否包含原型链 | 是否包含不可枚举 | 是否包含 Symbol | 常见用途                   |
+| ----------------------------------- | ---------------- | -------------- | ---------------- | --------------- | -------------------------- |
+| `Object.keys(obj)`                  | ✅                | ❌              | ❌                | ❌               | 最常用，获取自身可枚举属性 |
+| `Object.getOwnPropertyNames(obj)`   | ✅                | ❌              | ✅                | ❌               | 包含不可枚举属性           |
+| `Object.getOwnPropertySymbols(obj)` | ✅                | ❌              | ✅                | ✅（仅 Symbol）  | 获取 Symbol 属性           |
+| `Reflect.ownKeys(obj)`              | ✅                | ❌              | ✅                | ✅               | **最全，推荐面试加分**     |
+| `for...in`                          | ❌                | ✅              | ❌                | ❌               | 不推荐，用于遍历原型链     |
 
 使用`hasOwnProperty()`方法来判断属性是否属于原型链的属性：
 

@@ -10,9 +10,9 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 微任务：Promise, async/await, process.nextTick, Promises, queueMicrotask, MutationObserver
 
-![eventloop](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/eventloop.gif)
+![ttt](https://s2.loli.net/2025/12/24/8lUM2deRKaiQuhy.gif)
 
-![image-20230325195936478](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325195936478.png)
+<img src="https://s2.loli.net/2025/12/25/K5EBYrJFdC1jIua.png" alt="image-20251225145359214" style="zoom: 33%;" />
 
 ## 1. 同步/宏/微任务的执行顺序
 
@@ -47,7 +47,7 @@ for (let a = 0; a < 10000; a++) {
 }
 ```
 
-![image-20230325200033496](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325200033496.png)
+![image-20251225145726877](https://s2.loli.net/2025/12/25/XdbBC8rpzvf9JqD.png)
 
 **倒计时任务会根据时间长短进行顺序输出**
 
@@ -69,7 +69,7 @@ for (let a = 0; a < 10; a++) {
 // '' -> 倒计时2 -> 倒计时1
 ```
 
-![image-20230325200053734](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/event-loop/image-20230325200053734.png)
+![image-20251225145745346](https://s2.loli.net/2025/12/25/ogtnsfBSV7DXTUP.png)
 
 **多个倒计时会同时输出**。
 
@@ -202,7 +202,7 @@ setTimeout(() => {
 
 解析：js解析到第一个计时器后会把第一个计时器放在宏任务队列中，然后接着把第二个计时器放在宏任务队列中，同步任务执行完毕后去宏任务队列获取任务，第一个任务执行完毕后改变了i的值，此时i的值变成了1，然后执行第二个任务，经过上个任务的处理，i的值已经是1，在经过++变成2，所以打印结果为倒计时1秒后打印出 1  2。
 
-![image-20230402165544675](https://raw.githubusercontent.com/linhaishe/blogImageBackup/main/coop/image-20230402165544675.png)
+![image-20251225145559915](https://s2.loli.net/2025/12/25/utBTX9OFmY7gaUn.png)
 
 ## 6. 任务轮询之进度条
 

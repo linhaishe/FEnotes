@@ -1,4 +1,10 @@
+# proto
+
+## basic intro
+
 When defining a custom constructor, the prototype gets the constructor property only by default; all other methods are inherited from Object. Each time the constructor is called to create a new instance, that instance has an internal pointer to the constructor’s prototype. In ECMA-262 fifth edition, this is called [[Prototype]]. There is no standard way to access [[Prototype]] from script, but Firefox, Safari, and Chrome all support a property on every object called __proto__.; in other implementations, this property is completely hidden from script. The important thing to understand is that a direct link exists between the instance and the constructor’s prototype but not between the instance and the constructor. 
+
+<img src="https://s2.loli.net/2025/12/25/Nw75QrtVOWBgvhT.png" alt="image-20251225141508414" style="zoom: 33%;" />
 
 Each instance of Person, person1, and person2 has internal properties that point back to Person.prototype only; each has no direct relationship with the constructor. 
 
