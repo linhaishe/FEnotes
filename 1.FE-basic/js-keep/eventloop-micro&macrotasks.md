@@ -8,7 +8,7 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 宏任务：setTimeout, setInterval, setImmediate, requestAnimationFrame, I/O, UI Rendering
 
-微任务：Promise, async/await, process.nextTick, Promises, queueMicrotask, MutationObserver
+微任务：Promise.then, async/await, process.nextTick, Promises, queueMicrotask, MutationObserver
 
 ![ttt](https://s2.loli.net/2025/12/24/8lUM2deRKaiQuhy.gif)
 
@@ -30,6 +30,25 @@ Promise.resolve().then((res) => {
 console.log("同步任务");
 ```
 
+```js
+// 说出以下输出顺序
+ setTimeout(function () {
+   console.log(1);
+ }, 0);
+
+// Promise 构造函数是同步执行的
+ new Promise(function (resolve) {
+   console.log(2);
+   resolve();
+   console.log(3);
+ }).then(function () {
+   console.log(4);
+ });
+ console.log(5);
+
+// 23541
+```
+
 ## 2. 定时器的任务编排
 
 **定时器任务会根据主线任务处理完之后才会开始执行，即使定时器时间为0**
@@ -46,6 +65,8 @@ for (let a = 0; a < 10000; a++) {
   console.log("");
 }
 ```
+
+![image-20251225150223871](https://s2.loli.net/2025/12/25/CPt2d6FAzpVlNjw.png)
 
 ![image-20251225145726877](https://s2.loli.net/2025/12/25/XdbBC8rpzvf9JqD.png)
 
