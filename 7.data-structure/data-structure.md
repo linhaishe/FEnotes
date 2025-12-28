@@ -605,6 +605,12 @@ export default class LinkedList {
 
 ### 双向链表 / Doubly Linked List
 
+<img src="https://s2.loli.net/2024/08/25/tnpBjNiQzcVWTo9.png" alt="image-20240825213530496" style="zoom: 50%;" />
+
+<img src="https://s2.loli.net/2024/08/25/7DvUTmSozLFk6qa.png" alt="image-20240825213615719" style="zoom:50%;" />
+
+<img src="https://s2.loli.net/2024/08/25/SMrdtjnTZuagUGe.png" alt="image-20240825213603777" style="zoom:50%;" />
+
 > A **doubly linked list** is a data structure that consists of a set of nodes, each of which contains a **value** and **two pointers**, one pointing to the **previous node** in the list and one pointing to the **next node** in the list. This allows for efficient traversal of the list in **both directions**, making it suitable for applications where frequent **insertions** and **deletions** are required.
 
 ```js
@@ -637,12 +643,6 @@ var createDoublyLinkedList = function(arr) {
 
 **单向链表：省内存，逻辑简单**
  **双向链表：省时间，逻辑复杂**
-
-<img src="https://s2.loli.net/2024/08/25/tnpBjNiQzcVWTo9.png" alt="image-20240825213530496" style="zoom: 50%;" />
-
-<img src="https://s2.loli.net/2024/08/25/7DvUTmSozLFk6qa.png" alt="image-20240825213615719" style="zoom:50%;" />
-
-<img src="https://s2.loli.net/2024/08/25/SMrdtjnTZuagUGe.png" alt="image-20240825213603777" style="zoom:50%;" />
 
 ```js
 import { defaultEquals } from '../util';
@@ -1135,6 +1135,123 @@ A tree is an abstract model of a hierarchical structure
 
   The root is on level 0, its children are on level 1, and so on. The tree from the preceding diagram has a height of 3 (the maximum depth is 3, as shown in the preceding figure on level 3).
 
+<img src="https://s2.loli.net/2025/12/27/78YJxmSLrazubMn.png" alt="image-20251227161854797" style="zoom: 50%;" />
+
+1、每个节点下方直接相连的节点称为**子节点**，上方直接相连的节点称为**父节点**。比方说节点 `3` 的父节点是 `1`，左子节点是 `5`，右子节点是 `6`；节点 `5` 的父节点是 `3`，左子节点是 `7`，没有右子节点。
+
+2、以子节点为根的树称为**子树**。比方说节点 `3` 的左子树是节点 `5` 和 `7` 组成的树，右子树是节点 `6` 和 `8` 组成的树。
+
+3、我们称最上方那个没有父节点的节点 `1` 为**根节点**，称最下层没有子节点的节点 `4`、`7`、`8` 为**叶子节点**。
+
+4、我们称从根节点到最下方叶子节点经过的节点个数为二叉树的==最大深度/高度==，上面这棵树的最大深度是 `4`，即从根节点 `1` 到叶子节点 `7` 或 `8` 的路径上的节点个数。
+
+### 二叉树代码代码展示：
+
+在层序遍历中，`root` 是一个 **二叉树节点对象**，
+ 每个节点都包含 `val`、`left`、`right` 三个字段，
+ 队列中存放的是节点引用，而不是值。
+
+```js
+class TreeNode {
+  constructor(val) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+const root = {
+  val: 3,
+  left: {
+    val: 9,
+    left: {
+      val: 1,
+      left: null,
+      right: null
+    },
+    right: null
+  },
+  right: {
+    val: 2,
+    left: {
+      val: 5,
+      left: null,
+      right: null
+    },
+    right: {
+      val: 7,
+      left: null,
+      right: null
+    }
+  }
+};
+```
+
+```js
+let _allRoot = BTree.createRoot([3, 9, 2, 1, null, 5, 7]);
+```
+
+```js
+索引:   0   1   2   3    4     5   6
+数组: [ 3,  9,  2,  1, null,  5,  7 ]
+```
+
+```markdown
+         0
+       /   \
+      1     2
+     / \    / \
+    3   4   5   6
+```
+
+```markdown
+        3
+       / \
+      9   2
+     /   / \
+    1   5   7 
+```
+
+```js
+function TreeNode(val) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+}
+
+const BTree = {
+    createRoot(arr) {
+        if (!arr || arr.length === 0) return null;
+
+        const root = new TreeNode(arr[0]);
+        const queue = [root];
+        let i = 1;
+
+        while (queue.length > 0 && i < arr.length) {
+            const cur = queue.shift();
+
+            // 左子节点
+            if (arr[i] !== null && arr[i] !== undefined) {
+                cur.left = new TreeNode(arr[i]);
+                queue.push(cur.left);
+            }
+            i++;
+
+            // 右子节点
+            if (i < arr.length && arr[i] !== null && arr[i] !== undefined) {
+                cur.right = new TreeNode(arr[i]);
+                queue.push(cur.right);
+            }
+            i++;
+        }
+
+        return root;
+    }
+};
+
+let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
+```
+
 ## The binary and binary search trees
 
 binary search trees / 二叉搜索树 / 二叉排序树 / 二叉查找树 / BST
@@ -1162,23 +1279,127 @@ the function we need:
 - max(): This method returns the maximum value/key in the tree
 - remove(key): This method removes the key from the tree
 
+### 满二叉树 / Perfect Binary Tree
+满二叉树就是每一层节点都是满的，整棵树像一个正三角形
+
+满二叉树有个优势，就是它的节点个数很好算。假设深度为 h，那么总节点数就是 2^h - 1，等比数列求和。
+
+<img src="https://s2.loli.net/2025/12/27/xQui3mh5Aa9SzXp.png" alt="image-20251227163910970" style="zoom:33%;" />
+
+### 完全二叉树 / Complete Binary Tree
+
+完全二叉树是指，二叉树的每一层的节点都紧凑靠左排列，且除了最后一层，其他每层都必须是满的：
+
+<img src="https://s2.loli.net/2025/12/27/lp8LncYdaPIQMeV.png" alt="image-20251227163728095" style="zoom:33%;" />
+
+满二叉树其实是一种特殊的完全二叉树。
+
+完全二叉树的特点：由于它的节点紧凑排列，如果从左到右从上到下对它的每个节点编号，那么父子节点的索引存在明显的规律。
+
+完全二叉树还有个比较难发觉的性质：完全二叉树的左右子树也是完全二叉树。
+
+或者更准确地说应该是：完全二叉树的左右子树中，至少有一棵是满二叉树。
+
+<img src="https://s2.loli.net/2025/12/27/ZTlVD1wiNOEx3pF.png" alt="image-20251227164215099" style="zoom:33%;" />
+
+### Full Binary Tree
+
+指一棵二叉树的所有节点（？）要么没有孩子节点，要么有两个孩子节点
+
+![image-20251227164425304](https://s2.loli.net/2025/12/27/4D9QIFK81VjBJlH.png)
+
+### 二叉搜索树 / Binary Search Tree
+
+二叉搜索树（Binary Search Tree，简称 BST）是一种很常见的二叉树，它的定义是：
+
+对于树中的每个节点，其左子树的==每个节点==的值都要小于这个节点的值，右子树的每个节点的值都要大于这个节点的值。你可以简单记为「左小右大」。
+
+比方说，下面这棵树就是一棵 BST：
+
+<img src="https://s2.loli.net/2025/12/27/pjf14qr8ScdGOWl.png" alt="image-20251227164607202" style="zoom: 50%;" />
+
+<img src="https://s2.loli.net/2025/12/27/6W9IeuP2CskQxMS.png" alt="image-20251227164628302" style="zoom:50%;" />
+
+### 高度平衡二叉树 / **AVL 树**（Adelson-Velsky and Landis Tree）
+
+高度平衡二叉树（Height-Balanced Binary Tree）是一种特殊的二叉树，它的「每个节点」的左右子树的高度差不超过 1。
+
+对于二叉树中的任意一个节点，它的**左右子树高度差的绝对值 ≤ 1**。
+
+要注意是每个节点，而不仅仅是根节点。
+
+> **高度（height）**：
+>
+> - 空树高度：0
+> - 只有一个节点的树：高度 = 1
+> - 节点高度 = `max(左子树高度, 右子树高度) + 1`
+
+<img src="https://s2.loli.net/2025/12/27/NJHTVWiOfwvctZz.png" alt="image-20251227164728058" style="zoom: 50%;" />
+
+下面这棵树就不是高度平衡的二叉树，因为节点 `2` 的左子树高度是 2，右子树高度是 0，高度差超过 1，不符合条件：
+
+<img src="https://s2.loli.net/2025/12/27/gKQVZSBRh8czkeo.png" style="zoom:50%;" />
+
+### 自平衡二叉树
+
+如果我们可以在增删二叉树节点时对树的结构进行一些调整，那么就可以让树的高度始终是平衡的，这就是自平衡二叉树（Self-Balanced Binary Tree）。
+
+自平衡的二叉树有很多种实现方式，最经典的就是红黑树，一种自平衡的二叉搜索树。
+
 ## Traversing (or walking) a tree
 
 Traversing (or walking) a tree is the process of visiting all the nodes of a tree and performing an operation at each node.
 
-有非常多的方式可以做树遍历，从上从下从左从右，接下来的章节会使用: in-order, pre-order, and post-order.这三种方式。
+有非常多的方式可以做树遍历，从上从下从左从右，接下来的章节会使用: pre-order, in-order, and post-order.(前序/中序/后序)这三种方式。
 
-### in-order traversal
+> **Binary trees** have only two traversal strategies: **recursive traversal** and **level-order traversal**.
+>  Recursive traversal can be generalized into **Depth-First Search (DFS)**,
+>  while level-order traversal can be generalized into **Breadth-First Search (BFS)**.
 
-An in-order traversal visits all the nodes of a BST in an ascending order, meaning it will visit the nodes from the smallest to the largest. An application of in-order traversal would be to sort a tree. 从最小的 node 开始遍历依次到最大的
+二叉树只有**递归遍历**和**层序遍历**这两种，再无其他。递归遍历可以衍生出 DFS 算法，层序遍历可以衍生出 BFS 算法。
 
+递归遍历二叉树节点的顺序是固定的，但是有三个关键位置，在不同位置插入代码，会产生不同的效果。
+
+层序遍历二叉树节点的顺序也是固定的，但是有三种不同的写法，对应不同的场景。
+
+![image-20251228105553742](https://s2.loli.net/2025/12/28/bRxiPCtevzKgALU.png)
+
+
+### 递归遍历 / Recursive Traversal / Depth-First Search (DFS)
+
+深度优先搜索
+
+<img src="https://s2.loli.net/2025/12/28/oS2wEOs8LQqPUHX.png" alt="image-20251228110906249" style="zoom: 50%;" />
+
+递归遍历在二叉树中通常具体表现为三种形式：
+
+- **前序遍历**：**Preorder Traversal**
+  - 第一次进入节点的时候
+
+- **中序遍历**：**Inorder Traversal**
+  - 节点遍历完左子树准备去遍历右子树的时候，会回退到此节点
+
+- **后序遍历**：**Postorder Traversal**
+  - 左右子节点都访问/遍历完的时候，准备向父节点回退的时候
+
+
+每个节点都会有这三种遍历
+
+```js
+// 二叉树的遍历框架
+var traverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    // 前序位置: 前序位置的代码会在进入节点时立即执行
+    traverse(root.left);
+    // 中序位置: 中序位置的代码会在左子树遍历完成后，遍历右子树之前执行
+    traverse(root.right);
+    // 后序位置: 后序位置的代码会在左右子树遍历完成后执行：
+};
 ```
-3 5 6 7 8 9 10 11 12 13 14 15 18 20 25
-```
 
-<img src="https://s2.loli.net/2024/09/28/DsIl2fGiazOjBw7.png" alt="image-20240928233424130" style="zoom:33%;" />
-
-### pre-order traversal
+#### pre-order traversal
 
 A pre-order traversal visits the node prior to its descendants. 从祖先开始再到子辈进行遍历获得数据
 
@@ -1190,7 +1411,63 @@ A pre-order traversal visits the node prior to its descendants. 从祖先开始�
 
 <img src="https://s2.loli.net/2024/09/28/mf9JpROVaHAB2vz.png" alt="image-20240928233518668" style="zoom: 33%;" />
 
-### post-order traversal
+```js
+// 前序遍历结果
+let preorderResult = [];
+
+// @visualize status(root==null?'#':root.val)
+function traverse(root) {
+    if (root == null) {
+        return;
+    }
+    // 前序位置
+    // @visualize color *root #7ed67e
+    preorderResult.push(root.val);
+    
+    // 二叉树遍历框架
+    traverse(root.left);
+    traverse(root.right);
+}
+
+let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
+traverse(_allRoot);
+```
+
+#### in-order traversal
+
+An in-order traversal visits all the nodes of a BST in an ascending order, meaning it will visit the nodes from the smallest to the largest. An application of in-order traversal would be to sort a tree. 从最小的 node 开始遍历依次到最大的
+
+```
+3 5 6 7 8 9 10 11 12 13 14 15 18 20 25
+```
+
+<img src="https://s2.loli.net/2024/09/28/DsIl2fGiazOjBw7.png" alt="image-20240928233424130" style="zoom:33%;" />
+
+```js
+// 中序遍历结果
+let inorderResult = [];
+
+// @visualize status(root==null?'#':root.val)
+function traverse(root) {
+    if (root == null) {
+        return;
+    }
+    
+    // 二叉树遍历框架
+    traverse(root.left);
+
+    // 中序位置
+    // @visualize color *root #6ccff9
+    inorderResult.push(root.val);
+
+    traverse(root.right);
+}
+
+let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
+traverse(_allRoot);
+```
+
+#### post-order traversal
 
 A post-order traversal visits the node after it visits its descendants. An application of post-order traversal could be computing the space used by a file in a directory and its subdirectories.先遍历子辈节点再遍历祖先节点，会在没有子辈节点后再遍历祖辈节点，所以 7,15,11 都在每个子节点遍历完后才能遍历到。
 
@@ -1199,6 +1476,134 @@ A post-order traversal visits the node after it visits its descendants. An appli
 ```
 
 <img src="https://s2.loli.net/2024/09/28/gzF5fbVsy7Gq2nJ.png" alt="image-20240928233554353" style="zoom: 33%;" />
+
+```js
+// 后序遍历结果
+let postorderResult = [];
+
+// @visualize status(root==null?'#':root.val)
+function traverse(root) {
+    if (root == null) {
+        return;
+    }
+    // 二叉树遍历框架
+    traverse(root.left);
+    traverse(root.right);
+
+    // 后序位置
+    // @visualize color *root #d22d64
+    postorderResult.push(root.val);
+}
+
+let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
+traverse(_allRoot);
+```
+
+###  层序遍历 / Breadth-First Search (BFS)
+
+广度优先搜索
+
+层序遍历需要借助队列来实现，而且根据不同的需求，可以有三种不同的写法
+
+- **Level-order Traversal**
+
+<img src="https://s2.loli.net/2025/12/28/AWbyDja5x3Vhz1G.png" alt="image-20251228110833346" style="zoom:50%;" />
+
+#### function 1
+
+这种写法的缺点是，无法知道当前节点在第几层。知道节点的层数是个常见的需求，比方说让你收集每一层的节点，或者计算二叉树的最小深度等等。
+
+```js
+function levelOrderTraverse(root) {
+    if (!root) {
+        return;
+    }
+    let q = [root];
+    while (q.length > 0) {
+        let cur = q.shift();
+        // 访问 cur 节点
+        // @visualize color *cur #6ccff9
+        console.log(cur.val);
+
+        // 把 cur 的左右子节点加入队列
+        if (cur.left) {
+            q.push(cur.left);
+        }
+        if (cur.right) {
+            q.push(cur.right);
+        }
+    }
+}
+
+let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
+levelOrderTraverse(_allRoot);
+```
+#### function  2
+
+BFS = Queue + While 循环
+
+```js
+var levelOrderTraverse = function(root) {
+    if (root === null) {
+        return [];
+    }
+  	// BFS 用来“控制遍历顺序”的工作队列（queue），队列里存的是节点本身，而不是节点的值，用来保存尚未被访问的节点，通过 FIFO 的出入队规则，保证二叉树按层序被遍历
+    let q = [root];
+    // 记录当前遍历到的层数（根节点视为第 1 层）
+    let depth = 1;
+    while (q.length > 0) {
+        let sz = q.length;
+        for (let i = 0; i < sz; i++) {
+            let cur = q.shift();
+            // 访问 cur 节点，同时知道它所在的层数
+            // @visualize color *cur #6??ff9 depth
+            console.log(`depth = ${depth}, val = ${cur.val}`);
+            if (cur.left !== null) {
+                q.push(cur.left);
+            }
+            // 把 cur 的左右子节点加入队列
+            if (cur.right !== null) {
+                q.push(cur.right);
+            }
+        }
+        depth++;
+    }   
+};
+
+let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
+levelOrderTraverse(_allRoot);
+```
+#### function  3
+```js
+function State(node, depth) {
+    this.node = node;
+    this.depth = depth;
+}
+
+var levelOrderTraverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    // @visualize bfs
+    var q = [];
+    // 根节点的路径权重和是 1
+    q.push(new State(root, 1));
+
+    while (q.length !== 0) {
+        var cur = q.shift();
+        // 访问 cur 节点，同时知道它的路径权重和
+        console.log("depth = " + cur.depth + ", val = " + cur.node.val);
+
+        // 把 cur 的左右子节点加入队列
+        if (cur.node.left !== null) {
+            q.push(new State(cur.node.left, cur.depth + 1));
+        }
+        if (cur.node.right !== null) {
+            q.push(new State(cur.node.right, cur.depth + 1));
+        }
+    }
+};
+```
 
 ## Searching for values in a tree
 
@@ -1422,8 +1827,6 @@ console.log(graph.toString());
 visits the vertices first widely and then deeply
 
 <img src="/Users/chenruo/Library/Application Support/typora-user-images/image-20241201133053273.png" alt="image-20241201133053273" style="zoom: 50%;" />
-
-
 
 1. Create a queue Q 
 2. Mark v as discovered (grey) and enqueue v into Q 
@@ -2110,3 +2513,4 @@ export function shuffle(array) {
 ```
 
 ![image-20241201164541666](https://s2.loli.net/2024/12/01/9Iz6muVdWGFDCge.png)
+
