@@ -1107,6 +1107,8 @@ linear probing（线性探测）**Open Addressing**：all elements are stored in
 
 # Tree / 树
 
+每个节点最多只有两个分支的树结构，通常分支被称作“左子树”或“右子树”。二叉树的分支具有左右次序，不能随意颠倒。
+
 a tree, which is very useful for storing information that needs to be found easily.
 
 - Tree terminology
@@ -1148,8 +1150,10 @@ A tree is an abstract model of a hierarchical structure
 ### 二叉树代码代码展示：
 
 在层序遍历中，`root` 是一个 **二叉树节点对象**，
- 每个节点都包含 `val`、`left`、`right` 三个字段，
- 队列中存放的是节点引用，而不是值。
+
+每个节点都包含 `val`、`left`、`right` 三个字段，
+
+队列中存放的是节点引用，而不是值。
 
 ```js
 class TreeNode {
@@ -1346,7 +1350,48 @@ the function we need:
 
 自平衡的二叉树有很多种实现方式，最经典的就是红黑树，一种自平衡的二叉搜索树。
 
+## 多叉树 / Multiway Tree / m-WAY Search Trees
+
+https://www.thedshandbook.com/multiway-trees/
+
+https://www.cs.emory.edu/~cheung/Courses/253/Syllabus/Trees/Docs/Very-good=2-4-tree.pdf
+
+A multiway search tree is one with nodes that have two or more children. Within each node is stored a given key, which is associated to an item we wish to access through the structure. Given this definition, a binary search tree is a multiway search tree. 
+
+![image-20251229123148115](https://s2.loli.net/2025/12/29/9HsZjwXfvFzKLBi.png)
+
+```js
+// 二叉树 - 每个节点有两个子节点
+var TreeNode = function(val) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+};
+
+// 多叉树 - 每个节点有任意个子节点
+var Node = function(val) {
+    this.val = val;
+    this.children = [];
+}
+
+const node = {
+  val: 'A',
+  children: [
+    { val: 'B', children: [...] },
+    { val: 'C', children: [...] },
+    { val: 'D', children: [...] }
+  ]
+};
+
+```
+
+### 森林
+
+> 森林是指多个多叉树的集合，单独一棵多叉树是一个特殊的森林。
+
 ## Traversing (or walking) a tree
+
+### binary-tree
 
 Traversing (or walking) a tree is the process of visiting all the nodes of a tree and performing an operation at each node.
 
@@ -1365,7 +1410,7 @@ Traversing (or walking) a tree is the process of visiting all the nodes of a tre
 ![image-20251228105553742](https://s2.loli.net/2025/12/28/bRxiPCtevzKgALU.png)
 
 
-### 递归遍历 / Recursive Traversal / Depth-First Search (DFS)
+#### 递归遍历 / Recursive Traversal / Depth-First Search (DFS)
 
 深度优先搜索
 
@@ -1399,7 +1444,7 @@ var traverse = function(root) {
 };
 ```
 
-#### pre-order traversal
+##### pre-order traversal
 
 A pre-order traversal visits the node prior to its descendants. 从祖先开始再到子辈进行遍历获得数据
 
@@ -1433,7 +1478,7 @@ let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
 traverse(_allRoot);
 ```
 
-#### in-order traversal
+##### in-order traversal
 
 An in-order traversal visits all the nodes of a BST in an ascending order, meaning it will visit the nodes from the smallest to the largest. An application of in-order traversal would be to sort a tree. 从最小的 node 开始遍历依次到最大的
 
@@ -1467,7 +1512,7 @@ let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
 traverse(_allRoot);
 ```
 
-#### post-order traversal
+##### post-order traversal
 
 A post-order traversal visits the node after it visits its descendants. An application of post-order traversal could be computing the space used by a file in a directory and its subdirectories.先遍历子辈节点再遍历祖先节点，会在没有子辈节点后再遍历祖辈节点，所以 7,15,11 都在每个子节点遍历完后才能遍历到。
 
@@ -1499,7 +1544,7 @@ let _allRoot = BTree.createRoot([1, 2, 3, 7, 4, 5, 6]);
 traverse(_allRoot);
 ```
 
-###  层序遍历 / Breadth-First Search (BFS)
+####  层序遍历 / Breadth-First Search (BFS)
 
 广度优先搜索
 
@@ -1509,7 +1554,7 @@ traverse(_allRoot);
 
 <img src="https://s2.loli.net/2025/12/28/AWbyDja5x3Vhz1G.png" alt="image-20251228110833346" style="zoom:50%;" />
 
-#### function 1
+##### function 1
 
 这种写法的缺点是，无法知道当前节点在第几层。知道节点的层数是个常见的需求，比方说让你收集每一层的节点，或者计算二叉树的最小深度等等。
 
@@ -1538,7 +1583,7 @@ function levelOrderTraverse(root) {
 let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
 levelOrderTraverse(_allRoot);
 ```
-#### function  2
+##### function  2
 
 BFS = Queue + While 循环
 
@@ -1573,7 +1618,7 @@ var levelOrderTraverse = function(root) {
 let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
 levelOrderTraverse(_allRoot);
 ```
-#### function  3
+##### function  3
 ```js
 function State(node, depth) {
     this.node = node;
@@ -1603,6 +1648,140 @@ var levelOrderTraverse = function(root) {
         }
     }
 };
+```
+
+### 多叉树递归/层序遍历
+
+#### 递归遍历
+
+```js
+// 多叉树没有了中序位置，因为可能有多个节点嘛，所谓的中序位置也就没什么意义
+
+var traverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    // 前序位置
+    for (var i = 0; i < root.children.length; i++) {
+        traverse(root.children[i]);
+    }
+    // 后序位置
+};
+```
+
+#### 层序遍历
+
+##### function 1
+
+第一种层序遍历写法，无法记录节点深度：
+
+```js
+var levelOrderTraverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    var q = [];
+    q.push(root);
+    while (q.length !== 0) {
+        var cur = q.shift();
+        // 访问 cur 节点
+        console.log(cur.val);
+
+        // 把 cur 的所有子节点加入队列
+        for (var child of cur.children) {
+            q.push(child);
+        }
+    }
+}
+```
+
+##### function 2
+
+第二种层序遍历写法，能够记录节点深度：
+
+```js
+var levelOrderTraverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    var q = [];
+    q.push(root);
+    // 记录当前遍历到的层数（根节点视为第 1 层）
+    var depth = 1;
+
+    while (q.length !== 0) {
+        var sz = q.length;
+        for (var i = 0; i < sz; i++) {
+            var cur = q.shift();
+            // 访问 cur 节点，同时知道它所在的层数
+            console.log("depth = " + depth + ", val = " + cur.val);
+
+            for (var j = 0; j < cur.children.length; j++) {
+                q.push(cur.children[j]);
+            }
+        }
+        depth++;
+    }
+}
+```
+
+##### function 3
+
+第三种能够适配不同权重边的写法：
+
+```js
+// 多叉树的层序遍历
+// 每个节点自行维护 State 类，记录深度等信息
+function State(node, depth) {
+    this.node = node;
+    this.depth = depth;
+}
+
+var levelOrderTraverse = function(root) {
+    if (root === null) {
+        return;
+    }
+    var q = [];
+    // 记录当前遍历到的层数（根节点视为第 1 层）
+    q.push(new State(root, 1));
+
+    while (q.length !== 0) {
+        var state = q.shift();
+        var cur = state.node;
+        var depth = state.depth;
+        // 访问 cur 节点，同时知道它所在的层数
+        console.log("depth = " + depth + ", val = " + cur.val);
+
+        for (var i = 0; i < cur.children.length; i++) {
+            q.push(new State(cur.children[i], depth + 1));
+        }
+    }
+}
+```
+
+### DFS（递归）
+
+```js
+自己 → 子树 → 子树
+dfs(node) {
+  visit(node)
+  for child of children:
+    dfs(child)
+}
+```
+
+------
+
+### BFS（层序）
+
+```js
+队列 → 出队 → 入队
+queue = [root]
+while queue not empty:
+  size = queue.length
+  for size 次:
+    node = queue.shift()
+    queue.push(children)
 ```
 
 ## Searching for values in a tree
