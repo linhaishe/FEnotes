@@ -1121,6 +1121,8 @@ a tree, which is very useful for storing information that needs to be found easi
 
 A tree is an abstract model of a hierarchical structure
 
+[11,7,15,5,9,13,20,3,6,8,10,12,14,18,25]
+
 <img src="https://s2.loli.net/2024/09/28/vPGrnx3LzgsqBJ5.png" alt="image-20240928233224039" style="zoom:33%;" />
 
 - <mark>root</mark>: The top node of a tree
@@ -1759,6 +1761,10 @@ var levelOrderTraverse = function(root) {
 }
 ```
 
+## BFS DFS适用场景
+
+DFS 算法常用来穷举所有路径，BFS 算法常用来寻找最短路径
+
 ### DFS（递归）
 
 ```js
@@ -1783,6 +1789,10 @@ while queue not empty:
     node = queue.shift()
     queue.push(children)
 ```
+
+
+
+
 
 ## Searching for values in a tree
 
@@ -1849,11 +1859,6 @@ After inserting a new node into the tree, this new node will be red.
 - 一个二叉树第 i 层的最大节点数为 : 2^(i-1),i >= 1;
 - 深度为k的二又树有最大节点总数为 : 2^k - 1,k >= 1;
 - 对任何非空二叉树T，若n0表示叶节点的个数、n2是度为2的非叶节点个数，那么两者满足关系n^0 = n2 +1
-
-
-
-完全二叉树
-非完全二叉树
 
 # Graphs
 
