@@ -1946,8 +1946,30 @@ After inserting a new node into the tree, this new node will be red.
 ## Graph terminology
 
 > 图结构就是 [多叉树结构](https://labuladong.online/algo/data-structure-basic/n-ary-tree-traverse-basic/) 的延伸。图结构逻辑上由若干节点（`Vertex`）和边（`Edge`）构成，我们一般用邻接表、邻接矩阵等方式来存储图。
+>
+> 在树结构中，只允许父节点指向子节点，不存在子节点指向父节点的情况，子节点之间也不会互相链接；而图中没有那么多限制，节点之间可以相互指向，形成复杂的网络结构。
 
-a _vertex_ ( pl. : _vertices_ or *vertex*es) / 顶点
+```js
+// 创建一个有向无权图
+// 输入是若干条有向边
+let graph = Graph.createDirectedGraphFromEdges([
+    [0, 4], [0, 3], [0, 1],
+    [1, 3], [1, 2], [1, 4],
+    [2, 3], [2, 4],
+    [3, 4],
+]);
+
+// 邻接矩阵的形式
+let adjMatrix = graph.getAdjMatrix()
+
+// 邻接表的形式
+let adjList = graph.getAdjList()
+```
+
+<img src="https://s2.loli.net/2026/01/01/3EoTH1ntgNMOW4u.png" alt="image-20260101153003188" style="zoom: 50%;" />
+<img src="https://s2.loli.net/2026/01/01/PUFsyHMK2xfATSI.png" alt="image-20260101153239867" style="zoom:50%;" />
+
+a _vertex_ ( pl. : _vertices_ or *vertex*es) / 顶点/节点
 
 A graph is an abstract model of a network structure. A graph is a set of nodes (or vertices) connected by edges. Learning about graphs is important because any binary relationship can be represented by a graph.
 
@@ -1974,9 +1996,26 @@ A graph： G = (V, E) is composed of:
 
 6. unweighted and weighted graphs / 无权图、加权图
 
-<img src="https://s2.loli.net/2024/12/01/Notnujyq2wOs1i6.png" alt="image-20241201131212299" style="zoom: 50%;" /><img src="https://s2.loli.net/2024/12/01/kJA2H5Ew4hV8G3a.png" alt="image-20241201131246942" style="zoom: 50%;" />
+   1. **有向加权图** → a directed weighted graph
+   2. **无向加权图** → an undirected weighted graph
+   3. **边有权值的图** → *a graph where edges have weights*
+
+
+<img src="https://s2.loli.net/2024/12/01/Notnujyq2wOs1i6.png" alt="image-20241201131212299" style="zoom: 67%;" /><img src="https://s2.loli.net/2024/12/01/kJA2H5Ew4hV8G3a.png" alt="image-20241201131246942" style="zoom: 67%;" />
+
+```js
+// 图节点的逻辑结构
+var Vertex = function(id, neighbors) {
+    this.id = id;
+    this.neighbors = neighbors;
+};
+```
+
+
 
 ## Representing a graph in three different ways
+
+邻接表和邻接矩阵是图结构的两种实现方法
 
 ### adjacency matrix / 邻接矩阵
 
@@ -1998,6 +2037,16 @@ This consists of a list of adjacent vertices for every vertex of the graph.
 
 <img src="https://s2.loli.net/2024/12/01/xfRIway7VJSE5mD.png" alt="image-20241201124510399" style="zoom: 33%;" />
 
+<img src="https://s2.loli.net/2026/01/01/heDo9lVn5IJXNLb.png" alt="image-20260101154443257" style="zoom: 33%;" />
+
+注意分析两种存储方式的空间复杂度，对于一幅有 `V` 个节点，`E` 条边的图，邻接表的空间复杂度是 O(V+E)*O*(*V*+*E*)，而邻接矩阵的空间复杂度是 O(V2)*O*(*V*2)。
+
+所以如果一幅图的 `E` 远小于 `V^2`（稀疏图），那么邻接表会比邻接矩阵节省空间，反之，如果 `E` 接近 `V^2`（稠密图），二者就差不多了。
+
+在后面的图算法和习题中，大多都是稀疏图，所以你会看到邻接表的使用更多一些。
+
+邻接矩阵的最大优势在于，矩阵是一个强有力的数学工具，图的一些隐晦性质可以借助精妙的矩阵运算展现出来。
+
 ### incidence matrix / 关联矩阵
 
 Row: a vertex
@@ -2008,9 +2057,30 @@ An incidence matrix is usually used to save space and memory when we have more e
 
 <img src="https://s2.loli.net/2024/12/01/WgRx1THjOm6V7Ik.png" alt="image-20241201124656534" style="zoom:33%;" />
 
-
-
 ## The graph data structure in class
+
+```js
+// 其实是有向加权图的接口，但基于这个接口可以实现所有不同种类的无向/有向/无权/加权图
+class Graph {
+    // 添加一条边（带权重）
+    addEdge(from, to, weight) {}
+
+    // 删除一条边
+    removeEdge(from, to) {}
+
+    // 判断两个节点是否相邻
+    hasEdge(from, to) {}
+
+    // 返回一条边的权重
+    weight(from, to) {}
+
+    // 返回某个节点的所有邻居节点和对应权重
+    neighbors(v) {}
+
+    // 返回节点总数
+    size() {}
+}
+```
 
 ```js
 import Dictionary from './dictionary';
