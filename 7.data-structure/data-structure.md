@@ -1948,6 +1948,8 @@ After inserting a new node into the tree, this new node will be red.
 > 图结构就是 [多叉树结构](https://labuladong.online/algo/data-structure-basic/n-ary-tree-traverse-basic/) 的延伸。图结构逻辑上由若干节点（`Vertex`）和边（`Edge`）构成，我们一般用邻接表、邻接矩阵等方式来存储图。
 >
 > 在树结构中，只允许父节点指向子节点，不存在子节点指向父节点的情况，子节点之间也不会互相链接；而图中没有那么多限制，节点之间可以相互指向，形成复杂的网络结构。
+>
+> 图结构可以对很多复杂的问题进行抽象，产生了很多经典的图论算法，比如 [二分图算法](https://labuladong.online/algo/data-structure/bipartite-graph/)、[拓扑排序](https://labuladong.online/algo/data-structure/topological-sort/)、[最短路径算法](https://labuladong.online/algo/data-structure/dijkstra/)、[最小生成树算法](https://labuladong.online/algo/data-structure/kruskal/) 等
 
 ```js
 // 创建一个有向无权图
@@ -2014,6 +2016,16 @@ var Vertex = function(id, neighbors) {
 ## Representing a graph in three different ways
 
 邻接表和邻接矩阵是图结构的两种实现方法
+
+```js
+// 邻接表
+// graph[x] 存储 x 的所有邻居节点
+var graph: number[][] = [];
+
+// 邻接矩阵
+// matrix[x][y] 记录 x 是否有一条指向 y 的边
+var matrix: boolean[][] = [];
+```
 
 ### adjacency matrix / 邻接矩阵
 
@@ -2161,7 +2173,7 @@ console.log(graph.toString());
 
 visits the vertices first widely and then deeply
 
-<img src="/Users/chenruo/Library/Application Support/typora-user-images/image-20241201133053273.png" alt="image-20241201133053273" style="zoom: 50%;" />
+<img src="https://s2.loli.net/2026/01/04/YNd1OtMIKGfpQUX.png" alt="image-20260104123808057" style="zoom:50%;" />
 
 1. Create a queue Q 
 2. Mark v as discovered (grey) and enqueue v into Q 
@@ -2374,7 +2386,60 @@ Prim's algorithm / Kruskal's algorithm
 
 ## 图结构的通用代码实现
 
+```js
+// 邻接表
+// graph[x] 存储 x 的所有邻居节点
+var graph: number[][] = [];
+
+// 邻接矩阵
+// matrix[x][y] 记录 x 是否有一条指向 y 的边
+var matrix: boolean[][] = [];
+```
+
+```js
+class Graph {
+    // 添加一条边（带权重）
+    addEdge(from, to, weight) {}
+
+    // 删除一条边
+    removeEdge(from, to) {}
+
+    // 判断两个节点是否相邻
+    hasEdge(from, to) {}
+
+    // 返回一条边的权重
+    weight(from, to) {}
+
+    // 返回某个节点的所有邻居节点和对应权重
+    neighbors(v) {}
+
+    // 返回节点总数
+    size() {}
+}
+```
+
 ### 1. 有向加权图（邻接表实现）
+
+```js
+// 得到
+[
+  [], // 独立的新数组
+  [],
+  []
+]
+
+graph.addEdge(2, 0, 3);
+
+// 数据视图如下
+[
+  [], 
+  [], 
+  [
+    { to: 1, weight: 4 },
+    { to: 0, weight: 3 }
+  ]
+]
+```
 
 ```js
 // 加权有向图的通用实现（邻接表）
@@ -2437,30 +2502,26 @@ graph.removeEdge(0, 1);
 console.log(graph.hasEdge(0, 1)); // false
 ```
 
-```js
-// 得到
-[
-  [], // 独立的新数组
-  [],
-  []
-]
-
-graph.addEdge(2, 0, 3);
-
-
-[
-  [], 
-  [], 
-  [
-    { to: 1, weight: 4 },
-    { to: 0, weight: 3 }
-  ]
-]
-```
-
 ### 2. 有向加权图（邻接矩阵实现）
 
 一个 n×n 的二维数组 `matrix`，行是 from，列是 to，值是 weight（0 表示无边）
+
+```js
+class WeightedDigraph {
+  matrix: number[][];
+}
+```
+
+```js
+// 加边 addEdge(2, 0, 3)、addEdge(2, 1, 4) // 0 表示“无边” // 数据视图如下
+
+graph.matrix === [
+  [0, 1, 0],
+  [0, 0, 2],
+  [3, 4, 0],
+]
+
+```
 
 ```js
 // 加权有向图的通用实现（邻接矩阵）
@@ -2522,26 +2583,84 @@ graph.neighbors(2).forEach(function(edge) {
 graph.removeEdge(0, 1);
 console.log(graph.hasEdge(0, 1)); // false
 ```
+### 3. 有向无权图
+
+直接复用上面的 `WeightedDigraph` 类就行，把 `addEdge` 方法的权重参数默认设置为 1 就行了。比较简单，我就不写代码了。
+
+> **把无权图的边权统一设为 1，是为了在“语义正确”的前提下，最大化代码复用和算法通用性。**
+
+1. 为什么偏偏是 1，而不是 0、true、null？
+
+不能是 true / false： 语义不清晰，算法通用性差，换语言直接炸
+
+不能是 0，`0` = 没有边，`!== 0` = 有边。而且在最短路径算法中：0 权重边会破坏距离计算（等于免费瞬移）
+
+统一为 1 的最大好处：算法可以直接复用
+
+2. 其他数字可以吗
+   1. 距离语义被放大了（不自然）
+   2. 算法实现里会多出隐性问题（⚠️ 溢出风险（尤其非 JS）/ 启发式算法（A*）会被影响
+
+
+### 4. 无向加权图
 
 ```js
-class WeightedDigraph {
-  matrix: number[][];
+// 无向加权图的通用实现
+class WeightedUndigraph {
+    constructor(n) {
+        this.graph = new WeightedDigraph(n);
+    }
+
+    // 增，添加一条带权重的无向边
+    addEdge(from, to, weight) {
+        this.graph.addEdge(from, to, weight);
+        this.graph.addEdge(to, from, weight); // 来回都加一次
+    }
+
+    // 删，删除一条无向边
+    removeEdge(from, to) {
+        this.graph.removeEdge(from, to); // 来回都删
+        this.graph.removeEdge(to, from);
+    }
+
+    // 查，判断两个节点是否相邻
+    hasEdge(from, to) {
+        return this.graph.hasEdge(from, to);
+    }
+
+    // 查，返回一条边的权重
+    weight(from, to) {
+        return this.graph.weight(from, to);
+    }
+
+    // 查，返回某个节点的所有邻居节点
+    neighbors(v) {
+        return this.graph.neighbors(v);
+    }
 }
+
+var graph = new WeightedUndigraph(3);
+graph.addEdge(0, 1, 1); // 第一个数组的第二位的值为1
+graph.addEdge(2, 0, 3); // 第三个数组的第一位的值为3
+graph.addEdge(2, 1, 4);
+
+console.log(graph.hasEdge(0, 1)); // true
+console.log(graph.hasEdge(1, 0)); // true
+
+graph.neighbors(2).forEach(function(edge) {
+    console.log(2 + " <-> " + edge.to + ", wight: " + edge.weight);
+});
+// 2 <-> 0, wight: 3
+// 2 <-> 1, wight: 4
+
+graph.removeEdge(0, 1);
+console.log(graph.hasEdge(0, 1)); // false
+console.log(graph.hasEdge(1, 0)); // false
 ```
 
-```js
-// 加边 addEdge(2, 0, 3)、addEdge(2, 1, 4) // 0 表示“无边”
-
-graph.matrix === [
-  [0, 1, 0],
-  [0, 0, 2],
-  [3, 4, 0],
-]
-
-```
 
 
-
+### 5. 无向无权图
 
 
 
