@@ -1855,6 +1855,264 @@ class MyPriorityQueue {
 }
 ```
 
+#### 手写实现二叉堆优先级队列
+
+以小顶堆为例，向小顶堆中插入新元素遵循两个步骤：
+
+1、先把新元素追加到二叉树底层的最右侧，保持完全二叉树的结构。此时该元素的父节点可能比它大，不满足小顶堆的性质。
+
+2、为了恢复小顶堆的性质，需要将这个新元素不断上浮（`swim`），直到它的父节点比它小为止，或者到达根节点。此时整个二叉树就满足小顶堆的性质了。
+
+##### 简化版
+
+下面是一个简化版的小顶堆优先级队列核心逻辑的实现，没有特别处理边界情况
+
+```js
+class SimpleMinPQ {
+    // 底层使用数组实现二叉堆
+    constructor(capacity) {
+        this.heap = new Array(capacity);
+        this.size = 0;
+    }
+
+    // 父节点的索引
+    parent(node) {
+        return Math.floor((node - 1) / 2);
+    }
+
+    // 左子节点的索引
+    left(node) {
+        return node * 2 + 1;
+    }
+
+    // 右子节点的索引
+    right(node) {
+        return node * 2 + 2;
+    }
+
+    // 交换数组的两个元素
+    swap(i, j) {
+        [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+    }
+
+    // 查，返回堆顶元素，时间复杂度 O(1)
+    peek() {
+        return this.heap[0];
+    }
+
+    // 增，向堆中插入一个元素，时间复杂度 O(logN)
+    push(x) {
+        // 把新元素追加到最后
+        this.heap[this.size] = x;
+        // 然后上浮到正确位置
+        this.swim(this.size);
+        this.size++;
+    }
+
+    // 删，删除堆顶元素，时间复杂度 O(logN)
+    pop() {
+        const res = this.heap[0];
+        // 把堆底元素放到堆顶
+        this.heap[0] = this.heap[this.size - 1];
+        this.size--;
+        // 然后下沉到正确位置
+        this.sink(0);
+        return res;
+    }
+
+    // 上浮操作，时间复杂度是树高 O(logN)
+    swim(node) {
+        while (node > 0 && this.heap[this.parent(node)] > this.heap[node]) {
+            this.swap(this.parent(node), node);
+            node = this.parent(node);
+        }
+    }
+
+    // 下沉操作，时间复杂度是树高 O(logN)
+    sink(node) {
+      	// 如果节点存在
+        while (this.left(node) < this.size || this.right(node) < this.size) {
+            // 比较自己和左右子节点，看看谁最小, 假设自己最小
+            let min = node;
+            if (this.left(node) < this.size && this.heap[this.left(node)] < this.heap[min]) {
+              // 如果左子节点存在，并且它的值比当前最小值还小，就更新最小值索引
+                min = this.left(node);
+            }
+            if (this.right(node) < this.size && this.heap[this.right(node)] < this.heap[min]) {
+                min = this.right(node);
+            }
+            if (min === node) { // 自己就是最小 → 停止下沉
+                break;
+            }
+            // if (min !== node) {
+        		//		this.swap(node, min);
+       			//	  this.sink(min); // 递归调用
+    				// }
+            // 如果左右子节点中有比自己小的，就交换,和上面递归调用等价
+            this.swap(node, min);
+            node = min; // 继续下沉
+          	// swap + node = min 只是改变位置，while 循环会自动检查新的位置并继续下沉，不需要手动调用 sink()
+        }
+    }
+}
+
+// 测试代码
+const pq = new SimpleMinPQ(5);
+pq.push(3);
+pq.push(2);
+pq.push(1);
+pq.push(5);
+pq.push(4);
+
+console.log(pq.pop()); // 1
+console.log(pq.pop()); // 2
+console.log(pq.pop()); // 3
+console.log(pq.pop()); // 4
+console.log(pq.pop()); // 5
+```
+
+##### 完善版
+
+```js
+class MyPriorityQueue {
+    // 构造函数
+    constructor(capacity, comparator) {
+        // 堆数组
+        this.heap = new Array(capacity);
+        // 堆中元素的数量
+        this.size = 0;
+        // 元素比较器
+        this.comparator = comparator || ((a, b) => (a > b) ? 1 : (a < b) ? -1 : 0);
+    }
+
+    // 返回堆的大小
+    getSize() {
+        return this.size;
+    }
+
+    // 判断堆是否为空
+    isEmpty() {
+        return this.size === 0;
+    }
+
+    // 父节点的索引
+    parent(node) {
+        return Math.floor((node - 1) / 2);
+    }
+
+    // 左子节点的索引
+    left(node) {
+        return node * 2 + 1;
+    }
+
+    // 右子节点的索引
+    right(node) {
+        return node * 2 + 2;
+    }
+
+    // 交换数组的两个元素
+    swap(i, j) {
+        const temp = this.heap[i];
+        this.heap[i] = this.heap[j];
+        this.heap[j] = temp;
+    }
+
+    // 查，返回堆顶元素，时间复杂度 O(1)
+    peek() {
+        if (this.isEmpty()) {
+            throw new Error("Priority queue underflow");
+        }
+        return this.heap[0];
+    }
+
+    // 增，向堆中插入一个元素，时间复杂度 O(logN)
+    push(node) {
+        // 扩容
+        if (this.size === this.heap.length) {
+            this.resize(this.heap.length * 2);
+        }
+        // 把新元素追加到最后
+        this.heap[this.size] = node;
+        // 然后上浮到正确位置
+        this.swim(this.size);
+        this.size++;
+    }
+
+    // 删，删除堆顶元素，时间复杂度 O(logN)
+    pop() {
+        if (this.isEmpty()) {
+            throw new Error("Priority queue underflow");
+        }
+        const res = this.heap[0];
+        // 把堆底元素放到堆顶
+        this.swap(0, this.size - 1);
+        // 避免对象游离
+        this.heap[this.size - 1] = undefined;
+        this.size--;
+        // 然后下沉到正确位置
+        this.sink(0);
+        // 缩容
+        if (this.size > 0 && this.size === Math.floor(this.heap.length / 4)) {
+            this.resize(Math.floor(this.heap.length / 2));
+        }
+        return res;
+    }
+
+    // 上浮操作，时间复杂度是树高 O(logN)
+    swim(node) {
+        while (node > 0 && this.comparator(this.heap[this.parent(node)], this.heap[node]) > 0) {
+            this.swap(this.parent(node), node);
+            node = this.parent(node);
+        }
+    }
+
+    // 下沉操作，时间复杂度是树高 O(logN)
+    sink(node) {
+        while (this.left(node) < this.size) {
+            // 比较自己和左右子节点，看看谁最小
+            let minNode = node;
+            if (this.left(node) < this.size && this.comparator(this.heap[this.left(node)], this.heap[minNode]) < 0) {
+                minNode = this.left(node);
+            }
+            if (this.right(node) < this.size && this.comparator(this.heap[this.right(node)], this.heap[minNode]) < 0) {
+                minNode = this.right(node);
+            }
+            if (minNode === node) {
+                break;
+            }
+            // 如果左右子节点中有比自己小的，就交换
+            this.swap(node, minNode);
+            node = minNode;
+        }
+    }
+
+    // 调整堆的大小
+    resize(capacity) {
+        const newHeap = new Array(capacity);
+        for (let i = 0; i < this.size; i++) {
+            newHeap[i] = this.heap[i];
+        }
+        this.heap = newHeap;
+    }
+}
+
+// 小顶堆
+const pq = new MyPriorityQueue(3, (a, b) => a - b);
+pq.push(3);
+pq.push(1);
+pq.push(4);
+pq.push(1);
+pq.push(5);
+pq.push(9);
+
+// 1 1 3 4 5 9
+while (!pq.isEmpty()) {
+    console.log(pq.pop());
+}
+```
+
+
+
 #### 堆排序（Heap Sort）/ 排序方法
 
 ```js
@@ -3141,4 +3399,3 @@ export function shuffle(array) {
 ```
 
 ![image-20241201164541666](https://s2.loli.net/2024/12/01/9Iz6muVdWGFDCge.png)
-
