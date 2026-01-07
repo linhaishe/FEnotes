@@ -354,3 +354,4 @@ console.log(_instanceof({ a: 1 }, Object)) // expected output: true
 ```
 
 ## 38. 如何取得一个数字的小数部分与整数部分
+手写 JSON.stringify 和手写 JSON.parse 实现

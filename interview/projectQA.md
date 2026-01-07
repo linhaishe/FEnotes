@@ -1825,3 +1825,14 @@ window.addEventListener('load', function() {
 2. 团队前端构成
 
 ![IMG_4683.PNG](http://tva1.sinaimg.cn/large/6fc56815gy1h72lfihp4ej21vo0v9h1q.jpg)
+
+
+
+# 项目相关
+
+1. 你们项目的测试覆盖率是怎么做的
+2. 如何查看你们 JS 项目中应采用的 node 版本
+3. 如何删除项目中没有使用到的 package
+4. 关于模块化，什么是 amd 和 umd
+5. 什么是 commonjs2
+6. 现代化前端框架中如何进行调试
