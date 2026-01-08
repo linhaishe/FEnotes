@@ -711,3 +711,1429 @@ Negotiated Cache（协商缓存）
 | **普通刷新（点击刷新按钮 / F5）**      | **协商缓存**                     | 浏览器会发请求到服务器，携带 `If-Modified-Since` / `If-None-Match` | 浏览器会检查资源是否过期，如果服务器返回 304 Not Modified，则使用本地缓存 |
 | **强制刷新（Ctrl + F5 / Shift + F5）** | **忽略缓存**                     | 浏览器**不使用缓存**，所有资源重新向服务器请求（强制 200 OK） | 用于确保获取最新版本的资源                                   |
 | **地址栏回车刷新**                     | **普通刷新行为**（视浏览器实现） | 通常与 F5 相同，会检查缓存                                   | 有些浏览器可能像 F5，也可能使用缓存，具体依赖缓存策略        |
+
+# 4. 浏览器组成
+## 1. 对浏览器的理解
+
+浏览器是用户与 Web 之间的桥梁，负责页面渲染、JavaScript 执行、网络请求和数据存储。核心模块包括 UI 渲染引擎、JS 引擎、网络层、存储模块和事件系统。浏览器解析 HTML/CSS/JS 构建 DOM/CSSOM 渲染树，执行布局和绘制，并通过 Event Loop 管理异步任务。同时浏览器提供缓存和安全机制，如同源策略、CORS 和 CSP。
+
+> **浏览器是用户和 Web 之间的桥梁，用于解析 HTML/CSS/JS，展示网页，执行用户交互，并管理网络请求和数据存储。**
+
+核心职责：
+
+1. **界面渲染** → 将网页内容呈现给用户
+2. **脚本执行** → 运行 JavaScript，处理逻辑
+3. **网络请求** → 获取资源（HTML/CSS/JS/图片）
+4. **数据存储** → Cookie / LocalStorage / SessionStorage / IndexedDB
+
+## 2. 浏览器工作原理（加载页面流程)
+
+1. **输入 URL → DNS 解析 → 建立 TCP 连接 → HTTPS 握手**
+2. **发送 HTTP 请求 → 接收 HTML 内容**
+3. **HTML 解析 → 构建 DOM 树**
+4. **CSS 解析 → 构建 CSSOM 树 → 构建渲染树**
+5. **JavaScript 执行 → 可能修改 DOM/CSSOM → 触发重排/重绘**
+6. **布局（Layout） → 绘制（Paint） → 合成（Composite）**
+7. **事件绑定 → 用户交互触发事件 → Event Loop 执行回调**
+
+## 2. 对浏览器内核的理解
+
+浏览器内核是浏览器解析 HTML、CSS、执行 JS、布局和渲染页面的核心模块。它解析 HTML/CSS 构建 DOM/CSSOM 树，生成渲染树，执行布局和绘制，最终将页面显示在屏幕上。JS 引擎执行脚本修改 DOM/CSSOM，可触发重排和重绘。常见内核有 Blink（Chrome/Edge）、WebKit（Safari）、Gecko（Firefox）和 Trident（IE）。
+
+**浏览器内核（Browser Engine / Rendering Engine）是浏览器负责解析 HTML、CSS、执行 JS、布局和渲染页面的核心模块。**
+ 它将网页内容转化为可视化页面，是浏览器“核心大脑”。
+
+| 内核         | 浏览器示例          | 备注                            |
+| ------------ | ------------------- | ------------------------------- |
+| **Blink**    | Chrome、Edge、Opera | Google 维护，基于 WebKit 分叉   |
+| **WebKit**   | Safari              | 苹果维护，移动端 Web 浏览器核心 |
+| **Gecko**    | Firefox             | Mozilla 维护                    |
+| **Trident**  | IE                  | 微软 IE 内核，老旧              |
+| **EdgeHTML** | Edge（旧版）        | 微软 Edge 旧版，已被 Blink 取代 |
+
+### 浏览器内核的核心职责
+
+```css
+浏览器接收 HTML
+        │
+     解析 HTML → DOM 树
+        │
+     解析 CSS → CSSOM 树
+        │
+    DOM + CSSOM → 渲染树
+        │
+        布局（Layout）
+        │
+        绘制（Paint）
+        │
+        合成（Composite）→ 页面显示
+```
+
+**HTML / CSS 解析**
+
+- 将 HTML 解析成 **DOM 树**
+- 将 CSS 解析成 **CSSOM 树**
+
+**构建渲染树（Render Tree）**
+
+- 结合 DOM 和 CSSOM
+- 忽略 `display: none` 元素
+- 用于页面布局和绘制
+
+**布局（Layout / Reflow）**
+
+- 计算每个节点的大小和位置
+
+**绘制（Paint）**
+
+- 将渲染树转为屏幕像素
+
+**合成（Composite）**
+
+- 将绘制结果分层合成，最终显示在屏幕上
+
+**执行 JavaScript（通过 JS 引擎）**
+
+- 修改 DOM / CSSOM → 触发重排（Reflow）或重绘（Repaint）
+
+**事件处理**
+
+- 捕获、冒泡事件流
+- 配合 Event Loop 执行异步回调
+
+----
+
+**Blink 与 WebKit 的关系**
+
+- Blink 是 Google 基于 WebKit 分叉的内核
+
+**重排（Reflow）和重绘（Repaint）区别**
+
+- Reflow → 触发布局计算，性能消耗大
+- Repaint → 元素样式变化，不影响布局，消耗小
+
+**浏览器内核与 JS 引擎关系**
+
+- 内核负责解析和渲染，JS 引擎（如 V8）执行 JS 并可修改 DOM/CSSOM
+
+**为什么 iframe / 沙箱需要内核支持**
+
+- 内核保证页面独立渲染，沙箱隔离执行环境
+
+## 3. 常见的浏览器内核比较
+
+常见浏览器内核包括 Blink（Chrome、Edge）、WebKit（Safari）、Gecko（Firefox）、Trident（IE）和 EdgeHTML（旧版 Edge）。Blink 高性能、支持现代标准；WebKit 移动端优化好；Gecko 遵循标准性高；Trident/EdgeHTML 性能差、兼容性差。选择内核影响渲染性能、标准支持和跨平台能力。
+
+| 内核         | 浏览器示例               | 语言/架构               | 特点                        | 优点                         | 缺点                         |
+| ------------ | ------------------------ | ----------------------- | --------------------------- | ---------------------------- | ---------------------------- |
+| **Blink**    | Chrome、新版 Edge、Opera | C++（基于 WebKit 分叉） | 高性能、高并发，事件驱动    | 支持现代标准、跨平台性能优异 | 体积大，历史兼容性差         |
+| **WebKit**   | Safari、旧版 iOS 浏览器  | C++                     | 苹果维护，轻量、高性能      | 移动端优化好、节能           | 对某些 JS/HTML 新特性支持慢  |
+| **Gecko**    | Firefox                  | C++                     | 完整实现 Web 标准，独立开发 | 标准化程度高、开放           | 内存占用相对高，渲染稍慢     |
+| **Trident**  | IE                       | C++                     | 微软老旧内核                | 与 Windows 集成，兼容老网站  | 性能差，标准支持差，安全性低 |
+| **EdgeHTML** | 旧版 Edge                | C++                     | 微软维护，Trident 改进版    | 比 IE 更标准                 | 已弃用，兼容性问题多         |
+
+----
+
+**Blink 与 WebKit 的关系**
+
+- Blink 是 Google 基于 WebKit 分叉的内核，主要用于 Chrome/新版 Edge/Opera
+
+**Trident 为什么被淘汰？**
+
+- 性能低、标准支持差、安全性低，无法满足现代 Web 要求
+
+**为什么 Safari 使用 WebKit 而非 Blink？**
+
+- 苹果政策要求 iOS 浏览器必须使用 WebKit 内核
+
+**Gecko 有何优势？**
+
+- 高度遵循标准、开放性强、支持自定义扩展
+
+## 4. 常见浏览器所用内核
+
+| 内核         | 浏览器示例          | 备注                            |
+| ------------ | ------------------- | ------------------------------- |
+| **Blink**    | Chrome、Edge、Opera | Google 维护，基于 WebKit 分叉   |
+| **WebKit**   | Safari              | 苹果维护，移动端 Web 浏览器核心 |
+| **Gecko**    | Firefox             | Mozilla 维护                    |
+| **Trident**  | IE                  | 微软 IE 内核，老旧              |
+| **EdgeHTML** | Edge（旧版）        | 微软 Edge 旧版，已被 Blink 取代 |
+
+## 5. 浏览器的主要组成部分
+
+浏览器主要组成部分包括：用户界面、浏览器内核（渲染引擎）、JavaScript 引擎、网络层和数据存储模块。用户界面负责交互，渲染引擎解析 HTML/CSS 并生成页面，JS 引擎执行脚本修改 DOM/CSSOM，网络层管理请求和缓存，数据存储模块提供 Cookie、LocalStorage、SessionStorage 和 IndexedDB 支持。
+
+浏览器主要可以分为 **5 个核心模块**：
+
+注：一些浏览器还包含 **扩展/插件系统**，允许安装第三方功能。
+
+| 模块                        | 功能                                                         |
+| --------------------------- | ------------------------------------------------------------ |
+| **用户界面（UI）**          | 地址栏、按钮、书签栏、标签页等可见部分，用户交互入口         |
+| **浏览器内核 / 渲染引擎**   | 负责解析 HTML、CSS，构建 DOM/CSSOM 树，生成渲染树并绘制页面，执行布局和绘制 |
+| **JS 引擎**                 | 解析和执行 JavaScript，处理 DOM/CSSOM 操作，管理 Event Loop（Chrome 使用 V8） |
+| **网络层**                  | 负责 HTTP/HTTPS 请求，DNS 解析，缓存管理，Cookie 管理        |
+| **数据存储 / 本地存储模块** | Cookie、LocalStorage、SessionStorage、IndexedDB，用于持久化和会话数据存储 |
+
+浏览器工作流程示意（简化版）
+
+```swift
+用户输入 URL
+        │
+     浏览器网络层
+        │
+     获取 HTML/CSS/JS
+        │
+     渲染引擎解析 → DOM + CSSOM → 渲染树
+        │
+     布局（Layout） → 绘制（Paint） → 合成（Composite）
+        │
+     JS 引擎执行脚本 → 修改 DOM/CSSOM → 可能触发重排/重绘
+        │
+     用户看到最终页面
+
+```
+
+---
+
+**浏览器内核和 JS 引擎的区别？**
+
+- 内核负责解析和渲染，JS 引擎执行脚本并可修改 DOM/CSSOM
+
+**浏览器如何处理事件？**
+
+- 内核管理事件系统，支持捕获、目标、冒泡阶段
+- JS 引擎通过 Event Loop 执行回调
+
+**数据存储模块作用？**
+
+- 提供持久化或会话数据存储（Cookie/LocalStorage/SessionStorage/IndexedDB）
+
+**网络层和缓存机制？**
+
+- 网络层发起请求，浏览器可利用 HTTP 强缓存/协商缓存提升性能
+
+## 6. 浏览器优化相关知识点（面试常问）
+
+**缓存机制**
+
+- 强缓存（Expires/Cache-Control）
+- 协商缓存（ETag/Last-Modified）
+
+**渲染优化**
+
+- 减少重排（Reflow）和重绘（Repaint）
+- CSS/JS 放置位置优化加载
+
+**安全机制**
+
+- 同源策略（SOP）、CORS
+- CSP、HttpOnly Cookie
+
+**异步处理**
+
+- Event Loop、微任务（Promise）、宏任务（setTimeout）
+- Web Worker 多线程处理
+
+# 5. 浏览器渲染原理
+
+## 1. 浏览器的渲染过程
+
+浏览器渲染过程：浏览器接收 HTML/CSS/JS，解析 HTML 构建 DOM 树，解析 CSS 构建 CSSOM 树，然后合并成渲染树。渲染树经过布局（Layout）计算节点尺寸和位置，再绘制（Paint）像素，最后合成（Composite）显示页面。JS 执行可修改 DOM/CSSOM，引起重排或重绘。优化方法包括减少 DOM 操作、使用异步 JS、分层渲染和 GPU 加速。
+
+**浏览器渲染概念**
+
+浏览器渲染过程是指浏览器接收 HTML/CSS/JS 等资源，将其解析、计算布局、绘制页面并显示给用户的全过程。
+
+核心目标：
+
+- 将网页内容解析成 DOM/CSSOM 树
+- 构建 渲染树（Render Tree）
+- 执行 布局（Layout） 和 绘制（Paint）
+- 最终显示页面
+
+```mathematica
+HTML → DOM
+CSS → CSSOM
+DOM + CSSOM → Render Tree
+Render Tree → Layout（计算尺寸和位置）
+Layout → Paint（绘制像素）
+Paint → Composite（分层合成）
+最终显示页面
+```
+
+### 1️⃣ 解析 HTML → 构建 DOM 树
+
+- HTML 标签解析 → 节点树
+- 文本、元素、属性都成为 DOM 节点
+- 遇到 `<script>` 阻塞解析（同步 JS）
+
+### 2️⃣ 解析 CSS → 构建 CSSOM 树
+
+- 加载 CSS 文件或 `<style>` 标签
+- 解析选择器和样式规则 → 构建 CSSOM 树
+
+### 3️⃣ 构建渲染树（Render Tree）
+
+- 合并 DOM 树和 CSSOM 树
+- 忽略 `display: none` 节点
+- 节点包含可见样式和布局信息
+
+### 4️⃣ 布局（Layout / Reflow）
+
+- 计算渲染树每个节点的尺寸、位置
+- 生成绘制坐标（x, y, width, height）
+
+### 5️⃣ 绘制（Paint）
+
+- 将渲染树每个节点转化为屏幕像素
+- 绘制文本、背景、边框、颜色、图片等
+
+### 6️⃣ 合成（Composite）
+
+- 将页面层（Layer）合并到屏幕上
+- GPU 参与合成，提高性能
+
+### 7️⃣ JS 执行（可触发重排/重绘）
+
+- JS 修改 DOM/CSSOM → 可能触发 Reflow / Repaint
+- Event Loop 管理异步任务执行
+
+----
+
+**重排（Reflow）和重绘（Repaint）区别**
+
+- **Reflow** → 布局变化（尺寸/位置） → 消耗大
+- **Repaint** → 样式变化（颜色/背景） → 消耗小
+
+**为什么 JS 会阻塞渲染？**
+
+- 同步 `<script>` 执行会阻塞 HTML 解析
+
+**浏览器渲染优化**
+
+- 减少 DOM 操作
+- CSS 放在头部，JS 放在底部或异步加载
+- 使用 `transform` 和 `opacity` 避免触发重排
+
+**分层渲染（Layer）优化**
+
+- GPU 加速，减少重绘成本
+
+## 2. 浏览器渲染优化
+
+浏览器渲染优化主要针对减少重排（Reflow）、减少重绘（Repaint）、优化 JS 加载和网络资源、合理使用分层渲染和 GPU 加速。重排代价最大，应批量操作 DOM、避免频繁读取布局属性。动画推荐使用 transform 和 opacity，减少阻塞渲染的同步 JS 和阻塞 CSS，图片懒加载和压缩可以提升性能。
+
+### 浏览器渲染性能瓶颈
+
+浏览器渲染过程中主要消耗性能的环节：
+
+1. **重排（Reflow / Layout）**
+   - 当元素尺寸、位置、几何形状发生变化时
+   - 会重新计算布局，影响子元素和父元素
+   - **代价最大**
+2. **重绘（Repaint）**
+   - 元素样式改变但不影响布局（颜色、背景等）
+   - **消耗比重排小**
+3. **合成（Composite）**
+   - 页面分层合成，如果层过多或频繁触发动画，也会消耗性能
+4. **JS 执行阻塞**
+   - 同步 JS 会阻塞 HTML 解析 → 阻塞页面渲染
+5. **网络资源加载**
+   - 阻塞 CSS/JS 加载或解析 → 阻塞首次渲染
+
+------
+
+### 浏览器渲染优化方法
+
+### 1️⃣ 减少重排（Reflow）
+
+- **批量操作 DOM**
+
+  ```
+  const fragment = document.createDocumentFragment();
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    fragment.appendChild(li);
+  });
+  ul.appendChild(fragment);
+  ```
+
+- **避免频繁读取布局属性**（如 `offsetWidth`, `clientHeight`）
+
+- **使用绝对定位或 `position: fixed` 进行动画**，减少父元素影响
+
+### 2️⃣ 减少重绘（Repaint）
+
+- **只修改必要样式**（如 `opacity`, `transform` 比 `top/left` 性能好）
+- **使用 CSS class 切换样式**，避免直接操作 style 多次
+
+### 3️⃣ CSS & JS 加载优化
+
+- **CSS 放 `<head>`，JS 放底部或异步加载**
+
+  ```
+  <script src="main.js" defer></script>
+  <script src="main.js" async></script>
+  ```
+
+- **使用 `link rel="preload"` 或 CDN** 提升加载速度
+
+### 4️⃣ 页面渲染优化
+
+- **分层渲染（Layer）**
+  - GPU 加速动画，避免触发重排
+  - CSS 属性如 `transform`、`opacity` 可以独立分层
+- **避免大量 DOM 节点**
+  - 虚拟列表 / 虚拟滚动技术
+
+### 5️⃣ 图片与资源优化
+
+- **图片懒加载**
+- **使用 WebP 或压缩图片**
+- **字体优化**，避免阻塞渲染
+
+------
+
+1. **重排和重绘区别？**
+   - Reflow → 布局变化，代价大
+   - Repaint → 样式变化，不影响布局，代价小
+2. **为什么 `transform` 和 `opacity` 动画性能好？**
+   - 可以直接由 GPU 分层合成，不触发重排
+3. **JS 如何阻塞渲染？**
+   - 同步 `<script>` 标签会阻塞 HTML 解析，影响首次渲染
+4. **优化首屏渲染的方法？**
+   - CSS 放在头部，JS 异步或延迟加载
+   - 图片懒加载
+   - 减少 DOM 节点和复杂布局
+
+## 3. 渲染过程中遇到 JS 文件如何处理?
+
+**浏览器渲染遇到 JS 文件时：默认同步 JS 会阻塞 HTML 解析，下载并执行 JS 后继续解析。`async` JS 不阻塞解析，下载完成立即执行，顺序不保证；`defer` JS 不阻塞解析，DOM 构建完成后按顺序执行。选择合适方式可优化渲染性能和页面加载速度。**
+
+浏览器解析 HTML 时，如果遇到 `<script>` 标签，会对渲染流程产生影响，处理方式取决于 JS 的加载方式和属性（同步 / 异步 / 延迟加载）。
+
+**同步 JS（默认 `<script>`）**
+
+```
+<script src="main.js"></script>
+```
+
+- **流程：**
+  1. HTML 解析到 `<script>` 时，**暂停 DOM 构建**
+  2. 浏览器下载 JS 文件（阻塞解析）
+  3. JS 执行（可能修改 DOM / CSSOM）
+  4. 执行完毕 → 继续解析 HTML
+- **特点：**
+  - 阻塞 HTML 解析 → 可能影响首次渲染
+  - 可修改已经解析的 DOM / CSSOM
+
+------
+
+**异步加载 JS (`async`)**
+
+```
+<script src="main.js" async></script>
+```
+
+- **流程：**
+  1. 浏览器继续解析 HTML，不阻塞 DOM 构建
+  2. JS 文件异步下载
+  3. 下载完成 → **立即执行 JS**（可能打断 HTML 解析，但不阻塞加载）
+- **特点：**
+  - 不保证执行顺序，先下载完成先执行
+  - 可用于独立 JS 文件（广告、统计）
+
+------
+
+**延迟加载 JS (`defer`)**
+
+```
+<script src="main.js" defer></script>
+```
+
+- **流程：**
+  1. 浏览器继续解析 HTML，不阻塞 DOM 构建
+  2. JS 文件异步下载
+  3. **DOM 构建完成后才执行**，执行顺序按照标签顺序
+- **特点：**
+  - 保证顺序执行
+  - 不阻塞解析，推荐用于主逻辑 JS
+
+------
+
+**总结处理方式对比**
+
+| 属性 / 类型        | 是否阻塞 HTML 解析 | 执行时机           | 执行顺序   |
+| ------------------ | ------------------ | ------------------ | ---------- |
+| `<script>`（默认） | ✅ 阻塞             | 下载完成立即执行   | 按标签顺序 |
+| `<script async>`   | ❌ 不阻塞           | 下载完成立即执行   | 不保证顺序 |
+| `<script defer>`   | ❌ 不阻塞           | DOM 完全构建后执行 | 按标签顺序 |
+
+------
+
+1. **为什么同步 JS 阻塞渲染？**
+   - JS 执行可能修改 DOM/CSSOM，浏览器必须暂停解析，保证正确渲染顺序
+2. **async 和 defer 的区别？**
+   - async → 下载完成立即执行，顺序不保证
+   - defer → DOM 构建完成后执行，顺序按标签顺序
+3. **JS 可以修改 DOM 吗？**
+   - 可以，修改可能触发重排（Reflow）和重绘（Repaint）
+4. **最佳实践？**
+   - 核心业务 JS 推荐使用 `defer`
+   - 独立 JS（统计、广告）推荐使用 `async`
+
+## 4. 什么是文档的预解析?
+
+文档的预解析是浏览器在解析 HTML 时，为了提升页面渲染性能而提前扫描或加载资源的机制。它包括 JS 的语法预解析、HTML 中资源标签的预扫描，以及通过 preload / prefetch 提前加载资源。预解析可以缩短等待时间、减少阻塞，提高页面渲染速度。
+
+**文档的预解析（Pre-parsing / Preloading）是浏览器在解析 HTML 时，为了加快页面渲染而提前扫描或加载某些资源的机制。**它的目标是 **减少阻塞渲染和提高页面加载速度**。
+
+### 文档预解析的场景
+
+**预解析 JavaScript**
+
+- 浏览器在遇到 `<script>` 之前，会扫描 HTML 代码，提前解析 JS 语法
+- 发现语法错误或提前生成函数、变量作用域信息，提高执行效率
+- 但 JS 下载仍需实际网络请求
+
+**预加载资源（Preload / Prefetch）**
+
+- `<link rel="preload" href="style.css">`
+  - 告诉浏览器提前加载资源，但不立即执行
+- `<link rel="prefetch" href="next-page.js">`
+  - 提前加载可能在未来使用的资源，减少等待时间
+
+**预解析 DOM / 标签**
+
+- 浏览器解析 HTML 时会扫描文档树
+- 遇到资源（如 `<img>`、`<script>`、`<link>`）会 **提前发起请求**
+- 当解析到真正位置时，资源已经在缓存中，可立即使用
+
+### 浏览器的优化机制
+
+| 机制                   | 说明                         | 目的                               |
+| :--------------------- | :--------------------------- | :--------------------------------- |
+| **HTML 预解析**        | 在解析 HTML 时扫描资源标签   | 提前发起网络请求                   |
+| **JS 预解析**          | 浏览器扫描 JS 语法           | 发现错误、生成作用域、提高执行速度 |
+| **Preload / Prefetch** | 开发者显式告诉浏览器提前加载 | 缩短资源等待时间，优化渲染         |
+
+---
+
+**预解析和懒加载区别？**
+
+- **预解析 / 预加载** → 提前下载或解析资源，提高性能
+- **懒加载** → 等资源真正使用时才加载
+
+**浏览器为什么需要预解析 JS？**
+
+- 提前解析语法、生成作用域链
+- 避免执行时阻塞渲染，提高渲染效率
+
+**常见优化实践**
+
+- `<script defer>` / `<script async>`
+- `<link rel="preload">` / `<link rel="prefetch">`
+- CSS 放在 `<head>`，减少阻塞
+
+## 5. CSS 如何阻塞文档解析?
+
+**CSS 会阻塞文档解析**，是因为浏览器必须在渲染内容之前确定样式信息，否则可能出现 **闪烁（FOUC, Flash of Unstyled Content）** 或布局错误。
+
+**渲染树（Render Tree）依赖 DOM + CSSOM**
+
+**CSS 未加载完成 → 渲染树不完整 → 无法布局 → 阻塞渲染**
+
+### CSS 阻塞解析的机制
+
+**HTML 解析遇到 `<link rel="stylesheet">`**
+
+- 浏览器发现外部 CSS
+- **暂停构建渲染树**
+- 发起 CSS 文件下载
+- 下载完成 → 解析 CSSOM → 恢复渲染树构建
+
+**内联 `<style>` 标签**
+
+- 浏览器同步解析 CSS
+- 构建 CSSOM → 继续渲染
+
+### 为什么 CSS 会阻塞渲染
+
+**保证渲染正确性**
+
+- 浏览器需要先知道元素样式，才能正确计算尺寸和布局
+
+**防止闪烁（FOUC）**
+
+- 如果不阻塞，HTML 先渲染 → 再加载 CSS → 页面闪烁
+
+**依赖渲染树**
+
+- 渲染树 = DOM + CSSOM
+- CSS 未解析完成 → CSSOM 未完成 → 渲染树不完整 → 页面无法绘制
+
+### 优化方法
+
+1. **使用 `media` 属性按需加载**
+
+```
+<link rel="stylesheet" href="print.css" media="print">
+```
+
+- 非关键 CSS 不阻塞初始渲染
+
+2. **关键 CSS 内联（Critical CSS）**
+
+- 页面首屏关键样式直接写入 `<style>`，减少阻塞请求
+
+3. **异步加载 CSS**
+
+```
+<link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+```
+
+- 初始不阻塞，加载完成后应用
+
+**4. 压缩和合并 CSS**
+
+- 减少请求次数和下载时间
+
+**5. 影响范围**
+
+- 阻塞渲染 **但不阻塞 DOM 构建**（DOM 可以继续生成，但页面不可视）
+- 阻塞后续 JS 执行（如果 JS 操作了 DOM 或依赖样式）
+
+---
+
+**CSS 和 JS 阻塞解析的区别？**
+
+- CSS 阻塞渲染，但 DOM 可以继续构建
+- JS 默认阻塞 HTML 解析（除 async / defer）
+
+**为什么 JS 会阻塞 DOM，而 CSS 不阻塞 DOM？**
+
+- JS 执行可能修改 DOM → 必须暂停解析
+- CSS 只影响渲染树 → DOM 仍可构建
+
+**浏览器如何保证页面不闪烁？**
+
+- 阻塞 CSS 渲染 → 渲染树完整 → 页面一次性绘制
+
+## 6. 如何优化关键渲染路径?
+
+关键渲染路径优化的核心是减少阻塞资源和缩短渲染链路。主要手段包括：内联关键 CSS、延迟加载非关键 CSS；JS 使用 defer 或 async，避免阻塞 HTML 解析；精简 DOM 结构；使用 preload 提前加载关键资源；图片和字体优化。目标是尽快完成首屏渲染和提升 LCP 指标。
+
+**关键渲染路径**是指浏览器从获取 HTML、CSS、JS，到生成 DOM、CSSOM、渲染树、完成布局和绘制，最终把内容显示到屏幕的这条最短、最重要的执行路径。
+
+**目标：**
+
+- 尽快完成 **首屏渲染（First Paint / LCP）**
+- 减少阻塞资源
+- 缩短渲染链路
+
+**关键阻塞点主要有 4 个：**
+
+1. **阻塞 HTML 解析**
+   - 同步 JS
+2. **阻塞 CSSOM 构建**
+   - 外部 CSS 文件
+3. **DOM / CSSOM 体积过大**
+   - 解析慢、布局慢
+4. **JS 执行过多 / 过早**
+   - 延迟首屏渲染
+
+优化关键渲染路径的核心思路：
+
+CRP 优化 = 减少关键资源数量 + 缩短关键资源体积 + 降低关键路径长度
+
+### 具体优化手段
+
+#### 1️⃣ 优化 HTML（让 DOM 更快生成）
+
+- 精简 DOM 结构
+- 减少嵌套层级
+- 避免首屏无关节点
+
+👉 DOM 越小，解析 + Layout 越快
+
+------
+
+#### 2️⃣ 优化 CSS（最关键）
+
+##### ✅ 关键 CSS 内联（Critical CSS）
+
+```
+<style>
+  /* 首屏必须样式 */
+</style>
+```
+
+- 避免首屏等待外部 CSS
+- 外部 CSS 延迟加载
+
+##### ✅ 非关键 CSS 延后加载
+
+```
+<link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+```
+
+##### ✅ 减少 CSS 阻塞
+
+- 合并 CSS
+- 压缩 CSS
+- 避免复杂选择器
+
+------
+
+#### 3️⃣ 优化 JavaScript（面试高频）
+
+##### ✅ 使用 `defer` / `async`
+
+```
+<script src="main.js" defer></script>
+```
+
+- **defer**：不阻塞 HTML，DOM 构建后执行（推荐）
+- **async**：下载完成立即执行（不保证顺序）
+
+##### ❌ 避免首屏同步 JS
+
+```
+<script src="heavy.js"></script> <!-- ❌ -->
+```
+
+------
+
+#### 4️⃣ 优化资源加载顺序（非常重要）
+
+##### ✅ 使用 `preload`
+
+```
+<link rel="preload" href="style.css" as="style">
+```
+
+- 提前加载关键资源
+
+##### ✅ 使用 `prefetch`
+
+```
+<link rel="prefetch" href="next.js">
+```
+
+- 提前加载未来可能用到的资源
+
+------
+
+#### 5️⃣ 图片和字体优化
+
+- 图片懒加载
+- WebP / AVIF
+- 字体使用 `font-display: swap`
+
+```
+@font-face {
+  font-display: swap;
+}
+```
+
+------
+
+#### 6️⃣ 减少重排 / 重绘
+
+- 使用 `transform`、`opacity`
+- 批量 DOM 操作
+- 避免频繁读取布局信息
+
+----
+
+❓**CSS 为什么是关键资源？**
+ 👉 因为渲染树依赖 CSSOM
+
+❓**JS 为什么会阻塞 CRP？**
+ 👉 JS 可能修改 DOM / CSSOM，必须暂停解析
+
+❓**CRP 和性能指标关系？**
+ 👉 直接影响 FP / FCP / LCP
+
+## 7. 什么情况会阻塞渲染?
+
+凡是会延迟 DOM、CSSOM、Render Tree 构建或阻止首次绘制（First Paint）的操作，都会阻塞浏览器渲染。
+
+### 最核心的 5 大类阻塞渲染场景
+
+#### 1️⃣ 同步 JavaScript（最常见、最严重）
+
+```
+<script src="main.js"></script>
+```
+
+**为什么阻塞：**
+
+- JS 可能修改 DOM / CSSOM
+- 浏览器必须暂停 HTML 解析
+- 下载 + 执行期间页面无法渲染
+
+**结论：**
+
+- **同步 JS 会阻塞 HTML 解析和渲染**
+
+------
+
+#### 2️⃣ CSS 加载和解析（阻塞渲染树）
+
+```
+<link rel="stylesheet" href="style.css">
+```
+
+**为什么阻塞：**
+
+- 渲染树 = DOM + CSSOM
+- CSS 未加载完成 → CSSOM 不完整
+- 无法计算布局 → 无法渲染
+
+⚠️ 注意：
+
+- **CSS 不阻塞 DOM 构建**
+- **但会阻塞页面显示（渲染）**
+
+------
+
+#### 3️⃣ JS 依赖 CSSOM（隐式阻塞）
+
+```
+<link rel="stylesheet" href="style.css">
+<script src="main.js"></script>
+```
+
+**现象：**
+
+- JS 读取样式（如 `getComputedStyle`）
+- 浏览器必须等待 CSS 下载并解析完成
+- JS 被延迟执行 → 间接阻塞渲染
+
+------
+
+#### 4️⃣ 大量或复杂的 DOM / CSS（计算阻塞）
+
+- DOM 节点数量巨大
+- CSS 选择器复杂（深层嵌套、通配符）
+- 布局计算复杂（表格、Flex/Grid 嵌套）
+
+**结果：**
+
+- Layout（重排）耗时
+- Paint / Composite 延迟
+- 表现为“渲染卡顿”
+
+------
+
+#### 5️⃣ 长时间 JavaScript 执行（主线程阻塞）
+
+```
+while(true) {} // ❌
+```
+
+**原因：**
+
+- JS 在主线程执行
+- 长任务会阻塞：
+  - 页面渲染
+  - 用户交互
+  - 动画
+
+#### 6️⃣ Web 字体阻塞（FOIT）
+
+```
+@font-face {
+  font-family: MyFont;
+  src: url(font.woff2);
+}
+```
+
+- 字体未加载完成 → 文本不可见
+- 解决方案：`font-display: swap`
+
+------
+
+#### 7️⃣ 图片过大或未优化
+
+- 首屏大图体积大
+- 阻塞 LCP（最大内容绘制）
+
+------
+
+#### 8️⃣ iframe / 同步资源
+
+- 同步 iframe
+- 第三方脚本（广告、统计）
+
+# 6. 浏览器本地存储
+## 1. 浏览器本地存储方式及使用场景
+
+| 存储方式           | 特点                                                    | 容量                  | 生命周期                           | 是否随请求发送给服务器   | 典型使用场景                                |
+| ------------------ | ------------------------------------------------------- | --------------------- | ---------------------------------- | ------------------------ | ------------------------------------------- |
+| **Cookie**         | 小数据，key-value，支持过期时间，可标记 HttpOnly/Secure | ~4KB                  | 可设置过期时间，默认会话           | ✅ 会随每次 HTTP 请求发送 | 会话标识（登录状态）、追踪用户行为          |
+| **LocalStorage**   | key-value 字符串存储，简单 API                          | ~5-10MB               | 永久，除非手动清除                 | ❌ 不随请求发送           | 保存用户偏好设置、主题、购物车信息          |
+| **SessionStorage** | key-value，和 LocalStorage 类似                         | ~5MB                  | 页面会话生命周期（关闭页面即失效） | ❌ 不随请求发送           | 临时数据，表单状态、页面临时缓存            |
+| **IndexedDB**      | 对象存储，可存储复杂数据/文件                           | 几百 MB（浏览器限制） | 永久                               | ❌ 不随请求发送           | 大型数据缓存、离线应用（PWA）、复杂结构数据 |
+
+## 2. Cookie有哪些字段，作用分别是？
+
+Cookie 是浏览器存储在客户端的小型 key-value 数据，可以随 HTTP 请求发送，用于会话管理、用户跟踪和偏好设置。
+
+| 字段           | 作用                                              | 示例                                    |
+| -------------- | ------------------------------------------------- | --------------------------------------- |
+| **Name=Value** | 核心内容，存储数据                                | `token=abcd123`                         |
+| **Expires**    | 设置过期时间，超时后浏览器自动删除 Cookie         | `Expires=Fri, 01 Jan 2027 00:00:00 GMT` |
+| **Max-Age**    | 与 Expires 类似，设置存活秒数，优先级高于 Expires | `Max-Age=3600` （1小时）                |
+| **Domain**     | 指定 Cookie 所属域名，默认当前域                  | `Domain=example.com`（子域可共享）      |
+| **Path**       | 指定 Cookie 适用路径，默认 `/`                    | `Path=/admin`（仅/admin下有效）         |
+| **Secure**     | 仅在 HTTPS 连接下发送                             | `Secure`                                |
+| **HttpOnly**   | JS 脚本无法访问，防 XSS 攻击                      | `HttpOnly`                              |
+| **SameSite**   | 防止跨站请求伪造（CSRF）                          | `SameSite=Strict/Lax/None`              |
+
+## 3. Cookie、LocalStorage、SessionStorage?
+
+| 特性               | Cookie                                      | LocalStorage                     | SessionStorage                         |
+| ------------------ | ------------------------------------------- | -------------------------------- | -------------------------------------- |
+| **存储位置**       | 客户端（浏览器）                            | 客户端（浏览器）                 | 客户端（浏览器）                       |
+| **存储大小**       | ~4KB                                        | ~5-10MB                          | ~5MB                                   |
+| **生命周期**       | 可设置过期时间                              | 永久（除非手动清除）             | 标签页会话，关闭即失效                 |
+| **是否随请求发送** | ✅ 会随 HTTP 请求发送                        | ❌ 不随请求发送                   | ❌ 不随请求发送                         |
+| **访问方式**       | document.cookie                             | localStorage.getItem / setItem   | sessionStorage.getItem / setItem       |
+| **典型场景**       | 登录状态、追踪用户行为、CSRF / 会话管理     | 用户偏好设置、主题、购物车、缓存 | 表单临时数据、单页面应用状态、临时缓存 |
+| **安全性**         | 可设置 HttpOnly 防 JS 访问，Secure 限 HTTPS | 易被 XSS 访问，需要防护          | 易被 XSS 访问，需要防护                |
+
+## 4. 前端储存的方式有哪些?
+
+前端存储方式包括浏览器本地存储（Cookie、LocalStorage、SessionStorage、IndexedDB）、内存缓存（JS 变量/Map/WeakMap）、浏览器缓存（强缓存/协商缓存）、以及 PWA Cache API 等。不同存储方式在容量、生命周期、是否随请求发送、持久化特性和使用场景上有所不同。
+
+⚡ Tip：**LocalStorage / SessionStorage / IndexedDB** 不随 HTTP 请求发送，Cookie 会随请求发送。
+
+| 存储方式           | 特点                           | 容量    | 生命周期   | 典型场景                      |
+| ------------------ | ------------------------------ | ------- | ---------- | ----------------------------- |
+| **Cookie**         | key-value 小数据，可随请求发送 | ~4KB    | 可设置过期 | 登录状态、会话管理、CSRF 防护 |
+| **LocalStorage**   | key-value 字符串，简单 API     | ~5-10MB | 永久       | 用户偏好、主题、购物车、缓存  |
+| **SessionStorage** | key-value，当前标签页有效      | ~5MB    | 标签页会话 | 表单临时数据、单页面应用状态  |
+| **IndexedDB**      | 对象存储，支持复杂数据和大文件 | 几百 MB | 永久       | 离线缓存、大型数据存储、PWA   |
+
+**内存缓存和浏览器本地存储的区别？**
+
+- 内存缓存随页面刷新消失，LocalStorage / IndexedDB 持久化
+
+**HTTP 缓存与本地存储有什么区别？**
+
+- HTTP 缓存用于静态资源请求性能优化
+- 本地存储用于 JS 数据持久化
+
+## 5. IndexedDB有哪些特点?
+
+IndexedDB 是浏览器提供的客户端数据库，用于存储大量结构化数据。它支持对象存储、事务、索引、异步操作和离线使用，容量大、性能高，适合存储复杂数据和离线 Web 应用。与 LocalStorage 相比，IndexedDB 更适合大型数据存储和复杂查询，但 API 相对复杂。
+
+**IndexedDB 是浏览器提供的客户端数据库，用于存储大量结构化数据，支持事务、索引和离线应用。**
+ 与 LocalStorage 不同，它不是简单的 key-value，而是面向对象、支持查询的大型数据库。
+
+| 特点                        | 说明                                                         |
+| --------------------------- | ------------------------------------------------------------ |
+| **面向对象存储**            | 可以存储对象（JSON）、数组、Blob 文件，不仅仅是字符串        |
+| **支持事务（Transaction）** | 支持读写事务，保证数据一致性和完整性                         |
+| **支持索引（Index）**       | 可以对对象属性创建索引，加快查询速度                         |
+| **容量大**                  | 几百 MB，远大于 LocalStorage（5-10MB）                       |
+| **异步操作**                | API 异步，使用事件或 Promise（部分库支持）防止阻塞 UI        |
+| **离线可用**                | 适合 PWA 或离线 Web 应用存储数据                             |
+| **同源策略限制**            | 只能被同源页面访问，不能跨域访问                             |
+| **不随 HTTP 请求发送**      | 与 LocalStorage 一样，存储的数据只在客户端使用，不会随请求发送 |
+
+**典型使用场景**
+
+**离线应用（PWA）**
+
+- 缓存 API 数据、离线存储表单、操作记录
+
+**大型数据存储**
+
+- 保存用户数据、文件、图片 Blob
+
+**结构化查询**
+
+- 利用索引查询特定字段的数据
+
+**浏览器缓存**
+
+- 替代复杂 LocalStorage 或 SessionStorage 缓存
+
+---
+
+**IndexedDB 为什么比 LocalStorage 更适合离线应用？**
+
+- 支持大量数据、事务和异步操作，不阻塞 UI
+
+**IndexedDB 的数据访问是同步还是异步？**
+
+- 异步（可通过事件监听或 Promise 操作）
+
+**IndexedDB 能跨域访问吗？**
+
+- ❌ 不能，只遵守同源策略
+
+**IndexedDB 的缺点？**
+
+- API 相对复杂，需要封装或使用库（如 Dexie.js）
+
+# 7. 浏览器同源策略
+
+## 1. 什么是同源策略
+
+同源策略是浏览器的安全机制，限制不同源网页之间互相访问数据。只有协议、域名、端口都相同的 URL 才算同源。不同源之间无法访问 DOM、Cookie、LocalStorage 或发起 AJAX 请求。跨域可以通过 CORS、JSONP、代理或 postMessage 实现。
+
+同源策略（Same-Origin Policy，SOP）是浏览器的安全机制，限制不同源的网页之间互相读取数据，防止跨站攻击。
+
+**什么是“同源”**
+
+**两个 URL 被认为是同源，需要同时满足三个条件**：
+
+1. **协议相同**（protocol）
+   - `http://` vs `https://` → 不同源
+2. **域名相同**（host）
+   - `www.example.com` vs `api.example.com` → 不同源
+3. **端口相同**（port）
+   - `http://example.com:80` vs `http://example.com:81` → 不同源
+
+> ✅ 只有三者都相同才算同源
+
+**同源策略限制（面试高频点）**
+
+1. **DOM 操作**
+   - 不同源页面不能访问彼此的 DOM
+2. **Cookie / LocalStorage / IndexDB**
+   - 不同源不能互相读取
+3. **AJAX / Fetch 请求**
+   - 默认受限，只能请求同源数据
+4. **Frame / Iframe**
+   - 不同源页面互相操作 DOM 会报错
+
+----
+
+**Cookie 可以跨域吗？**
+
+- 默认不行，可通过 `withCredentials` 配合 CORS 配置
+
+**为什么浏览器要有同源策略？**
+
+- 防止恶意网站读取或篡改用户数据（XSS / CSRF）
+
+**iframe 可以跨域操作吗？**
+
+- 不同源 iframe 不能直接操作 DOM，但可以用 `postMessage` 安全通信
+
+**子域名算同源吗？**
+
+- `a.example.com` 和 `b.example.com` 不同源
+- 可通过 `document.domain`（已不推荐）或 postMessage 通信
+
+## 2. 如何解决跨域问题
+
+解决跨源限制的方式
+
+| 方法                     | 说明                                                         |
+| ------------------------ | ------------------------------------------------------------ |
+| **CORS（跨域资源共享）** | 服务器在响应头加 `Access-Control-Allow-Origin` 允许指定源访问 |
+| **JSONP**                | 利用 `<script>` 标签不受 SOP 限制，常用于 GET 请求（已较少使用） |
+| **代理**                 | 通过同源服务器转发请求，绕过跨域限制                         |
+| **postMessage**          | 不同源页面安全通信，适用于 iframe                            |
+
+## 3. 正向代理和反向代理的区别
+
+正向代理是客户端通过代理访问目标服务器，服务器不知道真实客户端，常用于突破访问限制或隐藏 IP。反向代理是服务器端前置代理接收请求并转发到内部服务器，客户端不知道真实服务器，常用于负载均衡、缓存和安全保护。
+
+| 类型                          | 概念                                                         |
+| ----------------------------- | ------------------------------------------------------------ |
+| **正向代理（Forward Proxy）** | 客户端向代理服务器发送请求，由代理服务器代替客户端访问目标服务器。客户端知道代理，但服务器不知道真实客户端。 |
+| **反向代理（Reverse Proxy）** | 服务器端前置一个代理，由代理服务器接收请求并转发给内部真实服务器。客户端不知道真实服务器，只知道代理。 |
+
+**为什么要用反向代理？**
+
+- 隐藏内部服务器
+- 实现负载均衡
+- 提供缓存加速
+- 统一 HTTPS / SSL 处理
+
+**正向代理和 VPN 的关系？**
+
+- VPN 属于客户端使用的正向代理的一种，实现 IP 隐藏和访问控制
+
+**Nginx 是正向代理还是反向代理？**
+
+- Nginx 常用作反向代理，也可配置成正向代理
+
+## 4. Nginx的概念及其工作原理
+
+Nginx 是高性能的 Web 服务器和反向代理，采用 Master + Worker 架构，Worker 进程使用事件驱动和异步非阻塞 I/O 模型处理请求，从而实现高并发和低内存消耗。Nginx 可用于提供静态资源、反向代理、负载均衡和缓存服务。
+
+Nginx（Engine X）是一款高性能、高并发的 Web 服务器、反向代理服务器和负载均衡器，同时也支持 HTTP、HTTPS、TCP、UDP 等协议。
+
+### 核心特点
+
+1. **高并发、高性能**
+   - 采用 **事件驱动（Event-Driven）+ 异步非阻塞** 模型
+   - 每个 worker 可以处理上万并发连接
+2. **低内存消耗**
+   - 与 Apache 的每请求线程模型相比，Nginx 更节省内存
+3. **多用途**
+   - Web 服务器
+   - 反向代理
+   - 负载均衡
+   - 缓存服务器
+
+-------
+
+**Nginx 为什么比 Apache 高并发？**
+
+- Apache 线程/进程模型，每个请求占一个线程，内存消耗大
+- Nginx 使用 **事件驱动 + 异步非阻塞 I/O**，Worker 可同时处理成千上万请求
+
+**Nginx 的 Worker 数量怎么设置？**
+
+- 一般 = CPU 核心数，避免进程切换开销
+
+**Nginx 如何处理静态文件和动态请求？**
+
+- 静态文件 → 直接读取文件返回
+- 动态请求 → 转发给后端应用（PHP、Node、Python）
+
+# 8. 浏览器事件机制
+## 1. 事件是什么?事件模型/事件流模型?
+
+事件是浏览器对用户或程序行为的响应机制。浏览器采用 DOM 事件流模型，事件依次经历捕获、目标、冒泡三个阶段。通过事件委托可以利用冒泡机制统一处理子元素事件，减少监听数量并提升性能。
+
+> **事件是浏览器在用户或程序触发特定行为时，产生的一种通知机制，用于驱动页面与用户进行交互。**
+
+常见事件：
+
+- 用户行为：`click`、`input`、`keydown`
+- 浏览器行为：`load`、`resize`、`scroll`
+- 程序触发：`dispatchEvent`
+
+> **事件模型是浏览器中事件从触发到处理的完整传播机制，规定了事件的传播路径和触发顺序。**
+
+浏览器采用的是：
+ 👉 **DOM 事件流模型（DOM Event Flow）**
+
+## 2. 如何阻止事件冒泡
+
+| 方法                               | 作用                                    |
+| ---------------------------------- | --------------------------------------- |
+| `event.stopPropagation()`          | 阻止事件向上冒泡                        |
+| `event.stopImmediatePropagation()` | 阻止事件冒泡 + 阻止当前元素后续监听函数 |
+| `event.preventDefault()`           | 阻止事件默认行为，但不阻止冒泡          |
+
+## 3. 对事件委托的理解
+
+> **把子元素的事件交给父元素处理，利用事件冒泡机制统一监听。**
+
+减少事件绑定数量,动态元素自动生效,降低内存占用，减少泄漏风险
+
+## 4. 捕获、目标、冒泡/DOM事件流/事件触发的过程是怎样的
+
+事件触发过程：用户操作或程序触发事件 → 浏览器创建事件对象 → 事件沿 DOM 事件流传播 → 捕获阶段先执行 capture 监听 → 目标阶段执行所有监听 → 冒泡阶段执行默认监听 → 事件处理完毕。事件传播可以被 stopPropagation 或 stopImmediatePropagation 阻止。
+
+DOM 事件流分为捕获、目标和冒泡三个阶段。事件先从 window 向目标元素捕获传播，到达目标元素后执行监听函数，随后再从目标元素向外冒泡返回 window。捕获阶段用于提前拦截事件，冒泡阶段常用于事件委托。
+
+事件触发是指用户或程序产生特定操作（如点击、输入、加载），浏览器创建事件对象，并沿着 DOM 事件流依次执行监听函数的过程。
+
+**捕获阶段（Capturing Phase）**
+
+- 事件从最外层的 `window` → `document` → `html` → `body` → 父元素 → 子元素
+- 用于“提前拦截”事件
+- 监听函数要加第三个参数 `true` 才会在此阶段执行
+
+**目标阶段（Target Phase）**
+
+- 事件到达真正触发事件的元素（目标元素）
+- 捕获和冒泡监听函数都会在目标阶段执行
+
+**冒泡阶段（Bubbling Phase）**
+
+- 事件从目标元素 → 父元素 → body → html → document → window
+- 默认监听阶段
+- 事件委托依赖此机制
+
+```css
+window
+ ↓
+document
+ ↓
+html
+ ↓
+body
+ ↓
+parent
+ ↓
+target（目标阶段）
+ ↑
+parent
+ ↑
+body
+ ↑
+html
+ ↑
+document
+ ↑
+window
+
+```
+
+```js
+parent.addEventListener('click', () => {
+  console.log('parent 冒泡');
+});
+
+parent.addEventListener('click', () => {
+  console.log('parent 捕获');
+}, true);
+
+child.addEventListener('click', () => {
+  console.log('child');
+});
+
+parent.addEventListener('click', fn, true);
+// 当 click 事件在“捕获阶段”经过 parent 元素时，就执行 fn
+```
+
+`addEventListener` 的第三个参数 `true` 表示**在捕获阶段监听事件**，不传或传 `false` 表示在**冒泡阶段监听事件**。
+
+**为什么需要 capture（设计原因）**
+
+如果只靠冒泡，会有什么问题？
+
+- 事件已经触发到子元素
+- 再往上冒泡
+- **来不及阻止子元素行为**
+
+捕获的作用
+
+> **允许父元素在事件“到达目标之前”先处理或拦截**
+
+典型场景：
+
+- 权限校验
+- 全局拦截
+- 日志埋点
+- 拖拽、手势系统
+
+## 4. 事件委托的使用场景
+
+事件委托是将子元素事件绑定交给父元素，通过冒泡统一处理。典型场景包括动态列表、表单集中处理、导航菜单以及 SPA 根节点事件绑定。优势是减少内存消耗、动态元素自动生效，并便于统一管理。
+
+## 5. 同步和异步的区别
+
+同步（Synchronous）是按顺序执行，前一个任务未完成，后一个任务不能执行；异步（Asynchronous）是任务可以先挂起，后续任务先执行，前一个任务完成后再处理结果。
+
+| 区别     | 同步                              | 异步                                             |
+| -------- | --------------------------------- | ------------------------------------------------ |
+| 执行顺序 | 按代码顺序执行                    | 不阻塞后续代码执行                               |
+| 阻塞性   | 阻塞线程                          | 不阻塞线程                                       |
+| 结果处理 | 立即得到                          | 通过回调 / Promise / async-await 获取            |
+| 常见示例 | `console.log`, 数组循环, 函数调用 | setTimeout, fetch / AJAX, Promise, eventListener |
+
+1. **JS 是单线程**
+   - 同步任务阻塞主线程
+   - 异步通过 **事件循环（Event Loop）** 调度执行
+2. **异步方式多样**
+   - 定时器：`setTimeout`, `setInterval`
+   - 网络请求：`fetch`, `XMLHttpRequest`
+   - Promise / async-await
+   - 事件监听：`click`, `load`
+3. **微任务与宏任务**
+   - **微任务（Microtask）**：Promise.then / process.nextTick
+   - **宏任务（Macrotask）**：setTimeout / setInterval / I/O
+
+## 6. 对事件循环的理解
+
+## 7. 宏任务和微任务分别有哪些
+## 8. 什么是执行栈
+
+执行栈（Call Stack）是 JavaScript 用来管理函数调用和执行顺序的数据结构，遵循“后进先出（LIFO）”原则。
+
+### Q1：执行栈溢出（stack overflow）是什么？
+
+> 函数递归没有终止条件，栈无限增长导致溢出
+
+```
+function f() { f(); }
+f(); // 栈溢出
+```
+
+------
+
+### Q2：执行栈和作用域链关系？
+
+> 执行栈存储 **执行上下文**，其中包含 **作用域链**，JS 查找变量是通过作用域链访问的。
+
+------
+
+### Q3：异步函数执行时，执行栈在干什么？
+
+> 异步函数本身调用（注册）入栈，回调函数等到栈空才入栈执行
+
+## 9. Node 中的 Event Loop 和浏览器中的有什么区别？
+
+Node.js 和浏览器的 Event Loop 都是单线程的事件循环机制，但 Node 划分了明确阶段：timers → pending → poll → check → close callbacks，并且独有 process.nextTick 队列，优先于 Promise.then；浏览器 Event Loop 简单一些，只有同步任务 → 微任务 → 宏任务的循环。setImmediate、setTimeout、Promise 在 Node 中的执行顺序与浏览器略有不同。
+
+Node.js Event Loop 阶段顺序（面试必背）
+
+| 阶段                  | 典型任务                  |
+| --------------------- | ------------------------- |
+| **timers**            | setTimeout、setInterval   |
+| **pending callbacks** | 上轮循环的 I/O 回调       |
+| **idle, prepare**     | 内部使用                  |
+| **poll**              | 轮询 I/O 事件，执行回调   |
+| **check**             | setImmediate 回调         |
+| **close callbacks**   | socket 或 handle 关闭回调 |
+
+**微任务（Microtasks）执行规则：**
+
+- **process.nextTick 队列** → **所有微任务队列** → 下一阶段
+- 所以 `process.nextTick` **比 Promise.then 更优先**
+
+```js
+同步代码 → process.nextTick → Promise.then → 宏任务（timers/setImmediate/I/O）
+```
+
+**process.nextTick 和 Promise.then 谁先执行？**
+
+> process.nextTick 优先执行。
+
+**Node 的 setImmediate 和 setTimeout(0) 谁先执行？**
+
+> Depends on context：
+
+- 在 I/O 回调中，setImmediate > setTimeout(0)
+- 在主模块中，setTimeout(0) > setImmediate
+
+**浏览器有 process.nextTick 吗？**
+
+> 没有，浏览器只能用微任务（Promise.then / MutationObserver）
+
+## 10. process.nextTick 执行顺序？
+
+`process.nextTick` 是 Node.js 独有微任务队列，用于在当前操作结束后立即执行回调，优先于 Promise.then 和宏任务（setTimeout / setImmediate）。执行顺序是：`同步代码 → process.nextTick → Promise.then → 宏任务`
+
+**process.nextTick 和 Promise.then 的区别？**
+
+- nextTick **优先级更高**，在当前阶段结束前执行
+- Promise.then 属于普通微任务，在 nextTick 之后执行
+
+**为什么需要 process.nextTick？**
+
+- 在事件循环的当前阶段“插队”，保证回调立即执行
+- 避免延迟，常用于 I/O 前清理任务或初始化
+
+**nextTick 会阻塞事件循环吗？**
+
+- 如果 nextTick 队列无限增长，会**阻塞宏任务**
+- 可能导致 I/O 回调无法执行 → 注意滥用
+
+
+
+# 9. 浏览器垃圾回收机制
+
+## 1. V8的垃圾回收机制是怎样的
+
+V8 通过分代回收机制，新生代使用复制算法快速回收，老生代使用标记清除和标记整理，并结合增量和并发 GC，在保证性能的同时尽量减少页面和 Node 进程的卡顿。
+
+V8（Chrome / Node.js 使用的 JavaScript 引擎）的**垃圾回收（Garbage Collection, GC）机制**是一个**分代 + 标记清理为核心、并发/增量优化**的系统，目标是在**保证高性能的同时尽量减少 JS 线程卡顿（Stop-The-World）**。
+
+### 一、为什么要分代（面试官常追问）
+
+> 基于**分代假说**：
+> **大多数对象生命周期很短，少部分对象会长期存活**
+
+所以对不同生命周期的对象采用不同 GC 策略，提升性能。
+
+------
+
+### 二、V8 的内存划分（必答）
+
+#### 1️⃣ 新生代（Young Generation）
+
+- 存放生命周期短的小对象
+- 空间小、GC 频繁、回收快
+
+**回收算法：Scavenge（复制算法）**
+
+**特点：**
+
+- From Space / To Space
+- 只复制存活对象
+- 回收后无内存碎片
+- 存活多次或空间不足会 **晋升到老生代**
+
+------
+
+#### 2️⃣ 老生代（Old Generation）
+
+- 存放生命周期长、体积大的对象
+- 空间大、GC 次数少
+
+**回收算法：**
+
+- **Mark-Sweep（标记清除）**
+- **Mark-Compact（标记整理）**
+
+**区别：**
+
+- Mark-Sweep：速度快，但会产生碎片
+- Mark-Compact：整理内存，减少碎片，但成本更高
+
+------
+
+### 三、GC 的核心判断依据（加分点）
+
+> **V8 使用“可达性分析”判断对象是否存活**
+
+从 **GC Roots** 出发：
+
+- 全局对象（window / global）
+- 当前执行栈
+- 闭包引用
+- 原生层（DOM / Node C++）引用
+
+**可达 = 存活，不可达 = 回收**
+
+------
+
+### 四、如何减少 GC 卡顿（高频追问）
+
+V8 为了降低 **Stop-The-World**，引入了多种优化：
+
+#### 1️⃣ 增量 GC（Incremental GC）
+
+- 将一次 GC 拆分为多段执行
+- 与 JS 执行交替进行
+
+#### 2️⃣ 并发 GC（Concurrent GC）
+
+- 标记阶段和 JS 线程并发执行
+- 降低主线程阻塞时间
+
+#### 3️⃣ 空闲 GC（Idle GC）
+
+- 浏览器空闲时回收
+
+#### 4️⃣ 写屏障（Write Barrier）
+
+- 解决跨代引用，防止新生代对象被误回收
+
+
+## 2. 哪些操作会造成内存泄漏?
+
+常见内存泄漏包括：全局变量、闭包滥用、定时器和事件未清理、DOM 引用、无限缓存等，本质都是对象仍被 GC Roots 引用，导致无法回收。
+
+事件委托为什么能减少内存泄漏 - 减少事件处理函数数量，避免大量闭包和 DOM 引用。
+
+
+
