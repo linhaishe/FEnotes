@@ -4577,8 +4577,6 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 ![ttt.gif](https://s2.loli.net/2025/12/24/8lUM2deRKaiQuhy.gif)
 
-
-
 ------
 
 ## 十五、JSON / 正则 / 编码
