@@ -1,14 +1,5 @@
 ## 一、Web 存储 / 浏览器能力
 
-- 如何实现可过期的 localStorage 数据？
-- JavaScript 如何计算一段文本渲染之后的长度
-- jsBridge 是什么?工作原理是什么?
-- 说说你对 requestAnimationFrame 的理解
-- DOM 事件的类型和事件流机制?
-- 什么是DOM和BOM?
-- 什么是事件代理/事件委托？应用场景？
-- 事件捕捉/事件冒泡/事件流 eventflow
-
 ### 13. 什么是DOM和BOM?
 
 ![image-20251224172324262](https://s2.loli.net/2025/12/24/HeuBjgIG2iqd6VP.png)
@@ -121,7 +112,7 @@ container.insertBefore(content, title)
 - **使用 setTimeout 延迟方法：**设置一个定时器来延迟加载js脚本文件
 - **让 JS 最后加载：**将 js 脚本放在文档的底部，来使 js 脚本尽可能的在最后来加载执行。
 
-### 3. ==Javascript本地存储的方式有哪些？区别及应用场景？==
+### 3. Javascript本地存储的方式有哪些？区别及应用场景？
 
 #### 区别
 
@@ -289,313 +280,221 @@ console.log(localStorage.getItem('key')); // '[object, Object]'
 
 关于使用`indexdb`的使用会比较繁琐，大家可以通过使用`Godb.js`库进行缓存，最大化的降低操作难度
 
-### 16. 如何在 url 中传递数组
+### 4. 如何实现可过期的 localStorage 数据？
 
-在 URL 中如何传递数组这种复杂的数据，完全**取决于项目中前后端成员关于复杂数据在 URL 中传输的约定**，一般情况下可以使用以下方式来传递数组
+**localStorage 不支持过期时间，需要在存储时额外保存过期时间戳，在读取时判断是否过期并清除数据。**
 
-```js
-a=3&a=4&a=5
+ **存数据时把“过期时间”一起存进去，取数据时判断是否过期**
 
-a=3,4,5
+`localStorage` **没有过期机制**，只能手动实现
 
-a[]=3&a[]=4&a[]=5
+### 5. JavaScript 如何计算一段文本渲染之后的长度
 
-a[0]=3&a[1]=4&a[2]=5
-```
+JS 计算文本渲染后的长度，本质是获取浏览器排版后的尺寸，最准确方式是 DOM 测量，性能敏感场景可用 Canvas 的 `measureText`。
 
-但同样，需要后端开发者写一个 `querystring.parse` 来对指定的格式解析进行支持，同时也有对各种复杂 qs 支持较好的 package，比如：[qs: 据说是对 querystring 复杂对象解析最好的库](https://github.com/ljharb/qs#parsing-arrays)
+| 含义                        | 实际想要的是什么        |
+| --------------------------- | ----------------------- |
+| **字符数**                  | 文本一共多少个字符      |
+| **像素宽度 / 高度** ⭐最常见 | 文本在页面上占多宽/多高 |
+| **占几行**                  | 是否超出、是否折行      |
 
-### 8. 如何判断一个元素是否在可视区域中？
+| 场景         | 推荐方案    |
+| ------------ | ----------- |
+| 精确 UI 渲染 | DOM 测量    |
+| 高频计算     | Canvas      |
+| 判断是否省略 | scrollWidth |
+| 多行高度     | DOM         |
+| 不影响页面   | hidden DOM  |
 
-https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F
+#### 真实渲染尺寸（像素）
+##### 使用 DOM 实际渲染测量（最准）
 
-<img src="https://s2.loli.net/2025/12/26/XMDIklN841wsRhz.png" alt="image-20251226165721563" style="zoom:33%;" />
-
-在日常开发中，我们经常需要判断目标元素是否在视窗之内或者和视窗的距离小于一个值（例如 100 px），从而实现一些常用的功能，例如：
-
-- 图片的懒加载
-- 列表的无限滚动
-- 计算广告元素的曝光情况
-- 可点击链接的预加载
-
-判断一个元素是否在可视区域，我们常用的有三种办法：
-
-- offsetTop、scrollTop
-- getBoundingClientRect
-- Intersection Observer
-
-
-
-### 9. ==大文件上传如何做断点续传？==
-
-https://vue3js.cn/interview/JavaScript/continue_to_upload.html#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF
-
-### 10. ==如何实现上拉加载，下拉刷新？==
-
-https://vue3js.cn/interview/JavaScript/pull_up_loading_pull_down_refresh.html#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80
-
-#### 上拉加载
-
-上拉加载的本质是页面触底，或者快要触底时的动作
-
-`scrollTop + clientHeight >= scrollHeight`
-
-```js
-let clientHeight = document.documentElement.clientHeight; //浏览器高度
-let scrollHeight = document.body.scrollHeight;
-let scrollTop = document.documentElement.scrollTop;
-
-let distance = 50; //距离视窗还用50的时候，开始触发；
-
-if (scrollTop + clientHeight >= scrollHeight - distance) {
-  console.log("开始加载数据");
-}
-```
-
-#### 下拉刷新
-
-下拉刷新的本质是页面本身置于顶部时，用户下拉时需要触发的动作
-
-关于下拉刷新的原生实现，主要分成三步：
-
-- 监听原生`touchstart`事件，记录其初始位置的值，`e.touches[0].pageY`；
-- 监听原生`touchmove`事件，记录并计算当前滑动的位置值与初始位置值的差值，大于`0`表示向下拉动，并借助CSS3的`translateY`属性使元素跟随手势向下滑动对应的差值，同时也应设置一个允许滑动的最大值；
-- 监听原生`touchend`事件，若此时元素滑动达到最大值，则触发`callback`，同时将`translateY`重设为`0`，元素回到初始位置
-
-### 11. ==什么是单点登录？如何实现？==
-
-单点登录（Single Sign On），简称为 SSO，是目前比较流行的企业业务整合的解决方案之一
-
-SSO的定义是在多个应用系统中，用户只需要登录一次就可以访问所有相互信任的应用系统
-
-SSO 一般都需要一个独立的认证中心（passport），子系统的登录均得通过`passport`，子系统本身将不参与登录操作
-
-当一个系统成功登录以后，`passport`将会颁发一个令牌给各个子系统，子系统可以拿着令牌会获取各自的受保护资源，为了减少频繁认证，各个子系统在被`passport`授权以后，会建立一个局部会话，在一定时间内可以无需再次向`passport`发起认证
-
-上图有四个系统，分别是`Application1`、`Application2`、`Application3`、和`SSO`，当`Application1`、`Application2`、`Application3`需要登录时，将跳到`SSO`系统，`SSO`系统完成登录，其他的应用系统也就随之登录了
-
-淘宝、天猫都属于阿里旗下，当用户登录淘宝后，再打开天猫，系统便自动帮用户登录了天猫，这种现象就属于单点登录
-
-#### a. 同域名下的单点登录
-
-`cookie`的`domain`属性设置为当前域的父域，并且父域的`cookie`会被子域所共享。`path`属性默认为`web`应用的上下文路径
-
-利用 `Cookie` 的这个特点，没错，我们只需要将`Cookie`的`domain`属性设置为父域的域名（主域名），同时将 `Cookie`的`path`属性设置为根路径，将 `Session ID`（或 `Token`）保存到父域中。这样所有的子域应用就都可以访问到这个`Cookie`
-
-不过这要求应用系统的域名需建立在一个共同的主域名之下，如 `tieba.baidu.com` 和 `map.baidu.com`，它们都建立在 `baidu.com`这个主域名之下，那么它们就可以通过这种方式来实现单点登录
-
-#### b. 不同域名下的单点登录(一)
-
-认证中心方式（服务端型 SSO）
-
-前端 Token 同步方式（客户端型 SSO）
-
-Cookie 仅在认证中心可用
-
-应用系统需向认证中心确认 Token
-
-支持跨域、扩展性好
-
-标准服务端型 SSO 实现
-
-```lua
-用户           应用系统A          认证中心
- |                 |                 |
- |----访问A-------->|                 |
- |                 |--检查Token------>|
- |                 |                 |
- |                 |<--跳转登录------| (如果判断已经登陆过了，直接跳进页面。)
- |                 |                 |
- |                 |<--登录页面------|
- |                 |                 |
- |----输入账号密码-->|                 |
- |                 |--验证账号-------->|
- |                 |<--写Token(Cookie)|
- |                 |<--跳转回A--------|
- |                 |                 |
- |                 |--验证Token-------->|
- |                 |<--确认合法--------|
- |                 |                 |
- |<--------访问成功--------------------|
+###### 利用 `offsetWidth / scrollWidth`
 
 ```
+<span id="text" style="font-size:16px;font-family:Arial;">
+  Hello 世界
+</span>
+const el = document.getElementById('text');
 
-如果是不同域的情况下，`Cookie`是不共享的，这里我们可以部署一个认证中心，用于专门处理登录请求的独立的 `Web`服务
+// 可见宽度
+el.offsetWidth;
 
-用户统一在认证中心进行登录，登录成功后，认证中心记录用户的登录状态，并将 `token` 写入 `Cookie`（注意这个 `Cookie`是认证中心的，应用系统是访问不到的）
-
-应用系统检查当前请求有没有 `Token`，如果没有，说明用户在当前系统中尚未登录，那么就将页面跳转至认证中心
-
-由于这个操作会将认证中心的 `Cookie` 自动带过去，因此，认证中心能够根据 `Cookie` 知道用户是否已经登录过了
-
-如果认证中心发现用户尚未登录，则返回登录页面，等待用户登录
-
-如果发现用户已经登录过了，就不会让用户再次登录了，而是会跳转回目标 `URL`，并在跳转前生成一个 `Token`，拼接在目标`URL` 的后面，回传给目标应用系统
-
-应用系统拿到 `Token`之后，还需要向认证中心确认下 `Token` 的合法性，防止用户伪造。确认无误后，应用系统记录用户的登录状态，并将 `Token`写入`Cookie`，然后给本次访问放行。（注意这个 `Cookie` 是当前应用系统的）当用户再次访问当前应用系统时，就会自动带上这个 `Token`，应用系统验证 Token 发现用户已登录，于是就不会有认证中心什么事了
-
-此种实现方式相对复杂，支持跨域，扩展性好，是单点登录的标准做法
-
-#### c. 不同域名下的单点登录(二)
-
-前端 Token 同步方式（客户端型 SSO）
-
-Token 存储在浏览器 LocalStorage
-
-前端通过 `iframe + postMessage` 跨域同步 Token
-
-几乎不依赖后端
-
-完全前端实现，支持跨域
-
-```lua
-用户           应用系统A          应用系统B
- |                 |                 |
- |----访问A-------->|                 |
- |                 |<--返回Token------|
- |                 |                 |
- |                 |--写LocalStorage-->|
- |                 |                 |
- |<---iframe+postMessage同步Token-->B |
- |                 |                 |
- |                 |                 |
- |----访问B-------->|                 |
- |                 |--读取LocalStorage Token->|
- |                 |--携带Token请求验证-->|
- |                 |                 |
- |<--------访问成功--------------------|
-
+// 实际内容宽度（不受 overflow:hidden 影响）
+el.scrollWidth;
 ```
 
-可以选择将 `Session ID` （或 `Token` ）保存到浏览器的 `LocalStorage` 中，让前端在每次向后端发送请求时，主动将`LocalStorage`的数据传递给服务端
+📌 **特点**
 
-这些都是由前端来控制的，后端需要做的仅仅是在用户登录成功后，将 `Session ID`（或 `Token`）放在响应体中传递给前端
-
-单点登录完全可以在前端实现。前端拿到 `Session ID`（或 `Token` ）后，除了将它写入自己的 `LocalStorage` 中之外，还可以通过特殊手段将它写入多个其他域下的 `LocalStorage` 中
-
-前端通过 `iframe`+`postMessage()` 方式，将同一份 `Token` 写入到了多个域下的 `LocalStorage` 中，前端每次在向后端发送请求之前，都会主动从 `LocalStorage` 中读取`Token`并在请求中携带，这样就实现了同一份`Token` 被多个域所共享
-
-此种实现方式完全由前端控制，几乎不需要后端参与，同样支持跨域
-
-```js
-// 获取 token
-var token = result.data.token;
-
-// 动态创建一个不可见的iframe，在iframe中加载一个跨域HTML
-var iframe = document.createElement("iframe");
-iframe.src = "http://app1.com/localstorage.html";
-document.body.append(iframe);
-// 使用postMessage()方法将token传递给iframe
-setTimeout(function () {
-  iframe.contentWindow.postMessage(token, "http://app1.com");
-}, 4000);
-setTimeout(function () {
-  iframe.remove();
-}, 6000);
-
-// 在这个iframe所加载的HTML中绑定一个事件监听器，当事件被触发时，把接收到的token数据写入localStorage
-window.addEventListener(
-  "message",
-  function (event) {
-    localStorage.setItem("token", event.data);
-  },
-  false
-);
-```
-
-### 12. 浏览器的剪切板中如何监听复制事件
-
-在 HTML 元素上
-
-```html
-<input oncopy="cb" />
-```
-
-在 JS 中获取具体元素
-
-```js
-document.querySelector("p").oncopy = cb;
-document.oncopy = cb;
-```
-
-或者
-
-```js
-document.querySelector("p").addEventListener("copy", cb);
-document.addEventListener("copy", cb);
-```
-
-### 13. 在前端开发中，如何获取浏览器的唯一标识
-
-根据 `canvas` 可以获取浏览器指纹信息
-
-1. 绘制 `canvas`，获取 `base64` 的 dataurl
-2. 对 dataurl 这个字符串进行 `md5` 摘要计算，得到指纹信息
-
-若在生产环境使用，可以使用 [fingerprintjs2 (opens new window)](https://github.com/Valve/fingerprintjs2)，根据业务需求，如单设备是否可跨浏览器，以此选择合适的 `component`
-
-### 21. 如何裁剪图片 (情景：选择头像)
-
-使用`ctx.arc()`和`ctx.clip()`进行裁剪`ctx.arc(x, y, radius, startAngle, endAngle)`; `ctx.clip()`; `ctx.drawImage(img, x, y, width, height)`
-
-```js
-var path = "https://static-zh.wxb.com.cn/customer/form/2020/11/1758696796d.jpg";
-function clipImage(path) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 200;
-  canvas.height = 100;
-  const ctx = canvas.getContext("2d");
-  const img = document.createElement("img");
-  img.src = path;
-  img.setAttribute("crossOrigin", "Anonymous");
-  img.onload = function () {
-    ctx.drawImage(this, 0, 0, 200, 100);
-    console.log(canvas.toDataURL());
-  };
-}
-clipImage(path);
-
-```
-
-### 14. ==用 npm 发布过 package，如何发布==
-
-1. 注册 npm 账号 https://www.npmjs.com/
-2. 本地通过命令行 `npm login` 登陆
-3. 进入到项目目录下（与 package.json 同级），在 package.json 中指定发布文件、文件夹
-
-```json
-{
-  "name": "pkg-xxx",
-  "version": "0.0.1",
-  "main": "lib/index.js",
-  "module": "esm/index.js",
-  "typings": "types/index.d.ts",
-  "files": [
-    "CHANGELOG.md",
-    "lib",
-    "esm",
-    "dist",
-    "types",
-  ],
-  ...
-}
-```
-
-执行 `npm publish --registry=https://registry.npmjs.org/` 即可发布
-
-### 15. js 代码压缩 minify 的原理是什么
-
-我们知道 `javascript` 代码经压缩 (uglify) 后，可以使体积变得更小，那它代码压缩的原理是什么。如果你来做这么一个功能的话，你会怎么去压缩一段 `js` 代码的体积。
-
-https://github.com/shfshanyue/Daily-Question/issues/138
+- ✅ 真实渲染结果
+- ❌ 必须插入 DOM
+- ❌ 会触发一次布局（reflow）
 
 ------
 
-## 二、JavaScript 语言体系 / 运行环境认知
+###### 不影响页面的“隐藏测量”（生产常用）
 
-- JavaScript 和 BOM、DOM、ECMAScript、Node.js 之间是..
-- 「use strict」是什么?它有什么用?为什么 JavaScript 严格模式会禁用 with 语句?
-- ES6 代码转成 ES5 代码的实现思路是什么?
+```
+function getTextWidth(text, style) {
+  const span = document.createElement('span');
+  span.innerText = text;
+  span.style.cssText = `
+    position: absolute;
+    white-space: nowrap;
+    visibility: hidden;
+    ${style}
+  `;
+  document.body.appendChild(span);
+  const width = span.offsetWidth;
+  document.body.removeChild(span);
+  return width;
+}
+```
+
+使用：
+
+```
+const width = getTextWidth(
+  'Hello 世界',
+  'font-size:16px;font-family:Arial'
+);
+```
+
+✅ **最准确、跨浏览器一致**
+
+------
+
+##### 性能更好：Canvas 测量（不触发重排）⭐
+
+适合：频繁计算 / 列表 / 虚拟滚动
+
+```
+function measureTextWidth(text, font = '16px Arial') {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+measureTextWidth('Hello 世界', '16px Arial');
+```
+
+📌 **优缺点**
+
+|      |                     |
+| ---- | ------------------- |
+| ✅    | 不操作 DOM，性能好  |
+| ❌    | 只测 **单行宽度**   |
+| ❌    | 行高 / 换行需自己算 |
+
+#### 计算多行文本高度 / 行数（超实用）
+
+##### 方式一：DOM 方案（最稳）
+
+```
+function getTextHeight(text, width, style) {
+  const div = document.createElement('div');
+  div.innerText = text;
+  div.style.cssText = `
+    position: absolute;
+    visibility: hidden;
+    width: ${width}px;
+    ${style}
+  `;
+  document.body.appendChild(div);
+  const height = div.offsetHeight;
+  document.body.removeChild(div);
+  return height;
+}
+```
+
+------
+
+##### 方式二：是否溢出（判断省略号）
+
+```
+el.scrollWidth > el.clientWidth; // 是否超出一行
+el.scrollHeight > el.clientHeight; // 是否超出多行
+```
+
+### 6. jsBridge 是什么?工作原理是什么?
+
+**jsBridge** 是前端（Web）与原生应用（Native，如 iOS / Android）之间的**通信桥梁机制**。
+
+> **jsBridge = 让 Web 页面能调用原生能力，也让原生能调用 JS 的一套通信方案**
+
+#### jsBridge 解决什么问题？
+
+在 Hybrid / WebView 场景中：
+
+- JS 👉 **无法直接调用** 原生 API（相机、定位、支付）
+- 原生 👉 **无法直接操作** Web 里的 JS
+
+👉 **jsBridge 就是中间层（Bridge）**
+
+| 方向          | 能力               |
+| ----------- | ---------------- |
+| JS → Native | 调用相机、定位、扫码、支付、分享 |
+| Native → JS | 通知结果、下发数据、触发页面更新 |
+
+#### 核心工作原理
+
+**jsBridge 的工作原理可以概括为：`协议 + 拦截 + 回调`。**
+
+**协议**：JS 和 Native 事先约定好通信格式（方法名、参数、callbackId），JS 按这个协议发起调用。
+
+**拦截**：Native 在 WebView 层拦截 JS 的请求（如 URL Scheme、prompt、注入对象），识别出要执行的原生方法。
+
+**回调**：原生执行完成后，通过执行 JS，把结果按 callbackId 回传给对应的 JS 回调函数。
+
+本质上是一次 **JS → Native 的异步调用流程**。
+
+jsBridge 就是通过约定通信协议，Native 拦截 JS 请求并执行原生能力，最后再通过回调把结果返回给 JS。
+
+### 7. 说说你对 requestAnimationFrame 的理解
+
+requestAnimationFrame 是浏览器提供的动画 API，会在下一帧渲染前执行回调，与刷新率同步，比定时器更流畅、更省性能，页面不可见时还会自动暂停。
+
+rAF 是“告诉浏览器我这帧要更新”，而不是“我自己定时执行”。
+
+**requestAnimationFrame（简称 rAF）是浏览器提供的用于执行动画的 API，它会在浏览器下一次重绘之前执行回调函数，执行频率与屏幕刷新率同步（通常是 60Hz）。**
+
+相比 `setTimeout / setInterval`，`requestAnimationFrame` 能让动画更流畅，并且在页面不可见时自动暂停，性能更好。
+
+> rAF 的回调 **在浏览器一次渲染帧开始前执行**，属于 **渲染流程的一部分**，而不是普通宏任务。
+
+```css
+JS 执行
+↓
+requestAnimationFrame 回调
+↓
+布局（layout）
+↓
+绘制（paint）
+↓
+合成（composite）
+```
+
+**rAF 和屏幕刷新率的关系**
+
+- 60Hz 屏幕 → 每秒最多 60 次
+- 120Hz 屏幕 → 每秒最多 120 次
+- **自动适配，不用自己算时间间隔**
+
+**页面不可见时会怎样？**
+
+> 浏览器会 **暂停 rAF 回调**，减少 CPU / 电量消耗（而 setTimeout 不一定）
+
+**rAF 和 Event Loop 的关系（加分）**
+
+> rAF 回调 **在一次事件循环的末尾、下一帧渲染前执行**，它不属于宏任务队列。
+
+**为什么 rAF 更适合动画？**
+
+- 避免无效帧
+- 减少布局抖动
+- 与浏览器渲染节奏一致
+
+## 二、JavaScript 语言体系 / 运行环境认知
 
 ### 1. let, const, var区别
 
@@ -737,7 +636,9 @@ function deepFreeze(obj) {
 
 ### 21. use strict是什么意思?使用它区别是什么
 
-use strict 是一种 ECMAscript5 添加的（严格模式）运行模式，这种模式使得 Javascript 在更严格的条件下运行。设立严格模式的目的如下：
+use strict 是一种 ECMAscript5 添加的（严格模式）运行模式，这种模式使得 Javascript 在更严格的条件下运行。
+
+设立严格模式的目的如下：
 
 - 消除 Javascript 语法的不合理、不严谨之处，减少怪异行为;
 - 消除代码运行的不安全之处，保证代码运行的安全；
@@ -750,20 +651,239 @@ use strict 是一种 ECMAscript5 添加的（严格模式）运行模式，这�
 - 禁止 this 关键字指向全局对象。
 - 对象不能有重名的属性
 
-### 19. ==ES6 Module与CommonJS模块有什么异同==
+`"use strict"` 是 **严格模式指令**（strict mode directive）。
 
-**区别： **
+它是一种 **在 JavaScript 中启用严格模式** 的方式。
 
-- CommonJS是对模块的浅拷⻉，ES6 Module是对模块的引⽤，即ES6 Module只存只读，不能改变其值，也就是指针指向不能变，类似const；
-- import的接⼝是read-only（只读状态），不能修改其变量值。 即不能修改其变量的指针指向，但可以改变变量内部指针指向，可以对commonJS对重新赋值（改变指针指向），但是对ES6 Module赋值会编译报错。 
+**严格模式** 是 ECMAScript 5 引入的，它会：
 
-**共同点： **
+- 修复一些语言设计上的不合理之处
+- 消除一些不安全的行为
+- 提高代码运行的安全性和性能优化可能性
 
-- CommonJS和ES6 Module都可以对引⼊的对象进⾏赋值，即对对象内部属性的值进⾏改变。
+### 19. ES6 Module与CommonJS模块有什么异同
+
+| 类型             | 简介                                                    | 使用场景                              |
+| ---------------- | ------------------------------------------------------- | ------------------------------------- |
+| CommonJS (CJS)   | Node.js 传统模块规范，使用 `require` / `module.exports` | Node.js、老旧项目                     |
+| ES6 Module (ESM) | ES2015 标准模块规范，使用 `import` / `export`           | 前端、现代 Node.js、支持 Tree Shaking |
+
+| 特性              | CommonJS                     | ES6 Module                  |
+| ----------------- | ---------------------------- | --------------------------- |
+| 语法              | `require` / `module.exports` | `import` / `export`         |
+| 导入类型          | 动态加载（运行时）           | 静态加载（编译时）          |
+| 导出类型          | 可修改                       | 只读绑定                    |
+| 循环依赖          | 返回部分对象                 | live binding（实时引用）    |
+| 支持 Tree Shaking | ❌                            | ✅                           |
+| 运行环境          | Node.js                      | 浏览器 / Node.js (支持 ESM) |
+
+#### 2️⃣ 导入导出方式
+
+##### (1) CommonJS
+
+```
+// a.js
+const x = 10;
+const add = (a, b) => a + b;
+module.exports = { x, add };
+
+// b.js
+const { x, add } = require('./a.js');
+console.log(add(x, 5)); // 15
+```
+
+##### (2) ES6 Module
+
+```
+// a.js
+export const x = 10;
+export const add = (a, b) => a + b;
+
+// b.js
+import { x, add } from './a.js';
+console.log(add(x, 5)); // 15
+```
+
+**差异点**：
+
+- **CJS**：导出整个对象 `module.exports`，导入时可以动态修改
+- **ESM**：导出单个绑定 `export`，是只读引用，不可被修改
+
+------
+
+#### 3️⃣ 加载机制
+
+| 特性         | CommonJS                            | ES6 Module                               |
+| ------------ | ----------------------------------- | ---------------------------------------- |
+| 加载时机     | **同步加载**，执行 `require` 时加载 | **静态加载**，编译时解析 `import/export` |
+| 可否循环依赖 | 支持（返回 **部分对象**）           | 支持，但只能访问已经定义的绑定           |
+| 作用域       | 每个模块有自己的作用域              | 每个模块有自己的作用域                   |
+
+**例子：同步 vs 静态分析**
+
+```
+// CJS
+const a = require('./a.js'); // 运行时才加载
+// ESM
+import { a } from './a.js'; // 编译时就确定依赖
+```
+
+**意义**：ESM 可以 **静态分析**，方便打包优化（Tree Shaking）
+
+------
+
+#### 4️⃣ 循环依赖处理
+
+##### CJS 循环依赖
+
+```
+// a.js
+const b = require('./b.js');
+module.exports.x = 1;
+
+// b.js
+const a = require('./a.js');
+console.log(a.x); // undefined（此时 a 还没完全导出）
+module.exports.y = 2;
+```
+
+##### ESM 循环依赖
+
+- 访问的是 **实时绑定**（live binding）
+
+```
+// a.mjs
+import { y } from './b.mjs';
+export const x = 1;
+console.log(y); // 可以拿到更新后的值
+```
+
+- ES6 的循环依赖更安全，因为是 **引用绑定而非拷贝**
+
+------
+
+#### 5️⃣ 导出类型对比
+
+| 功能     | CommonJS                    | ES6 Module              |
+| -------- | --------------------------- | ----------------------- |
+| 默认导出 | `module.exports = ...`      | `export default ...`    |
+| 命名导出 | `exports.x = x`             | `export const x = x`    |
+| 多导出   | `module.exports = { a, b }` | `export { a, b }`       |
+| 只读性   | 可修改导入对象              | 导入绑定为 **只读引用** |
+
+------
+
+#### 6️⃣ 执行上下文
+
+- **CJS**：
+  - 每次 `require` 会执行模块代码，之后缓存结果
+- **ESM**：
+  - 模块只会执行一次，且是 **编译阶段确定依赖**
+  - 支持 **静态分析**，有利于打包和 Tree Shaking
 
 ### 4. JavaScript有哪些内置对象
 
 js 中的内置对象主要指的是在程序执行前存在全局作用域里的由 js 定义的一些全局值属性、函数和用来实例化其他对象的构造函数对象。一般经常用到的如全局变量值 NaN、undefined，全局函数如 parseInt()、parseFloat() 用来实例化对象的构造函数如 Date、Object 等，还有提供数学计算的单体内置对象如 Math 对象。
+
+### 1. JavaScript 和 BOM、DOM、ECMAScript、Node.js 之间是?
+
+ECMAScript = JS 核心语言规范
+
+浏览器 JS = ECMAScript + BOM/DOM
+
+Node.js = ECMAScript + Node API
+
+DOM 和 BOM 都是浏览器提供的接口，不是语言本身。
+
+### 3. 为什么 JavaScript 严格模式会禁用 with 语句?
+
+**问题核心**：`with` 模糊作用域，变量解析不确定，容易导致 bug 和性能问题。
+
+**严格模式的决策**：直接禁用 `with`，迫使开发者明确变量来源，提高安全性和可维护性。
+
+`with` 用来 **临时扩展作用域链**，方便访问对象的属性：
+
+```
+let obj = { a: 1, b: 2 };
+
+with (obj) {
+  console.log(a); // 1
+  console.log(b); // 2
+}
+```
+
+表面上很方便，不用写 `obj.a`、`obj.b`，但是它隐藏了潜在问题。
+
+### 4. ES6 代码转成 ES5 代码的实现思路是什么?
+
+- ES6（ES2015）引入了很多新语法和特性，比如：
+  - `let` / `const`
+  - 箭头函数 `()=>{}`
+  - 类 `class`
+  - 模板字符串 ``Hello ${name}``
+  - 默认参数、解构赋值、扩展运算符 `...`
+  - `Promise`、`Map`、`Set` 等
+- 老浏览器只支持 ES5，需要 **把 ES6 代码转换成 ES5 代码**，保证兼容性。
+
+这就是 Babel 等工具的核心工作。
+
+整体流程:
+
+```scss
+ES6 代码
+    ↓ 解析 (Parse)
+AST（抽象语法树）
+    ↓ 转换 (Transform)
+修改 AST，将 ES6 语法节点转换为 ES5 节点
+    ↓ 生成 (Generate)
+生成 ES5 代码
+```
+
+**解析 (Parse)**
+
+- 把源代码字符串转成 **AST（Abstract Syntax Tree，抽象语法树）**
+
+- AST 是代码的结构化表示，比如：
+
+  ```
+  let x = 10;
+  ```
+
+  会被解析成一个 **VariableDeclaration 节点**，里面有 kind = "let"，id = x，init = 10
+
+**转换 (Transform)**
+
+- 对 AST 进行遍历，把 ES6 语法节点替换成等价的 ES5 节点
+- 例子：
+  - `let` → `var`
+  - 箭头函数 → 普通函数
+  - 类 → 构造函数 + 原型方法
+  - 模板字符串 → 字符串拼接
+
+**生成 (Generate)**
+
+- 将修改后的 AST 再生成 JavaScript 代码字符串
+- 最终得到兼容 ES5 的代码
+
+实现细节
+
+1. **AST 工具**
+   - Babel 使用 @babel/parser 生成 AST
+   - AST 是一个 JSON 树结构，每个节点表示一个语法元素
+2. **AST 遍历与替换**
+   - 遍历 AST，每遇到一个 ES6 节点：
+     - 用 ES5 节点替换
+     - 注意 **作用域和闭包**，比如 `let` 的块级作用域可能需要额外处理
+3. **辅助函数 / polyfill**
+   - 对于 ES6 新的 API（如 `Promise`、`Map`、`Set`），无法直接转换，需要 **polyfill**
+   - Babel + core-js 提供这些 polyfill，保证功能兼容
+
+| 步骤           | 作用                                 | 示例                                    |
+| -------------- | ------------------------------------ | --------------------------------------- |
+| 解析 Parse     | 将代码字符串转成 AST                 | `let x = 10` → VariableDeclaration 节点 |
+| 转换 Transform | 遍历 AST，替换 ES6 节点为 ES5 节点   | 箭头函数 → 普通函数                     |
+| 生成 Generate  | 根据修改后的 AST 生成可执行 ES5 代码 | AST → `"var x = 10;"`                   |
+| Polyfill       | 为新 API 添加兼容实现                | Promise、Map、Set                       |
 
 ------
 
@@ -781,11 +901,15 @@ js 中的内置对象主要指的是在程序执行前存在全局作用域里�
 
 ### 1. JavaScript有哪些数据类型，它们的区别？
 
-#### 可分为原始数据类型和引用数据类型
+#### 可分为原始数据类型（Primitive）和引用数据类型（Reference）
 
 - 栈：Primitive Types 原始数据类型（Undefined、Null、Number、String、Boolean、BigInt、Symbol） 
 
+  - **不可变**，操作时会产生新的值;**按值存储**（值直接存放在栈内存）
+
 - 堆：Reference Type 引用数据类型（Object）, Array, Function ...  作为Object的实例
+
+  - **可变**，存储的是地址（堆内存的引用）; 通过引用访问对象，修改属性会影响原对象
 
   - Object
     Array
@@ -804,7 +928,34 @@ JavaScript 中常见数据类型有Number、String、Boolean、Object、Array、
 
 ### 6. 什么是 Iterable 对象，与 Array 有什么区别
 
-实现了 `[Symbol.iterator]` 属性的对象即是 `Iterable` 对象，然后可以使用操作符 `for...of` 进行迭代
+**Iterable 对象**：实现 `Symbol.iterator` 方法 → 可以迭代
+
+**Array**：不仅可迭代，还有索引、长度属性以及丰富方法
+
+**区别**：
+
+- Iterable 不一定有索引、长度或 Array 方法
+- Array 既是 Iterable（实现了 `Symbol.iterator`），也是具体数组对象
+
+> “所有 Array 都是 Iterable，但并非所有 Iterable 都是 Array。”
+
+在 JavaScript 中，**Iterable（可迭代对象）** 是指 **实现了 `Symbol.iterator` 方法的对象**。
+
+- 这个方法返回一个 **迭代器对象（Iterator）**
+- 迭代器对象必须有一个 `next()` 方法，返回 `{ value, done }`
+- 迭代器可以按顺序访问对象的每个元素
+
+**特点**：
+
+- 可以用 `for...of` 遍历
+- 可以配合解构赋值 `[a, b] = iterable`
+- 可以用扩展运算符 `[...iterable]`
+
+```js
+const s = new Set([1,2,3]); // not array
+console.log(s[0]); // undefined，Set 没有索引
+console.log([...s]); // [1,2,3]
+```
 
 https://javascript.info/iterable
 
@@ -812,7 +963,7 @@ https://javascript.info/iterable
 
 JavaScript中Number.MAX_SAFE_INTEGER表示最⼤安全数字，计算结果是9007199254740991，即在这个数范围内不会出现精度丢失（⼩数除外）。但是⼀旦超过这个范围，js就会出现计算不准确的情况，这在⼤数计算的时候不得不依靠⼀些第三⽅库进⾏解决，因此官⽅提出了BigInt来解决此问题。
 
-### Symbol BigInt Set Map
+### 1. Symbol BigInt Set Map
 
 - `Symbol` 代表创建后独一无二且不可变的数据类型，它主要是为了解决可能出现的全局变量冲突的问题。 
 
@@ -826,26 +977,66 @@ JavaScript中Number.MAX_SAFE_INTEGER表示最⼤安全数字，计算结果是90
 
 [ArrayBuffer，二进制数组](https://zh.javascript.info/arraybuffer-binary-arrays)
 
-### 21. 什么是 JavaScript 中的包装类型
+### 21.  JavaScript 中的包装类型（Wrapper Object）
 
-在 JavaScript 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 JavaScript 会在后台隐式地将基本类型的值转换为对象，如：
+**原始类型本身不是对象**，无法直接调用方法或添加属性（null/undefined 除外）
+
+**包装类型**是JavaScript在**必要时自动创建的对象版本**，用来给原始类型提供**方法和属性**
+
+注意：`null` 和 `undefined` 没有包装类型
+
+#### 1. 自动装箱（Autoboxing）
+
+当你对原始类型调用方法时，JavaScript 会 **自动创建临时包装对象**：
 
 ```js
-const a = "abc";
-a.length; // 3
-a.toUpperCase(); // "ABC"
+let str = "hello";
+console.log(str.toUpperCase()); // HELLO
 ```
 
-在访问`'abc'.length`时，JavaScript 将'abc'在后台转换成`String('abc')`，然后再访问其length属性。 JavaScript也可以使用Object函数显式地将基本类型转换为包装类型：
+**执行流程**：
+
+1. `str` 是原始类型 `string`
+2. JS 自动创建一个 **临时 String 对象**：`new String(str)`
+3. 调用 `toUpperCase()`
+4. 返回结果，临时对象销毁
+
+> 所以你不能给原始类型直接添加属性，因为包装对象是临时的：
 
 ```js
-var a = 'abc'
-Object(a) // String {"abc"}
+let num = 10;
+num.x = 5;
+console.log(num.x); // undefined
 ```
 
-也可以使用valueOf方法将包装类型倒转成基本类型：
+#### 2. 手动创建包装对象
 
+可以显式使用构造函数创建包装对象：
 
+```
+let strObj = new String("hello");
+console.log(typeof strObj); // object
+console.log(strObj.toUpperCase()); // HELLO
+
+let numObj = new Number(123);
+console.log(typeof numObj); // object
+```
+
+> 一般不推荐手动创建包装对象，因为它会带来类型判断和性能问题
+
+```
+typeof "hello";      // "string"
+typeof new String("hello"); // "object"
+```
+
+**包装类型的用途**
+
+1. **让原始类型可以调用方法**
+   - `str.toUpperCase()`, `num.toFixed(2)` 等
+2. **提供属性**
+   - `String.length`，`Array.length`（虽然 Array 是对象）
+3. **自动转换为对象**
+   - 支持 `for...in` 遍历属性（但通常不推荐）
 
 ------
 
@@ -969,11 +1160,11 @@ getType(/123/g)      //"RegExp" toString返回
 ### 3. 检测数组的方式有哪些
 
 ```js
-Object.prototype.toString.call(obj).slice(8,-1) === 'Array';
-obj.__proto__ === Array.prototype;
-Array.isArrray(obj);
-obj instanceof Array
-Array.prototype.isPrototypeOf(obj)
+Object.prototype.toString.call([1,2,3]).slice(8,-1) === 'Array'; // true
+[].__proto__ === Array.prototype; // true
+Array.isArray([1, 2, 3]); // true
+[] instanceof Array
+Array.prototype.isPrototypeOf([1,2,3,4])
 ```
 
 ### 7. ⚡️检测对象的方式有哪些
@@ -1128,12 +1319,21 @@ NaN 是一个特殊值，它和自身不相等，是唯一一个非自反（自�
 
 - 函数 isNaN 接收参数后，会尝试将这个参数转换为数值，任何不能被转换为数值的的值都会返回 true，因此非数字值传入也会返回 true ，会影响 NaN 的判断。 (is not a number 是否 不是数字，不是数字-true, 是数字false)。
 - 函数 Number.isNaN 会首先判断传入参数是否为数字，如果是数字再继续判断是否为 NaN ，不会进行数据类型的转换，这种方法对于 NaN 的判断更为准确。
+- `Number.isNaN(x)`：只认“真·NaN”，其他一律 false
 
 ```js
-isNaN(1);
-isNaN("1");
-Number.isNaN("123");
+isNaN(1); // false
+isNaN("1"); // false
+Number.isNaN("123"); // false
 ```
+
+| 值          | Number.isNaN | isNaN  |
+| ----------- | ------------ | ------ |
+| `NaN`       | true         | true   |
+| `"abc"`     | false        | true ❌ |
+| `undefined` | false        | true ❌ |
+| `1`         | false        | false  |
+| `"1"`       | false        | false  |
 
 ### 20. Object.is() 与比较操作符 “=== ”、“ ==” 的区别？ 
 
@@ -1148,38 +1348,39 @@ Number.isNaN("123");
 - undefined 在 JavaScript 中不是一个保留字，这意味着可以使用 undefined 来作为一个变量名，但是这样的做法是非常危险的，它会影响对 undefined 值的判断。我们可以通过一些方法获得安全的 undefined 值，比如说 void 0。
 - 当对这两种类型使用 typeof 进行判断时，Null 类型化会返回 “object”，这是一个历史遗留的问题。当使用双等号对两种类型的值进行比较时会返回 true，使用三个等号时会返回 false。
 
-### 26. 如何判断一个对象是空对象
-
-- 使用JSON自带的JSON.stringify方法来判断：
-
-```js
-if (JSON.stringify(Obj) == "{}") {
-  console.log("空对象");
-}
-```
-
-- 使用ES6新增的方法Object.keys()来判断：
-
-```js
-if (Object.keys(Obj).length === 0) {
-  console.log("空对象");
-}
-```
-
-- for...in...
-
-```js
-function isEmpty(obj) {
-  for (var prop in obj) {
-    if (obj.hasOwnProperty(prop)) return false;
-  }
-  return true;
-}
-```
-
 ### 11. 如何获取安全的 undefined 值？ 
 
-因为 undefined 是一个标识符，所以可以被当作变量来使用和赋值，但是这样会影响 undefined 的正常判断。表达式 `void ___ `没有返回值，因此返回结果是 undefined。void 并不改变表达式的结果，只是让表达式不返回值。因此可以用 void 0 来获得 undefined。
+> **“安全获取 undefined 的方式是 `void 0`，因为它不会被重写，在任何环境下都一定返回 undefined。”**
+
+不要直接依赖全局 `undefined` 这个名字
+
+在 **ES5 之前**：
+
+```
+undefined = 123; // 😱 居然不报错
+```
+
+结果：
+
+```
+console.log(undefined); // 123
+```
+
+所以：
+
+```
+if (x === undefined) {
+  // ❌ 不安全
+}
+```
+
+如果有人改过 `undefined`，判断就全废了。
+
+```js
+void 123;        // undefined
+void (1 + 2);    // undefined
+void foo();      // undefined
+```
 
 ------
 
@@ -1263,7 +1464,9 @@ Boolean({})     // true
 
 `==` 会在比较前，尽量把两边转成“同一类型”，转换顺序是固定的，不是随意的。
 
-运算符优先级：!  >  ==
+==运算符优先级：!  >  `==`==
+
+==数据类型比较优先级==
 
 1. **对象 == 基本类型**，对象先转原始值（ToPrimitive）
 
@@ -1275,10 +1478,12 @@ Boolean({})     // true
 
 3. **字符串 == 数字**，字符串转数字
 
+`[] == (![])` 解释为什么为true
+
 ```js
 // 运算符优先级：!  >  ==
 [] == (![])
-// next positon
+// next step 1
 [] == false
 // 对象 → 原始值（ToPrimitive）完整流程
 // 对象转原始值（ToPrimitive）可以是 number / string / symbol，取决于转换规则和调用顺序。
@@ -1292,6 +1497,12 @@ Boolean({})     // true
 [].valueOf() // []
 [].toString() // ""
 
+// next step 2
+"" == false
+// next step 3
+"" == 0
+// next step 3
+0 == 0 // true
 ```
 
 | 优先级 | 类型       | 运算符                               | 说明 / 易错点         |
@@ -1354,6 +1565,8 @@ Boolean({})     // true
 
 **逻辑或（||）总结：**
 
+一真要真
+
 1. 只要第一个值的布尔值为false，那么永远返回第二个值。
 2. 逻辑或属于短路操作，第一个值为true时，不再操作第二个值，且返回第一个值。
 
@@ -1406,6 +1619,30 @@ console.log(a > 0 && b > 0);
 ```
 
 ### 10. 为什么`0.1+0.2 ! == 0.3`，如何让其相等
+
+“0.1 和 0.2 在二进制中是无限循环小数，JS 使用 IEEE 754 双精度浮点数存储，导致精度丢失。解决方案是使用误差范围判断，比如 `Number.EPSILON`，或将小数转成整数进行计算。”
+
+#### ✅ 方法 1：误差容忍（最推荐）
+
+```
+Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON
+```
+
+#### ✅ 方法 2：扩大整数运算
+
+```
+(0.1 * 10 + 0.2 * 10) / 10 === 0.3
+```
+
+✔ 适合金额计算 ❌ 需要统一倍率
+
+#### ✅ 方法 3：保留小数位
+
+```
+Number((0.1 + 0.2).toFixed(1)) === 0.3
+```
+
+⚠️ 本质是字符串 → 数字
 
 JavaScript 的 `Number` 使用 **64 位双精度浮点数（double）**，尾数是**有限长度的二进制**，小数无法用有限二进制精确表示时，会发生**舍入误差**
 
@@ -1793,6 +2030,35 @@ const { name, age } = stu
 ------
 
 ## 七、Object（对象操作）
+
+### 26. 如何判断一个对象是空对象
+
+- 使用JSON自带的JSON.stringify方法来判断：
+
+```js
+if (JSON.stringify(Obj) == "{}") {
+  console.log("空对象");
+}
+```
+
+- 使用ES6新增的方法Object.keys()来判断：
+
+```js
+if (Object.keys(Obj).length === 0) {
+  console.log("空对象");
+}
+```
+
+- for...in...
+
+```js
+function isEmpty(obj) {
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop)) return false;
+  }
+  return true;
+}
+```
 
 ### 31. Object.keys() 与 Object.getOwnPropertyNames()有何区别
 
@@ -3600,3 +3866,305 @@ p.a; // 'a' = 2
 
 - 你对 eval 了解多少?
 - 有没有遇到 js 捕捉不到异常堆栈信息的情况
+
+## 其他
+
+### 16. 如何在 url 中传递数组
+
+在 URL 中如何传递数组这种复杂的数据，完全**取决于项目中前后端成员关于复杂数据在 URL 中传输的约定**，一般情况下可以使用以下方式来传递数组
+
+```js
+a=3&a=4&a=5
+
+a=3,4,5
+
+a[]=3&a[]=4&a[]=5
+
+a[0]=3&a[1]=4&a[2]=5
+```
+
+但同样，需要后端开发者写一个 `querystring.parse` 来对指定的格式解析进行支持，同时也有对各种复杂 qs 支持较好的 package，比如：[qs: 据说是对 querystring 复杂对象解析最好的库](https://github.com/ljharb/qs#parsing-arrays)
+
+### 8. 如何判断一个元素是否在可视区域中？
+
+https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F
+
+<img src="https://s2.loli.net/2025/12/26/XMDIklN841wsRhz.png" alt="image-20251226165721563" style="zoom:33%;" />
+
+在日常开发中，我们经常需要判断目标元素是否在视窗之内或者和视窗的距离小于一个值（例如 100 px），从而实现一些常用的功能，例如：
+
+- 图片的懒加载
+- 列表的无限滚动
+- 计算广告元素的曝光情况
+- 可点击链接的预加载
+
+判断一个元素是否在可视区域，我们常用的有三种办法：
+
+- offsetTop、scrollTop
+- getBoundingClientRect
+- Intersection Observer
+
+
+
+### 9. ==大文件上传如何做断点续传？==
+
+https://vue3js.cn/interview/JavaScript/continue_to_upload.html#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF
+
+### 10. ==如何实现上拉加载，下拉刷新？==
+
+https://vue3js.cn/interview/JavaScript/pull_up_loading_pull_down_refresh.html#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80
+
+#### 上拉加载
+
+上拉加载的本质是页面触底，或者快要触底时的动作
+
+`scrollTop + clientHeight >= scrollHeight`
+
+```js
+let clientHeight = document.documentElement.clientHeight; //浏览器高度
+let scrollHeight = document.body.scrollHeight;
+let scrollTop = document.documentElement.scrollTop;
+
+let distance = 50; //距离视窗还用50的时候，开始触发；
+
+if (scrollTop + clientHeight >= scrollHeight - distance) {
+  console.log("开始加载数据");
+}
+```
+
+#### 下拉刷新
+
+下拉刷新的本质是页面本身置于顶部时，用户下拉时需要触发的动作
+
+关于下拉刷新的原生实现，主要分成三步：
+
+- 监听原生`touchstart`事件，记录其初始位置的值，`e.touches[0].pageY`；
+- 监听原生`touchmove`事件，记录并计算当前滑动的位置值与初始位置值的差值，大于`0`表示向下拉动，并借助CSS3的`translateY`属性使元素跟随手势向下滑动对应的差值，同时也应设置一个允许滑动的最大值；
+- 监听原生`touchend`事件，若此时元素滑动达到最大值，则触发`callback`，同时将`translateY`重设为`0`，元素回到初始位置
+
+### 11. ==什么是单点登录？如何实现？==
+
+单点登录（Single Sign On），简称为 SSO，是目前比较流行的企业业务整合的解决方案之一
+
+SSO的定义是在多个应用系统中，用户只需要登录一次就可以访问所有相互信任的应用系统
+
+SSO 一般都需要一个独立的认证中心（passport），子系统的登录均得通过`passport`，子系统本身将不参与登录操作
+
+当一个系统成功登录以后，`passport`将会颁发一个令牌给各个子系统，子系统可以拿着令牌会获取各自的受保护资源，为了减少频繁认证，各个子系统在被`passport`授权以后，会建立一个局部会话，在一定时间内可以无需再次向`passport`发起认证
+
+上图有四个系统，分别是`Application1`、`Application2`、`Application3`、和`SSO`，当`Application1`、`Application2`、`Application3`需要登录时，将跳到`SSO`系统，`SSO`系统完成登录，其他的应用系统也就随之登录了
+
+淘宝、天猫都属于阿里旗下，当用户登录淘宝后，再打开天猫，系统便自动帮用户登录了天猫，这种现象就属于单点登录
+
+#### a. 同域名下的单点登录
+
+`cookie`的`domain`属性设置为当前域的父域，并且父域的`cookie`会被子域所共享。`path`属性默认为`web`应用的上下文路径
+
+利用 `Cookie` 的这个特点，没错，我们只需要将`Cookie`的`domain`属性设置为父域的域名（主域名），同时将 `Cookie`的`path`属性设置为根路径，将 `Session ID`（或 `Token`）保存到父域中。这样所有的子域应用就都可以访问到这个`Cookie`
+
+不过这要求应用系统的域名需建立在一个共同的主域名之下，如 `tieba.baidu.com` 和 `map.baidu.com`，它们都建立在 `baidu.com`这个主域名之下，那么它们就可以通过这种方式来实现单点登录
+
+#### b. 不同域名下的单点登录(一)
+
+认证中心方式（服务端型 SSO）
+
+前端 Token 同步方式（客户端型 SSO）
+
+Cookie 仅在认证中心可用
+
+应用系统需向认证中心确认 Token
+
+支持跨域、扩展性好
+
+标准服务端型 SSO 实现
+
+```lua
+用户           应用系统A          认证中心
+ |                 |                 |
+ |----访问A-------->|                 |
+ |                 |--检查Token------>|
+ |                 |                 |
+ |                 |<--跳转登录------| (如果判断已经登陆过了，直接跳进页面。)
+ |                 |                 |
+ |                 |<--登录页面------|
+ |                 |                 |
+ |----输入账号密码-->|                 |
+ |                 |--验证账号-------->|
+ |                 |<--写Token(Cookie)|
+ |                 |<--跳转回A--------|
+ |                 |                 |
+ |                 |--验证Token-------->|
+ |                 |<--确认合法--------|
+ |                 |                 |
+ |<--------访问成功--------------------|
+
+```
+
+如果是不同域的情况下，`Cookie`是不共享的，这里我们可以部署一个认证中心，用于专门处理登录请求的独立的 `Web`服务
+
+用户统一在认证中心进行登录，登录成功后，认证中心记录用户的登录状态，并将 `token` 写入 `Cookie`（注意这个 `Cookie`是认证中心的，应用系统是访问不到的）
+
+应用系统检查当前请求有没有 `Token`，如果没有，说明用户在当前系统中尚未登录，那么就将页面跳转至认证中心
+
+由于这个操作会将认证中心的 `Cookie` 自动带过去，因此，认证中心能够根据 `Cookie` 知道用户是否已经登录过了
+
+如果认证中心发现用户尚未登录，则返回登录页面，等待用户登录
+
+如果发现用户已经登录过了，就不会让用户再次登录了，而是会跳转回目标 `URL`，并在跳转前生成一个 `Token`，拼接在目标`URL` 的后面，回传给目标应用系统
+
+应用系统拿到 `Token`之后，还需要向认证中心确认下 `Token` 的合法性，防止用户伪造。确认无误后，应用系统记录用户的登录状态，并将 `Token`写入`Cookie`，然后给本次访问放行。（注意这个 `Cookie` 是当前应用系统的）当用户再次访问当前应用系统时，就会自动带上这个 `Token`，应用系统验证 Token 发现用户已登录，于是就不会有认证中心什么事了
+
+此种实现方式相对复杂，支持跨域，扩展性好，是单点登录的标准做法
+
+#### c. 不同域名下的单点登录(二)
+
+前端 Token 同步方式（客户端型 SSO）
+
+Token 存储在浏览器 LocalStorage
+
+前端通过 `iframe + postMessage` 跨域同步 Token
+
+几乎不依赖后端
+
+完全前端实现，支持跨域
+
+```lua
+用户           应用系统A          应用系统B
+ |                 |                 |
+ |----访问A-------->|                 |
+ |                 |<--返回Token------|
+ |                 |                 |
+ |                 |--写LocalStorage-->|
+ |                 |                 |
+ |<---iframe+postMessage同步Token-->B |
+ |                 |                 |
+ |                 |                 |
+ |----访问B-------->|                 |
+ |                 |--读取LocalStorage Token->|
+ |                 |--携带Token请求验证-->|
+ |                 |                 |
+ |<--------访问成功--------------------|
+
+```
+
+可以选择将 `Session ID` （或 `Token` ）保存到浏览器的 `LocalStorage` 中，让前端在每次向后端发送请求时，主动将`LocalStorage`的数据传递给服务端
+
+这些都是由前端来控制的，后端需要做的仅仅是在用户登录成功后，将 `Session ID`（或 `Token`）放在响应体中传递给前端
+
+单点登录完全可以在前端实现。前端拿到 `Session ID`（或 `Token` ）后，除了将它写入自己的 `LocalStorage` 中之外，还可以通过特殊手段将它写入多个其他域下的 `LocalStorage` 中
+
+前端通过 `iframe`+`postMessage()` 方式，将同一份 `Token` 写入到了多个域下的 `LocalStorage` 中，前端每次在向后端发送请求之前，都会主动从 `LocalStorage` 中读取`Token`并在请求中携带，这样就实现了同一份`Token` 被多个域所共享
+
+此种实现方式完全由前端控制，几乎不需要后端参与，同样支持跨域
+
+```js
+// 获取 token
+var token = result.data.token;
+
+// 动态创建一个不可见的iframe，在iframe中加载一个跨域HTML
+var iframe = document.createElement("iframe");
+iframe.src = "http://app1.com/localstorage.html";
+document.body.append(iframe);
+// 使用postMessage()方法将token传递给iframe
+setTimeout(function () {
+  iframe.contentWindow.postMessage(token, "http://app1.com");
+}, 4000);
+setTimeout(function () {
+  iframe.remove();
+}, 6000);
+
+// 在这个iframe所加载的HTML中绑定一个事件监听器，当事件被触发时，把接收到的token数据写入localStorage
+window.addEventListener(
+  "message",
+  function (event) {
+    localStorage.setItem("token", event.data);
+  },
+  false
+);
+```
+
+### 12. 浏览器的剪切板中如何监听复制事件
+
+在 HTML 元素上
+
+```html
+<input oncopy="cb" />
+```
+
+在 JS 中获取具体元素
+
+```js
+document.querySelector("p").oncopy = cb;
+document.oncopy = cb;
+```
+
+或者
+
+```js
+document.querySelector("p").addEventListener("copy", cb);
+document.addEventListener("copy", cb);
+```
+
+### 13. 在前端开发中，如何获取浏览器的唯一标识
+
+根据 `canvas` 可以获取浏览器指纹信息
+
+1. 绘制 `canvas`，获取 `base64` 的 dataurl
+2. 对 dataurl 这个字符串进行 `md5` 摘要计算，得到指纹信息
+
+若在生产环境使用，可以使用 [fingerprintjs2 (opens new window)](https://github.com/Valve/fingerprintjs2)，根据业务需求，如单设备是否可跨浏览器，以此选择合适的 `component`
+
+### 21. 如何裁剪图片 (情景：选择头像)
+
+使用`ctx.arc()`和`ctx.clip()`进行裁剪`ctx.arc(x, y, radius, startAngle, endAngle)`; `ctx.clip()`; `ctx.drawImage(img, x, y, width, height)`
+
+```js
+var path = "https://static-zh.wxb.com.cn/customer/form/2020/11/1758696796d.jpg";
+function clipImage(path) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 200;
+  canvas.height = 100;
+  const ctx = canvas.getContext("2d");
+  const img = document.createElement("img");
+  img.src = path;
+  img.setAttribute("crossOrigin", "Anonymous");
+  img.onload = function () {
+    ctx.drawImage(this, 0, 0, 200, 100);
+    console.log(canvas.toDataURL());
+  };
+}
+clipImage(path);
+
+```
+
+### 14. ==用 npm 发布过 package，如何发布==
+
+1. 注册 npm 账号 https://www.npmjs.com/
+2. 本地通过命令行 `npm login` 登陆
+3. 进入到项目目录下（与 package.json 同级），在 package.json 中指定发布文件、文件夹
+
+```json
+{
+  "name": "pkg-xxx",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "typings": "types/index.d.ts",
+  "files": [
+    "CHANGELOG.md",
+    "lib",
+    "esm",
+    "dist",
+    "types",
+  ],
+  ...
+}
+```
+
+执行 `npm publish --registry=https://registry.npmjs.org/` 即可发布
+
+### 15. js 代码压缩 minify 的原理是什么
+
+我们知道 `javascript` 代码经压缩 (uglify) 后，可以使体积变得更小，那它代码压缩的原理是什么。如果你来做这么一个功能的话，你会怎么去压缩一段 `js` 代码的体积。
+
+https://github.com/shfshanyue/Daily-Question/issues/138
