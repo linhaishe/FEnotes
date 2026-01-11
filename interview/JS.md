@@ -889,16 +889,6 @@ AST（抽象语法树）
 
 ## 三、数据类型基础（Type System）
 
-- 值类型和引用类型的区别
-- 引用类型有哪些，有什么特点?
-- 普通数据类型存储在哪里?堆还是栈?
-- JavaScript 中的变量在内存中的具体存储形式是什么?
-- JavaScript 对象的底层数据结构是什么?
-- JS 中的数组和函数在内存中是如何存储的?
-- JS 里面哪些类型是可以互转的?
-- Symbol 数据类型特征与实际使用案例
-- JS 数据类型里面，Set 和数组分别有哪些适用场景，开发中该。。。
-
 ### 1. JavaScript有哪些数据类型，它们的区别？
 
 #### 可分为原始数据类型（Primitive）和引用数据类型（Reference）
@@ -1038,18 +1028,19 @@ typeof new String("hello"); // "object"
 3. **自动转换为对象**
    - 支持 `for...in` 遍历属性（但通常不推荐）
 
+- 值类型和引用类型的区别
+- 引用类型有哪些，有什么特点?
+- 普通数据类型存储在哪里?堆还是栈?
+- JavaScript 中的变量在内存中的具体存储形式是什么?
+- JavaScript 对象的底层数据结构是什么?
+- JS 中的数组和函数在内存中是如何存储的?
+- JS 里面哪些类型是可以互转的?
+- Symbol 数据类型特征与实际使用案例
+- JS 数据类型里面，Set 和数组分别有哪些适用场景，开发中该。。。
+
 ------
 
 ## 四、类型检测 / 判等 / 判空
-
-- JavaScript 有几种方法判断变量的类型(类型检测)?
-
-- isNaN 和 Number.isNaN 函数的区别？
-- hasOwnProperty与instanceof 的区别
-- Object.prototype.hasOwnProperty()的作用与使用场景
-- 如何让一个属性变为 null?
-- JavaScript 如何判空:覆盖所有常见“空值”类型
-- 判断一个对象是否为空:是否包含原型链上的自定义属性或方。。。
 
 
 ### 2. 数据类型检测方式
@@ -1382,11 +1373,102 @@ void (1 + 2);    // undefined
 void foo();      // undefined
 ```
 
+### `hasOwnProperty` 与 `instanceof` 的区别
+
+`hasOwnProperty` 用于判断对象自身是否有某个属性，不查原型链；
+ `instanceof` 用于判断对象是否为某个构造函数的实例，会沿原型链查找构造函数的 `prototype`。
+
+```js
+function Person(name) {
+  this.name = name;
+}
+Person.prototype.sayHi = function() { console.log('hi'); };
+
+const p = new Person('Alice');
+
+p.hasOwnProperty('name'); // true
+p.hasOwnProperty('sayHi'); // false（在原型上）
+p instanceof Person; // true
+p instanceof Object; // true
+```
+
+### Object.prototype.hasOwnProperty()的作用与使用场景
+
+“直接用 `hasOwnProperty` 简单快速，但不安全；使用 `Object.prototype.hasOwnProperty.call(obj, prop)` 才能保证在对象原型被污染或无原型时仍然正确判断自身属性。” 因为`Object.create(null)` 创建的对象没有原型链，没有 `hasOwnProperty` 方法
+
+注意：`Object.create(null)` 创建的对象没有原型链，没有 `hasOwnProperty` 方法
+这种情况下需要用 `Object.prototype.hasOwnProperty.call(obj, prop)`
+
+```
+obj.hasOwnProperty(prop)
+```
+
+- 简单、常用
+- 依赖对象自身或原型链存在 `hasOwnProperty`
+- ⚠️ 对象可能覆盖或无原型时会失效
+
+```
+Object.prototype.hasOwnProperty.call(obj, prop)
+```
+
+- 安全、通用
+- 强制使用原生 `hasOwnProperty` 方法
+- 适合任何对象，包括 `Object.create(null)`
+
+| 写法                                              | 含义                                     | 原理                                                         | 适用场景                                                  |
+| ------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| `obj.hasOwnProperty(prop)`                        | 直接调用对象自身的 `hasOwnProperty` 方法 | 先在 `obj` 上查找 `hasOwnProperty` 方法，如果对象没有这个方法，会沿原型链查找 | 普通对象，原型链未被破坏时使用                            |
+| `Object.prototype.hasOwnProperty.call(obj, prop)` | 使用 `Object.prototype` 上的原生方法调用 | 无论 `obj` 是否有自己的 `hasOwnProperty`，都调用原型上的原生方法，并把 `obj` 作为 `this` 传入 | 安全调用，适用于原型被破坏或 `Object.create(null)` 的对象 |
+
+### 如何让一个属性变为 null?
+
+要把对象属性变为 null，直接 `obj.prop = null` 就行，它会保留属性但清空值；如果想让属性彻底不存在，才用 `delete obj.prop`。
+
+### JavaScript 如何判空:覆盖所有常见“空值”类型
+
+```js
+function isEmpty(value) {
+  // null 或 undefined
+  if (value == null) return true;
+
+  // 布尔值、数字、函数 → 视为非空
+  if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'function') {
+    return false;
+  }
+
+  // NaN
+  if (typeof value === 'number' && isNaN(value)) return true;
+
+  // 字符串
+  if (typeof value === 'string') return value.trim() === '';
+
+  // 数组
+  if (Array.isArray(value)) return value.length === 0;
+
+  // 对象
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+
+  // 其他类型（symbol、bigint 等）视为非空
+  return false;
+}
+
+isEmpty(null);       // true
+isEmpty(undefined);  // true
+isEmpty('');         // true
+isEmpty('   ');      // true
+isEmpty([]);         // true
+isEmpty({});         // true
+isEmpty(0);          // false
+isEmpty(false);      // false
+isEmpty(NaN);        // true
+
+```
+
+
+
 ------
 
 ## 五、类型转换 / 运算规则 / 数值系统
-
-- 常见的位运算符有哪些?其计算规则是什么
 
 ### 14. == 操作符的强制类型转换规则？ 
 
@@ -1733,7 +1815,29 @@ new Decimal(0.1).plus(0.2).toNumber();
 | `Number.MAX_SAFE_INTEGER` | 9007199254740991 (2^53-1) | JS 能安全表示的最大整数，超过可能精度丢失     |
 | `Number.EPSILON`          | 2.220446049250313e-16     | JS 能表示的最小浮点间隔，1 与最小可分辨数的差 |
 
+### 常见的位运算符有哪些?其计算规则是什么
 
+JavaScript 中位运算符都是 **对 32 位有符号整数** 进行操作（操作数会先被转换为 32 位二进制）。
+
+| 运算符 | 描述                              | 示例        |
+| ------ | --------------------------------- | ----------- |
+| `&`    | 按位与 (AND)                      | `5 & 3`     |
+| `      | `                                 | 按位或 (OR) |
+| `^`    | 按位异或 (XOR)                    | `5 ^ 3`     |
+| `~`    | 按位非 (NOT)                      | `~5`        |
+| `<<`   | 左移 (Left shift)                 | `5 << 1`    |
+| `>>`   | 带符号右移 (Signed right shift)   | `5 >> 1`    |
+| `>>>`  | 无符号右移 (Unsigned right shift) | `5 >>> 1`   |
+
+**与 &、或 |、异或 ^、非 ~、左移 <<、右移 >>、无符号右移 >>>**
+
+- **&** → 都为 1
+- **|** → 有 1 就 1
+- **^** → 不同为 1
+- **~** → 取反 → `~x = -(x+1)`
+- **<<** → 左移 → 乘 2^n
+- **>>** → 右移 → 带符号除 2^n
+- **>>>** → 右移 → 无符号，高位补 0
 
 ------
 
@@ -2021,17 +2125,139 @@ const stu = {
 const { name, age } = stu
 ```
 
+### 9. 常见数组排序算法及其特点
 
+**最快（平均）**：快速排序
 
-- 数组里面有10万个数据，取第一个元素和第10万个元素的时间。。
-- 常见数组排序算法及其特点
-- 如何实现数组的随机打乱
+**最稳定**：归并排序
+
+**最省空间**：堆排序
+
+**近乎有序最快**：插入排序
+
+**线性时间**：计数 / 基数 / 桶排序
+
+| 排序算法 | 时间复杂度 | 空间复杂度 | 稳定性 | 常见用途    |
+| -------- | ---------- | ---------- | ------ | ----------- |
+| 冒泡     | O(n²)      | O(1)       | 稳定   | 教学        |
+| 选择     | O(n²)      | O(1)       | 不稳定 | 交换少      |
+| 插入     | O(n²)      | O(1)       | 稳定   | 小数组      |
+| 快排     | O(n log n) | O(log n)   | 不稳定 | 通用首选    |
+| 归并     | O(n log n) | O(n)       | 稳定   | 大数据      |
+| 堆排     | O(n log n) | O(1)       | 不稳定 | 空间敏感    |
+| 计数     | O(n+k)     | O(k)       | 稳定   | 整数        |
+| 基数     | O(dn)      | O(n)       | 稳定   | 整数/字符串 |
+
+### 10. 如何实现数组的随机打乱
+
+**数组随机打乱通常使用 Fisher–Yates 洗牌算法**
+从后往前遍历数组，每一轮从 `[0, i]` 中随机选一个索引，与当前位置交换。
+该算法时间复杂度 O(n)，空间复杂度 O(1)，并且能保证每种排列出现的概率相同。
+
+Fisher–Yates 洗牌
+
+```js
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    // 从 [0, i] 中随机选一个
+    const j = Math.floor(Math.random() * (i + 1));
+    // 交换 arr[i] 和 arr[j]
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+```
+
+### JavaScript类数组对象的定义?
+
+**类数组对象（Array-like Object）**是指：
+
+- 有 **数字索引（0、1、2…）** 的属性
+- 有 **`length` 属性**
+- **不具备数组方法**（如 `push`、`pop` 等）
+
+**典型例子**：
+
+```
+const obj = { 0: "a", 1: "b", 2: "c", length: 3 };
+```
+
+- 访问方式像数组：`obj[0]` → `"a"`
+- 不能直接使用数组方法：`obj.push("d")` → 报错
+
+### 什么是伪数组、什么是类数组
+
+| 名称                            | 定义                                                       | 示例                                      |
+| ------------------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| **类数组（Array-like Object）** | 有索引 + length，但没有数组方法                            | `{0:'a',1:'b',length:2}`                  |
+| **伪数组（Pseudo-array）**      | 非数组，但“看起来像数组”，通常是 **类数组 + 真实行为有限** | `arguments`、`NodeList`、`HTMLCollection` |
+
+```js
+function fn(a, b) {
+  console.log(arguments); // arguments 是伪数组
+  console.log(arguments.length); // 2
+  console.log(arguments[0]); // 1
+  // arguments.push(3); // ❌ 报错，没有数组方法
+}
+
+const nodes = document.querySelectorAll("div"); // NodeList
+console.log(nodes.length);
+console.log(nodes[0]);
+
+```
+
+### 类数组转换成数组的方法有哪些
+
+在 JS 中常用几种方法：
+
+#### 1️⃣ `Array.from()`
+
+```
+const obj = { 0: "a", 1: "b", length: 2 };
+const arr = Array.from(obj);
+console.log(arr); // ["a", "b"]
+```
+
+- 支持 **map 函数** 一步处理：
+
+```
+const arr2 = Array.from(obj, x => x.toUpperCase());
+```
+
+#### 2️⃣ 扩展运算符 `...`（ES6）
+
+```
+const arr = [...obj]; // 需要可迭代对象（NodeList、arguments 在现代浏览器可用）
+```
+
+- 对于普通对象 `{0:'a',1:'b',length:2}` 不行，需要先 `Array.from`
+
+#### 3️⃣ `Array.prototype.slice.call()`（ES5 常用）
+
+```
+const arr = Array.prototype.slice.call(obj);
+```
+
+- 兼容旧浏览器
+- 原理：用数组方法处理类数组
+
+#### 4️⃣ `Array.prototype.concat()`（少用）
+
+```
+const arr = [].concat.apply([], obj);
+```
+
+- 也能把类数组展开成数组
 
 ------
 
 ## 七、Object（对象操作）
 
 ### 26. 如何判断一个对象是空对象
+
+判断对象是否为空，通常只检查自身可枚举属性，可使用 `Object.keys(obj).length === 0`。
+如果需要区分原型链上的自定义属性，可以通过 `Object.getPrototypeOf` 结合 `hasOwnProperty` 判断对象是否继承了被扩展的原型。
+对于完全干净的对象，还需确保其原型为 `Object.prototype` 或 `null`。
 
 - 使用JSON自带的JSON.stringify方法来判断：
 
@@ -2041,7 +2267,7 @@ if (JSON.stringify(Obj) == "{}") {
 }
 ```
 
-- 使用ES6新增的方法Object.keys()来判断：
+- 使用ES6新增的方法Object.keys()来判断：// 只判断「自身属性」是否为空 最常用
 
 ```js
 if (Object.keys(Obj).length === 0) {
@@ -2060,10 +2286,102 @@ function isEmpty(obj) {
 }
 ```
 
+- 判断是否「存在原型链上的自定义属性或方法」
+
+#### 1️⃣ 判断对象的原型是否“被污染 / 被扩展”
+
+```
+function hasCustomProtoProps(obj) {
+  let proto = Object.getPrototypeOf(obj);
+
+  if (!proto || proto === Object.prototype) {
+    return false;
+  }
+
+  return Object.getOwnPropertyNames(proto).length > 0;
+}
+```
+
+但这个不够精确，因为 `Object.prototype` 本身就有方法。
+
+------
+
+####  2️⃣ 判断是否有**非内建的原型属性（面试加分）**
+
+```
+function hasCustomPrototypeProperties(obj) {
+  let proto = Object.getPrototypeOf(obj);
+
+  while (proto && proto !== Object.prototype) {
+    if (Object.getOwnPropertyNames(proto).length > 0) {
+      return true;
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return false;
+}
+```
+
+```
+function Foo() {}
+Foo.prototype.sayHi = function () {};
+
+const a = new Foo();
+
+Object.keys(a); // []
+hasCustomPrototypeProperties(a); // true
+
+```
+
+#### 判断对象是否「完全干净」（自身 + 原型链）
+
+✅ 真正意义上的“完全空对象”
+
+```
+function isTrulyEmptyObject(obj) {
+  // 1. 无自身属性
+  if (Object.keys(obj).length > 0) return false;
+
+  // 2. 原型必须是 Object.prototype 或 null
+  const proto = Object.getPrototypeOf(obj);
+  return proto === Object.prototype || proto === null;
+}
+```
+
+```
+isTrulyEmptyObject({});                // true
+isTrulyEmptyObject(Object.create(null)); // true
+isTrulyEmptyObject(new Date());        // false
+```
+
+#### Object.create(null) 的特殊性（面试高频）
+
+```
+const obj = Object.create(null);
+
+obj.toString; // undefined
+```
+
+**特点**
+
+- 没有原型链
+- 更“纯粹”的空对象
+- 常用于：
+  - Map / 字典
+  - 防止原型污染攻击
+
+判断方式要注意：
+
+```
+Object.keys(obj); // ✅ 可用
+obj.hasOwnProperty // ❌ 报错
+```
+
 ### 31. Object.keys() 与 Object.getOwnPropertyNames()有何区别
 
-- `Object.keys`: 列出可枚举的属性值
-- `Object.getOwnPropertyNames`: 列出所有属性值(包括可枚举与不可枚举)
+“`Object.keys(obj)` 返回对象自身的可枚举属性名，用于遍历对象属性；
+
+ `Object.getOwnPropertyNames(obj)` 返回对象自身所有属性名，包括不可枚举属性，但不包含 Symbol。两者都不会返回原型链属性，Symbol 属性需要用 `Object.getOwnPropertySymbols` 获取。”
 
 ### 32. 如何把对象转化为 key/value 的二维数组
 
@@ -2196,14 +2514,45 @@ const { classes: { stu: { name } }} = school
 - JSON.stringify()
 - 手写循环递归
 
+### 13. Object 对象有哪些 api
 
+**创建对象**：`Object.create` / `Object.assign` / `Object.fromEntries`
 
+**遍历属性**：`keys` / `values` / `entries`
 
+**属性控制**：`defineProperty` / `defineProperties` / `getOwnPropertyDescriptor`
 
-- Object 对象有哪些 api?
-- 对象取值中 a.b.c.d 和 a['b’['c’】['d']有什么区别?
-- 防止对象被篡改的常用方式
-- 如何冻结一个 JavaScript 对象
+**原型操作**：`getPrototypeOf` / `setPrototypeOf`
+
+**不可变 / 封闭**：`freeze` / `seal` / `preventExtensions`
+
+**安全判断属性**：`hasOwnProperty` 或 `Object.hasOwn`
+
+### 14. 对象取值中 a.b.c.d 和 a['b’['c’】['d']有什么区别?
+### 15. 防止对象被篡改的常用方式
+
+| 方法                              | 阻止新增     | 阻止删除     | 阻止修改     | 作用范围           | 常用场景             |
+| --------------------------------- | ------------ | ------------ | ------------ | ------------------ | -------------------- |
+| `preventExtensions`               | ✅            | ❌            | ❌            | 整个对象           | 结构固定，允许修改值 |
+| `seal`                            | ✅            | ✅            | ❌            | 整个对象           | 属性固定，允许修改值 |
+| `freeze`                          | ✅            | ✅            | ✅            | 整个对象           | 配置对象、常量对象   |
+| `defineProperty`                  | 根据属性设置 | 根据属性设置 | 根据属性设置 | 单个属性           | 精确控制某个属性     |
+| `deepFreeze`                      | ✅            | ✅            | ✅            | 整个对象及嵌套对象 | 深层不可变对象       |
+| `Object.create(null)`             | –            | –            | –            | 对象自身           | 防原型污染           |
+| `Object.freeze(Object.prototype)` | –            | –            | –            | 全局               | 防原型被篡改         |
+
+`Object.preventExtensions`：禁止新增属性
+
+`Object.seal`：禁止新增/删除属性
+
+`Object.freeze`：禁止新增/删除/修改属性
+ 还可以用 `Object.defineProperty` 针对单个属性设置不可写或不可配置。对于深层对象，可以递归 `deepFreeze`。另外，通过 `Object.create(null)` 可以创建没有原型的干净对象，避免原型链被污染。”
+
+### 16. 如何冻结一个 JavaScript 对象
+
+冻结对象可以用 `Object.freeze()`，它会阻止对象新增、删除或修改属性。如果对象有嵌套属性，需要递归实现深冻结。冻结后的对象可用 `Object.isFrozen()` 检测。
+
+在 JavaScript 中，“冻结对象”是指 **防止对象被修改、删除或新增属性**，通常用 `Object.freeze()` 来实现。
 
 ------
 
@@ -2321,8 +2670,6 @@ if (!a) {
 
 - `str.split('foo').join('bar')`
 - `str.replaceAll('foo', 'bar')`，在 `ESNext` 中，目前支持性不好
-
-
 
 ## 八、Map / Set / WeakMap / WeakSet
 
@@ -2571,6 +2918,8 @@ for…of 是ES6新增的遍历方式，允许遍历一个含有iterator接口的
 
 ### 26. 如何使用for...of遍历对象
 
+**普通 JavaScript 对象（Object）不能直接使用 `for...of` 迭代**，原因在于 `for...of` 只能用于 **可迭代对象（Iterable）**，而普通对象默认没有 `[Symbol.iterator]` 方法。
+
 for…of是作为ES6新增的遍历方式，允许遍历一个含有iterator接口的数据结构（数组、对象等）并且返回各项的值，普通的对象用for...of遍历是会报错的。
 
 如果需要遍历的对象是类数组对象，用Array.from转成数组即可。
@@ -2709,51 +3058,132 @@ for (let [key, value] of Object.entries(obj)) {
 // b 2
 ```
 
-```js
-捕获阶段：html → body → div → button
-目标阶段：button
-冒泡阶段：button → div → body → html
+### 6. 为什么普通 for循环的性能远远高于 forEach 的性能?
 
-const html = document.querySelector('html');
-const div = document.querySelector('#parent');
-const btn = document.querySelector('#btn');
+普通 `for` 循环性能最高，因为它是原生语法、直接访问数组、没有回调函数开销；而 `forEach` 每次迭代都要调用回调函数、创建上下文、无法提前退出，开销较大。
 
-html.addEventListener('click', () => console.log('html'), true); // 捕获阶段
-div.addEventListener('click', () => console.log('div'), true);   // 捕获阶段
-btn.addEventListener('click', () => console.log('button'));       // 默认冒泡阶段
+### 7. 介绍一下迭代器 lterator，以及有哪些用法
 
-btn.click();
+JavaScript 的迭代器统一了遍历接口，`for...of`、扩展运算符、解构赋值都依赖迭代器。数组、字符串、Map、Set 都有内置迭代器，自定义对象可以实现 `[Symbol.iterator]`，生成器是迭代器的语法糖。
 
-// 输出顺序：
-// html
-// div
-// button
-// 捕获阶段的处理器先执行，再执行目标元素事件
+迭代器提供统一遍历接口，可迭代对象通过 `[Symbol.iterator]` 返回迭代器。生成器是迭代器的语法糖。
 
-你点击 button#btn。
-捕获阶段 = 事件从顶楼往下爬
-html → body → div → button
-事件从祖先元素开始“走到”按钮
-如果祖先元素在 捕获阶段 注册了事件处理器，会在事件到达目标前触发
-目标阶段 = 事件到达按钮
-按钮本身的事件处理器触发
-冒泡阶段 = 事件从一楼回到顶楼
-button → div → body → html
-事件逐级向上冒泡，冒泡阶段注册的事件处理器依次触发
+迭代器是一个对象，它提供统一的接口，可以按顺序访问集合中的元素，而不必暴露集合内部的实现细节。
+
+迭代器对象有一个 **`next()`** 方法，每次调用返回集合中的下一个值。
+
+`next()` 返回一个对象，包含两个属性：
+
+- `value`：当前值
+- `done`：布尔值，表示是否迭代结束
+
+### 8. JS 有哪些迭代器，该如何使用?
+
+JavaScript 的迭代器统一了遍历接口，`for...of`、扩展运算符、解构赋值都依赖迭代器。数组、字符串、Map、Set 都有内置迭代器，自定义对象可以实现 `[Symbol.iterator]`，生成器是迭代器的语法糖。
+
+| 类型                      | 默认迭代器                      | 使用方式                     |
+| ------------------------- | ------------------------------- | ---------------------------- |
+| Array                     | `arr[Symbol.iterator]()`        | `for...of`、扩展运算符、解构 |
+| String                    | `str[Symbol.iterator]()`        | 遍历字符                     |
+| Map                       | `map[Symbol.iterator]()`        | 遍历 `[key, value]`          |
+| Set                       | `set[Symbol.iterator]()`        | 遍历值                       |
+| arguments                 | `arguments[Symbol.iterator]()`  | 类数组对象遍历               |
+| NodeList / HTMLCollection | `Symbol.iterator`（现代浏览器） | 遍历 DOM 元素                |
+
+### 9. 如何使对象 iterable 化，以使其支持 for...of 迭代
+
+普通对象默认不可迭代，要支持 `for...of`，需要实现 `[Symbol.iterator]`，返回一个迭代器对象或者生成器。迭代器对象必须有 `next()` 方法，每次返回 `{ value, done }`。生成器是迭代器的语法糖，写法更简洁。
+
+1. 在对象上定义 `[Symbol.iterator]` 方法
+2. 方法返回一个 **迭代器对象**
+3. 迭代器对象有一个 `next()` 方法，每次返回 `{ value, done }`
+4. `for...of` 会自动调用 `[Symbol.iterator]()` 获取迭代器，并依次调用 `next()`
+
+#### 示例 1：简单对象迭代 key-value
+
+```
+const obj = { a: 1, b: 2, c: 3 };
+
+obj[Symbol.iterator] = function() {
+  const keys = Object.keys(this); // 获取自身属性名
+  let index = 0;
+
+  return {
+    next: () => {
+      if (index < keys.length) {
+        const key = keys[index++];
+        return { value: [key, this[key]], done: false };
+      } else {
+        return { value: undefined, done: true };
+      }
+    }
+  };
+};
+
+// 现在可以使用 for...of
+for (const [key, val] of obj) {
+  console.log(key, val);
+}
+// 输出:
+// a 1
+// b 2
+// c 3
 ```
 
+------
 
+#### 示例 2：迭代对象的值
 
+如果只想迭代值：
 
+```
+const obj = { a: 10, b: 20 };
 
-- 介绍一下迭代器 lterator，以及有哪些用法
-- JS 有哪些迭代器，该如何使用?
-- JS 对象可以使用 for...of 迭代吗?
-- 如何使对象 iterable 化，以使其支持 for...of 迭代
-- iterator 和数组有什么关系?
-- iterator 对象有哪些特征
-- 理解 JavaScript 中的 for...of、for...in 与 for 循环:三者的本。。。
-- 为什么普通 for循环的性能远远高于 forEach 的性能?
+obj[Symbol.iterator] = function() {
+  const values = Object.values(this);
+  let index = 0;
+  return {
+    next: () => ({
+      value: values[index++],
+      done: index > values.length
+    })
+  };
+};
+
+for (const val of obj) {
+  console.log(val);
+}
+// 输出: 10 20
+```
+
+------
+
+#### 示例 3：使用生成器简化实现
+
+生成器 (`function*`) 可以自动实现迭代器接口：
+
+```
+const obj = { a: 1, b: 2, c: 3 };
+
+obj[Symbol.iterator] = function* () {
+  for (const key of Object.keys(this)) {
+    yield [key, this[key]];
+  }
+};
+
+for (const [key, val] of obj) {
+  console.log(key, val);
+}
+// 输出: a 1, b 2, c 3
+```
+
+### 10. iterator 和数组有什么关系?
+
+数组实现了迭代器接口 `[Symbol.iterator]`，可以用 `for...of`、扩展运算符或解构赋值访问数组元素。调用 `[Symbol.iterator]()` 返回一个迭代器对象，内部维护索引，每次 `next()` 返回 `{ value, done }`。
+
+### 11. iterator 对象有哪些特征
+
+迭代器是一个对象，核心是 `next()` 方法，每次返回 `{ value, done }`。它维护内部状态，可以顺序访问集合元素，不暴露集合内部结构。数组、字符串、Map、Set 都有默认迭代器，也可以自定义 `[Symbol.iterator]` 返回迭代器。
 
 ------
 
@@ -2891,29 +3321,117 @@ new操作符的实现步骤如下：
 
 所以，上面的第二、三步，箭头函数都是没有办法执行的。
 
+### JS 里是否可能存在:对象有一个 name 属性，原型链上也有?
 
+JS 属性访问遵循原型链查找，自身属性优先于原型链。如果对象和原型链上有同名属性，自身属性会覆盖原型链上的属性，称为属性屏蔽。
 
-----
+### JavaScript 中继承方式有哪些?
 
+| 继承方式     | 继承内容    | 是否共享引用类型 | 是否可传参 | 是否继承原型方法 | 特点                         |
+| ------------ | ----------- | ---------------- | ---------- | ---------------- | ---------------------------- |
+| 原型链继承   | 原型属性    | 是               | 否         | 是               | 简单，但实例属性共享问题     |
+| 借用构造函数 | 实例属性    | 否               | 是         | 否               | 可向父类传参，不继承原型方法 |
+| 组合继承     | 实例 + 原型 | 否               | 是         | 是               | 常用，但调用父类两次         |
+| 原型式继承   | 原型属性    | 是               | 否         | 是               | 轻量，但共享引用类型         |
+| 寄生式继承   | 原型 + 扩展 | 是               | 否         | 可               | 可扩展，函数开销大           |
+| 寄生组合继承 | 实例 + 原型 | 否               | 是         | 是               | 最佳实践，性能好             |
+| ES6 class    | 实例 + 原型 | 否               | 是         | 是               | 语法糖，底层是寄生组合继承   |
 
+### 在创建对象的时候，new class 和 new function 有什么区别?
 
-- JS 里是否可能存在:对象有一个 name 属性，原型链上也有。。。
+class 是 ES6 的语法糖，本质是构造函数 + 原型链。相比传统 function 构造函数，class 更严格、更安全、继承语法更清晰，且必须用 `new` 调用。
 
-- JavaScript 中继承方式有哪些?
+**class 是语法糖**：底层仍然是函数 + prototype
 
-- 在创建对象的时候，new class 和 new function 有什么区别?
+**必须 new**：class 强制实例化
 
-- JS 里的类就是构造函数的语法糖，这个说法是否正确?
+**严格模式**：class 内部默认严格模式，function 需手动开启
 
-- 当使用 new 关键字创建对象时，会经历哪些步骤?
+**继承语法更清晰**：class 使用 `extends` + `super`，function 需要寄生组合继承
 
-- ES5 和 ES6 使用 new 关键字实例化对象的流程是一样的吗?
+**提升差异**：function 声明可提升，class 不可提升
 
-- ES6 class 装饰器是如何实现的?
+**原型方法挂载方式不同**：class 内部自动挂在 prototype，不在实例上
 
-  
+### JS 里的类就是构造函数的语法糖，这个说法是否正确?
 
+JS 中 class 本质上是构造函数 + 原型链的语法糖，但增加了严格模式、必须 `new` 调用、原型方法自动挂载、继承语法更清晰等特性。
 
+### 当使用 new 关键字创建对象时，会经历哪些步骤?
+
+`new` 做了五件事：创建空对象 → 设置原型 → 构造函数内部 this 指向新对象 → 执行构造函数 → 判断返回值并返回对象。
+
+```js
+new Constructor()
+        │
+  ┌─────▼─────┐
+  │ 1. 创建新对象 │  obj = {} 
+  └─────┬─────┘
+        │
+  ┌─────▼─────┐
+  │ 2. 设置原型 │  obj.__proto__ = Constructor.prototype
+  └─────┬─────┘
+        │
+  ┌─────▼─────┐
+  │ 3. 执行构造函数 │  Constructor.call(obj)
+  └─────┬─────┘
+        │
+  ┌─────▼─────┐
+  │ 4. 返回值判断 │  返回对象或新对象
+  └─────┬─────┘
+        │
+  ┌─────▼─────┐
+  │ 5. 返回对象 │  obj
+  └───────────┘
+
+```
+
+### ES5 和 ES6 使用 new 关键字实例化对象的流程是一样的吗?
+
+是的，**ES5 和 ES6 使用 `new` 关键字实例化对象的流程在底层本质上是一样的**，都是基于 **构造函数 + 原型链** 的机制。只是 ES6 的 `class` 对 `new` 调用做了语法层面的约束和优化。
+
+| 特性                 | ES5 function                                | ES6 class                                                    |
+| -------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| **必须使用 new**     | ❌ 可以不加 `new`（this 指向全局/undefined） | ✅ 必须用 `new`，否则报错                                     |
+| **严格模式**         | ❌ 默认非严格模式                            | ✅ class 内部默认严格模式                                     |
+| **原型方法挂载**     | 手动挂在 `Constructor.prototype`            | ✅ 写在 class 内的方法自动挂在 prototype                      |
+| **继承语法**         | 手动实现（寄生组合继承）                    | ✅ 使用 `extends` + `super`，内部调用构造函数和原型链自动处理 |
+| **提升（Hoisting）** | ✅ 函数声明可提升                            | ❌ class 声明不提升，必须在使用后声明                         |
+
+### ES6 class 装饰器是如何实现的?
+
+  “ES6/ES7 中的类装饰器（Decorator）是一个函数，它可以在**类声明阶段**增强或修改类、方法或属性的行为。
+
+**原理**：
+
+1. **类装饰器**接收类的构造函数作为参数，可以返回一个新的构造函数替换原类，从而在实例化时增强实例属性或方法。
+2. **方法装饰器**接收目标对象、方法名和属性描述符（descriptor），可以通过修改 `descriptor.value` 来包装或替换原方法，实现方法增强。
+
+**特点**：
+
+- 在类定义阶段执行，而不是实例化时
+- 可以用于日志、权限校验、数据验证、依赖注入等
+- 本质上是 **高阶函数 + 元编程**
+
+**示例**：
+
+```js
+function addAge(target) {
+  return class extends target {
+    constructor(name) {
+      super(name);
+      this.age = 18;
+    }
+  };
+}
+
+@addAge
+class Person { constructor(name){ this.name = name } }
+const p = new Person("Alice");
+console.log(p.age); // 18
+```
+
+**总结**：装饰器本质是 **函数增强类或方法**，在内部通过继承或函数包装实现增强效果。它是 ES6 class 的语法糖扩展，用于更方便的元编程。”
 
 ------
 
@@ -3329,37 +3847,118 @@ add2(3)(4); // 7
 
 ```
 
+### new Function 了解多少?
 
+`new Function` 可以动态创建函数，但不闭包，仅访问全局作用域，通常用在动态生成函数场景，性能和安全性不如普通函数。
 
----
+`new Function(arg1, arg2, ..., functionBody)` 创建一个新的函数对象，相当于动态生成函数。
 
+**特点**：
 
+- 所创建的函数 **不闭包**，只访问全局作用域
+- 语法类似动态 eval
+- **不建议频繁使用**，性能差、安全性低
 
-- new Function 了解多少?
+### 什么是匿名函数?
 
-- 什么是匿名函数?
+匿名函数没有名字，多用作回调或立即执行函数，便于灵活传参和组合逻辑。
 
-- 函数声明与函数表达式有什么区别?
+没有名字的函数，可赋值给变量或作为参数传入。
 
-- 箭头函数的作用以及使用场景
+```js
+const fn = function(a, b) { return a + b; }; // 匿名函数
+setTimeout(function() { console.log('hi'); }, 1000); // 匿名函数
+```
 
-- 箭头函数解决了什么问题
+### 函数声明与函数表达式有什么区别?
 
-- 普通函数动态参数和箭头函数的动态参数有什么区别?
+函数声明会提升，函数表达式不会。表达式可匿名，更灵活，常用作回调。
 
-- 函数有默认值的时候，如果传的参数是 undefned，会被默认。。。
+| 特性             | 函数声明          | 函数表达式                             |
+| ---------------- | ----------------- | -------------------------------------- |
+| 提升（Hoisting） | ✅ 可提升          | ❌ 不提升（赋值变量提升，但函数值未赋） |
+| 语法             | `function fn(){}` | `const fn = function(){}`              |
+| 调用时机         | 可在声明前调用    | 必须在赋值后调用                       |
+| 命名             | 必须有名字        | 可匿名或具名                           |
 
-- 什么是伪数组、什么是类数组
+### 箭头函数的作用以及使用场景
 
-- 类数组转换成数组的方法有哪些
+箭头函数语法简洁，继承父作用域 `this`，适合回调和函数式编程。
 
-- Generator 是如何做到中断和恢复的
+**作用**：
 
-- 函数柯里化了解多少?
+- 简化函数写法
+- **不绑定自己的 `this`**
+- 没有 `arguments`
+- **不能用作构造函数**（不能 `new`）
 
-- JavaScript类数组对象的定义?
+**使用场景**：
 
-  
+- 回调函数（map/filter/reduce）
+- Promise、事件处理
+- 保留父级 `this` 的上下文
+
+```js
+const nums = [1,2,3];
+const squares = nums.map(x => x*x);
+```
+
+### 箭头函数解决了什么问题
+
+- **最大问题**：普通函数在回调或事件中，`this` 不指向期望对象
+- 箭头函数 **自动绑定父级 `this`**，避免 `self = this` 或 `bind`
+
+### 普通函数动态参数和箭头函数的动态参数有什么区别?
+
+| 特性        | 普通函数               | 箭头函数                            |
+| ----------- | ---------------------- | ----------------------------------- |
+| `arguments` | ✅ 有，自动收集所有参数 | ❌ 没有，可用剩余参数 `...args` 替代 |
+| `this`      | 自己的 this            | 继承父级 this                       |
+
+### 函数有默认值的时候，如果传的参数是 undefned，会被默认值覆盖吗？
+
+只有当传入 `undefined` 或不传参时，才会使用默认值，`null` 或其他值不会触发默认值
+
+### Generator 是如何做到中断和恢复的
+
+> “Generator 通过 `yield` 暂停函数执行，保留上下文，调用 `next()` 恢复，适合实现异步流程控制或迭代器。”
+
+**原理**：
+
+- Generator 函数使用 `function*` 声明
+- `yield` 暂停函数执行，并返回值
+- 调用 `next()` 恢复执行，保留上下文（作用域、局部变量、执行状态）
+
+```js
+function* gen() {
+  console.log(1);
+  yield 2;
+  console.log(3);
+  return 4;
+}
+
+const g = gen();
+console.log(g.next()); // 1, { value: 2, done: false }
+console.log(g.next()); // 3, { value: 4, done: true }
+```
+
+### 函数柯里化了解多少?
+
+- 将多参数函数拆分成多个单参数函数，每次返回一个新函数，直到接收完所有参数执行原函数。
+
+```
+function add(a) {
+  return function(b) {
+    return a + b;
+  };
+}
+console.log(add(2)(3)); // 5
+```
+
+**用途**：
+
+- 函数复用、偏函数、链式调用
+- 配合高阶函数做函数式编程
 
 ------
 
@@ -3606,14 +4205,128 @@ Function.prototype.softBind = function (obj, ...rest) {
 
 ```
 
+### 1. 什么是执行上下文栈?它有什么作用?
 
+执行上下文是 JS 代码运行环境，执行上下文栈管理函数调用顺序和作用域，生命周期分创建阶段（变量提升、作用域链、this 确定）和执行阶段（逐行执行代码）。
 
-- 什么是执行上下文栈?它有什么作用?
-- 执行上下文的生命周期有哪些阶段?
-- 全局作用域中，用 const 和 let 声明的变量不在 window 上，.。。。
-- JS 中 this 指向问题了解多少
-- JavaScript 中 this 的使用场景解析
-- 哪些原因会导致 JavaScript 里 this 指向混乱?
+ “执行上下文是 JS 代码运行环境，执行上下文栈管理函数调用顺序和作用域，保证函数执行完成后恢复之前环境。”
+
+**执行上下文（Execution Context）**：JS 执行代码时产生的一个抽象概念，保存当前环境信息，包括：
+
+- 变量环境（变量、函数声明）
+- 作用域链（Scope Chain）
+- `this` 指向
+
+**执行上下文栈（Call Stack）**：
+
+- JS 是单线程，执行上下文以栈结构管理
+- 栈顶是当前正在执行的上下文
+- **作用**：
+  1. 管理函数调用顺序
+  2. 保留每个函数的变量和作用域
+  3. 保证函数执行后能恢复之前的环境
+
+**示例**：
+
+```js
+function a() { console.log("a"); b(); }
+function b() { console.log("b"); }
+a();
+// 执行栈变化：
+// 1. 全局上下文入栈
+// 2. a 入栈
+// 3. b 入栈
+// 4. b 出栈
+// 5. a 出栈
+// 6. 全局上下文结束
+```
+
+### 2. 执行上下文的生命周期有哪些阶段?
+
+每个上下文生命周期分两阶段：
+
+1. **创建阶段（Creation Phase）**：
+   - 创建变量对象（Variable Object / VO）
+   - 创建作用域链
+   - 确定 `this` 指向
+   - 变量和函数提升：
+     - 函数声明 → 完整存入内存
+     - 变量声明 → 初始化为 `undefined`
+2. **执行阶段（Execution Phase）**：
+   - 逐行执行代码
+   - 给变量赋值
+   - 调用函数
+
+**示例**：
+
+```
+var a = 10;
+function fn() { console.log(a); }
+fn();
+```
+
+- 创建阶段：`a = undefined`，`fn` 函数存入内存
+- 执行阶段：`a = 10`，调用 `fn()` 输出 10
+
+### 3. 全局作用域中，用 const 和 let 声明的变量不在 window 上?
+
+全局作用域中，var 会成为全局对象属性，而 let/const 不会
+
+```js
+const a = 1;
+let b = 2;
+var c = 3;
+
+console.log(window.a); // undefined
+console.log(window.b); // undefined
+console.log(window.c); // 3
+```
+
+### 4. JS 中 this 指向问题了解多少
+
+**`this` 是运行时绑定的，而不是声明时绑定的。**
+
+| 场景                     | this 指向                              |
+| ------------------------ | -------------------------------------- |
+| 全局函数                 | 浏览器：window（严格模式下 undefined） |
+| 对象方法                 | 调用对象 → this 指向该对象             |
+| 构造函数 / class         | 新实例对象                             |
+| 箭头函数                 | 继承外层上下文 this                    |
+| call/apply/bind          | 显式指定                               |
+| setTimeout / setInterval | 全局对象或 undefined（严格模式）       |
+
+### 5. JavaScript 中 this 的使用场景解析
+
+**对象方法**：访问或修改对象自身属性
+
+**构造函数**：给实例绑定属性
+
+**箭头函数**：保持外层 `this`
+
+**函数调用**：动态绑定，借助 `call/apply/bind` 显式控制
+
+### 6. 哪些原因会导致 JavaScript 里 this 指向混乱?
+
+> this 会混乱的原因主要是普通函数丢失调用对象、异步回调、箭头函数继承外层 this，以及显式绑定冲突。”
+
+**普通函数丢失调用对象**
+
+```js
+const fn = obj.say;
+fn(); // 全局或 undefined
+```
+
+**回调函数 / 异步函数**
+
+- setTimeout / Promise 回调
+
+**箭头函数内部无法绑定自己的 `this`**
+
+- 必须依赖外层上下文
+
+**显式绑定与隐式绑定冲突**
+
+- bind 绑定后再 call/apply 不会覆盖
 
 ------
 
@@ -3706,16 +4419,145 @@ function cycle(obj, parent) {
 
 尾调用指的是函数的最后一步调用另一个函数。代码执行是基于执行栈的，所以当在一个函数里调用另一个函数时，会保留当前的执行上下文，然后再新建另外一个执行上下文加入栈中。使用尾调用的话，因为已经是函数的最后一步，==所以这时可以不必再保留当前的执行上下文，从而节省了内存，这就是尾调用优化。但是 ES6 的尾调用优化只在严格模式下开启，正常模式是无效的==
 
+### 1. JavaScript 如何做内存管理
 
+**原理**：
 
+- JavaScript 有 **自动垃圾回收（Garbage Collection, GC）机制**
+- 常用策略：**标记清除（Mark-and-Sweep）**
 
+**标记清除流程**：
 
-- JavaScript 如何做内存管理
-- JavaScript 中，隐藏类是什么概念?
-- 在 JavaScript 中如何避免递归导致的栈溢出问题?
-- 递归和尾递归是什么?
-- 副作用是什么?
-- 深度遍历广度遍历的区别?
+1. 全局对象和当前执行上下文的变量作为 **根对象（root）**
+2. 从根对象开始，标记可达对象
+3. 未被标记的对象认为不可达，回收内存
+
+**面试表述**：
+
+> “JS 的内存管理由垃圾回收机制自动完成，常用标记清除策略：从根对象出发标记可达对象，无法访问的对象会被回收。”
+
+**注意事项**：
+
+- 避免**全局变量过多**
+- 避免**闭包滥用造成内存泄漏**
+- 避免**循环引用**（老版本 IE 的问题）
+
+### 1. JavaScript 中，隐藏类是什么概念?
+
+ “隐藏类是 V8 内部为对象属性访问做的优化，多个结构相同的对象可以共享隐藏类，减少查找成本。”
+
+**概念**：
+
+- 隐藏类是 **V8 引擎内部优化** 用于加速对象属性访问
+- 对象属性顺序固定、结构一致时，V8 会给对象创建隐藏类
+- 多个对象共享隐藏类 → 属性访问更快
+
+**示例**：
+
+```js
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+const p1 = new Point(1, 2);
+const p2 = new Point(3, 4);
+// p1 和 p2 可以共享隐藏类
+```
+
+**优化建议**：
+
+- 同一个构造函数中尽量 **按相同顺序添加属性**
+- 避免动态添加/删除属性，会导致隐藏类变化，降低性能
+
+### 1. 在 JavaScript 中如何避免递归导致的栈溢出问题?
+
+1. **使用循环替代递归**
+   - 尾递归或循环可以防止栈溢出
+2. **尾递归优化**（ES6 支持，严格模式下）
+
+```
+'use strict';
+function factorial(n, acc = 1) {
+  if (n === 0) return acc;
+  return factorial(n - 1, n * acc); // 尾递归
+}
+```
+
+1. **使用栈/队列手动模拟递归**
+
+```
+function factorial(n) {
+  const stack = [];
+  let result = 1;
+  while (n > 0) {
+    stack.push(n--);
+  }
+  while (stack.length) {
+    result *= stack.pop();
+  }
+  return result;
+}
+```
+
+### 1. 递归和尾递归是什么?
+
+| 类型   | 定义                                   | 特点                                   |
+| ------ | -------------------------------------- | -------------------------------------- |
+| 递归   | 函数调用自身                           | 每次调用都占用栈空间                   |
+| 尾递归 | 函数最后一步调用自身，且不再做其他操作 | 可由引擎优化，复用当前栈帧，防止栈溢出 |
+
+### 1. 副作用是什么?
+
+副作用指函数在执行时改变外部状态或外部可观察行为，纯函数没有副作用。
+
+**定义**：
+
+- 函数执行除了返回值以外，修改了 **外部状态** 或产生了 **额外影响**
+
+**例子**：
+
+```
+let count = 0;
+function increment() { count++; } // 副作用：修改外部 count
+```
+
+**无副作用函数（纯函数）**：
+
+```
+function add(a, b) { return a + b; } // 不修改外部变量
+```
+
+### 1. 深度遍历广度遍历的区别?
+
+DFS 和 BFS 是两种遍历策略，DFS 深度优先，用栈；BFS 广度优先，用队列。
+
+| 特性       | DFS                       | BFS                    |
+| ---------- | ------------------------- | ---------------------- |
+| 遍历顺序   | 先深入到最深节点，再回溯  | 按层级遍历，从上到下   |
+| 数据结构   | 栈（递归或手动栈）        | 队列                   |
+| 空间复杂度 | O(h) h = 树高             | O(w) w = 树最大宽度    |
+| 典型应用   | 树/图的路径搜索、回溯算法 | 层序遍历、最短路径搜索 |
+
+```js
+// DFS
+function dfs(node) {
+  if(!node) return;
+  console.log(node.val);
+  node.children.forEach(dfs);
+}
+
+// BFS
+function bfs(root) {
+  const queue = [root];
+  while(queue.length) {
+    const node = queue.shift();
+    console.log(node.val);
+    queue.push(...node.children);
+  }
+}
+
+```
 
 ------
 
@@ -3802,11 +4644,72 @@ obj?.b?.();
 var finalString = `my name is ${name}, I work as a ${career} I love ${hobby[0]} and ${hobby[1]}`
 ```
 
+### 1. 模版引擎实现原理？
 
+“模板引擎的核心是解析模板字符串、生成渲染函数、执行函数输出结果，本质就是把模板转成 JS 代码再执行。”
 
-- 模版引擎实现原理？
-- Unicode、 UTF-8、UTF-16、UTF-32的区别
-- 说说你对正则表达式的理解？应用场景？
+**定义**：
+ 模板引擎（Template Engine）就是将**模板字符串** + **数据对象** → 渲染成最终 HTML 或文本的工具。
+
+**实现原理**：
+
+1. **解析模板**
+   - 将模板字符串中的占位符（如 `{{name}}` 或 `<%= name %>`）解析成 JS 表达式
+2. **编译成函数**
+   - 生成一个渲染函数，将模板逻辑转换为 JS 代码
+3. **执行函数生成最终字符串**
+   - 传入数据对象，函数执行返回渲染后的 HTML 或文本
+
+**简单示例**：
+
+```js
+function render(template, data) {
+  // 将 {{key}} 替换为 data.key
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key]);
+}
+
+const template = '<h1>{{name}}</h1>';
+console.log(render(template, { name: 'Alice' })); // <h1>Alice</h1>
+```
+
+### 2. Unicode、 UTF-8、UTF-16、UTF-32的区别
+
+字符编码：Unicode 是字符集，UTF-8/16/32 是存储方式，JS 字符串用 UTF-16。
+
+| 编码        | 描述                    | 特点                                                   |
+| ----------- | ----------------------- | ------------------------------------------------------ |
+| **Unicode** | 字符集（Character Set） | 给每个字符分配唯一编码点（code point），不指定存储方式 |
+| **UTF-8**   | 可变长度字符编码        | 1~4 个字节，ASCII 兼容，节省空间，网页常用             |
+| **UTF-16**  | 可变长度                | 2 或 4 个字节，JavaScript 内部字符串使用 UTF-16        |
+| **UTF-32**  | 固定长度                | 4 个字节/字符，简单但占空间大                          |
+
+### 3. 说说你对正则表达式的理解？应用场景？
+
+正则表达式是用模式匹配文本的工具，核心作用是匹配、验证、提取和替换。在前端常用来验证输入格式、处理字符串和提取数据。
+
+**理解**：
+
+- 正则表达式（RegExp）是 **用字符模式描述文本匹配规则** 的工具
+- 本质是模式匹配，用于 **查找、验证、提取、替换**
+
+**语法**：
+
+```
+const regex = /\d+/g; // 匹配数字
+const str = "Age: 30";
+console.log(str.match(regex)); // ["30"]
+```
+
+**常用应用场景**：
+
+1. **格式验证**
+   - 邮箱、手机号、身份证、密码复杂度
+2. **文本搜索**
+   - 从文本中提取 URL、数字、关键字
+3. **文本替换**
+   - 模板替换、清理多余空格、批量修改文本
+4. **字符串拆分**
+   - 按正则规则拆分复杂文本
 
 ------
 
@@ -3848,24 +4751,232 @@ p.a = 2; // "监听到属性a改变为2"
 p.a; // 'a' = 2
 ```
 
+### 1. Proxy 和 Reflect 有什么关系
 
+“Proxy 用于拦截对象操作，Reflect 提供默认行为方法，它们常配合使用，保证拦截后仍可调用原始操作。”
 
-- Proxy 和 Reflect 有什么关系
-- Proxy 和 Object.defneProperty 的区别
-- Object.defneProperty 是否可以监听拦截数组变化
-- Proxy 能否监听对象中嵌套对象的引用变化Proxy 有哪些实际使用场景
-- Proxy set 拦截器有哪些参数?分别表示什么含义?
-- Proxy 可以拦截数组变化吗?
-- Reflect 内置对象及其常用函数详解
-- Reflect.get()与直接通过对象点操作符访问属性的区别
-- 如何排查是谁在修改对象?
+- **Proxy**：用来拦截对象操作（读/写/删除/函数调用等），是对象的“代理”
+- **Reflect**：内置对象，提供与对象操作对应的方法，如 `Reflect.get`、`Reflect.set`，本质上是 **底层默认行为的封装**
+
+**关系**：
+
+- Proxy 拦截操作时，通常调用 `Reflect` 来执行默认行为
+- Reflect 可用于在 Proxy 内部调用默认逻辑，保持原生行为
+
+```js
+const obj = { a: 1 };
+const proxy = new Proxy(obj, {
+  get(target, key) {
+    console.log(`访问 ${key}`);
+    return Reflect.get(target, key); // 默认行为
+  }
+});
+
+console.log(proxy.a); // 输出 "访问 a" → 1
+```
+
+### 2. Proxy 和 Object.defneProperty 的区别
+
+| 特性       | Proxy                                       | Object.defineProperty                          |
+| ---------- | ------------------------------------------- | ---------------------------------------------- |
+| 拦截范围   | 可拦截**所有操作**（读/写/删除/函数调用等） | 只能拦截**特定属性**                           |
+| 动态性     | 可监听动态新增/删除属性                     | 只能监听已有属性，新增属性需重新 define        |
+| 对嵌套对象 | 默认不监听嵌套，需要递归或深代理            | 同样不监听嵌套对象，需要单独 define            |
+| 写法       | `new Proxy(target, handler)`                | `Object.defineProperty(obj, prop, descriptor)` |
+
+### 3. Proxy 能否监听对象中嵌套对象的引用变化Proxy 有哪些实际使用场景
+
+- **默认不能**，Proxy 只拦截最外层对象
+- 需要递归创建 Proxy 或使用深度代理才能监听嵌套对象
+
+```js
+const obj = { nested: { a: 1 } };
+const proxy = new Proxy(obj, {
+  set(target, key, value) {
+    console.log(key, value);
+    target[key] = value;
+    return true;
+  }
+});
+
+proxy.nested.a = 2; // ❌ 不会触发 set
+```
+
+> 解决办法：深度代理或使用响应式框架（如 Vue3 Proxy 实现响应式）。
+
+### 4. Proxy set 拦截器有哪些参数?分别表示什么含义?
+
+```js
+const proxy = new Proxy(obj, {
+  set(target, key, value, receiver) {
+    // target：原对象
+    // key：被修改的属性
+    // value：新值
+    // receiver：触发操作的 Proxy 实例
+  }
+});
+```
+
+- **target**：目标对象
+- **key**：属性名
+- **value**：设置的新值
+- **receiver**：操作对象，通常用于继承链中 `super` 调用
+
+### 5. Proxy 可以拦截数组变化吗?
+
+- 可以拦截**数组索引赋值**（如 `arr[0] = 1`）
+- **部分数组方法（push/pop/shift/unshift/splice）**需要特别处理，因为它们内部修改 length
+
+```js
+const arr = [];
+const proxy = new Proxy(arr, {
+  set(target, key, value) {
+    console.log(`修改 ${key} = ${value}`);
+    target[key] = value;
+    return true;
+  }
+});
+
+proxy.push(1); // 会触发 set 多次
+```
+
+### 6. Reflect 内置对象及其常用函数详解
+
+| 常用方法                                    | 说明                                |
+| ------------------------------------------- | ----------------------------------- |
+| `Reflect.get(target, key, receiver)`        | 获取属性，类似 `target[key]`        |
+| `Reflect.set(target, key, value, receiver)` | 设置属性，返回 true/false           |
+| `Reflect.has(target, key)`                  | 对应 `in`                           |
+| `Reflect.deleteProperty(target, key)`       | 对应 `delete`                       |
+| `Reflect.ownKeys(target)`                   | 获取对象自身所有属性（包括 Symbol） |
+| `Reflect.apply(target, thisArg, args)`      | 调用函数                            |
+| `Reflect.construct(target, args)`           | 调用构造函数，类似 `new`            |
+
+### 7. Reflect.get()与直接通过对象点操作符访问属性的区别
+
+ “Reflect.get 在 Proxy 或继承场景下，可以保证一致性和安全，尤其在拦截器内部调用默认行为。”
+
+```
+const obj = { a: 1 };
+Reflect.get(obj, 'a'); // 1
+obj.a;                  // 1
+```
+
+- **Reflect.get** 额外功能：
+  1. 可传入 `receiver`，在继承/Proxy 场景下更灵活
+  2. 一致返回布尔值或默认行为，不会抛异常
+
+### 8. 如何排查是谁在修改对象?
+
+- 可以通过 **Proxy 拦截器 set/delete** 打日志
+- 或在开发中 **使用 Object.freeze**、getter/setter 监控
+
+```js
+const obj = { a: 1 };
+const proxy = new Proxy(obj, {
+  set(target, key, value) {
+    console.trace(`修改属性 ${key} = ${value}`);
+    target[key] = value;
+    return true;
+  }
+});
+```
+
+### 9. Object.defneProperty 是否可以监听拦截数组变化
+
+ “Object.defineProperty 只能监听已有属性变化，不适合数组索引新增或删除，用 Proxy 更灵活。”
+
+- **只能监听已有属性的读/写**
+- **不能监听数组新增/删除索引**
+- 对数组方法（push/pop）无法监听
+
+```js
+const arr = [1];
+Object.defineProperty(arr, '0', {
+  set(value) { console.log('修改 0', value); }
+});
+arr[0] = 2; // ✔️ 能触发
+arr.push(3); // ❌ 无法触发
+```
 
 ------
 
 ## 十七、性能 / 安全 / eval
 
-- 你对 eval 了解多少?
-- 有没有遇到 js 捕捉不到异常堆栈信息的情况
+### 1. 你对 eval 了解多少?
+
+“`eval` 可以把字符串当作 JS 代码执行，作用域取决于调用位置，但会带来性能和安全问题，一般不推荐使用，动态功能通常用函数或模板替代。”
+
+**定义**：
+
+- `eval(string)` 可以将一个字符串当作 JavaScript 代码执行
+
+**特点**：
+
+1. **动态执行代码**
+   - 代码在运行时被解析并执行
+2. **作用域**
+   - 在全局作用域调用 → 全局变量可访问
+   - 在函数作用域调用 → 访问局部变量
+3. **性能**
+   - 由于要重新解析执行，性能差
+4. **安全性**
+   - 执行字符串，容易造成 XSS 等安全问题
+
+**示例**：
+
+```
+const code = "2 + 3";
+console.log(eval(code)); // 5
+
+function test() {
+  const a = 1;
+  console.log(eval("a + 1")); // 2
+}
+```
+
+### 2. 有没有遇到 js 捕捉不到异常堆栈信息的情况
+
+“在异步回调、Promise、eval 动态执行或跨域脚本中，try/catch 可能捕获不到异常，浏览器可能只报 ‘Script error’，解决办法是用 window.onerror / unhandledrejection 捕获，或使用 source map 还原堆栈。”
+
+1. **异步回调 / Promise**
+
+   - 异常发生在异步执行栈，普通 try/catch 捕获不到
+
+   ```js
+   setTimeout(() => { throw new Error('Async error'); }, 0);
+   try { 
+     setTimeout(() => { throw new Error('Async error'); }, 0);
+   } catch (e) {
+     console.log(e); // ❌ 捕获不到
+   }
+   ```
+
+2. **跨文件/跨作用域异常**
+
+   - 某些动态脚本加载、`eval` 或 `Function` 创建的函数
+   - 堆栈信息可能被压缩或丢失
+
+3. **浏览器安全限制**
+
+   - 某些跨域脚本异常信息会被浏览器屏蔽，堆栈显示为 `"Script error."`
+
+4. **压缩混淆**
+
+   - 打包/压缩工具未保留 source map，会导致堆栈信息不完整
+
+**解决方案**：
+
+- 异步捕获异常：
+
+  ```js
+  window.addEventListener('error', e => console.log(e));
+  window.addEventListener('unhandledrejection', e => console.log(e.reason));
+  ```
+
+- 使用 **source map** 保留原始堆栈信息
+
+- 异步函数中用 try/catch 包裹或 `Promise.catch` 捕获
 
 ## 其他
 
@@ -3903,8 +5014,6 @@ https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%
 - offsetTop、scrollTop
 - getBoundingClientRect
 - Intersection Observer
-
-
 
 ### 9. ==大文件上传如何做断点续传？==
 
