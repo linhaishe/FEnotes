@@ -3210,6 +3210,8 @@ for (const [key, val] of obj) {
 
 **原型链（构造函数，原型，实例的关系）**
 
+**原型链是 JavaScript 实现继承的机制。**每个对象都有一个 `[[Prototype]]`，它指向创建该对象的构造函数的 `prototype`。当访问对象属性时，如果对象自身没有，就会沿着 `__proto__` 向上查找，直到 `null`，这条查找路径就叫原型链。
+
 每个构造函数都有一个原型对象，原型有一个属性指回构造函数，而实例有一个内部指针指向原型。这样就在实例和原型之间构造了一条原型链。
 
 prototype 是对象；constructor 是这个对象上的一个普通属性
@@ -4334,6 +4336,19 @@ fn(); // 全局或 undefined
 
 ### 37. ==对闭包的理解==
 
+在 JavaScript 中，函数在创建时会形成一个词法作用域，内部函数引用了外部函数的变量，即使外部函数已经执行完毕，这些变量也不会被销毁，而是被内部函数“闭合”保存起来。
+
+闭包的本质是：**作用域链的延伸 + 变量的持久化。**
+
+闭包常用于：
+
+- 封装私有变量
+- 函数柯里化
+- 回调与异步
+- 模块化设计
+
+**闭包是函数和其词法作用域的组合。**当一个函数被定义时，会记录它所在的作用域；即使这个函数在其定义作用域之外执行，仍然可以访问到当时作用域中的变量，这就形成了闭包。
+
 (函数缓存本质依赖闭包保存状态)，可以看本章 Javascript中如何实现函数缓存？函数缓存有哪些应用场景？
 
 闭包是一个函数, 其可以记住并访问外部变量。
@@ -4396,30 +4411,71 @@ init();
 
 ### 32. JS 如何检测到对象中有循环引用
 
+在遍历对象时，记录已经访问过的对象引用，如果再次访问到同一个引用，就说明存在循环引用。常见做法是使用 `Set / WeakSet` 或 `Map / WeakMap`，在递归遍历时，如果再次访问到已存在的对象，就说明出现了循环引用。
+
+**可以通过在遍历对象时，记录已经访问过的对象引用来检测循环引用。**常见做法是使用 `Set / WeakSet` 或 `Map / WeakMap`，在递归遍历时，如果再次访问到已存在的对象，就说明出现了循环引用。
+
 ```js
-function cycle(obj, parent) {
-  //表示调用的父级数组
-  var parentArr = parent || [obj];
-  for (var i in obj) {
-    if (typeof obj[i] === "object") {
-      //判断是否有循环引用
-      parentArr.forEach((pObj) => {
-        if (pObj === obj[i]) {
-          obj[i] = "[cycle]";
-        }
-      });
-      cycle(obj[i], [...parentArr, obj[i]]);
+function hasCycle(obj) {
+  const visited = new WeakSet();
+
+  function dfs(value) {
+    if (typeof value !== 'object' || value === null) {
+      return false;
     }
+
+    if (visited.has(value)) {
+      return true; // 发现循环引用
+    }
+
+    visited.add(value);
+
+    for (const key in value) {
+      if (dfs(value[key])) {
+        return true;
+      }
+    }
+
+    return false;
   }
-  return obj;
+
+  return dfs(obj);
 }
 ```
+
+```js
+const a = {};
+a.self = a;
+
+hasCycle(a); // true
+```
+
+为什么用 WeakSet / WeakMap？
+
+| 点               | Set    | WeakSet    |
+| ---------------- | ------ | ---------- |
+| 是否阻止 GC      | 会     | 不会       |
+| 键类型           | 任意   | 只能是对象 |
+| 是否可遍历       | 可以   | 不可以     |
+| 是否适合检测循环 | ⚠️ 勉强 | ✅ 推荐     |
+
+❓ 不用 WeakSet 可以吗？
+
+> 可以，用 `Map / Set`，但要注意手动清理，
+> 否则可能造成内存占用。
+
+❓ 为什么不用深拷贝来判断？
+
+> 深拷贝本身就会在循环引用时报错或死循环，
+> 检测循环引用是深拷贝的前置步骤。
 
 ### 18. 什么是尾调用，使用尾调用有什么好处？
 
 尾调用指的是函数的最后一步调用另一个函数。代码执行是基于执行栈的，所以当在一个函数里调用另一个函数时，会保留当前的执行上下文，然后再新建另外一个执行上下文加入栈中。使用尾调用的话，因为已经是函数的最后一步，==所以这时可以不必再保留当前的执行上下文，从而节省了内存，这就是尾调用优化。但是 ES6 的尾调用优化只在严格模式下开启，正常模式是无效的==
 
 ### 1. JavaScript 如何做内存管理
+
+“JS 的内存管理由垃圾回收机制自动完成，常用标记清除策略：从根对象出发标记可达对象，无法访问的对象会被回收。”
 
 **原理**：
 
@@ -4431,10 +4487,6 @@ function cycle(obj, parent) {
 1. 全局对象和当前执行上下文的变量作为 **根对象（root）**
 2. 从根对象开始，标记可达对象
 3. 未被标记的对象认为不可达，回收内存
-
-**面试表述**：
-
-> “JS 的内存管理由垃圾回收机制自动完成，常用标记清除策略：从根对象出发标记可达对象，无法访问的对象会被回收。”
 
 **注意事项**：
 
@@ -4573,7 +4625,17 @@ JavaScript 中的事件循环是一个持续运行的过程，它不断监听cal
 
 宏任务：setTimeout、setInterval、DOM事件、AJAX请求
 
-微任务：Promise, async/await
+微任务：Promise.then / catch / finally, async/await/`await` 本质就是 Promise.then
+
+你常听到的说法是：
+
+> **`then / catch / finally` 里的回调，会被放入「微任务队列（microtask queue）」**
+
+注意三点：
+
+1. **不是 Promise 本身是微任务**
+2. **是 Promise 状态改变后，注册的回调是微任务**
+3. 这个微任务由 JS 引擎调度，不是浏览器随便定的
 
 ![ttt.gif](https://s2.loli.net/2025/12/24/8lUM2deRKaiQuhy.gif)
 
