@@ -14,11 +14,30 @@
 # Wrap:
 
 1. Promise 构造函数的代码是同步任务，立即执行的。但是 Promise.then 是微任务。
-2. `.then()` 的回调不是“立刻加入队列”，而是： 当前 `.then()` 的回调函数执行完成，再注册才把“下一个 then”加入微任务队列。
+
+2. `.then()` 本身只是同步地“登记”回调函数；只有在当前 `.then` 回调执行结束、并且对应 Promise 状态确定之后，才会把“已经登记的下一个 `.then` 回调”调度进微任务队列。
+
+   1. ```js
+      new Promise(...)
+        .then(() => { console.log("2"); })
+        .then(() => { console.log("6"); }); // then(6) 属于「另一个 Promise」
+      
+      p1 (fulfilled)
+       ↓ then(2)
+      p2 (pending)
+       ↓ then(6)
+      p3
+      ```
+
 3. **调用 `.then()`/resolve() 本身是同步的**`.then()` 里的回调函数才是异步（微任务）执行的
+
 4. Promise的状态只会被改变一次，得到的结果也只会有一个
-5. promise规范thenable慢两拍
-6. 
+
+5. ==promise规范thenable慢两拍(0题)==
+
+6. Promise 状态已 fulfilled → **回调有资格进入微任务队列**，但入队动作要等**当前调用栈清空**（也就是同步代码执行完）
+
+7. 
 
 ```css
 .then 回调执行完
@@ -75,6 +94,38 @@ Promise.resolve().then(() => {
   console.log(6);
 })
 // 0,1,2,3,4,5,6
+
+Promise.resolve().then(() => {
+  console.log(0);
+  return Promise.resolve(4)
+}).then(res => {
+  console.log(res)
+})
+
+// 3 x 2 出6次结果后4进入微队列
+Promise.resolve().then(() => {
+  console.log(1);
+}).then(() => {
+  console.log(2);
+}).then(() => {
+  console.log(3);
+}).then(() => {
+  console.log(5);
+}).then(() =>{
+  console.log(6);
+})
+
+Promise.resolve().then(() => {
+  console.log(99);
+}).then(() => {
+  console.log(98);
+}).then(() => {
+  console.log(97);
+}).then(() => {
+  console.log(96);
+}).then(() =>{
+  console.log(95);
+})
 ```
 
 ### 一、先给最终输出（确认一致）
@@ -95,7 +146,7 @@ Promise.resolve().then(() => {
 
 #### 链 A（带 return Promise）
 
-```
+```js
 Promise.resolve()
   .then(() => {
     console.log(0);
@@ -361,9 +412,30 @@ return 4
 
 ## 3. 
 
-==`.then()` 的回调不是“立刻加入队列”，而是： 当前 then 执行完后，才把“下一个 then”加入微任务队列。==
+链式同层 `.then()` 的所有回调，都会在同步阶段就完成注册；
 
-链式 then 是“执行一个，注册下一个”；**链式 then 的下一个回调**只有在前一个 then 执行完才注册，**外层 then 的下一个 then**注册时机可能比内部链式 then 的第二个 then 早，**微任务队列是 FIFO** → 注册顺序决定执行顺序，因此会出现 **“链式 then 中间被外层 then 插队”** 的情况。
+但某个回调是否能进入微任务队列，取决于它所依赖的 Promise 是否已经 settle。由于外层 Promise 可能更早 settle，其 then 回调可能比内部链式 Promise 的后续回调更早进入微任务队列；
+
+链式 `.then()` 的所有回调，都会在各自所在的同步代码执行时完成注册；
+回调函数的执行顺序，不由注册顺序直接决定，而由它们被推进微任务队列的先后顺序决定；
+微任务队列是 FIFO；
+回调何时进入微任务队列，取决于它所依赖的 Promise 何时 settle；
+因此外层 Promise 可能更早 settle，其回调可能比内部链式 Promise 的后续回调更早进入微任列，从而在执行顺序上看起来像“插队”。
+
+```js
+new Promise(resolve => resolve())
+  .then(() => {
+    console.log(2);
+  })
+  .then(() => {
+    console.log(6);
+  });
+
+// 第一个 .then 的回调：console.log(2)
+// 链式 then 的下一个回调：console.log(6)
+// console.log(6) 挂在谁上？
+// 👉 挂在 第一个 then 返回的 Promise 上
+```
 
 ```js
 setTimeout(() => {
@@ -397,14 +469,26 @@ new Promise((resolve, reject) => {
 }).then(() => {
   console.log("8");
 });
+```
 
+then(5) 注册在内部 Promise.then(4) 上 → 还不能入队（依赖 then(4) 执行完成）
+
+**外层 then(6) 所依赖的 Promise 在 then(2) 执行完后 resolve → 6 进入微任务队列** ✅
+
+```js
+then6 在executor执行时已注册
+队列中先有：then(2)微任务
+执行then(2)回调:
+  log2 -> 2
+  内部Promise executor -> log3
+  内部then(4)注册 -> 入队微任务
+then(2)回调结束 -> then(6)可入队
+fullfilled then5 入队列
 ```
 
 ## 4. 
 
 **浏览器和规范的微任务调度，会**把 `.then()` 内部注册的回调**紧跟当前微任务一起入队**，而不是放到下一轮微任务队列的末尾。
-
-？？？？？？？/1324567
 
 **链式 then 的下一个回调注册时机**：
 
