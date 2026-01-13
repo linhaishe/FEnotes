@@ -13,6 +13,110 @@
 
 # Wrap:
 
+**then 是登记**
+ **resolve/reject 是入队**
+ **微任务执行 = 调回调**
+
+- **微任务（microtask）只有在当前调用栈清空后才会执行**
+- **`.then()` 只负责注册回调**微任务只会在 promise 状态确定时才被 enqueue
+- 什么时候才「生成微任务」？👉 **当 promise 状态从 pending → fulfilled/rejected 的那一刻**
+- 当 **所有同步任务执行完毕**，浏览器/JS 引擎会开始执行微任务队列，按 FIFO 顺序逐个调用
+
+> **then() = 注册回调 + 返回新 Promise，回调异步微任务执行，不是 executor。**
+
+## 例子 1：最简单的 executor
+
+```
+const p = new Promise((resolve, reject) => {
+  console.log("executor start"); // ✅ 同步执行
+  resolve(42);                  // 改变 Promise 状态
+  console.log("executor end");   // ✅ 同步执行
+});
+
+p.then((value) => {
+  console.log("then:", value);   // 微任务，异步执行
+});
+
+console.log("同步任务结束");       // ✅ 同步执行
+```
+
+### 执行顺序
+
+```
+executor start     ← executor 同步执行
+executor end       ← executor 同步执行
+同步任务结束       ← 主线程同步任务继续执行
+then: 42           ← 微任务队列中 then 回调执行
+```
+
+### 1️⃣ Promise.then / catch / finally 注册微任务的条件
+
+1. **Promise 必须处于 fulfilled 或 rejected 状态**（状态确定，不是 pending）
+   - 如果是 pending → then 会先登记回调，但微任务 **不会立即入队**，等状态改变后再入队
+2. **回调函数被同步执行（前一个 then 回调执行完）**
+   - 对于 **链式 then**：下一个 then 注册微任务必须等前一个 then 回调同步代码执行完
+   - 对于 **外层 then**：只要回调同步执行完 → 下一个 then 注册就可以
+3. **回调返回值处理**
+   - 返回普通值 → 下一个 then Promise 立即 resolve → 下一个 then 注册微任务
+   - 返回 Promise → 下一个 then 等这个 Promise resolve → 才注册微任务
+
+
+
+**同一个 Promise 链内部 then**：下一个 then 依赖前一个 then resolve 才注册
+
+**外层 then**：只依赖外层回调同步代码执行完就注册，不依赖内部链的状态 → 可能“插队”
+
+微任务队列是 **FIFO** → 先注册的先执行 → 出现 log4 插队 log3
+
+
+
+**then() 注册顺序 → 决定同一个 Promise 内回调执行顺序**
+
+- FIFO（先进先出）
+
+**链式 then 的下一个回调**
+
+- 只有**前一个 then 回调执行完、返回 Promise resolve** 后才注册入微任务队列
+
+  - **回调返回的值已经处理完**（如果返回的是普通值，会立即 resolve 对应的 Promise）
+  - **如果返回的是一个 Promise**，这个 Promise 的状态还不算“回调完成”，而是**then 的下一个回调注册要等它 resolve 后**
+
+  ```js
+  Promise.resolve()
+    .then(() => {
+      console.log("A");
+      // 同步代码执行完，这个回调算执行完
+    })
+    .then(() => console.log("B"));
+  
+  Promise.resolve()
+    .then(() => {
+      console.log("A");
+      return Promise.resolve("X"); // 返回一个新的 Promise
+    })
+    .then((res) => console.log("B", res));
+  
+  Promise.resolve()
+    .then(() => {
+      console.log("1");
+      Promise.resolve().then(() => console.log("2"));
+    })
+    .then(() => console.log("3"));
+  
+  ```
+
+  
+
+**不同 Promise 的 then 回调**
+
+- 谁的 Promise 先 fulfilled → 谁先入微任务队列
+
+
+
+----
+
+
+
 1. Promise 构造函数的代码是同步任务，立即执行的。但是 Promise.then 是微任务。
 
 2. `.then()` 本身只是同步地“登记”回调函数；只有在当前 `.then` 回调执行结束、并且对应 Promise 状态确定之后，才会把“已经登记的下一个 `.then` 回调”调度进微任务队列。
@@ -126,18 +230,6 @@ Promise.resolve().then(() => {
 }).then(() =>{
   console.log(95);
 })
-```
-
-### 一、先给最终输出（确认一致）
-
-```
-0
-1
-2
-3
-4
-5
-6
 ```
 
 ------
@@ -442,31 +534,31 @@ setTimeout(() => {
   console.log("0"), 0;
 });
 
-new Promise((resolve, reject) => {
+new Promise((resolve, reject) => { // pA
   console.log("1");
   resolve(1);
 })
-  .then(() => {
-    console.log("2");
-    new Promise((resolve, reject) => {
+  .then(() => { // then pA-1 
+    console.log("2"); 
+    new Promise((resolve, reject) => { // pA1
       console.log("3");
       resolve();
     })
-      .then(() => {
+      .then(() => { // then pA1-1
         console.log("4");
       })
-      .then(() => {
+      .then(() => { // then pA1-2
         console.log("5");
       });
   })
-  .then(() => {
+  .then(() => { // then pA-3
     console.log("6");
   });
 
-new Promise((resolve, reject) => {
+new Promise((resolve, reject) => { // pB
   console.log("7");
   resolve();
-}).then(() => {
+}).then(() => { // then pB-1
   console.log("8");
 });
 ```
@@ -504,6 +596,7 @@ fullfilled then5 入队列
 
 ```js
 new Promise((resolve) => {
+  // p1
   setTimeout(() => {
     console.log(6);
     new Promise((resolve) => {
@@ -515,32 +608,43 @@ new Promise((resolve) => {
   resolve();
 })
   .then(() => {
+    // then1
     new Promise((resolve) => {
+      // p2
       resolve();
     })
       .then(() => {
+        // then 1 - 1
         console.log(1);
       })
       .then(() => {
+        // then 1 - 2
         console.log(2);
       });
   })
   .then(() => {
+    // then 2
     new Promise((resolve) => {
+      // p3
       resolve();
     })
       .then(() => {
+        // then 2 - 1
         new Promise((resolve) => {
+          // p4
           resolve();
         }).then(() => {
+          // then 2 - 1 - 1
           console.log(4);
         });
       })
       .then(() => {
+        // then 2 - 1 - 2
         console.log(5);
       });
   })
   .then(() => {
+    // then 3
     console.log(3);
   });
 
@@ -550,24 +654,24 @@ new Promise((resolve) => {
 
 ```js
 new Promise((resolve, reject) => {
-  console.log("1");
+  console.log("1"); // p1
   resolve();
 })
-  .then(() => {
+  .then(() => { // then 1
     console.log("2");
 
-    new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => { // p2
       console.log("3");
       resolve();
     })
-      .then(() => {
+      .then(() => { // then 2
         console.log("4");
       })
-      .then(() => {
+      .then(() => { // then 3
         console.log("5");
       });
   })
-  .then(() => {
+  .then(() => { // then 4
     console.log("6");
   });
 
@@ -576,70 +680,144 @@ new Promise((resolve, reject) => {
 ## 6. 
 
 ```js
-new Promise((resolve) => {
+new Promise((resolve) => { // p1
   resolve();
 })
-  .then(
-    // () => {
-    //   return new Promise((r) => {
-    //     console.log("1-1");
-    //     // r();
-    //   }).then(() => {
-    //     console.log("1-1 p1");
-    //   });
-    // }
+  .then( // then 1
     () => {
       console.log("1");
     }
   )
-  .then(() => {
+  .then(() => {  // then 2
     console.log("2");
   })
-  .then(() => {
+  .then(() => { // then 3
     console.log("3");
   });
 
-new Promise((resolve) => {
+new Promise((resolve) => { // p2
   resolve(2);
 })
-  .then(() => {
+  .then(() => { // then 4
     console.log("4");
   })
-  .then(() => {
+  .then(() => { // then 5
     console.log("5");
   })
-  .then(() => {
+  .then(() => { // then 6
     console.log("6");
   });
 ```
 
+
+
+```js
+new Promise((resolve) => { // p1
+  resolve();
+})
+  .then( // then1
+    () => {
+      return new Promise((r) => { // p1-1
+        console.log("A");
+        r();
+      }).then(() => { // then1-1
+        console.log("B");
+      })
+      .then(() => { // then1-2
+        console.log("C");
+      });
+    }
+  )
+  .then(() => {  // then2
+    console.log("2");
+  })
+  .then(() => { // then3
+    console.log("3");
+  });
+
+new Promise((resolve) => { // p2
+  resolve(2);
+})
+  .then(() => { // then4
+    console.log("4");
+  })
+  .then(() => { // then5
+    console.log("5");
+  })
+  .then(() => { // then6
+    console.log("6");
+  });
+```
+
+1. `.then` 回调如果**返回 Promise**，则后续的 `.then` 会等待这个 Promise 解决
+
+2. 微任务队列按**先进先出**顺序执行
+
+3. 不同 Promise 链的微任务**交替执行**
+
+4. `then1-1` 执行完后不会立即触发 `then2` 入队。then1 返回的 Promise 需要等待整个 Promise 链解决，而不仅仅是 `then1-1` 执行完。
+
+5. 当一个 Promise 被 resolve 时，**它关联的 .then 回调是作为微任务加入队列的**。
+   同样，**一个 .then 回调执行完后，它返回的 Promise 被 resolve，这个 resolve 操作本身也是一个微任务**。
+
+   所以 `then1-1` 执行完后，不能立即让 `then2` 入队，而是要先加入一个"resolve 操作"的微任务，这个微任务执行后才触发 `then2` 入队。
+
+```js
+队列：[then1-1, then5]
+执行 then1-1: 输出 "1-1 p1"，然后产生一个微任务"resolve P_then1-1"
+队列变为：[then5, 微任务R]  // R 表示 resolve P_then1-1 的微任务
+
+执行 then5: 输出 "5"，then6入队
+队列变为：[微任务R, then6]
+
+执行 微任务R: 触发 then2 入队
+队列变为：[then6, then2]
+
+执行 then6: 输出 "6"
+队列变为：[then2]
+
+执行 then2: 输出 "2"，then3入队
+队列变为：[then3]
+
+执行 then3: 输出 "3"
+```
+
+// image
+
 ## 7.
 
 ```js
-const first = () => (new Promise((resolve, reject) => {
+const first = () =>
+  new Promise((resolve, reject) => { // p1
     console.log(3);
-    let p = new Promise((resolve, reject) => {
-        console.log(7);
-        setTimeout(() => {
-            console.log(5);
-            resolve(6);
-        }, 0)
-        resolve(1);
+    let p = new Promise((resolve, reject) => { // p2
+      console.log(7);
+      setTimeout(() => {
+        console.log(5);
+        resolve(6);
+      }, 0);
+      resolve(1);
     });
     resolve(2);
-    p.then((arg) => {
-        console.log(arg);
+    p.then((arg) => { // then 2
+      console.log(arg);
     });
+  });
 
-}));
-
-first().then((arg) => {
-    console.log(arg);
+first().then((arg) => { // then1
+  console.log(arg);
 });
+
 console.log(4);
+
 ```
 
 ## 8.
+
+1. Promise 构造函数只执行一次
+
+2. `promise.then(fn)` 只有在 Promise 已经确定状态时，才会把 `fn` 放进微任务队列；
+   如果 Promise 还是 `pending`，就只能“订阅”，没法入队。
 
 ```js
 const promise1 = new Promise((resolve, reject) => {
@@ -647,17 +825,32 @@ const promise1 = new Promise((resolve, reject) => {
     resolve('success')
   }, 1000)
 })
-const promise2 = promise1.then(() => {
+
+const promise2 = promise1.then(() => { // p2 then
   throw new Error('error!!!')
 })
 
-console.log('promise1', promise1)
-console.log('promise2', promise2)
+console.log('promise1', promise1) // p1
+console.log('promise2', promise2) // p2
 
-setTimeout(() => {
+setTimeout(() => { // func1
   console.log('promise1', promise1)
   console.log('promise2', promise2)
 }, 2000)
+```
+
+```js
+时间 0s：
+  - p1: pending, p2: pending
+  - 输出：promise1 pending, promise2 pending
+
+时间 1s：
+  - p1 resolve → fulfilled
+  - then 回调进入微任务队列
+  - 执行 then 回调 → 抛出错误 → p2 rejected
+
+时间 2s：
+  - 输出：promise1 fulfilled, promise2 rejected
 ```
 
 ## 9.
@@ -685,16 +878,16 @@ promise
 promise 可以链式调用。提起链式调用我们通常会想到通过 return this 实现，不过 Promise 并不是这样实现的。promise 每次调用 .then 或者 .catch 都会返回一个新的 promise，从而实现了链式调用。
 
 ```js
-Promise.resolve(1)
-  .then((res) => {
-    console.log(res)
-    return 2
+Promise.resolve(1)            // 创建已fulfilled的Promise，值为1
+  .then((res) => {            // then1
+    console.log(res)          // 输出: 1
+    return 2                  // 返回2
   })
-  .catch((err) => {
+  .catch((err) => {           // catch1（不会执行）
     return 3
   })
-  .then((res) => {
-    console.log(res)
+  .then((res) => {            // then2
+    console.log(res)          // 输出: 2
   })
 ```
 
@@ -769,52 +962,57 @@ return Promise.reject(new Error('error!!!'))
 throw new Error('error!!!')
 ```
 
-因为返回任意一个非 promise 的值都会被包裹成 promise 对象，即 return new Error('error!!!') 等价于 return Promise.resolve(new Error('error!!!'))。
+因为返回任意一个非 promise 的值都会被包裹成 promise 对象，即 `return new Error('error!!!')` 等价于` return Promise.resolve(new Error('error!!!'))`。
 
 ## 13.
 
 ```js
 Promise.resolve()
-  .then(function success1 (res) {
-    throw new Error('error')
-  }, function fail1 (e) {
-    console.error('fail1: ', e)
-  })
-  .then(function success2 (res) {
-  }, function fail2 (e) {
-    console.error('fail2: ', e)
-  })v
+  .then(
+    function success1(res) {
+      throw new Error("error");
+    },
+    function fail1(e) {
+      console.error("fail1: ", e); // fail1 只捕获前一个 Promise 的 rejection，不捕获 success1 函数内部抛出的错误
+    }
+  )
+  .then(
+    function success2(res) {},
+    function fail2(e) {
+      console.error("fail2: ", e);
+    }
+  );
+
 ```
 
-解析：.then 可以接收两个参数，第一个是处理成功的函数，第二个是处理错误的函数。.catch 是 .then 第二个参数的简便写法，但是它们用法上有一点需要注意：.then 的第二个处理错误的函数捕获不了第一个处理成功的函数抛出的错误，而后续的 .catch 可以捕获之前的错误。当然以下代码也可以：
+解析：`.then`可以接收两个参数，第一个是处理成功的函数，第二个是处理错误的函数。`.catch` 是 `.then` 第二个参数的简便写法，但是它们用法上有一点需要注意：`.then` 的第二个处理错误的函数捕获不了第一个处理成功的函数抛出的错误，而后续的 `.catch `可以捕获之前的错误。当然以下代码也可以：
 
 ```js
 Promise.resolve()
-  .then(function success1 (res) {
-    throw new Error('error')
-  }, function fail1 (e) {
-    console.error('fail1: ', e)
+  .then(function success1(res) {
+    throw new Error("error");
   })
-  .then(function success2 (res) {
-  }, function fail2 (e) {
-    console.error('fail2: ', e)
-  })
+  .then(
+    null,  // 对应原代码的 success2（不执行）
+    function fail2(e) {  // 对应原代码的 fail2
+      console.error("fail2: ", e);
+    }
+  );
 ```
 
 ## 14. 
 
 ```js
 process.nextTick(() => {
-  console.log('nextTick')
-})
-Promise.resolve()
-  .then(() => {
-    console.log('then')
-  })
+  console.log("nextTick");
+});
+Promise.resolve().then(() => {
+  console.log("then");
+});
 setImmediate(() => {
-  console.log('setImmediate')
-})
-console.log('end')
+  console.log("setImmediate");
+});
+console.log("end");
 ```
 
 process.nextTick 和 promise.then 都属于 microtask，而 setImmediate 属于 macrotask，在事件循环的 check 阶段执行。事件循环的每个阶段（macrotask）之间都会执行 microtask，事件循环的开始会先执行一次 microtask。
@@ -823,86 +1021,75 @@ process.nextTick 和 promise.then 都属于 microtask，而 setImmediate 属于 
 
 ----
 
-### `then` 返回 Promise 会产生 **PromiseResolveThenableJob**？？？？？？？？
-
-- **这个 Job 会立刻被插入当前微任务队列**，不是排在微任务队列尾，而是 **当前正在执行的微任务之后立即执行**
-- 所以 A2 的注册微任务 **会在 B3 执行后立即执行，先于 B4 注册**
-
-这就是我的问题了，为什么A2会插队
+`then` 返回 Promise 会产生 **PromiseResolveThenableJob
 
 ```js
-// A 链
-Promise.resolve().then(() => {          // A1
-  console.log(1);
-  return Promise.resolve(2);            // 返回一个已 fulfilled 的 Promise
-}).then((res) => {                      // A2
-  console.log(res);
-}).then(() => {                         // A3
-  console.log(3);
-});
+Promise.resolve() // p1
+  .then(() => {
+    // A1
+    console.log(1);
+    return Promise.resolve(2); // p-a1
+  })
+  .then((res) => {
+    // A2
+    console.log(res);
+  })
+  .then(() => {
+    // A3
+    console.log(3);
+  });
 
-// B 链
-Promise.resolve().then(() => {          // B1
-  console.log(10);
-}).then(() => {                         // B2
-  console.log(20);
-}).then(() => {                         // B3
-  console.log(30);
-}).then(() => {                         // B4
-  console.log(40);
-});
+Promise.resolve() // p2
+  .then(() => {
+    // B1
+    console.log(10);
+  })
+  .then(() => {
+    // B2
+    console.log(20);
+  })
+  .then(() => {
+    // B3
+    console.log(30);
+  })
+  .then(() => {
+    // B4
+    console.log(40);
+  });
 
 ```
-
-
 
 -------
 
 ## 16.
 
-当执行 then 方法时，如果前面的 promise 已经是 resolved 状态，则直接将回调放入微任务队列中
-
-如果 then 中的回调返回了一个 promise，那么 then 返回的 promise 会等待这个 promise 被 resolve 后再 resolve。
-
 ```js
 new Promise((resolve, reject) => {
-  console.log("1");           // P1 executor
+  console.log("1"); // P1
   resolve();
 })
-  .then(() => {               // P1 then1
-    console.log("2");         
-    new Promise((resolve, reject) => {  // P2 executor
-      console.log("3");       
+  .then(() => {
+    // P1 - 1
+    console.log("2");
+    new Promise((resolve, reject) => {
+      // P2
+      console.log("3");
       resolve();
     })
-      .then(() => {           // P2 then1
+      .then(() => {
+        // P2 - 1
         console.log("4");
       })
-      .then(() => {           // P2 then2
+      .then(() => {
+        // P2 - 2
         console.log("5");
       });
   })
-  .then(() => {               // P1 then2
+  .then(() => {
+    // P1 - 2
     console.log("6");
   });
-
 ```
-
-promise 的 then/catch 方法执行后会也返回一个 promise
-
-当执行 then 方法时，如果前面的 promise 已经是 resolved 状态，则直接将回调放入微任务队列中
-
-then 方法是同步执行的，回调才是异步的
-
-回调事件根据 promise 状态不同，处理也不同：
-
-4.1 pending : 回调会储存在 promise 内部，既不会执行，也不放到微任务中
-
-4.2 resolve : 会遍历之前通过 then 给这个 promise 注册的所有回调，将它们依次放入微任务队列中
-
-then 负责注册回调，不会触发回调，也不会将它推入微任务队列中去，是 resolve 负责将回调推入微任务队列，由事件循环取出并执行
-
-对于 then 方法返回的 promise 它是没有 resolve 函数的，取而代之只要 then 中回调的代码执行完毕并**获得同步返回值**，这个 then 返回的 promise 就算被 resolve。`同步返回值`的意思换句话说，如果 then 中的回调返回了一个 promise，那么 then 返回的 promise 会等待这个 promise 被 resolve 后再 resolve。
 
 ## 17. 
 
@@ -953,305 +1140,107 @@ new Promise(function(resolve, reject) {
 ## 18.
 
 ```js
-// P1
-new Promise(resolve => {
-  console.log(1)
-  resolve()
-}).then(() => {
-  console.log(2)
-  // P2
-  new Promise(resolve => {
-    console.log(3)
-    resolve()
-  }).then(() => {
-    console.log(4)
-  }).then(() => {
-    console.log(5)
+new Promise((resolve) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    new Promise((resolve) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => { // then 2
+        console.log(4);
+      })
+      .then(() => { // then 3
+        console.log(5);
+      });
   })
-}).then(() => {
-    console.log(6)
-  })
-// 1
-// 2
-// 3
-// 4
-// 注意：此时 P1 的第一个 then - 2 就算是执行完毕了，下面会执行 P1 的第二个 then
-// 6
-// 5
+  .then(() => { // then 4
+    console.log(6);
+  });
+
 ```
 
 ## 19. 
 
-对于 then 方法返回的 promise 它是没有 resolve 函数的，取而代之只要 then 中回调的代码执行完毕并**获得同步返回值**，这个 then 返回的 promise 就算被 resolve。`同步返回值`的意思换句话说，如果 then 中的回调返回了一个 promise，那么 then 返回的 promise 会等待这个 promise 被 resolve 后再 resolve。
+因为 `then1` `return`了一个 Promise（p2 的整个链）。`then6` 要等待这个` Promise `解决后才能执行。
 
-在第一个 `then` 里 `return` 了一个 `new Promise` ，最重要的是，内部的四个 `then` 是一起被返回的。外层代码下一个 `then` 必须等到 `return` 代码执行完成，**Promise 状态变更后**， 后面的 `then` 才能执行。`return` 未完成，第一个 `then` 就未完成，外部第二个 `then` 就要等着。
+因为这是一个**单链**，没有多个独立的 Promise 链竞争。所有的 .then 都依赖于前一个。
 
 ```js
-// P1
-new Promise(resolve => {
-  console.log(1)
-  resolve()
-}).then(() => {
-  console.log(2)
-  // P2 , 和上面对比多了一个return
-  return new Promise(resolve => {
-    console.log(3)
-    resolve()
-  }).then(() => {
-    console.log(4)
-  }).then(() => {
-    console.log(5)
-  }).then(() => {
-    console.log(7)
-  }).then(() => {
-    console.log(8)
+new Promise((resolve) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    return new Promise((resolve) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => { // then 2
+        console.log(4);
+      })
+      .then(() => {  // then 3
+        console.log(5);
+      })
+      .then(() => {  // then 4
+        console.log(7);
+      })
+      .then(() => {  // then 5
+        console.log(8);
+      });
   })
-}).then(() => {
-    console.log(6)
+  .then(() => { // then 6
+    console.log(6);
+  });
+
+```
+
+```js
+new Promise((resolve) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    new Promise((resolve) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => { // then 2
+        console.log(4);
+      })
+      .then(() => {  // then 3
+        console.log(5);
+      })
+      .then(() => {  // then 4
+        console.log(7);
+      })
+      .then(() => {  // then 5
+        console.log(8);
+      });
   })
-// 1
-// 2
-// 3
-// 4
-// 注意：这里可以看到，跟上个例子不用的地方就在于，这里用了 return ，所以 P1 的第一个 then 执行完毕得等待 P2 完整执行完才算是执行完，才能 return 一个同步返回值回去
-// 所以这里的结果跟上个例子不一样了
-// 5
-// 7
-// 8
-// 6
+  .then(() => { // then 6
+    console.log(6);
+  });
+
 ```
 
 ## 20.
 
 ```js
-new Promise(resolve => {
-  console.log(1)
-  resolve()
-}).then(async () => {
-  console.log(2)
-  // P2
-  // 也等同于 return await P2
-  await new Promise(resolve => {
-    console.log(3)
-    resolve()
-  }).then(() => {
-    console.log(4)
-  }).then(() => {
-    console.log(5)
-  })
-}).then(() => {
-    console.log(6)
-  })
-// 1
-// 2
-// await 表达式会暂停整个 async 函数的执行进程并出让其控制权，只有当其等待的基于 promise 的异步操作被兑现或被拒绝之后才会恢复进程。promise 的解决值会被当作该 await 表达式的返回值。所以 P2 会被完整执行完毕后，当做 await 表达式的返回值，如果 await 后没有其他的代码的话（如果有，将会继续执行），不管是否 return ，此时都相当于执行完同步代码了，也就是 P1 的 then 执行完毕了
-// 3
-// 4
-// 5
-// 6
-```
-
-## 21. 
-
-```js
-// 简称 p1
-new Promise(resolve => {
-  console.log(1);
-  resolve();
-}) // no async
-.then(() => {
-  console.log(2)
-  // 简称 p2
-  new Promise(resolve => {
-    console.log(3);
-    resolve();
-  })
-  .then(() => console.log(4))
-  .then(() => console.log(5))
-  .then(() => console.log(6))
-})
-.then(() => console.log(7))
-.then(() => console.log(8))
-// 1 2 3 4 7 5 8 6
-```
-
-```js
-// 简称 p1
-new Promise(resolve => {
-  console.log(1);
-  resolve();
-}) // async 
-.then(async () => {
-  console.log(2)
-  // 简称 p2
-  new Promise(resolve => {
-    console.log(3);
-    resolve();
-  })
-  .then(() => console.log(4))
-  .then(() => console.log(5))
-  .then(() => console.log(6))
-})
-.then(() => console.log(7))
-.then(() => console.log(8))
-// 1 2 3 4 5 6 7 8
-```
-
-## 22.
-
-```js
-new Promise(resolve => {
-  resolve()
-}).then(() => {
-  return new Promise(r => {
-    console.log('promise');
-    r(5)
-  })
-}).then(r => {
-  console.log(r)
-})
-
-new Promise(resolve => {
-  resolve(2);
-}).then(() => {
-  console.log('1');
-}).then(() => {
-  console.log('2');
-}).then(() => {
-  console.log('3');
-}).then(() => {
-  console.log('4');
-})
-
-// promise 1 2 3 5 4
-```
-
-## 23.
-
-```js
-new Promise(resolve => {
-  resolve()
-}).then(() => {
-  return new Promise(r => {
-    console.log('1-1');
-    r()
-  }).then(() => {
-    console.log('1-1 p1')
-  })
-}).then(() => {
-  console.log('1-2')
-})
-
-new Promise(resolve => {
-  resolve(2);
-}).then(() => {
-  console.log('2-1');
-}).then(() => {
-  console.log('2-2');
-}).then(() => {
-  console.log('2-3');
-})
-```
-
-## 24. 
-
-**外部的第二个 then 的注册，需要等待 外部的第一个 then 的同步代码执行完成。**  当执行内部的 new Promise 的时候，然后碰到 resolve，resolve 执行完成，代表此时的该 Promise 状态已经扭转，之后开始内部的第一个 .then 的微任务的注册，此时同步执行完成。
-
-```js
-new Promise((resolve, reject) => {
-  console.log("外部promise");
-  resolve();
-})
-  .then(() => {
-    console.log("外部第一个then");
-    new Promise((resolve, reject) => {
-      console.log("内部promise");
-      resolve();
-    })
-      .then(() => {
-        console.log("内部第一个then");
-      })
-      .then(() => {
-        console.log("内部第二个then");
-      });
-  })
-  .then(() => {
-    console.log("外部第二个then");
-  });
-```
-
-## 25. 
-
-```js
-new Promise((resolve, reject) => {
-  console.log("外部promise");
-  resolve();
-})
-  .then(() => {
-    console.log("外部第一个then");
-  // new Promise(executor) 中的 executor 会在 Promise 创建时同步执行，它不是函数声明，而是被 Promise 构造函数立即调用的执行器函数。真正异步的是 .then 注册的回调。
-    let p = new Promise((resolve, reject) => {
-      console.log("内部promise");
-      resolve();
-    })
-    p.then(() => {
-        console.log("内部第一个then");
-      })
-    p.then(() => {
-        console.log("内部第二个then");
-      });
-  })
-  .then(() => {
-    console.log("外部第二个then");
-  });
-```
-
-## 26.
-
-因为 **O2 的注册条件不是“有没有 Promise resolve”，而是“当前 then 是否执行完并返回了一个值”**。
-
-JavaScript 中，变量声明 / 赋值 / 方法调用本身都是同步执行的；
-
-变量定义的方式，注册都是同步的 比如这里的 p.then 和 var p = new Promise 都是同步执行的。
-
-```js
-new Promise((resolve, reject) => {
-  console.log(1);      // S1
-  resolve();
-})
-.then(() => {                      // O1
-  console.log(2);   // M1
-
-  let p = new Promise((resolve, reject) => {
-    console.log(3);    // S2
-    resolve();
-  });
-
-  p.then(() => {                   // I1
-    console.log(4);
-  });
-
-  p.then(() => {                   // I2
-    console.log(5);
-  });
-})
-.then(() => {                      // O2
-  console.log(6);
-});
-
-// 1 2 3 4 5 6
-```
-
-## 27.
-
-```js
-new Promise((resolve, reject) => {
+new Promise((resolve) => {
   console.log(1);
   resolve();
 })
-  .then(() => {
+  .then(async () => {
     console.log(2);
-    new Promise((resolve, reject) => {
+    // P2
+    // 也等同于 return await P2
+    await new Promise((resolve) => {
       console.log(3);
       resolve();
     })
@@ -1261,25 +1250,257 @@ new Promise((resolve, reject) => {
       .then(() => {
         console.log(5);
       });
-    return new Promise((resolve, reject) => {
+  })
+  .then(() => {
+    console.log(6);
+  });
+
+```
+
+## 21. 
+
+```js
+new Promise((resolve) => {
+  // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => {
+    // then 1
+    console.log(2);
+    new Promise((resolve) => {
+      // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => console.log(4)) // then 2
+      .then(() => console.log(5)) // then 3
+      .then(() => console.log(6)); // then 4
+  })
+  .then(() => console.log(7)) // then 5
+  .then(() => console.log(8)); // then 6
+
+```
+
+```js
+new Promise((resolve) => { // p1
+  console.log(1);
+  resolve();
+}) // async
+  .then(async () => { // then 1
+    console.log(2);
+    new Promise((resolve) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => console.log(4))  // then 2
+      .then(() => console.log(5))  // then 3
+      .then(() => console.log(6));  // then 4
+  })
+  .then(() => console.log(7))  // then 5
+  .then(() => console.log(8));  // then 6
+```
+
+## 22.
+
+这里有thenablejob
+
+**"thenable job"** 指的是当 Promise 解析（resolve）一个 thenable 对象时产生的额外微任务。在 Promise A+ 规范中，这称为 **"PromiseResolveThenableJob"**。
+
+在 Promise A+ 规范中，当一个 Promise 解决另一个 Promise 时（Promise resolution），需要有一个额外的微任务来处理这个 "解包"（unwrapping）过程。
+
+**关键点**：当 then1 返回一个 **原始 Promise 对象** 时，根据 Promise 规范，需要 **PromiseResolveThenableJob** 来处理！
+
+在第23题，返回的是 `.then()` 的结果，**不是原始 Promise**，所以没有额外的 thenable job。
+
+```js
+new Promise((resolve) => { // p1
+  resolve();
+})
+  .then(() => { // then 1
+    return new Promise((r) => { // p2
+      console.log("promise");
+      r(5);
+    });
+  })
+  .then((r) => {  // then 2
+    console.log(r);
+  });
+
+new Promise((resolve) => { // p3
+  resolve(2);
+})
+  .then(() => {  // then 3
+    console.log("1");
+  })
+  .then(() => {  // then 4
+    console.log("2");
+  })
+  .then(() => {  // then 5
+    console.log("3");
+  })
+  .then(() => {  // then 6
+    console.log("4");
+  });
+
+```
+
+```js
+new Promise((resolve) => { // p1
+  resolve();
+})
+  .then(() => { // then 1
+    new Promise((r) => { // p2
+      console.log("promise");
+      r(5);
+    });
+  })
+  .then((r) => {  // then 2
+    console.log(r);
+  });
+
+new Promise((resolve) => { // p3
+  resolve(2);
+})
+  .then(() => {  // then 3
+    console.log("1");
+  })
+  .then(() => {  // then 4
+    console.log("2");
+  })
+  .then(() => {  // then 5
+    console.log("3");
+  })
+  .then(() => {  // then 6
+    console.log("4");
+  });
+
+```
+
+## 23.
+
+```js
+new Promise((resolve) => { // p1
+  resolve();
+})
+  .then(() => { // then 1
+  	// 返回的是 `.then()` 的结果，**不是原始 Promise**，所以没有额外的 thenable job。直接按正常的队列流程进栈就好
+    return new Promise((r) => { // p2 
+      console.log("1");
+      r();
+    }).then(() => { // then 2
+      console.log("2");
+    });
+  })
+  .then(() => { // then 3
+    console.log("3");
+  });
+
+new Promise((resolve) => { // p3
+  resolve(2);
+})
+  .then(() => { // then 4
+    console.log("4");
+  })
+  .then(() => { // then 5
+    console.log("5");
+  })
+  .then(() => { // then 6
+    console.log("6");
+  });
+
+```
+
+## 24. 
+
+```js
+new Promise((resolve, reject) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    new Promise((resolve, reject) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => { // then 2
+        console.log(4);
+      })
+      .then(() => { // then 4
+        console.log(5);
+      });
+  })
+  .then(() => { // then 5
+    console.log(6);
+  });
+
+```
+
+## 25. 
+
+```js
+new Promise((resolve, reject) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    let p = new Promise((resolve, reject) => { // p2
+      console.log(3);
+      resolve();
+    });
+    p.then(() => { // then 2
+      console.log(4);
+    });
+    p.then(() => { // then 3
+      console.log(5);
+    });
+  })
+  .then(() => { // then 5
+    console.log(6);
+  });
+```
+
+## 26.
+
+```js
+new Promise((resolve, reject) => { // p1
+  console.log(1);
+  resolve();
+})
+  .then(() => { // then 1
+    console.log(2);
+    new Promise((resolve, reject) => { // p2
+      console.log(3);
+      resolve();
+    })
+      .then(() => { // then 2
+        console.log(4);
+      })
+      .then(() => { // then 3
+        console.log(5);
+      });
+    return new Promise((resolve, reject) => { // p3
       console.log(6);
       resolve();
     })
-      .then(() => {
+      .then(() => { // then 4
         console.log(7);
       })
-      .then(() => {
+      .then(() => { // then 5
         console.log(8);
       });
   })
-  .then(() => {
+  .then(() => { // then 6
     console.log(9);
   });
 
-// 1 2 3 6 4 7 5 8 9
 ```
 
-## 28.
+## 27.
+
+Thenablejob
 
 如果有多个`fulfilled`的`Promise`实例，同时执行`then`链式调用，`then`会交替执行。
 
@@ -1292,68 +1513,62 @@ new Promise((resolve, reject) => {
 
 ```js
 // then 中无 返回 Promise 的情况
-Promise.resolve().then(() => {
-    console.log(0);     // 第1步
-}).then(() => {
-    console.log(2);     // 第3步
-}).then(() => {
-    console.log(4);     // 第5步
-}).then(() => {
-    console.log(6);     // 第7步
-})
+Promise.resolve()
+  .then(() => {
+    console.log(0);
+  })
+  .then(() => {
+    console.log(2);
+  })
+  .then(() => {
+    console.log(4);
+  })
+  .then(() => {
+    console.log(6);
+  });
 
-Promise.resolve().then(() => {
-    console.log(1);     // 第2步
-}).then(() => {
-    console.log(3);     // 第4步
-}).then(() => {
-    console.log(5);     // 第6步
-}).then(() => {
-    console.log(7);     // 第8步
-})
-
-// 输出
-// 0
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 7
+Promise.resolve()
+  .then(() => {
+    console.log(1);
+  })
+  .then(() => {
+    console.log(3);
+  })
+  .then(() => {
+    console.log(5);
+  })
+  .then(() => {
+    console.log(7);
+  });
 ```
 
 ```js
-Promise.resolve().then(() => {
-    console.log(0);     // 第1步
+Promise.resolve() // p1
+  .then(() => { // then 1
+    console.log(0);
+    return Promise.resolve(4); // p2
+  })
+  .then((res) => { // then 2
+    console.log(res);
+  })
+  .then(() => { // then 3
+    console.log(6);
+  })
+  .then(() => { // then 4
+    console.log(7);
+  });
 
-    // 等待两个 then 执行完成
-    return Promise.resolve(4)
-}).then((res) => {
-    console.log(res);     // 第5步
-}).then(() => {
-    console.log(6);     // 第7步
-}).then(() => {
-    console.log(7);     // 第8步
-})
-
-Promise.resolve().then(() => {
-    console.log(1);     // 第2步
-}).then(() => {
-    console.log(2);     // 第3步
-}).then(() => {
-    console.log(3);     // 第4步
-}).then(() => {
-    console.log(5);     // 第6步
-})
-
-// 输出
-// 0
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 7
+Promise.resolve() // p3
+  .then(() => { // then 5
+    console.log(1);
+  })
+  .then(() => { // then 6
+    console.log(2);
+  })
+  .then(() => { // then 7
+    console.log(3);
+  })
+  .then(() => { // then 8
+    console.log(5);
+  });
 ```
