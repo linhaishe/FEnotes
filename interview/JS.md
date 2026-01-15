@@ -2615,6 +2615,7 @@ if (!a) {
      // 第二个参数含义不同（关键）
      str.slice(1, 4);    // 1 → 4 // "bcd"
      str.substring(1,4);// 1 → 4 // "bcd"
+     str.substring(0,4);// 1 → 4 // "abcd" ,不带后面的参数
      str.substr(1,4);   // 从 1 开始取 4 个 // "bcde"
      
      
