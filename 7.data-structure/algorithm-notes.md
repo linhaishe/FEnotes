@@ -1,10 +1,10 @@
 # 双指针 / 数组
 
-## 快慢指针
-
 ## 左右指针
 
-## Sliding Window Algorithm
+## 快慢指针
+
+### Sliding Window Algorithm
 
 滑动窗口
 
