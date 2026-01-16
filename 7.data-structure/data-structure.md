@@ -1,5 +1,15 @@
 # Data Structure
 
+🏗️🏗️🏗️🏗️
+
+💻 [all source code:](https://stackblitz.com/edit/vitejs-vite-iznntc?file=data-structure%2Fstack%2Findex.js)
+
+📺 [study video:](https://www.bilibili.com/video/BV1x7411L7Q7?p=13&vd_source=5d5cb2062ab059c137f6aa8f9809b93c)
+
+📖 Books material: [Learning JavaScript Data Structures and Algorithms Third Edition by Loiane Groner](https://book.douban.com/subject/33441631//)
+
+🏗️🏗️🏗️🏗️
+
 https://miro.com/app/board/uXjVPEXED68=/
 
 <img src="https://s2.loli.net/2024/08/19/ERPlonh46yDUFNO.jpg" alt="数据结构" style="zoom:50%;" />
@@ -15,10 +25,6 @@ https://miro.com/app/board/uXjVPEXED68=/
 > An [algorithm](https://www.techtarget.com/searchenterpriseai/definition/clustering-in-machine-learning) is a procedure used for solving a problem or performing a computation. Algorithms act as an exact list of instructions that conduct specified actions step by step in either hardware- or software-based routines.
 >
 > 解决问题的办法/步骤逻辑。
-
-all source code in: https://stackblitz.com/edit/vitejs-vite-iznntc?file=data-structure%2Fstack%2Findex.js
-
-study video: https://www.bilibili.com/video/BV1x7411L7Q7?p=13&vd_source=5d5cb2062ab059c137f6aa8f9809b93c
 
 # 专有名词
 
@@ -41,8 +47,6 @@ map.get('key'); // O(1)
 
 arr.find(x => x === 30); // O(n)
 ```
-
-
 
 # 线性结构
 
