@@ -1,32 +1,8 @@
-- [一、TypeScript 是什么](#一typescript-是什么)
-  - [1.1 TypeScript 与 JavaScript 的区别](#11-typescript-与-javascript-的区别)
-  - [1.2 获取 TypeScript](#12-获取-typescript)
-- [二、TypeScript 基础类型](#二typescript-基础类型)
-    - [2.1 Boolean 类型](#21-boolean-类型)
-    - [2.2 Number 类型](#22-number-类型)
-    - [2.3 String 类型](#23-string-类型)
-    - [2.4 Array 类型](#24-array-类型)
-    - [2.5 Enum 类型](#25-enum-类型)
-    - [2.6 Any 类型](#26-any-类型)
-    - [2.7 Unknown 类型](#27-unknown-类型)
-    - [2.8 Tuple 类型](#28-tuple-类型)
-    - [2.9 Void 类型](#29-void-类型)
-    - [2.10 Null 和 Undefined 类型](#210-null-和-undefined-类型)
-    - [2.11 Never 类型](#211-never-类型)
-    - [2.12 字面量](#212-字面量)
-    - [2.13 object, function](#213-object-function)
-- [三、TypeScript 断言](#三typescript-断言)
-    - [3.1 “尖括号” 语法](#31-尖括号-语法)
-    - [3.2 as 语法](#32-as-语法)
-- [四、类型的别名](#四类型的别名)
-    - [&,|,type](#type)
+Refs: 
 
-
-ps:
-
-课程笔记：https://github.com/JasonkayZK/typescript_learn/tree/1-type
-
-笔记参考：https://segmentfault.com/a/1190000022876390#item-7
+1. https://github.com/JasonkayZK/typescript-learn/tree/main?tab=readme-ov-file
+2. https://segmentfault.com/a/1190000022876390#item-7
+3. https://github.com/type-challenges/type-challenges
 
 ## 一、TypeScript 是什么
 
