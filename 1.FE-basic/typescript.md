@@ -738,8 +738,6 @@ function byGun(gunName: string = "M416", gunNum: number = 1): void {
 byGun(undefined,30);
 ```
 
-
-
 ###### 函数 剩余参数
 
 `function add(形参1:类型,形参2:类型,...形参2:类型[]):void{console.log(a+b)}`
@@ -748,8 +746,6 @@ byGun(undefined,30);
 2. 剩余参数只能定义为数组
 3. 剩余参数只能定义在形参列表最后
 4. 形参没有传参默认就是undefined
-
-
 
 ```typescript
 /* 
@@ -776,8 +772,6 @@ function add(number1: number, number2: number, ...restofNum: number[]): void {
   console.log("res", resNum);
 }
 ```
-
-
 
 #### 2.14 类型推断
 
@@ -1007,7 +1001,7 @@ function isString(x: any): x is string {
 }
 ```
 
-## 六、联合类型和类型别名
+## 六、联合类型
 
 ### 5.1 联合类型
 
