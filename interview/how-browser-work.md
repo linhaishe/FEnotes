@@ -2141,3 +2141,24 @@ V8 为了降低 **Stop-The-World**，引入了多种优化：
 - 什么是事件代理/事件委托？应用场景？
 - 事件捕捉/事件冒泡/事件流 eventflow
 
+## 3. WeakMap 与垃圾回收有何关系
+
+WeakMap 的键是弱引用对象，当对象没有其他强引用时，垃圾回收会自动回收该对象及对应的键值对，这使得 WeakMap 非常适合存储临时对象的元数据。
+
+```js
+let wm = new WeakMap();
+let obj = { name: 'Alice' };
+wm.set(obj, 'data');
+
+// 此时 obj 还有强引用
+console.log(wm.has(obj)); // true
+
+obj = null; // 删除强引用
+// obj 可以被垃圾回收
+// WeakMap 中对应的键也会随 obj 被回收
+```
+
+普通 Map 中键是强引用，哪怕 obj 没有其他引用，Map 仍会持有它，不能被回收
+
+WeakMap 键是弱引用，垃圾回收可安全回收对象和对应键值
+

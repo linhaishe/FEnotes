@@ -826,11 +826,18 @@ https://vue3js.cn/interview/css/sass_less_stylus.html#%E4%BA%8C%E3%80%81%E6%9C%8
 
 # 一、JS
 
-
-
-## 七、异步编程 Promise
+## 异步编程 Promise
 
 ### 1. 异步编程的实现方式?
+
+常见方式：
+
+1. **回调函数（Callback）**
+2. **Promise**
+3. **Generator + yield**
+4. **async / await**
+5. **事件监听**
+6. **发布订阅模式**
 
 JavaScript中的异步机制可以分为以下几种：
 
@@ -840,6 +847,13 @@ JavaScript中的异步机制可以分为以下几种：
 - **async 函数**的方式，async 函数是 generator 和 promise 实现的一个自动执行的语法糖，它内部自带执行器，当函数内部执行到一个 await 语句的时候，如果语句返回一个 promise 对象，那么函数将会等待 promise 对象的状态变为 resolve 后再继续向下执行。因此可以将异步逻辑，转化为同步的顺序来书写，并且这个函数可以自动执行。
 
 ### 2. setTimeout、Promise、 Async/Await的区别
+
+| 对比     | setTimeout | Promise    | async/await            |
+| -------- | ---------- | ---------- | ---------------------- |
+| 类型     | 宏任务     | 微任务     | 微任务（基于 Promise） |
+| 可读性   | 差         | 一般       | 最好                   |
+| 错误捕获 | 困难       | then/catch | try/catch              |
+| 本质     | 定时器     | 状态机     | Promise 语法糖         |
 
 ### 3. 如何实现一个简单的 Promise
 
@@ -927,6 +941,8 @@ class myPromise {
 
 ### 3. 对Promise的理解
 
+> Promise 是**对异步操作的一种抽象，表示一个未来才会结束的任务及其结果**。特点是：状态不可逆，支持链式调用，解决回调地狱
+
 Promise是异步编程的一种解决方案，它是一个对象，可以获取异步操作的消息，他的出现大大改善了异步编程的困境，避免了地狱回调，它比传统的解决方案回调函数和事件更合理和更强大。
 
 所谓Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。
@@ -993,9 +1009,14 @@ testPromise(true).then(
 
 ### 5. Promise解决了什么问题
 
-解决了地狱回调的问题
+回调地狱，错误难以统一处理，异步流程难以维护
 
 ### 6. ==Promise. all和Promise.race的区别的使用场景==
+
+| 方法 | 行为           | 场景       |                                                              |
+| ---- | -------------- | ---------- | ------------------------------------------------------------ |
+| all  | 全部成功才成功 | 多请求依赖 | Promise.all接收到的数组顺序是一致的<br />Promise.all 只要有一个 Promise 失败，就会立刻失败，返回第一个失败的原因，其它结果会被忽略。 |
+| race | 谁快用谁       | 超时控制   | 里面哪个结果获得的快，就返回那个结果，不管结果本身是成功状态还是失败状态 |
 
 1. Promise.all
 
@@ -1013,6 +1034,16 @@ testPromise(true).then(
    `Promise.race([promise1,timeOutPromise(5000)]).then(res=>{})`
 
 ### 7. 对async/await的理解
+
+> async/await 是基于 Promise 的语法糖，让异步代码看起来像同步代码。
+
+> async/await 是 Generator + Promise + 自动执行器的语法糖。
+
+**核心流程：**
+
+- await 暂停执行
+- Promise resolve 后继续
+- 编译阶段转成 Generator
 
 async/await其实是 Generator 的语法糖，它能实现的效果都能用then链来实现，它是为优化then链而开发出来的。从字面上来看，async是“异步”的简写，await则为等待，所以很好理解async 用于申明一个 function 是异步的，而 await 用于等待一个异步方法执行完成。当然语法上强制规定await只能出现在asnyc函数中。
 
@@ -1032,6 +1063,8 @@ result.then((v) => {
 
 ### 8. await到底在等啥?
 
+> await 等的是**一个 Promise 的最终结果**。
+
 一般来说，都认为 await 是在等待一个 async 函数完成。不过按语法说明，await 等待的是一个表达式，这个表达式的计算结果是 Promise 对象或者其它值（换句话说，就是没有特殊限定）
 
 await 表达式的运算结果取决于它等的是什么。
@@ -1041,9 +1074,17 @@ await 表达式的运算结果取决于它等的是什么。
 
 ### 9. async/await的优势
 
+代码更直观，错误处理更自然，调试友好
+
 单一的 Promise 链并不能发现 async/await 的优势，但是，如果需要处理由多个 Promise 组成的 then 链的时候，优势就能体现出来了（很有意思，Promise 通过 then 链来解决多层回调的问题，现在又用 async/await 来进一步优化它）。
 
 ### 10. async/await对比Promise的优势
+
+| 对比点   | Promise | async/await |
+| -------- | ------- | ----------- |
+| 可读性   | 链式    | 同步风格    |
+| 错误处理 | catch   | try/catch   |
+| 条件分支 | 复杂    | 清晰        |
 
 - 代码读起来更加同步，Promise虽然摆脱了回调地狱，但是then的链式调⽤也会带来额外的阅读负担 
 - Promise传递中间值⾮常麻烦，⽽async/await⼏乎是同步的写法，⾮常优雅 
@@ -1051,12 +1092,28 @@ await 表达式的运算结果取决于它等的是什么。
 - 调试友好，Promise的调试很差，由于没有代码块，你不能在⼀个返回表达式的箭头函数中设置断点，如果你在⼀个.then代码块中使⽤调试器的步进(step-over)功能，调试器并不会进⼊后续的.then代码块，因为调试器只能跟踪同步代码的每⼀步。
 
 ### 11. async/await如何捕获异常
+
+```js
+try {
+  await fetchData();
+} catch (e) {
+  console.log(e);
+}
+```
+
 ### 12. ==并发与并行的区别?==
 
 - 并发是宏观概念，我分别有任务 A 和任务 B，在一段时间内通过任务间的切换完成了这两个任务，这种情况就可以称之为并发。
 - 并行是微观概念，假设 CPU 中存在两个核心，那么我就可以同时完成任务 A、B。同时完成多个任务的情况就可以称之为并行。
 
 ### 13. 什么是回调函数？回调函数有什么缺点？如何解决毁掉地狱的问题？
+
+👉 **把一个函数作为参数传给另一个函数，在特定时机被调用的函数**。
+
+**常见使用场景：**
+
+- 异步操作（定时器、网络请求、事件监听）
+- 高阶函数（`map / filter / forEach`）
 
 回调地狱的根本问题就是：
 
@@ -1066,6 +1123,13 @@ await 表达式的运算结果取决于它等的是什么。
 4. 不能直接 `return`
 
 ### 14. setTimeout、setInterval、requestAnimationFrame、requestIdleCallback 各有什么特点？
+
+| API                   | 特点             |
+| --------------------- | ---------------- |
+| setTimeout            | 宏任务，时间不准 |
+| setInterval           | 重复执行         |
+| requestAnimationFrame | 跟随刷新率       |
+| requestIdleCallback   | 浏览器空闲执行   |
 
 异步编程当然少不了定时器了，常见的定时器函数有 `setTimeout`、`setInterval`、`requestAnimationFrame`。最常用的是`setTimeout`，很多人认为 `setTimeout` 是延时多久，那就应该是多久后执行。
 
@@ -1141,6 +1205,11 @@ setInterval((timer) => {
 
 ### 15. ==如何实现 promise.map，限制 promise 并发数==
 
+核心思路：
+
+- 控制执行池
+- 执行完一个再补一个
+
 实现一个 promise.map，进行并发数控制，有以下测试用例
 
 ```js
@@ -1186,6 +1255,10 @@ function pMap(list, mapper, concurrency = Infinity) {
 
 ### 16. 如何实现一个 async/await
 
+本质：
+
+> **Generator + 自动执行器 + Promise**
+
 参考 `@bebel/runtime` 的实现代码如下，可在 [asyncToGenerator.js](https://cdn.jsdelivr.net/npm/@babel/runtime@7.13.9/helpers/esm/asyncToGenerator.js)查看源代码
 
 ```js
@@ -1228,7 +1301,25 @@ export default function _asyncToGenerator(fn) {
 ```
 
 ### 17. 如何使用 async/await 实现 Promise.all 的效果
+
+```js
+async function all(promises) {
+  const results = [];
+  for (let p of promises) {
+    results.push(await p);
+  }
+  return results;
+}
+```
+
 ### 18. ==Promise.allSettled() ，它是干什么的==
+
+> 等所有 Promise 都结束，不管成功还是失败。
+
+```js
+{ status: 'fulfilled', value }
+{ status: 'rejected', reason }
+```
 
 接收一个可迭代对象，其中每个成员都是`Promise`。在所有给定的`Promise`都已经`fulfilled`或`rejected`后返回一个`Promise`，并带有一个对象数组，每个对象表示对应的`Promise`结果 相较于`Promise.all`，后者会在任何一个`Promise`为`rejected`时立即结束。
 
@@ -1241,6 +1332,17 @@ export default function _asyncToGenerator(fn) {
 - `include`: 同源与跨域时都发送 `cookie`
 
 ### 20. 如何实现 Promise.race
+
+```js
+Promise.race = function(promises) {
+  return new Promise((resolve, reject) => {
+    promises.forEach(p => {
+      p.then(resolve, reject);
+    });
+  });
+};
+
+```
 
 ```js
 Promise.race = (promiseArray) => {
@@ -1279,12 +1381,26 @@ Promise.race = (promiseArray) => {
 
 ### 22. setTimeout为什么最小只能设置4ms，如何实现一个0ms的setTimeout?
 
+原因：
+
+- 浏览器性能限制 + HTML 标准
+
+0ms 替代方案：
+
+- Promise.then
+- MessageChannel
+
 不同浏览器的最低时延会不一致，比如 chrome 的最低时延是 1ms。而如果 timer 嵌套层级很多，那么最低时延是 4ms。具体嵌套层级的阈值不同浏览器也不一致，HTML Standard 当中是 >5，chrome 当中是 >=5。
 
 1. [为什么 setTimeout 有最小时延 4ms ?](https://juejin.cn/post/6846687590616137742)
 2. [如何实现一个 0ms 的 setTimeout?](https://zhuanlan.zhihu.com/p/379637806)
 
 ### 23. return promise 与 return await promise 有何区别
+
+| 写法           | 区别             |
+| -------------- | ---------------- |
+| return promise | 直接返回         |
+| return await   | 捕获异常后再返回 |
 
 最终返回得到的结果是相同的，但是有些顺序的变化。
 
@@ -1309,6 +1425,14 @@ p1().then((o) => console.log(o, "p1"));
 
 ### 24. 了解 promiseA+ 规范吗
 
+定义了：
+
+- Promise 状态
+- then 行为
+- 链式调用规则
+
+👉 JS Promise 实现标准。
+
 Promise/A+ 规范是一个定义了 JavaScript 中 Promise 对象的行为规范的标准。Promise 是一种用于异步编程的对象，它允许你通过回调函数处理异步操作的结果。Promise/A+ 规范定义了 Promise 对象的一组行为规则，例如它们如何被创建、解决、拒绝以及如何处理状态的变化。
 
 [原文](https://promisesaplus.com/)
@@ -1316,6 +1440,19 @@ Promise/A+ 规范是一个定义了 JavaScript 中 Promise 对象的行为规范
 [Promise/A+ 规范](https://tsejx.github.io/javascript-guidebook/standard-built-in-objects/control-abstraction-objects/promise-standard/)
 
 ### 25. ==ajax、 axios、 fetch的区别==
+
+**ajax** 本质上是基于 `XMLHttpRequest` 的原生请求方式，API 比较底层，用起来比较麻烦，比如要自己处理状态、序列化数据、错误等，现在一般很少直接手写了。
+
+**axios** 是对 ajax 的一层封装，基于 Promise，支持请求和响应拦截、自动转换 JSON、统一错误处理，还能取消请求，所以在实际项目中用得最多。
+
+**fetch** 是浏览器原生提供的 Promise API，写法更现代，但它默认不会帮你处理 HTTP 错误，也没有拦截器、超时控制这些能力，所以通常需要再封装一层才能用在项目里。
+
+| 对比      | ajax | axios   | fetch   |
+| --------- | ---- | ------- | ------- |
+| API       | XHR  | Promise | Promise |
+| 拦截器    | ❌    | ✅       | ❌       |
+| 兼容性    | 好   | 好      | 一般    |
+| 自动 JSON | ❌    | ✅       | ❌       |
 
 **（1）AJAX**
 
@@ -1630,14 +1767,6 @@ server {
 }
 ```
 
-### 30. 什么是 CSRF 攻击
-
-https://vue3js.cn/interview/JavaScript/security.html#%E4%B8%80%E3%80%81%E6%98%AF%E4%BB%80%E4%B9%88
-
-跨站请求伪造（英语：Cross-site request forgery），也被称为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF， 是一种挟制用户在当前已登录的 Web 应用程序上执行非本意的操作的攻击方法。跟跨网站脚本（XSS）相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。
-
-CSRF (Cross-site request forgery)，跨站请求伪造，又称为 `one-click attack`，顾名思义，通过恶意引导用户一次点击劫持 cookie 进行攻击。
-
 https://www.cnblogs.com/mysticbinary/p/12630011.html  **CSRF的几种防御方法的利弊分析**
 
 - [使用POST替代GET](https://www.cnblogs.com/mysticbinary/p/12630011.html#使用post替代get)
@@ -1659,75 +1788,252 @@ https://www.cnblogs.com/mysticbinary/p/12630011.html  **CSRF的几种防御方�
 4. [理解 CSRF(opens new window)](https://github.com/pillarjs/understanding-csrf/blob/master/README_zh.md)
 5. [Cross-Site Request Forgery Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 
-### 31. XSS攻击
+----------
 
+### 1. JavaScript 异步解决方案的发展历程主要有哪些阶段
 
-Cross-Site Scripting（跨站脚本攻击）简称 XSS，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。
+> JS 异步方案经历了从回调函数 → Promise → async/await 的演进过程。
 
-为了和 CSS 区分，这里把攻击的第一个字母改成了 X，于是叫做 XSS。
+### 2. Promise 了解多少?
 
-XSS 的本质是：恶意代码未经过滤，与网站正常的代码混在一起；浏览器无法分辨哪些脚本是可信的，导致恶意脚本被执行。
+**一句话结论：**
 
-而由于直接在用户的终端执行，恶意代码能够直接获取用户的信息，或者利用这些信息冒充用户向网站发起攻击者定义的请求。
+> Promise 是对异步操作的一种抽象，表示一个未来才会完成的任务及其结果。
 
-![image.png](http://tva1.sinaimg.cn/large/005NUwygly1h88e3nwdtdj30jf0b3jtj.jpg)
+**核心特性：**
 
-1. 异步编程的实现方式有哪些
-2. JavaScript 异步解决方案的发展历程主要有哪些阶段
-3. Promise 了解多少?
-4. Promise 的三种状态分别是什么，是怎么转换的，转换时机呢?
-5. Promise 是否可以取消?
-6. Promise 构造函数是同步执行还是异步执行?then 方法呢?
-7. Promise fnally 怎么实现的?
-8. Promise then 第二个参数和 Promise.catch 的区别是什么?
-9. 如何做 Promise 缓存?上一次调用函数的 Promise 没有返回。。。
-10. async/await 原理，手写 async 函数?
-11. async/await 函数到底要不要加 try catch?
-12. 在 forEach 中和 for 循环中调用异步函数的区别
+- 三种状态、不可逆 fulfilled pending rejected
+- 支持链式调用
+- 错误冒泡机制
+- 遵循 Promise A+ 规范
 
+### 3. Promise 的三种状态分别是什么，是怎么转换的，转换时机呢?
 
+Promise 有 pending、fulfilled、rejected 三种状态，且状态只能从 pending 转换一次。
 
-## 九、垃圾回收机制
+### 4. Promise 是否可以取消?
 
-### 1. 浏览器的垃圾回收机制
+> Promise 本身不支持取消。
 
-浏览器的垃圾回收机制就是：**自动回收不再被引用的内存，释放资源以避免内存泄漏。**
+**补充说明（加分）：**
 
-### 2. ==哪些情况会导致内存泄漏==
+- Promise 只是状态容器
+- 已发起的异步操作不会被中断
+- 可通过：
+  - AbortController
+  - 标记位
+  - Promise.race 实现“逻辑取消”
 
-[JavaScript 中内存泄漏的几种情况](https://vue3js.cn/interview/JavaScript/memory_leak.html#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E6%83%85%E5%86%B5)
+### 5. Promise 构造函数是同步执行还是异步执行?then 方法呢?
 
-http://www.ruanyifeng.com/blog/2017/04/memory-leak.html
-https://zh.wikipedia.org/wiki
+> Promise 构造函数是同步执行的，then 回调是异步的（微任务）。
 
-1. 意外的全局变量
-2. 定时器不及时销毁也常会造成内存泄露
-3. 闭包，维持函数内局部变量，使其得不到释放
-4. 没有清理对`DOM`元素的引用同样造成内存泄露
-5. 包括使用事件监听addEventListener监听的时候，在不监听的情况下使用removeEventListener取消对事件监听
+### 6. Promise finally 怎么实现的?
 
-### 3. WeakMap 与垃圾回收有何关系
-
-WeakMap 的键是弱引用对象，当对象没有其他强引用时，垃圾回收会自动回收该对象及对应的键值对，这使得 WeakMap 非常适合存储临时对象的元数据。
+> finally 本质是 then 的封装，不接收结果，只做清理工作。
 
 ```js
-let wm = new WeakMap();
-let obj = { name: 'Alice' };
-wm.set(obj, 'data');
+Promise.prototype.finally = function (cb) {
+  return this.then(
+    value => Promise.resolve(cb()).then(() => value),
+    err => Promise.resolve(cb()).then(() => { throw err })
+  );
+};
 
-// 此时 obj 还有强引用
-console.log(wm.has(obj)); // true
-
-obj = null; // 删除强引用
-// obj 可以被垃圾回收
-// WeakMap 中对应的键也会随 obj 被回收
 ```
 
-普通 Map 中键是强引用，哪怕 obj 没有其他引用，Map 仍会持有它，不能被回收
+### 7. Promise then 第二个参数和 Promise.catch 的区别是什么?
 
-WeakMap 键是弱引用，垃圾回收可安全回收对象和对应键值
+catch 能捕获链式调用中所有错误，而 then 的第二个参数只能捕获当前 Promise 的错误。
 
+`then(fn, errFn)`：范围小
 
+`.catch(errFn)`：错误冒泡，推荐使用
+
+### 8. 如何做 Promise 缓存?
+
+> 可以通过缓存 Promise 实例，避免重复请求。
+
+**实现思路：**
+
+```js
+let cache = null;
+
+function fetchOnce() {
+  if (!cache) {
+    cache = fetch(url);
+  }
+  return cache;
+}
+```
+
+**说明：**
+
+- 多次调用共享同一个 Promise
+- 成功或失败都会被缓存
+
+如果是**完全相同的请求**，我会用 Promise 缓存或请求去重；
+如果是**快速变化的输入场景**，我会取消上一次请求；
+如果是**高频触发**，会在入口加防抖/节流；
+如果是**变化不频繁的数据**，会做数据缓存。
+
+搜索联想这类快速变化输入场景，一般不会用节流，而是会在发起新请求时取消上一次请求，防止旧请求结果覆盖最新输入。防抖更多是减少请求次数，节流适合控制高频事件。
+
+#### 1️⃣ 搜索联想（Autocomplete）
+
+**场景描述：**
+ 用户在输入框输入文字，实时向服务器请求匹配结果。
+
+**问题：**
+
+- 用户快速打字 → 多个请求并发
+- 旧请求返回慢 → 结果覆盖新输入
+
+**解决方案：**
+
+- **取消上一次请求**（AbortController / axios cancel token）
+- **可加防抖**减少请求次数
+
+**示例代码（原生 fetch + AbortController）：**
+
+```
+let controller;
+
+input.addEventListener('input', async (e) => {
+  const query = e.target.value;
+  if (controller) controller.abort(); // 取消上一次请求
+  controller = new AbortController();
+
+  try {
+    const res = await fetch(`/search?q=${query}`, { signal: controller.signal });
+    const data = await res.json();
+    console.log(data); // 只会显示最新结果
+  } catch (err) {
+    if (err.name !== 'AbortError') console.error(err);
+  }
+});
+```
+
+**面试口语表达：**
+
+> 用户快速输入时，如果不取消上一次请求，旧请求可能会先返回覆盖新结果，所以我们在每次新请求发起前取消上一次请求，同时可以加防抖控制请求频率。
+
+------
+
+#### 2️⃣ 实时输入校验（表单验证）
+
+**场景描述：**
+ 用户输入邮箱或用户名，需要向服务器验证是否已被注册。
+
+**问题：**
+
+- 输入框每次改变都会触发请求
+- 请求返回顺序不确定 → 校验结果可能不一致
+
+**解决方案：**
+
+- **防抖**：输入停止 300ms 再请求
+- **取消请求**：保证只处理最新输入的验证结果
+
+**示例代码（带防抖）：**
+
+```
+function debounce(fn, delay = 300) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+let controller;
+const validateUsername = debounce(async (username) => {
+  if (controller) controller.abort();
+  controller = new AbortController();
+  
+  try {
+    const res = await fetch(`/validate?username=${username}`, { signal: controller.signal });
+    const data = await res.json();
+    console.log(data.valid ? '可用' : '已存在');
+  } catch (err) {
+    if (err.name !== 'AbortError') console.error(err);
+  }
+}, 300);
+
+input.addEventListener('input', (e) => {
+  validateUsername(e.target.value);
+});
+```
+
+**面试表达：**
+
+> 这种场景防抖是减少请求次数，取消请求是保证结果正确，两者结合保证用户体验流畅又准确。
+
+------
+
+#### 3️⃣ 滚动加载 / 高频事件（对比节流）
+
+**场景描述：**
+ 用户滚动页面加载列表数据。
+
+**问题：**
+
+- scroll 事件触发频率高
+- 如果每次滚动都发请求 → 服务器压力大
+
+**解决方案：**
+
+- **节流**：固定间隔时间才触发请求
+- 这里不需要取消请求，因为每次请求都是有效的
+
+**示例代码：**
+
+```
+function throttle(fn, delay = 200) {
+  let last = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - last > delay) {
+      last = now;
+      fn.apply(this, args);
+    }
+  };
+}
+
+window.addEventListener('scroll', throttle(() => {
+  loadMoreData();
+}, 200));
+```
+
+**面试表达：**
+
+> 这里用节流就够了，不需要取消请求，因为每次滚动都需要加载新数据，不会有“旧请求覆盖新结果”的问题。
+
+### 9. async/await 原理，手写 async 函数?
+
+### 10. async/await 函数到底要不要加 try catch?
+### 11. 在 forEach 中和 for 循环中调用异步函数的区别
+
+> forEach 不支持 await，for 循环可以控制异步执行顺序。
+
+**说明：**
+
+```js
+// ❌ 无法 await
+arr.forEach(async item => {
+  await fn(item);
+});
+
+// ✅ 可顺序执行
+for (const item of arr) {
+  await fn(item);
+}
+```
+
+**结论：**
+
+- 顺序执行 → for / for...of
+- 并发执行 → Promise.all
 
 # 二、Vue
 
