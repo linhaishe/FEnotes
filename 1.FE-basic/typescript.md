@@ -1,8 +1,11 @@
 Refs: 
 
-1. https://github.com/JasonkayZK/typescript-learn/tree/main?tab=readme-ov-file
-2. https://segmentfault.com/a/1190000022876390#item-7
-3. https://github.com/type-challenges/type-challenges
+1. https://www.typescriptlang.org/docs/
+2. https://github.com/JasonkayZK/typescript-learn/tree/main?tab=readme-ov-file
+3. https://segmentfault.com/a/1190000022876390#item-7
+4. https://github.com/type-challenges/type-challenges
+
+![image-20260117155535761](https://s2.loli.net/2026/01/17/eOfvSKHslLT37cn.png)
 
 ## 一、TypeScript 是什么
 
@@ -789,7 +792,7 @@ let age = 18;//已经默认number 类型
 age="jack" // 报错
 ```
 
-#### 2.14 联合类型 或
+#### 2.15 联合类型 或
 
 表示取值可以为多种类型的一种
 
@@ -874,8 +877,6 @@ function func3(arg?: string): number {
 console.log(func3());
 ```
 
-
-
 ## 四、类型的别名 或|/与&/type
 
 #### &,|,type
@@ -908,13 +909,242 @@ k = 2;
 k=6;
 ```
 
-## 五、让vscode自动变异ts文件
+类型别名用来给一个类型起个新名字。
+
+```typescript
+type Message = string | string[];
+
+let greet = (message: Message) => {
+  // ...
+};
+```
+
+## 五、类型守卫
+
+> A type guard is some expression that performs a runtime check that guarantees the type in some scope. —— TypeScript 官方文档
+
+类型保护是可执行运行时检查的一种表达式，用于确保该类型在一定的范围内。换句话说，类型保护可以保证一个字符串是一个字符串，尽管它的值也可以是一个数值。类型保护与特性检测并不是完全不同，其主要思想是尝试检测属性、方法或原型，以确定如何处理值。目前主要有四种的方式来实现类型保护：
+
+### 4.1 in 关键字
+
+```typescript
+interface Admin {
+  name: string;
+  privileges: string[];
+}
+
+interface Employee {
+  name: string;
+  startDate: Date;
+}
+
+type UnknownEmployee = Employee | Admin;
+
+function printEmployeeInformation(emp: UnknownEmployee) {
+  console.log("Name: " + emp.name);
+  if ("privileges" in emp) {
+    console.log("Privileges: " + emp.privileges);
+  }
+  if ("startDate" in emp) {
+    console.log("Start Date: " + emp.startDate);
+  }
+}
+```
+
+### 4.2 typeof 关键字
+
+```typescript
+function padLeft(value: string, padding: string | number) {
+  if (typeof padding === "number") {
+      return Array(padding + 1).join(" ") + value;
+  }
+  if (typeof padding === "string") {
+      return padding + value;
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`);
+}
+```
+
+`typeof` 类型保护只支持两种形式：`typeof v === "typename"` 和 `typeof v !== typename`，`"typename"` 必须是 `"number"`， `"string"`， `"boolean"` 或 `"symbol"`。 但是 TypeScript 并不会阻止你与其它字符串比较，语言不会把那些表达式识别为类型保护。
+
+### 4.3 instanceof 关键字
+
+```typescript
+interface Padder {
+  getPaddingString(): string;
+}
+
+class SpaceRepeatingPadder implements Padder {
+  constructor(private numSpaces: number) {}
+  getPaddingString() {
+    return Array(this.numSpaces + 1).join(" ");
+  }
+}
+
+class StringPadder implements Padder {
+  constructor(private value: string) {}
+  getPaddingString() {
+    return this.value;
+  }
+}
+
+let padder: Padder = new SpaceRepeatingPadder(6);
+
+if (padder instanceof SpaceRepeatingPadder) {
+  // padder的类型收窄为 'SpaceRepeatingPadder'
+}
+```
+
+### 4.4 自定义类型保护的类型谓词
+
+```typescript
+function isNumber(x: any): x is number {
+  return typeof x === "number";
+}
+
+function isString(x: any): x is string {
+  return typeof x === "string";
+}
+```
+
+## 六、联合类型和类型别名
+
+### 5.1 联合类型
+
+联合类型通常与 `null` 或 `undefined` 一起使用：
+
+```typescript
+const sayHello = (name: string | undefined) => {
+  /* ... */
+};
+```
+
+例如，这里 `name` 的类型是 `string | undefined` 意味着可以将 `string` 或 `undefined` 的值传递给`sayHello` 函数。
+
+```typescript
+sayHello("Semlinker");
+sayHello(undefined);
+```
+
+通过这个示例，你可以凭直觉知道类型 A 和类型 B 联合后的类型是同时接受 A 和 B 值的类型。
+
+### 5.2 可辨识联合
+
+TypeScript 可辨识联合（Discriminated Unions）类型，也称为代数数据类型或标签联合类型。**它包含 3 个要点：可辨识、联合类型和类型守卫。**
+
+这种类型的本质是结合联合类型和字面量类型的一种类型保护方法。**如果一个类型是多个类型的联合类型，且多个类型含有一个公共属性，那么就可以利用这个公共属性，来创建不同的类型保护区块。**
+
+**1.可辨识**
+
+可辨识要求联合类型中的每个元素都含有一个单例类型属性，比如：
+
+```typescript
+enum CarTransmission {
+  Automatic = 200,
+  Manual = 300
+}
+
+interface Motorcycle {
+  vType: "motorcycle"; // discriminant
+  make: number; // year
+}
+
+interface Car {
+  vType: "car"; // discriminant
+  transmission: CarTransmission
+}
+
+interface Truck {
+  vType: "truck"; // discriminant
+  capacity: number; // in tons
+}
+```
+
+在上述代码中，我们分别定义了 `Motorcycle`、 `Car` 和 `Truck` 三个接口，在这些接口中都包含一个 `vType` 属性，该属性被称为可辨识的属性，而其它的属性只跟特性的接口相关。
+
+**2.联合类型**
+
+基于前面定义了三个接口，我们可以创建一个 `Vehicle` 联合类型：
+
+```typescript
+type Vehicle = Motorcycle | Car | Truck;
+```
+
+现在我们就可以开始使用 `Vehicle` 联合类型，对于 `Vehicle` 类型的变量，它可以表示不同类型的车辆。
+
+**3.类型守卫**
+
+下面我们来定义一个 `evaluatePrice` 方法，该方法用于根据车辆的类型、容量和评估因子来计算价格，具体实现如下：
+
+```typescript
+const EVALUATION_FACTOR = Math.PI; 
+
+function evaluatePrice(vehicle: Vehicle) {
+  return vehicle.capacity * EVALUATION_FACTOR;
+}
+
+const myTruck: Truck = { vType: "truck", capacity: 9.5 };
+evaluatePrice(myTruck);
+```
+
+对于以上代码，TypeScript 编译器将会提示以下错误信息：
+
+```delphi
+Property 'capacity' does not exist on type 'Vehicle'.
+Property 'capacity' does not exist on type 'Motorcycle'.
+```
+
+原因是在 Motorcycle 接口中，并不存在 `capacity` 属性，而对于 Car 接口来说，它也不存在 `capacity` 属性。那么，现在我们应该如何解决以上问题呢？这时，我们可以使用类型守卫。下面我们来重构一下前面定义的 `evaluatePrice` 方法，重构后的代码如下：
+
+```typescript
+function evaluatePrice(vehicle: Vehicle) {
+  switch(vehicle.vType) {
+    case "car":
+      return vehicle.transmission * EVALUATION_FACTOR;
+    case "truck":
+      return vehicle.capacity * EVALUATION_FACTOR;
+    case "motorcycle":
+      return vehicle.make * EVALUATION_FACTOR;
+  }
+}
+```
+
+在以上代码中，我们使用 `switch` 和 `case` 运算符来实现类型守卫，从而确保在 `evaluatePrice` 方法中，我们可以安全地访问 `vehicle` 对象中的所包含的属性，来正确的计算该车辆类型所对应的价格。
+
+## 七、交叉类型
+
+TypeScript 交叉类型是将多个类型合并为一个类型。 这让我们可以把现有的多种类型叠加到一起成为一种类型，它包含了所需的所有类型的特性。
+
+```typescript
+interface IPerson {
+  id: string;
+  age: number;
+}
+
+interface IWorker {
+  companyId: string;
+}
+
+type IStaff = IPerson & IWorker;
+
+const staff: IStaff = {
+  id: 'E1006',
+  age: 33,
+  companyId: 'EFT'
+};
+
+console.dir(staff)
+```
+
+在上面示例中，我们首先为 IPerson 和 IWorker 类型定义了不同的成员，然后通过 `&` 运算符定义了 IStaff 交叉类型，所以该类型同时拥有 IPerson 和 IWorker 这两种类型的成员。
+
+## 八、让vscode自动变异ts文件
 
 - 运行 tsp --init 创建 tsconfig.json文件
 - 修改tsconfig.json文件，设置js文件夹，'outDir':'./js/'
 - 设置vscode监视任务，之后修改项目中的ts，会自动生成js(终端，点击运行任务，点击tsc监视)
 
-## 六、TypeScript 函数
+## 九、TypeScript 函数
 
 <mark>实参和形参的类型和数量要一致</mark>
 
@@ -1173,7 +1403,7 @@ const result = calculator.add("Semlinker", " Kakuqo");
 
 这里需要注意的是，当 TypeScript 编译器处理函数重载时，它会查找重载列表，尝试使用第一个重载定义。 如果匹配的话就使用这个。 因此，在定义重载的时候，一定要把最精确的定义放在最前面。另外在 Calculator 类中，`add(a: Combinable, b: Combinable){ }` 并不是重载列表的一部分，因此对于 add 成员方法来说，我们只定义了四个重载方法。
 
-## 十一、TypeScript 类
+## 十、TypeScript 类
 
 ### 11.1 类的属性与方法
 
@@ -1366,7 +1596,7 @@ semlinker.#name;
 - 不能在私有字段上使用 TypeScript 可访问性修饰符（如 public 或 private）；
 - 私有字段不能在包含的类之外访问，甚至不能被检测到。
 
-## 八、TypeScript 数组
+## 十一、TypeScript 数组
 
 ### 8.1 数组解构
 
@@ -1392,7 +1622,7 @@ for (let i of colors) {
 }
 ```
 
-## 十、TypeScript 接口
+## 十二、TypeScript 接口
 
 在面向对象语言中，接口是一个很重要的概念，它是对行为的抽象，而具体如何行动需要由类去实现。
 
@@ -1560,7 +1790,7 @@ let jack = new onePerson();
 jack.sayHello();
 ```
 
-## 十二、TypeScript 泛型
+## 十三、TypeScript 泛型
 
 软件工程中，我们不仅要创建一致的定义良好的 API，同时也要考虑可重用性。 组件不仅能够支持当前的数据类型，同时也能支持未来的数据类型，这在创建大型系统时为你提供了十分灵活的功能。
 
@@ -1747,6 +1977,290 @@ const todo2 = updateTodo(todo1, {
    description?: string | undefined;
 }
 ```
+
+## 十四、TypeScript 对象
+
+### 9.1 对象解构
+
+```typescript
+let person = {
+  name: "Semlinker",
+  gender: "Male",
+};
+
+let { name, gender } = person;
+```
+
+### 9.2 对象展开运算符
+
+```typescript
+let person = {
+  name: "Semlinker",
+  gender: "Male",
+  address: "Xiamen",
+};
+
+// 组装对象
+let personWithAge = { ...person, age: 33 };
+
+// 获取除了某些项外的其它项
+let { name, ...rest } = person;
+```
+
+## 十五、TypeScript 装饰器
+
+### 13.1 装饰器是什么
+
+- 它是一个表达式
+- 该表达式被执行后，返回一个函数
+- 函数的入参分别为 target、name 和 descriptor
+- 执行该函数后，可能返回 descriptor 对象，用于配置 target 对象
+
+### 13.2 装饰器的分类
+
+- 类装饰器（Class decorators）
+- 属性装饰器（Property decorators）
+- 方法装饰器（Method decorators）
+- 参数装饰器（Parameter decorators）
+
+### 13.3 类装饰器
+
+类装饰器声明：
+
+```typescript
+declare type ClassDecorator = <TFunction extends Function>(
+  target: TFunction
+) => TFunction | void;
+```
+
+类装饰器顾名思义，就是用来装饰类的。它接收一个参数：
+
+- target: TFunction - 被装饰的类
+
+看完第一眼后，是不是感觉都不好了。没事，我们马上来个例子：
+
+```typescript
+function Greeter(target: Function): void {
+  target.prototype.greet = function (): void {
+    console.log("Hello Semlinker!");
+  };
+}
+
+@Greeter
+class Greeting {
+  constructor() {
+    // 内部实现
+  }
+}
+
+let myGreeting = new Greeting();
+myGreeting.greet(); // console output: 'Hello Semlinker!';
+```
+
+上面的例子中，我们定义了 `Greeter` 类装饰器，同时我们使用了 `@Greeter` 语法糖，来使用装饰器。
+
+> 友情提示：读者可以直接复制上面的代码，在 [TypeScript Playground](https://link.segmentfault.com/?url=https%3A%2F%2Fwww.typescriptlang.org%2Fplay%2Findex.html) 中运行查看结果。
+
+有的读者可能想问，例子中总是输出 `Hello Semlinker!` ，能自定义输出的问候语么 ？这个问题很好，答案是可以的。
+
+具体实现如下：
+
+```typescript
+function Greeter(greeting: string) {
+  return function (target: Function) {
+    target.prototype.greet = function (): void {
+      console.log(greeting);
+    };
+  };
+}
+
+@Greeter("Hello TS!")
+class Greeting {
+  constructor() {
+    // 内部实现
+  }
+}
+
+let myGreeting = new Greeting();
+myGreeting.greet(); // console output: 'Hello TS!';
+```
+
+### 13.4 属性装饰器
+
+属性装饰器声明：
+
+```typescript
+declare type PropertyDecorator = (target:Object, 
+  propertyKey: string | symbol ) => void;
+```
+
+属性装饰器顾名思义，用来装饰类的属性。它接收两个参数：
+
+- target: Object - 被装饰的类
+- propertyKey: string | symbol - 被装饰类的属性名
+
+趁热打铁，马上来个例子热热身：
+
+```typescript
+function logProperty(target: any, key: string) {
+  delete target[key];
+
+  const backingField = "_" + key;
+
+  Object.defineProperty(target, backingField, {
+    writable: true,
+    enumerable: true,
+    configurable: true
+  });
+
+  // property getter
+  const getter = function (this: any) {
+    const currVal = this[backingField];
+    console.log(`Get: ${key} => ${currVal}`);
+    return currVal;
+  };
+
+  // property setter
+  const setter = function (this: any, newVal: any) {
+    console.log(`Set: ${key} => ${newVal}`);
+    this[backingField] = newVal;
+  };
+
+  // Create new property with getter and setter
+  Object.defineProperty(target, key, {
+    get: getter,
+    set: setter,
+    enumerable: true,
+    configurable: true
+  });
+}
+
+class Person { 
+  @logProperty
+  public name: string;
+
+  constructor(name : string) { 
+    this.name = name;
+  }
+}
+
+const p1 = new Person("semlinker");
+p1.name = "kakuqo";
+```
+
+以上代码我们定义了一个 `logProperty` 函数，来跟踪用户对属性的操作，当代码成功运行后，在控制台会输出以下结果：
+
+```arcade
+Set: name => semlinker
+Set: name => kakuqo
+```
+
+### 13.5 方法装饰器
+
+方法装饰器声明：
+
+```typescript
+declare type MethodDecorator = <T>(target:Object, propertyKey: string | symbol,          
+  descriptor: TypePropertyDescript<T>) => TypedPropertyDescriptor<T> | void;
+```
+
+方法装饰器顾名思义，用来装饰类的方法。它接收三个参数：
+
+- target: Object - 被装饰的类
+- propertyKey: string | symbol - 方法名
+- descriptor: TypePropertyDescript - 属性描述符
+
+废话不多说，直接上例子：
+
+```typescript
+function LogOutput(tarage: Function, key: string, descriptor: any) {
+  let originalMethod = descriptor.value;
+  let newMethod = function(...args: any[]): any {
+    let result: any = originalMethod.apply(this, args);
+    if(!this.loggedOutput) {
+      this.loggedOutput = new Array<any>();
+    }
+    this.loggedOutput.push({
+      method: key,
+      parameters: args,
+      output: result,
+      timestamp: new Date()
+    });
+    return result;
+  };
+  descriptor.value = newMethod;
+}
+
+class Calculator {
+  @LogOutput
+  double (num: number): number {
+    return num * 2;
+  }
+}
+
+let calc = new Calculator();
+calc.double(11);
+// console ouput: [{method: "double", output: 22, ...}]
+console.log(calc.loggedOutput); 
+```
+
+下面我们来介绍一下参数装饰器。
+
+### 13.6 参数装饰器
+
+参数装饰器声明：
+
+```typescript
+declare type ParameterDecorator = (target: Object, propertyKey: string | symbol, 
+  parameterIndex: number ) => void
+```
+
+参数装饰器顾名思义，是用来装饰函数参数，它接收三个参数：
+
+- target: Object - 被装饰的类
+- propertyKey: string | symbol - 方法名
+- parameterIndex: number - 方法中参数的索引值
+
+```typescript
+function Log(target: Function, key: string, parameterIndex: number) {
+  let functionLogged = key || target.prototype.constructor.name;
+  console.log(`The parameter in position ${parameterIndex} at ${functionLogged} has
+    been decorated`);
+}
+
+class Greeter {
+  greeting: string;
+  constructor(@Log phrase: string) {
+    this.greeting = phrase; 
+  }
+}
+
+// console output: The parameter in position 0 
+// at Greeter has been decorated
+```
+
+介绍完 TypeScript 入门相关的基础知识，猜测很多刚入门的小伙伴已有 **“从入门到放弃”** 的想法，最后我们来简单介绍一下编译上下文。
+
+## 十六、编译上下文
+
+### 14.1 tsconfig.json 的作用
+
+- 用于标识 TypeScript 项目的根路径；
+- 用于配置 TypeScript 编译器；
+- 用于指定编译的文件。
+
+### 14.2 tsconfig.json 重要字段
+
+- files - 设置要编译的文件的名称；
+- include - 设置需要进行编译的文件，支持路径模式匹配；
+- exclude - 设置无需进行编译的文件，支持路径模式匹配；
+- compilerOptions - 设置与编译流程相关的选项。
+
+### 14.3 compilerOptions 选项
+
+compilerOptions 支持很多选项，常见的有 `baseUrl`、 `target`、`baseUrl`、 `moduleResolution` 和 `lib` 等。
+
+compilerOptions 每个选项的详细说明如下：
 
 
 

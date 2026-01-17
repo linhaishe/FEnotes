@@ -72,28 +72,27 @@ var slidingWindow = function(s) {
 ```js
 var minWindow = function (s, t) {
   let need = {},
-    window = {};
+      window = {};
   // 统计字符串 t 中每个字符出现的次数，存到 need 对象里
   // out put need {A: 1, B: 1, C: 1}
   for (let c of t) {
     need[c] = (need[c] || 0) + 1;
   }
 
-  let left = 0,
-    right = 0;
-  let valid = 0; // 有多少种字符单种类出现的次数是否已经「达标」，不是所有字符次数
-  // 记录最小覆盖子串的起始索引及长度
-  let start = 0,
-    len = Infinity;
+  let left = 0, right = 0, valid = 0; // 有多少种字符单种类出现的次数是否已经「达标」，不是所有字符次数
+  
+  let start = 0, // 记录最小覆盖子串的起始索引及长度
+      len = Infinity;
+  
   while (right < s.length) {
-    // c 是将移入窗口的字符
-    let c = s[right];
+    // d 是将移入窗口的字符
+    let d = s[right];
     // 扩大窗口
     right++;
     // 进行窗口内数据的一系列更新,如果进入到窗口，计数增加
-    if (need[c]) {
-      window[c] = (window[c] || 0) + 1;
-      if (window[c] === need[c]) {
+    if (need[d]) {
+      window[d] = (window[d] || 0) + 1;
+      if (window[d] === need[d]) {
         valid++;
       }
     }
@@ -103,18 +102,18 @@ var minWindow = function (s, t) {
       // 在这里更新最小覆盖子串
       if (right - left < len) {
         start = left;
-        len = right - left; // len更新，不会是infinite,第一次的时候永远是true,因为永远小于infinite
+        len = right - left; // len更新，不会是infinite,第一次的时候永远是true,因为永远小于infinite,因为此时的 right 已经不是“当前最优子串”的右边界了，而 len 才是我们记录下来的最优窗口长度。
       }
-      // d 是将移出窗口的字符
-      let d = s[left];
+      // e 是将移出窗口的字符
+      let e = s[left];
       // 缩小窗口
       left++;
       // 进行窗口内数据的一系列更新
-      if (need[d]) {
-        if (window[d] === need[d]) {
+      if (need[e]) {
+        if (window[e] === need[e]) {
           valid--;
         }
-        window[d]--;
+        window[e]--;
       }
     }
   }
