@@ -498,6 +498,10 @@ requestAnimationFrame 回调
 
 ### 1. let, const, var区别
 
+var 有函数作用域和变量提升，容易出问题；
+let 有块级作用域，解决了提升和重复声明问题；
+const 在 let 的基础上增加了“不可重新赋值”，适合声明常量。
+
 块级作用域，重复声明，变量提升，暂时性死区
 
 块级作用域: 用 `{}` 包起来的一段代码，形成一个独立的作用域，在这个作用域里声明的变量，**外面访问不到**。
@@ -3718,7 +3722,7 @@ console.log(divs.map) // undefined
 
 箭头函数并没有属于⾃⼰的this，它所谓的this是捕获其所在上下⽂的 this 值，作为⾃⼰的 this 值。
 
-箭头函数体内的 this 对象，就是定义该函数时所在的作用域指向的对象，而不是使用时所在的作用域指向的对象。
+==箭头函数体内的 this 对象，就是定义该函数时所在的作用域指向的对象，而不是使用时所在的作用域指向的对象。==
 
 ==普通函数的this，谁调用的this就指向谁==
 
@@ -3965,7 +3969,7 @@ console.log(add(2)(3)); // 5
 
 ------
 
-## 十二、作用域 / 执行上下文 / this
+## 十二、作用域 / 执行上下文 / this / call apply
 
 ### 6. ==this指向的理解==
 
@@ -4030,7 +4034,7 @@ setTimeout 会在 100ms 后调用这个箭头函数
 
 #### **作用域**
 
-**作用域：函数和变量能被访问的区域，分有全局作用域、函数作用域、块级作用域。**
+**作用域：==函数和变量能被访问的区域，分有全局作用域、函数作用域、块级作用域。==**
 
 - 全局作用域：任何不在函数中或是大括号中声明的变量，都是在全局作用域下，全局作用域下声明的变量可以在程序的任意位置访问
 - 函数作用域：函数作用域也叫局部作用域，如果一个变量是在函数内部声明的它就在一个函数作用域下面。这些变量只能在函数内部访问，不能在函数以外去访问
@@ -4917,7 +4921,7 @@ proxy.push(1); // 会触发 set 多次
 
  “Reflect.get 在 Proxy 或继承场景下，可以保证一致性和安全，尤其在拦截器内部调用默认行为。”
 
-```
+```js
 const obj = { a: 1 };
 Reflect.get(obj, 'a'); // 1
 obj.a;                  // 1
@@ -5039,6 +5043,382 @@ function test() {
 
 - 异步函数中用 try/catch 包裹或 `Promise.catch` 捕获
 
+#### 一、`window.onerror` —— 捕获**同步异常 & 异步回调中的未捕获异常**
+
+```js
+window.onerror = function (
+  message,
+  source,
+  lineno,
+  colno,
+  error
+) {
+  console.log('捕获到 JS 异常');
+  console.log('message:', message);
+  console.log('source:', source);
+  console.log('line:', lineno, 'column:', colno);
+  console.log('error:', error);
+
+  // 上报给监控系统
+  // reportError({ message, source, lineno, colno, stack: error?.stack });
+
+  return true; // 阻止浏览器默认报错
+};
+
+```
+
+2️⃣ try/catch 捕获不到，但 window.onerror 能捕获的例子
+❌ try/catch 捕获不到（异步回调）
+
+```js
+try {
+  setTimeout(() => {
+    throw new Error('setTimeout error');
+  }, 0);
+} catch (e) {
+  console.log('catch:', e);
+}
+```
+
+👉 结果：catch 不执行
+👉 但 window.onerror 会执行
+
+解决方案（关键点）：
+
+```html
+<script
+  src="https://cdn.example.com/test.js"
+  crossorigin="anonymous"
+></script>
+```
+
+并且 CDN 要返回：
+
+`Access-Control-Allow-Origin: *`
+
+`这样 window.onerror 才能拿到完整堆栈。`
+
+##### 2️⃣ unhandledrejection 能捕获的典型场景
+
+❌ Promise 没有 catch
+
+```
+new Promise((resolve, reject) => {
+  reject(new Error('Promise failed'));
+});
+```
+
+👉 **不会进入 try/catch**
+ 👉 **会触发 `unhandledrejection`**
+
+------
+
+❌ async / await 未捕获异常
+
+```
+async function fetchData() {
+  throw new Error('async error');
+}
+
+fetchData();
+```
+
+👉 **等价于 Promise reject**
+ 👉 **被 `unhandledrejection` 捕获**
+
+------
+
+##### 3️⃣ try/catch + async 对比（面试高频）
+
+```
+async function test() {
+  try {
+    await Promise.reject('error');
+  } catch (e) {
+    console.log('catch:', e);
+  }
+}
+
+test();
+```
+
+✅ 这里 **try/catch 能捕获**
+
+```
+async function test() {
+  Promise.reject('error');
+}
+
+test();
+```
+
+❌ 这里 **只能被 `unhandledrejection` 捕获**
+
+------
+
+#### 三、`window.onerror` vs `unhandledrejection` 总结表
+
+| 类型            | try/catch | window.onerror | unhandledrejection |
+| --------------- | --------- | -------------- | ------------------ |
+| 同步错误        | ✅         | ✅              | ❌                  |
+| setTimeout 回调 | ❌         | ✅              | ❌                  |
+| Promise reject  | ❌         | ❌              | ✅                  |
+| async/await     | 部分      | ❌              | ✅                  |
+| eval 执行错误   | ❌         | ✅              | ❌                  |
+| 跨域脚本        | ❌         | ⚠️ Script error | ❌                  |
+
+------
+
+#### 四、线上统一异常捕获（常见写法）
+
+线上通过 `window.onerror` 和 `unhandledrejection` 捕获到的错误堆栈是压缩后的代码位置。
+ 在构建阶段生成 source map 并上传到错误监控服务，
+ 当错误发生时，服务端根据 file、line、column 使用 source map 反查到源码中的真实文件和行号，
+ 从而实现错误还原和定位。
+ 生产环境通常使用 `hidden-source-map` 防止源码泄露。
+
+```js
+function reportError(error) {
+  console.log('上报错误:', error);
+}
+
+window.onerror = function (msg, url, line, col, error) {
+  reportError({
+    type: 'js',
+    msg,
+    url,
+    line,
+    col,
+    stack: error?.stack
+  });
+};
+
+window.addEventListener('unhandledrejection', event => {
+  reportError({
+    type: 'promise',
+    msg: event.reason?.message || event.reason,
+    stack: event.reason?.stack
+  });
+});
+```
+
+### 结合 source map 还原堆栈这个怎么结合？
+
+> **线上捕获到的错误堆栈（file、line、column）是“压缩后”的位置，
+>  把这些信息 + 对应的 source map 文件交给还原工具，就能反查到源码里的真实文件和行号。**
+
+#### 二、整体流程（非常重要，先建立全局认知）
+
+```js
+1️⃣ 本地 / CI 构建
+   ↓
+   生成 bundle.js + bundle.js.map
+   ↓
+2️⃣ source map 上传到错误监控服务（或私有服务）
+   ↓
+3️⃣ 线上发生错误
+   ↓
+   window.onerror / unhandledrejection 捕获：
+   file + line + column + stack
+   ↓
+4️⃣ 服务端用 source map 解析 stack
+   ↓
+5️⃣ 得到真实源码位置（src/App.vue:23）
+```
+
+⚠️ **source map 一定不能直接暴露给公网**
+
+------
+
+#### 三、前端：捕获异常并上报“压缩堆栈”
+
+1️⃣ 捕获错误（浏览器端）
+
+```
+window.onerror = function (message, source, lineno, colno, error) {
+  reportError({
+    message,
+    source,   // https://cdn.xxx.com/app.8d9f3.js
+    lineno,   // 压缩后的行
+    colno,    // 压缩后的列
+    stack: error?.stack
+  });
+};
+```
+
+Promise 错误：
+
+```
+window.addEventListener('unhandledrejection', event => {
+  reportError({
+    message: event.reason?.message || event.reason,
+    stack: event.reason?.stack
+  });
+});
+```
+
+👉 **这一步拿到的 stack 是“不可读的”**
+
+```
+at t (app.8d9f3.js:1:23456)
+```
+
+------
+
+#### 四、构建阶段：生成 source map（关键）
+
+##### 1️⃣ Webpack
+
+```
+// webpack.config.js
+module.exports = {
+  devtool: 'hidden-source-map'
+};
+```
+
+##### 常见选项区别（面试点）
+
+| 选项                    | 说明                                          |
+| ----------------------- | --------------------------------------------- |
+| source-map              | 生成 .map，浏览器可访问                       |
+| hidden-source-map       | 生成 .map，但不在 bundle 中引用（✅ 推荐线上） |
+| cheap-module-source-map | 调试友好但不精确                              |
+
+👉 **线上推荐 `hidden-source-map`**
+
+------
+
+##### 2️⃣ Vite
+
+```
+// vite.config.js
+export default {
+  build: {
+    sourcemap: true
+  }
+}
+```
+
+------
+
+#### 五、上传 source map（真正“结合”的地方）
+
+##### 关键原则
+
+- source map **只给错误解析服务**
+- 不能被用户直接下载
+
+------
+
+示例：CI 上传 source map
+
+```
+#### 构建后
+dist/
+  app.8d9f3.js
+  app.8d9f3.js.map
+curl -X POST https://error.example.com/upload-sourcemap \
+  -F "file=app.8d9f3.js.map" \
+  -F "bundle=app.8d9f3.js" \
+  -F "version=1.0.3"
+```
+
+------
+
+#### 六、服务端：用 source map 还原堆栈（核心原理）
+
+使用 `source-map` 库（Node）
+
+```
+const { SourceMapConsumer } = require('source-map');
+const fs = require('fs');
+
+async function parseStack({ file, line, column }) {
+  const rawSourceMap = JSON.parse(
+    fs.readFileSync('./maps/app.8d9f3.js.map', 'utf-8')
+  );
+
+  const consumer = await new SourceMapConsumer(rawSourceMap);
+
+  const originalPosition = consumer.originalPositionFor({
+    line,
+    column
+  });
+
+  return originalPosition;
+}
+```
+
+##### 还原结果
+
+```
+{
+  "source": "src/components/Login.vue",
+  "line": 42,
+  "column": 13,
+  "name": "submitForm"
+}
+```
+
+🎯 **这一步就是“source map 还原堆栈”**
+
+------
+
+#### 七、完整链路示意（面试很加分）
+
+```
+线上报错：
+app.8d9f3.js:1:23456
+
+↓ source map 解析
+
+源码定位：
+src/pages/Home.vue
+第 128 行
+this.list.map(...)
+```
+
+------
+
+#### 八、常见坑（面试经常追问）
+
+##### ❌ 1. 为什么线上拿不到源码？
+
+- 没上传 source map
+- 版本号不一致（hash 对不上）
+- CDN 缓存了旧 bundle
+
+------
+
+##### ❌ 2. 为什么是 Script error？
+
+- 跨域脚本没加 `crossorigin`
+- CDN 没返回 `Access-Control-Allow-Origin`
+
+------
+
+##### ❌ 3. source map 会泄露源码吗？
+
+- 会 ❗
+   👉 所以：
+- 生产环境用 `hidden-source-map`
+- map 文件只存在私有服务器
+
+------
+
+> 线上通过 `window.onerror` 和 `unhandledrejection` 捕获到的错误堆栈是压缩后的代码位置。
+> 在构建阶段生成 source map 并上传到错误监控服务，
+> 当错误发生时，服务端根据 file、line、column 使用 source map 反查到源码中的真实文件和行号，
+> 从而实现错误还原和定位。
+> 生产环境通常使用 `hidden-source-map` 防止源码泄露。
+
+------
+
+如果你愿意，我可以下一步帮你：
+
+- 🔥 **手写一个最小版「错误监控 + sourcemap 解析服务」**
+- 🔥 **讲清楚 Sentry 是怎么做这一整套的**
+
 ## 其他
 
 ### 16. 如何在 url 中传递数组
@@ -5059,7 +5439,113 @@ a[0]=3&a[1]=4&a[2]=5
 
 ### 8. 如何判断一个元素是否在可视区域中？
 
-https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F
+#### ✅ 方法一（**最推荐 / 现代浏览器**）：`IntersectionObserver`
+
+浏览器原生提供的 **交叉观察器**，可以判断元素是否进入/离开可视区域，**性能最好**，不会频繁触发回调。
+
+##### 示例
+
+```js
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        console.log('元素进入可视区域');
+      } else {
+        console.log('元素离开可视区域');
+      }
+    });
+  },
+  {
+    root: null,        // null 表示 viewport
+    threshold: 0.1     // 元素有 10% 可见就算进入
+  }
+);
+
+observer.observe(targetElement);
+```
+
+##### 优点
+
+- ✅ 性能好（异步，不随滚动频繁计算）
+- ✅ 支持懒加载、曝光统计
+- ✅ API 语义清晰
+
+##### 缺点
+
+- ❌ IE 不支持（现代项目基本可忽略）
+
+------
+
+#### ✅ 方法二（**经典面试必会**）：`getBoundingClientRect`
+
+获取元素相对 viewport 的位置，再与窗口大小比较。
+
+##### 示例（完全在可视区）
+
+```js
+function isInViewport(el) {
+  const rect = el.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= window.innerHeight &&
+    rect.right <= window.innerWidth
+  );
+}
+```
+
+##### 示例（**只要有一部分可见就算**）
+
+```js
+function isPartiallyInViewport(el) {
+  const rect = el.getBoundingClientRect();
+  return (
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < window.innerHeight &&
+    rect.left < window.innerWidth
+  );
+}
+```
+
+##### 优点
+
+- ✅ 简单直观
+- ✅ 面试最爱问
+
+##### 缺点
+
+- ❌ 需要在 `scroll / resize` 中调用，**性能一般**
+
+------
+
+#### ⚠️ 方法三（老方案 / 不推荐）：滚动距离 + offset
+
+
+通过 `offsetTop` + `scrollTop` 判断位置。
+
+##### 示例
+
+```js
+function isInViewport(el) {
+  const scrollTop =
+    document.documentElement.scrollTop || document.body.scrollTop;
+
+  const elTop = el.offsetTop;
+  const elHeight = el.offsetHeight;
+
+  return (
+    elTop < scrollTop + window.innerHeight &&
+    elTop + elHeight > scrollTop
+  );
+}
+```
+
+##### 缺点
+
+- ❌ 嵌套元素、transform、fixed 场景容易出错
+- ❌ 现代项目基本不用
 
 <img src="https://s2.loli.net/2025/12/26/XMDIklN841wsRhz.png" alt="image-20251226165721563" style="zoom:33%;" />
 
@@ -5078,7 +5564,225 @@ https://vue3js.cn/interview/JavaScript/visible.html#%E4%BA%8C%E3%80%81%E5%AE%9E%
 
 ### 9. ==大文件上传如何做断点续传？==
 
+------
+
+> **大文件断点续传的核心是分片上传。**
+>
+> 前端将文件切成多个 chunk，计算文件 hash 作为唯一标识；
+> 上传前先向服务器查询已上传的分片列表；
+> 只上传未完成的分片；
+> 所有分片上传完成后通知服务器合并文件。
+>
+> 这种方式可以支持断点续传、失败重试、并发上传和秒传。
+
 https://vue3js.cn/interview/JavaScript/continue_to_upload.html#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF
+
+#### 一、整体思路（先给结论）
+
+**断点续传的核心思想：**
+
+> **把大文件切成多个分片（chunk），每个分片独立上传，失败的只重传未成功的分片。**
+
+整体流程：
+
+```
+选择文件
+  ↓
+文件切片（chunk）
+  ↓
+计算文件唯一标识（hash）
+  ↓
+查询服务器：已上传哪些分片
+  ↓
+上传缺失的分片
+  ↓
+全部上传完成 → 通知服务器合并文件
+```
+
+------
+
+#### 二、核心关键点（面试一定要说）
+
+##### 1️⃣ 文件切片（Chunk）
+
+- 使用 `Blob.slice`
+- 每片大小：**1MB ~ 5MB**（常见）
+
+```js
+function createChunks(file, size = 2 * 1024 * 1024) {
+  const chunks = [];
+  let cur = 0;
+
+  while (cur < file.size) {
+    chunks.push({
+      index: chunks.length,
+      file: file.slice(cur, cur + size)
+    });
+    cur += size;
+  }
+  return chunks;
+}
+```
+
+------
+
+##### 2️⃣ 文件唯一标识（hash）
+
+**目的：**
+
+- 判断是否是同一个文件
+- 支持秒传 & 断点续传
+
+**常见方式：**
+
+- `MD5 / SHA1 / SHA256`
+- 文件名 + size + lastModified（弱方案）
+
+```
+// 示例：spark-md5（常用）
+const spark = new SparkMD5.ArrayBuffer();
+
+for (const chunk of chunks) {
+  spark.append(await chunk.file.arrayBuffer());
+}
+
+const fileHash = spark.end();
+```
+
+⚠️ **性能优化**：
+ 大文件 hash 计算可用 `Web Worker`
+
+------
+
+##### 3️⃣ 上传前校验（断点续传关键）
+
+前端请求接口：
+
+```
+POST /upload/check
+{
+  fileHash,
+  fileName
+}
+```
+
+服务端返回：
+
+```
+{
+  "uploadedChunks": [0, 1, 3, 5]
+}
+```
+
+前端只上传 **未上传的分片**。
+
+------
+
+#### 三、前端上传实现（核心）
+
+##### 上传单个分片
+
+```
+function uploadChunk(chunk, fileHash) {
+  const formData = new FormData();
+  formData.append('chunk', chunk.file);
+  formData.append('index', chunk.index);
+  formData.append('fileHash', fileHash);
+
+  return fetch('/upload/chunk', {
+    method: 'POST',
+    body: formData
+  });
+}
+```
+
+------
+
+##### 并发上传 + 失败重试
+
+```
+async function uploadChunks(chunks, fileHash, uploadedList) {
+  const tasks = chunks
+    .filter(c => !uploadedList.includes(c.index))
+    .map(c => uploadChunk(c, fileHash));
+
+  await Promise.all(tasks);
+}
+```
+
+👉 实际项目中一般会：
+
+- 限制并发数（3~6）
+- 失败重试 3 次
+
+------
+
+#### 四、合并分片（上传完成后）
+
+```
+POST /upload/merge
+{
+  fileHash,
+  totalChunks
+}
+```
+
+服务端：
+
+- 按 index 顺序合并
+- 删除临时分片
+
+------
+
+#### 五、后端需要配合什么（一定要说）
+
+##### 后端职责
+
+- 保存分片：`/tmp/${fileHash}/${index}`
+- 记录已上传分片
+- 校验分片完整性
+- 合并文件
+- 支持幂等（重复上传不报错）
+
+------
+
+#### 六、进阶优化点（面试加分）
+
+##### ⭐ 秒传
+
+- `check` 接口返回 `uploaded: true`
+- 前端直接提示「上传完成」
+
+------
+
+##### ⭐ 暂停 / 继续
+
+- 通过中断请求
+- 重新走 `check → upload missing`
+
+------
+
+##### ⭐ 并发控制
+
+```
+// 简化版并发控制
+async function asyncPool(limit, tasks) {
+  const pool = [];
+  for (const task of tasks) {
+    const p = task().then(() => pool.splice(pool.indexOf(p), 1));
+    pool.push(p);
+    if (pool.length >= limit) await Promise.race(pool);
+  }
+}
+```
+
+------
+
+##### ⭐ 上传进度计算
+
+```
+progress = (uploadedChunks / totalChunks) * 100;
+```
 
 ### 10. ==如何实现上拉加载，下拉刷新？==
 
