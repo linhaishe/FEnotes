@@ -824,9 +824,7 @@ html { -webkit-text-size-adjust: none; }
 https://vue3js.cn/interview/css/sass_less_stylus.html#%E4%BA%8C%E3%80%81%E6%9C%89%E5%93%AA%E4%BA%9B
 
 
-# 一、JS
-
-## 异步编程 Promise
+# 一、Promise
 
 ### 1. 异步编程的实现方式?
 
@@ -6933,6 +6931,31 @@ Zustand 提供极简 API，在简洁和可控之间做平衡。
 ## 六、生命周期
 
 ### 1. React的生命周期有哪些?
+
+React 16 之后生命周期分为三大阶段：挂载（Mount）、更新（Update）、卸载（Unmount），并引入了新的生命周期以适配 Fiber 架构。
+
+React 16 之后生命周期分为挂载、更新和卸载三个阶段。
+ 挂载阶段包括 constructor、getDerivedStateFromProps、render 和 componentDidMount；
+ 更新阶段包括 getDerivedStateFromProps、shouldComponentUpdate、render、getSnapshotBeforeUpdate 和 componentDidUpdate；
+ 卸载阶段是 componentWillUnmount。
+ 同时 React 废弃了 componentWillMount、componentWillReceiveProps 和 componentWillUpdate，推荐使用新的生命周期或 Hooks。
+
+| 生命周期                 | 用途                     |
+| ------------------------ | ------------------------ |
+| constructor              | 初始化 state / 绑定 this |
+| getDerivedStateFromProps | 根据 props 派生 state    |
+| render                   | 生成 UI（纯函数）        |
+| componentDidMount        | 发请求 / 操作 DOM        |
+| shouldComponentUpdate    | 性能优化                 |
+| getSnapshotBeforeUpdate  | DOM 更新前获取快照       |
+| componentDidUpdate       | 操作更新后的 DOM         |
+| componentWillUnmount     | 清理副作用               |
+
+| Class 生命周期       | Hooks                                |
+| -------------------- | ------------------------------------ |
+| componentDidMount    | useEffect(() => {}, [])              |
+| componentDidUpdate   | useEffect(() => {})                  |
+| componentWillUnmount | useEffect(() => { return () => {} }) |
 
 React常见生命周期的过程大致如下： 
 

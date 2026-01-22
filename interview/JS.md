@@ -1,499 +1,3 @@
-## 一、Web 存储 / 浏览器能力
-
-### 13. 什么是DOM和BOM?
-
-![image-20251224172324262](https://s2.loli.net/2025/12/24/HeuBjgIG2iqd6VP.png)
-
-- DOM 指的是文档对象模型，它指的是把文档当做一个对象，这个对象主要定义了处理网页内容的方法和接口。
-- BOM 指的是浏览器对象模型，它指的是把浏览器当做一个对象来对待，这个对象主要定义了与浏览器进行交互的法和接口。BOM的核心是 window，而 window 对象具有双重角色，它既是通过 js 访问浏览器窗口的一个接口，又是一个 Global（全局）对象。这意味着在网页中定义的任何对象，变量和函数，都作为全局对象的一个属性或者方法存在。window 对象含有 location 对象、navigator 对象、screen 对象等子对象，并且 DOM 的最根本的对象 document 对象也是 BOM 的 window 对象的子对象。
-
-### 14. 常见的DOM操作有哪些
-
-节点的增删改查
-
-```js
-getElementById // 按照 id 查询
-getElementsByTagName // 按照标签名查询
-getElementsByClassName // 按照类名查询
-querySelectorAll // 按照 css 选择器查询
-
-// 按照 id 查询
-var imooc = document.getElementById('imooc') // 查询到 id 为 imooc 的元素
-// 按照标签名查询
-var pList = document.getElementsByTagName('p')  // 查询到标签为 p 的集合
-console.log(divList.length)
-console.log(divList[0])
-// 按照类名查询
-var moocList = document.getElementsByClassName('mooc') // 查询到类名为 mooc 的集合
-// 按照 css 选择器查询
-var pList = document.querySelectorAll('.mooc') // 查询到类名为 mooc 的集合
-```
-
-```js
-// 首先获取父节点
-var container = document.getElementById('container')
-// 创建新节点
-var targetSpan = document.createElement('span')
-// 设置 span 节点的内容
-targetSpan.innerHTML = 'hello world'
-// 把新创建的元素塞进父节点里去
-container.appendChild(targetSpan)
-```
-
-```js
-// 获取目标元素的父元素
-var container = document.getElementById('container')
-// 获取目标元素
-var targetNode = document.getElementById('title')
-// 删除目标元素
-container.removeChild(targetNode)
-```
-
-```js
-// 获取父元素
-var container = document.getElementById('container')   
- 
-// 获取两个需要被交换的元素
-var title = document.getElementById('title')
-var content = document.getElementById('content')
-// 交换两个元素，把 content 置于 title 前面
-container.insertBefore(content, title)
-```
-
-### 15. 说说你对BOM的理解，常见的BOM对象你了解哪些？
-
-**1. Window**
-
-- `moveBy(x,y)`：从当前位置水平移动窗体x个像素，垂直移动窗体y个像素，x为负数，将向左移动窗体，y为负数，将向上移动窗体
-- `moveTo(x,y)`：移动窗体左上角到相对于屏幕左上角的(x,y)点
-- `resizeBy(w,h)`：相对窗体当前的大小，宽度调整w个像素，高度调整h个像素。如果参数为负值，将缩小窗体，反之扩大窗体
-- `resizeTo(w,h)`：把窗体宽度调整为w个像素，高度调整为h个像素
-- `scrollTo(x,y)`：如果有滚动条，将横向滚动条移动到相对于窗体宽度为x个像素的位置，将纵向滚动条移动到相对于窗体高度为y个像素的位置
-- `scrollBy(x,y)`： 如果有滚动条，将横向滚动条向左移动x个像素，将纵向滚动条向下移动y个像素
-
-**2. location**
-
-| 属性名   | 例子                                                   | 说明                                |
-| -------- | ------------------------------------------------------ | ----------------------------------- |
-| hash     | "#contents"                                            | utl中#后面的字符，没有则返回空串    |
-| host     | www.wrox.com:80                                        | 服务器名称和端口号                  |
-| hostname | www.wrox.com                                           | 域名，不带端口号                    |
-| href     | http://www.wrox.com:80/WileyCDA/?q=javascript#contents | 完整url                             |
-| pathname | "/WileyCDA/"                                           | 服务器下面的文件路径                |
-| port     | 80                                                     | url的端口号，没有则为空             |
-| protocol | http:                                                  | 使用的协议                          |
-| search   | ?q=javascript                                          | url的查询字符串，通常为？后面的内容 |
-
-**3. navigator**
-
-![image-20251224172445256](https://s2.loli.net/2025/12/24/rwb5tf8OqsYRyv2.png)
-
-![image-20251224172507004](https://s2.loli.net/2025/12/24/nmA4v7jRTf5UPSZ.png)
-
-**4. screen**
-
-![image-20251224172525327](https://s2.loli.net/2025/12/24/TIvCdzMKr7kmloG.png)
-
-**5. history**
-
-- `history.forward()`：向前跳转一个页面
-- `history.back()`：向后跳转一个页面
-- `history.length`：获取历史记录数
-
-### 7. JavaScript脚本延迟加载的方式有哪些/js脚本异步加载
-
-延迟加载就是等页面加载完成之后再加载 JavaScript 文件。 js 延迟加载有助于提高页面加载速度。
-
-一般有以下几种方式：
-
-- **defer 属性：**给 js 脚本添加 defer 属性，这个属性会让脚本的加载与文档的解析同步解析，然后在文档解析完成后再执行这个脚本文件，这样的话就能使页面的渲染不被阻塞。多个设置了 defer 属性的脚本按规范来说最后是顺序执行的，但是在一些浏览器中可能不是这样。
-- **async 属性：**给 js 脚本添加 async 属性，这个属性会使脚本异步加载，不会阻塞页面的解析过程，但是当脚本加载完成后立即执行 js 脚本，这个时候如果文档没有解析完成的话同样会阻塞。多个 async 属性的脚本的执行顺序是不可预测的，一般不会按照代码的顺序依次执行。
-- **动态创建 DOM 方式：**动态创建 DOM 标签的方式，可以对文档的加载事件进行监听，当文档加载完成后再动态的创建 script 标签来引入 js 脚本。
-- **使用 setTimeout 延迟方法：**设置一个定时器来延迟加载js脚本文件
-- **让 JS 最后加载：**将 js 脚本放在文档的底部，来使 js 脚本尽可能的在最后来加载执行。
-
-### 3. Javascript本地存储的方式有哪些？区别及应用场景？
-
-#### 区别
-
-关于`cookie`、`sessionStorage`、`localStorage`三者的区别主要如下：
-
-- 存储大小：`cookie`数据大小不能超过`4k`，`sessionStorage`和`localStorage`虽然也有存储大小的限制，但比`cookie`大得多，可以达到5M或更大
-- 有效时间：`localStorage`存储持久数据，浏览器关闭后数据不丢失除非主动删除数据； `sessionStorage`数据在当前浏览器窗口关闭后自动删除；`cookie`设置的`cookie`过期时间之前一直有效，即使窗口或浏览器关闭
-- 数据与服务器之间的交互方式，`cookie`的数据会自动的传递到服务器，服务器端也可以写`cookie`到客户端； `sessionStorage`和`localStorage`不会自动把数据发给服务器，仅在本地保存
-
-#### 应用场景
-
-- 标记用户与跟踪用户行为的情况，推荐使用`cookie`
-- 适合长期保存在本地的数据（令牌），推荐使用`localStorage`
-- 敏感账号一次性登录，推荐使用`sessionStorage`
-- 存储大量数据的情况、在线文档（富文本编辑器）保存编辑历史的情况，推荐使用`indexedDB`
-
-`javaScript`本地缓存的方法我们主要讲述以下四种：
-
-- cookie
-- sessionStorage
-- localStorage
-- indexedDB
-
-#### a. cookie
-
-`Cookie`，类型为「小型文本文件」，指某些网站为了辨别用户身份而储存在用户本地终端上的数据。是为了解决 `HTTP`无状态导致的问题
-
-作为一段一般不超过 4KB 的小型文本数据，它由一个名称（Name）、一个值（Value）和其它几个用于控制 `cookie`有效期、安全性、使用范围的可选属性组成
-
-但是`cookie`在每次请求中都会被发送，如果不使用 `HTTPS`并对其加密，其保存的信息很容易被窃取，导致安全风险。举个例子，在一些使用 `cookie`保持登录态的网站上，如果 `cookie`被窃取，他人很容易利用你的 `cookie`来假扮成你登录网站
-
-关于`cookie`常用的属性如下：
-
-关于`cookie`常用的属性如下：
-
-```js
-document.cookie="username=John Doe; expires=Thu, 18 Dec 2043 12:00:00 GMT; path=/";
-```
-
-- expires 用于设置 Cookie 的过期时间
-
-```js
-expires=Wed, 21 Oct 2015 07:28:00 GMT
-```
-
-- max-Age 用于设置在 Cookie 失效之前需要经过的秒数（优先级比`Expires`高）
-
-```
-max-Age=604800
-```
-
-- `;max-age=max-age-in-seconds` (e.g., `60*60*24*365` or 31536000 for a year)
-- `;expires=date-in-GMTString-format` If neither `expires` nor `max-age` specified it will expire at the end of session.
-
-- `Domain`指定了 `Cookie` 可以送达的主机名
-- `Path`指定了一个 `URL`路径，这个路径必须出现在要请求的资源的路径中才可以发送 `Cookie` 首部
-
-```js
-Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部
-```
-
-- 标记为 `Secure`的 `Cookie`只应通过被`HTTPS`协议加密过的请求发送给服务端
-
-通过上述，我们可以看到`cookie`又开始的作用并不是为了缓存而设计出来，只是借用了`cookie`的特性实现缓存
-
-关于`cookie`的使用如下：
-
-```js
-document.cookie = '名字=值';
-```
-
-关于`cookie`的修改，首先要确定`domain`和`path`属性都是相同的才可以，其中有一个不同得时候都会创建出一个新的`cookie`
-
-```js
-Set-Cookie:name=aa; domain=aa.net; path=/  # 服务端设置
-document.cookie =name=bb; domain=aa.net; path=/  # 客户端设置
-```
-
-最后`cookie`的删除，最常用的方法就是给`cookie`设置一个过期的事件，这样`cookie`过期后会被浏览器删除
-
-#### b. localStorage
-
-`HTML5`新方法，IE8及以上浏览器都兼容
-
-特点
-
-- 生命周期：持久化的本地存储，除非主动删除数据，否则数据是永远不会过期的
-- 存储的信息在同一域中是共享的
-- 当本页操作（新增、修改、删除）了`localStorage`的时候，本页面不会触发`storage`事件,但是别的页面会触发`storage`事件。
-- 大小：5M（跟浏览器厂商有关系）
-- `localStorage`本质上是对字符串的读取，如果存储内容多的话会消耗内存空间，会导致页面变卡
-- 受同源策略的限制
-
-下面再看看关于`localStorage`的使用
-
-设置
-
-```js
-localStorage.setItem('username','cfangxu');
-```
-
-获取
-
-```js
-localStorage.getItem('username')
-```
-
-获取键名
-
-```js
-localStorage.key(0) //获取第一个键名
-```
-
-删除
-
-```js
-localStorage.removeItem('username')
-```
-
-一次性清除所有存储
-
-```js
-localStorage.clear()
-```
-
-`localStorage` 也不是完美的，它有两个缺点：
-
-- 无法像`Cookie`一样设置过期时间
-- 只能存入字符串，无法直接存对象
-
-```js
-localStorage.setItem('key', {name: 'value'});
-console.log(localStorage.getItem('key')); // '[object, Object]'
-```
-
-#### c. sessionStorage
-
-`sessionStorage`和 `localStorage`使用方法基本一致，唯一不同的是生命周期，一旦页面（会话）关闭，`sessionStorage` 将会删除数据。
-
-#### d. indexedDB
-
-`indexedDB`是一种低级API，用于客户端存储大量结构化数据(包括, 文件/ blobs)。该API使用索引来实现对该数据的高性能搜索
-
-虽然 `Web Storage`对于存储较少量的数据很有用，但对于存储更大量的结构化数据来说，这种方法不太有用。`IndexedDB`提供了一个解决方案
-
-优点：
-
-- 储存量理论上没有上限
-- 所有操作都是异步的，相比 `LocalStorage` 同步操作性能更高，尤其是数据量较大时
-- 原生支持储存`JS`的对象
-- 是个正经的数据库，意味着数据库能干的事它都能干
-
-缺点：
-
-- 操作非常繁琐
-- 本身有一定门槛
-
-关于`indexedDB`的使用基本使用步骤如下：
-
-- 打开数据库并且开始一个事务
-- 创建一个 `object store`
-- 构建一个请求来执行一些数据库操作，像增加或提取数据等。
-- 通过监听正确类型的 `DOM` 事件以等待操作完成。
-- 在操作结果上进行一些操作（可以在 `request`对象中找到）
-
-关于使用`indexdb`的使用会比较繁琐，大家可以通过使用`Godb.js`库进行缓存，最大化的降低操作难度
-
-### 4. 如何实现可过期的 localStorage 数据？
-
-**localStorage 不支持过期时间，需要在存储时额外保存过期时间戳，在读取时判断是否过期并清除数据。**
-
- **存数据时把“过期时间”一起存进去，取数据时判断是否过期**
-
-`localStorage` **没有过期机制**，只能手动实现
-
-### 5. JavaScript 如何计算一段文本渲染之后的长度
-
-JS 计算文本渲染后的长度，本质是获取浏览器排版后的尺寸，最准确方式是 DOM 测量，性能敏感场景可用 Canvas 的 `measureText`。
-
-| 含义                        | 实际想要的是什么        |
-| --------------------------- | ----------------------- |
-| **字符数**                  | 文本一共多少个字符      |
-| **像素宽度 / 高度** ⭐最常见 | 文本在页面上占多宽/多高 |
-| **占几行**                  | 是否超出、是否折行      |
-
-| 场景         | 推荐方案    |
-| ------------ | ----------- |
-| 精确 UI 渲染 | DOM 测量    |
-| 高频计算     | Canvas      |
-| 判断是否省略 | scrollWidth |
-| 多行高度     | DOM         |
-| 不影响页面   | hidden DOM  |
-
-#### 真实渲染尺寸（像素）
-##### 使用 DOM 实际渲染测量（最准）
-
-###### 利用 `offsetWidth / scrollWidth`
-
-```
-<span id="text" style="font-size:16px;font-family:Arial;">
-  Hello 世界
-</span>
-const el = document.getElementById('text');
-
-// 可见宽度
-el.offsetWidth;
-
-// 实际内容宽度（不受 overflow:hidden 影响）
-el.scrollWidth;
-```
-
-📌 **特点**
-
-- ✅ 真实渲染结果
-- ❌ 必须插入 DOM
-- ❌ 会触发一次布局（reflow）
-
-------
-
-###### 不影响页面的“隐藏测量”（生产常用）
-
-```
-function getTextWidth(text, style) {
-  const span = document.createElement('span');
-  span.innerText = text;
-  span.style.cssText = `
-    position: absolute;
-    white-space: nowrap;
-    visibility: hidden;
-    ${style}
-  `;
-  document.body.appendChild(span);
-  const width = span.offsetWidth;
-  document.body.removeChild(span);
-  return width;
-}
-```
-
-使用：
-
-```
-const width = getTextWidth(
-  'Hello 世界',
-  'font-size:16px;font-family:Arial'
-);
-```
-
-✅ **最准确、跨浏览器一致**
-
-------
-
-##### 性能更好：Canvas 测量（不触发重排）⭐
-
-适合：频繁计算 / 列表 / 虚拟滚动
-
-```
-function measureTextWidth(text, font = '16px Arial') {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.font = font;
-  return ctx.measureText(text).width;
-}
-measureTextWidth('Hello 世界', '16px Arial');
-```
-
-📌 **优缺点**
-
-|      |                     |
-| ---- | ------------------- |
-| ✅    | 不操作 DOM，性能好  |
-| ❌    | 只测 **单行宽度**   |
-| ❌    | 行高 / 换行需自己算 |
-
-#### 计算多行文本高度 / 行数（超实用）
-
-##### 方式一：DOM 方案（最稳）
-
-```
-function getTextHeight(text, width, style) {
-  const div = document.createElement('div');
-  div.innerText = text;
-  div.style.cssText = `
-    position: absolute;
-    visibility: hidden;
-    width: ${width}px;
-    ${style}
-  `;
-  document.body.appendChild(div);
-  const height = div.offsetHeight;
-  document.body.removeChild(div);
-  return height;
-}
-```
-
-------
-
-##### 方式二：是否溢出（判断省略号）
-
-```
-el.scrollWidth > el.clientWidth; // 是否超出一行
-el.scrollHeight > el.clientHeight; // 是否超出多行
-```
-
-### 6. jsBridge 是什么?工作原理是什么?
-
-**jsBridge** 是前端（Web）与原生应用（Native，如 iOS / Android）之间的**通信桥梁机制**。
-
-> **jsBridge = 让 Web 页面能调用原生能力，也让原生能调用 JS 的一套通信方案**
-
-#### jsBridge 解决什么问题？
-
-在 Hybrid / WebView 场景中：
-
-- JS 👉 **无法直接调用** 原生 API（相机、定位、支付）
-- 原生 👉 **无法直接操作** Web 里的 JS
-
-👉 **jsBridge 就是中间层（Bridge）**
-
-| 方向          | 能力               |
-| ----------- | ---------------- |
-| JS → Native | 调用相机、定位、扫码、支付、分享 |
-| Native → JS | 通知结果、下发数据、触发页面更新 |
-
-#### 核心工作原理
-
-**jsBridge 的工作原理可以概括为：`协议 + 拦截 + 回调`。**
-
-**协议**：JS 和 Native 事先约定好通信格式（方法名、参数、callbackId），JS 按这个协议发起调用。
-
-**拦截**：Native 在 WebView 层拦截 JS 的请求（如 URL Scheme、prompt、注入对象），识别出要执行的原生方法。
-
-**回调**：原生执行完成后，通过执行 JS，把结果按 callbackId 回传给对应的 JS 回调函数。
-
-本质上是一次 **JS → Native 的异步调用流程**。
-
-jsBridge 就是通过约定通信协议，Native 拦截 JS 请求并执行原生能力，最后再通过回调把结果返回给 JS。
-
-### 7. 说说你对 requestAnimationFrame 的理解
-
-requestAnimationFrame 是浏览器提供的动画 API，会在下一帧渲染前执行回调，与刷新率同步，比定时器更流畅、更省性能，页面不可见时还会自动暂停。
-
-rAF 是“告诉浏览器我这帧要更新”，而不是“我自己定时执行”。
-
-**requestAnimationFrame（简称 rAF）是浏览器提供的用于执行动画的 API，它会在浏览器下一次重绘之前执行回调函数，执行频率与屏幕刷新率同步（通常是 60Hz）。**
-
-相比 `setTimeout / setInterval`，`requestAnimationFrame` 能让动画更流畅，并且在页面不可见时自动暂停，性能更好。
-
-> rAF 的回调 **在浏览器一次渲染帧开始前执行**，属于 **渲染流程的一部分**，而不是普通宏任务。
-
-```css
-JS 执行
-↓
-requestAnimationFrame 回调
-↓
-布局（layout）
-↓
-绘制（paint）
-↓
-合成（composite）
-```
-
-**rAF 和屏幕刷新率的关系**
-
-- 60Hz 屏幕 → 每秒最多 60 次
-- 120Hz 屏幕 → 每秒最多 120 次
-- **自动适配，不用自己算时间间隔**
-
-**页面不可见时会怎样？**
-
-> 浏览器会 **暂停 rAF 回调**，减少 CPU / 电量消耗（而 setTimeout 不一定）
-
-**rAF 和 Event Loop 的关系（加分）**
-
-> rAF 回调 **在一次事件循环的末尾、下一帧渲染前执行**，它不属于宏任务队列。
-
-**为什么 rAF 更适合动画？**
-
-- 避免无效帧
-- 减少布局抖动
-- 与浏览器渲染节奏一致
-
 ## 二、JavaScript 语言体系 / 运行环境认知
 
 ### 1. let, const, var区别
@@ -2500,6 +2004,169 @@ const { classes: { stu: { name } }} = school
 
 ### 12. 深拷贝和浅拷贝
 
+#### 📌 **一、总起介绍**
+
+深拷贝和浅拷贝是 JavaScript 中处理对象复制的两种核心策略，它们的主要区别在于**对引用类型属性的处理方式**。
+
+**核心概念**：
+
+- **浅拷贝**：仅复制对象的第一层属性值，如果属性值是引用类型（对象、数组、函数等），则复制的是内存地址的引用，新旧对象会共享这些引用类型的值
+- **深拷贝**：递归地复制对象的所有层级，为每一个引用类型的属性都创建全新的内存空间，新旧对象完全独立，互不影响
+
+**本质区别**：深拷贝创建的是全新的对象，而浅拷贝创建的是与原对象有部分内存共享的新对象。
+
+------
+
+#### 🎯 **二、作用举例/具体应用场景**
+
+##### **浅拷贝的应用场景**
+
+###### **1. 性能优先的场景**
+
+当数据量较大但只需要修改第一层属性时，浅拷贝能提供更好的性能。比如在处理配置对象时，如果只需要修改顶级配置项，使用浅拷贝可以避免不必要的递归开销。
+
+###### **2. React/Vue 状态更新**
+
+在 React 中，`setState` 要求不能直接修改原状态，需要返回新状态对象。通常我们会使用扩展运算符进行浅拷贝来创建新状态。虽然这是浅拷贝，但结合不可变数据模式，实际应用中足够安全。
+
+###### **3. 函数参数传递的优化**
+
+将大对象作为函数参数时，如果不希望函数修改原对象但又不介意共享嵌套对象，可以使用浅拷贝传入副本，这样既保护了顶级属性，又避免了深拷贝的性能损耗。
+
+###### **4. 快速对象合并**
+
+使用 `Object.assign()` 或扩展运算符进行对象合并时，实际执行的是浅拷贝操作。这在需要快速组合多个对象但不需要深度独立的场景下很实用。
+
+##### **深拷贝的应用场景**
+
+###### **1. 状态快照和撤销/重做功能**
+
+在编辑器、设计工具中实现撤销功能时，需要保存用户操作的完整快照。使用深拷贝确保每个快照完全独立，恢复状态时不会相互影响。
+
+###### **2. 数据处理流水线**
+
+在数据转换或处理流程中，如果需要保持原始数据的完整性，会在每个处理阶段使用深拷贝创建数据副本，确保原始数据不被意外修改。
+
+###### **3. 缓存计算结果**
+
+对于昂贵的计算结果进行缓存时，如果结果包含复杂的嵌套结构，需要使用深拷贝存储，防止后续操作污染缓存数据。
+
+###### **4. 多线程/Web Worker 通信**
+
+向 Web Worker 传递数据时，通常需要对数据进行序列化和反序列化，这本质上是一种深拷贝操作，确保主线程和工作线程拥有独立的数据副本。
+
+###### **5. 配置管理**
+
+在应用配置管理中，当需要基于默认配置创建用户特定的配置时，使用深拷贝可以确保用户修改配置不会影响默认配置模板。
+
+------
+
+#### ⚠️ **三、缺点/怎么解决**
+
+##### **浅拷贝的缺点及解决方案**
+
+###### **缺点1：嵌套对象共享导致的意外修改**
+
+这是浅拷贝最主要的问题。修改拷贝对象的嵌套属性会意外修改原对象的相同属性。
+
+**解决方案**：
+
+1. **使用不可变数据模式**：结合 Immutable.js 或 immer 等库，从设计上避免直接修改
+2. **按需深拷贝**：只对可能被修改的嵌套属性进行深拷贝
+3. **防御性编程**：在使用浅拷贝后，明确文档说明哪些属性是共享的
+
+###### **缺点2：不适用于复杂对象结构**
+
+当对象有深度嵌套或多层引用时，浅拷贝往往不能满足需求。
+
+**解决方案**：
+
+- 根据业务需求选择合适的拷贝策略
+- 对于明确需要完全独立的场景，直接使用深拷贝
+
+###### **缺点3：原型链和特殊属性丢失**
+
+浅拷贝方法通常不会复制对象的原型链、getter/setter、不可枚举属性等。
+
+**解决方案**：
+
+- 使用 `Object.create(Object.getPrototypeOf(obj))` 配合 `Object.assign()` 来保留原型链
+- 对于特殊需求，实现自定义的浅拷贝函数
+
+##### **深拷贝的缺点及解决方案**
+
+###### **缺点1：性能开销大**
+
+深拷贝需要递归遍历所有属性，对于大型、嵌套深的对象，性能消耗显著。
+
+**解决方案**：
+
+1. **结构化克隆**：现代浏览器支持的原生 `structuredClone()` API，性能优于手动实现
+2. **惰性拷贝**：只有在实际修改时才进行深拷贝
+3. **增量更新**：只拷贝发生变化的部分
+4. **使用专业库**：如 lodash 的 `cloneDeep` 经过高度优化
+
+###### **缺点2：循环引用问题**
+
+对象内部的循环引用会导致递归实现的深拷贝陷入死循环。
+
+**解决方案**：
+
+1. **使用 WeakMap 跟踪已拷贝对象**：在递归过程中记录已处理对象，遇到时直接返回引用
+2. **JSON 方法会直接报错**：这是 JSON 方法的限制之一
+3. **第三方库已内置处理**：大多数成熟的深拷贝库都已解决此问题
+
+###### **缺点3：特殊类型处理困难**
+
+Date、RegExp、Set、Map、函数、Symbol、DOM 节点等特殊类型需要特殊处理。
+
+**解决方案**：
+
+1. **完整的手动实现**：在递归函数中为每种特殊类型编写处理逻辑
+2. **结构化克隆 API**：原生支持更多类型
+3. **第三方库**：使用成熟的库避免重复造轮子
+
+###### **缺点4：JSON 方法的局限性**
+
+`JSON.parse(JSON.stringify())` 虽然简单，但有明显限制：
+
+- 函数、undefined、Symbol 丢失
+- Date 对象转为字符串
+- RegExp 转为空对象
+- Infinity、NaN 转为 null
+- 不支持循环引用
+- 不保留原型链
+
+**解决方案**：
+
+- 明确需求：如果不需要处理这些特殊类型，JSON 方法是最简单的选择
+- 否则选择其他深拷贝方案
+
+##### **通用解决方案建议**
+
+###### **1. 选择策略**
+
+- **数据简单** → 浅拷贝
+- **需要完全独立** → 深拷贝
+- **不确定时** → 优先深拷贝，性能敏感时再优化
+
+###### **2. 现代最佳实践**
+
+```
+// 结构化克隆（现代浏览器）
+const cloned = structuredClone(original);
+
+// 第三方库
+import { cloneDeep } from 'lodash-es';
+const cloned = cloneDeep(original);
+```
+
+###### **3. 性能优化技巧**
+
+- **对象冻结**：结合 `Object.freeze()` 使用浅拷贝更安全
+- **缓存机制**：对于频繁拷贝的相同对象，使用缓存
+- **懒拷贝**：在修改时才进行深拷贝
+
 - 浅拷贝是拷贝一层，属性为对象时，浅拷贝是复制，两个对象指向同一个地址
 - 深拷贝是递归拷贝深层次，属性为对象时，深拷贝是新开栈，两个对象指向不同的地址
 
@@ -3213,9 +2880,11 @@ for (const [key, val] of obj) {
 1.  `__proto__ `属性来访问这个属性，但是最好不要使用这个属性，因为它不是规范中规定的。
 2.  ES5 中新增了一个 Object.getPrototypeOf() 方法，可以通过这个方法来获取对象的原型。
 
+概念型：总起 介绍 作用举例，具体应用场景 缺点/怎么解决
+
 **原型链（构造函数，原型，实例的关系）**
 
-**原型链是 JavaScript 实现继承的机制。**每个对象都有一个 `[[Prototype]]`，它指向创建该对象的构造函数的 `prototype`。当访问对象属性时，如果对象自身没有，就会沿着 `__proto__` 向上查找，直到 `null`，这条查找路径就叫原型链。
+**原型链是 JavaScript 实现继承的机制。**每个对象都有一个 `[[Prototype]]`，它指向创建该对象的构造函数的 `prototype`。当访问对象属性时，如果对象自身没有，就会沿着 `__proto__` 隐实原型 向上查找，直到 `null`，这条查找路径就叫原型链。
 
 每个构造函数都有一个原型对象，原型有一个属性指回构造函数，而实例有一个内部指针指向原型。这样就在实例和原型之间构造了一条原型链。
 
@@ -3949,11 +3618,13 @@ console.log(g.next()); // 1, { value: 2, done: false }
 console.log(g.next()); // 3, { value: 4, done: true }
 ```
 
-### 函数柯里化了解多少?
+### ==函数柯里化了解多少?==
+
+柯里化是把一个多参数函数转化成一个嵌套的一元函数的过程
 
 - 将多参数函数拆分成多个单参数函数，每次返回一个新函数，直到接收完所有参数执行原函数。
 
-```
+```js
 function add(a) {
   return function(b) {
     return a + b;
@@ -4396,6 +4067,8 @@ init();
 
 4. 闭包的另一个用途是使已经运行结束的函数上下文中的变量对象继续留在内存中，因为闭包函数保留了这个变量对象的引用，所以这个变量对象不会被回收。
 
+5. 只为Null 垃圾回收机制会处理好这个生育的内容
+
 **闭包注意事项**
 
    **缺点：**
@@ -4533,7 +4206,7 @@ const p2 = new Point(3, 4);
    - 尾递归或循环可以防止栈溢出
 2. **尾递归优化**（ES6 支持，严格模式下）
 
-```
+```js
 'use strict';
 function factorial(n, acc = 1) {
   if (n === 0) return acc;
@@ -4543,7 +4216,7 @@ function factorial(n, acc = 1) {
 
 1. **使用栈/队列手动模拟递归**
 
-```
+```js
 function factorial(n) {
   const stack = [];
   let result = 1;
