@@ -10,6 +10,8 @@
 
 🏗️🏗️🏗️🏗️
 
+<img src="https://i.postimg.cc/BvW2131n/image.png" alt="image.png" style="zoom:50%;" />
+
 https://miro.com/app/board/uXjVPEXED68=/
 
 <img src="https://s2.loli.net/2024/08/19/ERPlonh46yDUFNO.jpg" alt="数据结构" style="zoom:50%;" />
@@ -25,6 +27,28 @@ https://miro.com/app/board/uXjVPEXED68=/
 > An [algorithm](https://www.techtarget.com/searchenterpriseai/definition/clustering-in-machine-learning) is a procedure used for solving a problem or performing a computation. Algorithms act as an exact list of instructions that conduct specified actions step by step in either hardware- or software-based routines.
 >
 > 解决问题的办法/步骤逻辑。
+
+计算机的两种存储方式，顺序存储（数组）和链式存储（链表）
+
+**静态数组就是一块连续的内存空间，我们可以通过索引来访问这块内存空间中的元素，这才是数组的原始形态**。
+
+~~说白了就是一块连续的内存空间，有了这块内存空间的首地址，就能直接通过索引计算出任意位置的元素地址。~~
+
+链表不一样，一条链表并不需要一整块连续的内存空间存储元素。链表的元素可以分散在内存空间的天涯海角，通过每个节点上的 `next, prev` 指针，将零散的内存块串联起来形成一个链式结构。
+
+队列和栈都是「操作受限」的数据结构。说它操作受限，主要是和基本的数组和链表相比，它们提供的 API 是不完整的。队列只允许在队尾插入元素，在队头删除元素，栈只允许在栈顶插入元素，从栈顶删除元素。
+
+哈希表可以理解为一个加强版的数组。
+
+数组可以通过索引在 O(1)*O*(1) 的时间复杂度内查找到对应元素，索引是一个非负整数。
+
+哈希表是类似的，可以通过 `key` 在 O(1)*O*(1) 的时间复杂度内查找到这个 `key` 对应的 `value`。`key` 的类型可以是数字、字符串等多种类型。`key` 是唯一的，`value` 可以重复。
+
+哈希函数、哈希冲突、拉链法、开放寻址法（哈希 🚩
+
+二叉树、满二叉树、完全二叉树、二叉搜索树、高度平衡二叉树、自平衡二叉树、多叉树、二叉堆（用于优先级队列）、图、字典树、并查集、线段树
+
+DFS/BFS
 
 # 专有名词
 
@@ -52,7 +76,7 @@ arr.find(x => x === 30); // O(n)
 
 ## array / 数组
 
-数组是一种线性结构，并且可以在数组的任意位置差如何删除数据。
+数组是一种线性结构，并且可以在数组的任意位置插入和删除数据。
 
 数组在 JS 中的方法被封装的非常完善，查看 API 文档即可。
 
@@ -1593,6 +1617,8 @@ levelOrderTraverse(_allRoot);
 
 BFS = Queue + While 循环
 
+第二种层序遍历写法，能够记录节点深度：
+
 ```js
 var levelOrderTraverse = function(root) {
     if (root === null) {
@@ -1625,6 +1651,9 @@ let _allRoot = BTree.createRoot([3,9,2,1,null,5,7])
 levelOrderTraverse(_allRoot);
 ```
 ##### function  3
+
+第三种能够适配不同权重边的写法：
+
 ```js
 function State(node, depth) {
     this.node = node;
@@ -1804,8 +1833,30 @@ while queue not empty:
 
 ### info
 
-是一种特殊的堆，二叉堆是完全二叉树或者是近似完全二叉树。二叉堆满足堆特性：父节点的键值总是保持固定的序关系于任何一个子节点的键值，且每个节点的左子树和右子树都是一个二叉堆。
+The binary heap is a special binary tree with the following two properties:
+
+- It is a complete binary tree, meaning all levels of the tree have both left and right children (with the exception of the last-level leaves), and the last level has all children as left as possible. This is called as **shape property**.
+
+- A binary heap is either a min heap or a max heap. The min heap allows you to quickly extract the minimum value of the tree, and the max heap allows you to quickly extract the maximum value of the tree. All nodes are either greater than or equal to (max heap), or less than or equal to (min heap), each of its child nodes. This is called **heap property**.
+
+![image-20260226171945201](https://i.postimg.cc/hnyX1HpN/image-20260226171945201.png?dl=1)
+
+是一种特殊的堆，==二叉堆是完全二叉树或者是近似完全二叉树==。二叉堆满足堆特性：父节点的键值总是保持固定的序关系于任何一个子节点的键值，且每个节点的左子树和右子树都是一个二叉堆。
 当父节点的键值总是大于或等于任何一个子节点的键值时为“最大堆”。当父节点的键值总是小于或等于任何一个子节点的键值时为“最小堆”。
+
+**“在这个树里，等级森严，长辈和晚辈的大小关系是铁打不变的。”**
+
+这里的“固定序关系”其实就两种情况，取决于你是在讨论**大顶堆**还是**小顶堆**：
+
+### 1. 两种“序关系”的直观理解
+
+- **如果是大顶堆（Max Heap）：** “固定序关系”指的就是 **父节点 >= 子节点**。
+
+  不管你在树的哪一层，只要是一个爹，它的值就必须比它的孩子大（或者相等）。最高领导（根节点）一定是全堆最大的。
+
+- **如果是小顶堆（Min Heap）：** “固定序关系”指的就是 **父节点 <=子节点**。
+
+  这时候爹必须比孩子小。最底层的“小祖宗”（根节点）是全堆最小的。
 
 你可以认为二叉堆是一种特殊的二叉树，这棵二叉树上的任意节点的值，都必须大于等于（或小于等于）其左右**子树所有节点**的值。如果是大于等于，我们称之为「大顶堆」，如果是小于等于，我们称之为「小顶堆」。
 
