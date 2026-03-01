@@ -44,6 +44,17 @@ prefix[4] - prefix[1]
 
 ### 二维矩阵
 
+<img src="https://i.postimg.cc/XVQphLGn/image-20260301171702024.png?dl=1" alt="image-20260301171702024" style="zoom: 67%;" />
+
+```js
+// sums 矩阵
+0 0 0
+
+0 A A+B
+
+0 A+C A+B+C+D
+```
+
 ![image-20260228134650561](https://i.postimg.cc/JmgFVkf8/image-20260228134650561.png?dl=1)
 
 假设我们有一个原始矩阵 `matrix`，我们先创建一个预处理矩阵 `sums`，其中 `sums[i][j]` 表示从矩阵左上角 `(0, 0)` 到右下角 `(i-1, j-1)` 这个矩形范围内所有元素的累加和。
@@ -118,7 +129,7 @@ return sums[row2 + 1][col2 + 1] // 大矩形
   - 相加结果：`2+0+1 + 1+0+1 + 0+3+0 = 8`。
 
 ```js
-Array.from({ length: n }, () => []) 是 JS 中创建独立多维数组的最简便写法。
+Array.from({ length: n }, () => []) // 是 JS 中创建独立多维数组的最简便写法。
 
 // 1. 先创建一个外层数组（行）
 const sums = new Array(rows + 1); 
@@ -143,14 +154,14 @@ class NumMatrix {
         // sums[i][j] 代表从 matrix[0][0] 到 matrix[i-1][j-1] 的矩形和
         this.sums = Array.from({ length: rows + 1 }, () => new Array(cols + 1).fill(0));
 
-        for (let i = 1; i <= rows; i++) {
-            for (let j = 1; j <= cols; j++) {
+        for (let x = 1; x <= rows; x++) {
+            for (let y = 1; y <= cols; y++) {
                 // 计算当前位置的前缀和
                 // 当前值 + 上方和 + 左方和 - 重复计算的左上方和
-                this.sums[i][j] = matrix[i - 1][j - 1] 
-                                + this.sums[i - 1][j] 
-                                + this.sums[i][j - 1] 
-                                - this.sums[i - 1][j - 1];
+                this.sums[x][y] = matrix[x - 1][y - 1] 
+                                + this.sums[x - 1][y] 
+                                + this.sums[x][y - 1] 
+                                - this.sums[x - 1][y - 1];
             }
         }
     }
@@ -164,10 +175,10 @@ class NumMatrix {
     sumRegion(row1, col1, row2, col2) {
         // 使用容斥原理：大矩形 - 上方矩形 - 左方矩形 + 重复减去的左上方矩形
         // 注意：由于 sums 索引比 matrix 大 1，所以这里的索引需要相应偏移
-        return this.sums[row2 + 1][col2 + 1] 
-             - this.sums[row1][col2 + 1] 
-             - this.sums[row2 + 1][col1] 
-             + this.sums[row1][col1];
+        return this.sums[row2 + 1][col2 + 1] // 5 4 - a
+             - this.sums[row1][col2 + 1] // 2 4 - b
+             - this.sums[row2 + 1][col1] // 5 1 - c
+             + this.sums[row1][col1]; // 2 1 - d
     }
 }
 
@@ -186,6 +197,15 @@ const nm = new NumMatrix(matrix);
 console.log(nm.sumRegion(2, 1, 4, 3)); // 输出: 8
 console.log(nm.sumRegion(1, 1, 2, 2)); // 输出: 11
 console.log(nm.sumRegion(1, 2, 2, 4)); // 输出: 12
+
+const matrix = [
+  [0 0, 0, 0, 0, 0]
+  [0 3, 0, 1, 4, 2],
+  [0 d, 6, 3, b, 1],
+  [0 1, 2, 0, 1, 5],
+  [0 4, 1, 0, 1, 7],
+  [0 c, 0, 3, a, 5],
+];
 ```
 
 ![image-20260228140032257](https://i.postimg.cc/Q8qWg1cN/image-20260228140032257.png?dl=1)
