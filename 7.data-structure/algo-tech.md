@@ -268,9 +268,7 @@ var productExceptSelf = function(nums) {
     }
     return res;
 };
-```
-
-
 
 // 用“除法”来求区间积
+```
 
