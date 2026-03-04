@@ -198,19 +198,79 @@ console.log(nm.sumRegion(2, 1, 4, 3)); // 输出: 8
 console.log(nm.sumRegion(1, 1, 2, 2)); // 输出: 11
 console.log(nm.sumRegion(1, 2, 2, 4)); // 输出: 12
 
-const matrix = [
+const sums = [
   [0 0, 0, 0, 0, 0]
   [0 3, 0, 1, 4, 2],
   [0 d, 6, 3, b, 1],
-  [0 1, 2, 0, 1, 5],
+  [0 1, 2, 0, 1, 5], // 这个2的位置坐标
   [0 4, 1, 0, 1, 7],
   [0 c, 0, 3, a, 5],
 ];
+
+// 在原来的matrix上多增加了一列一排，在那个的基础上计算出abcd的坐标位置即可。所以sumRegion(3,2,5,4)
+// (row1 + 1) (col1 + 1) (row2 + 1) (col2 + 1)
+// 2的位置坐标是 (row1 + 1) (col1 + 1) ， a的位置坐标(row2 + 1) (col2 + 1)
+// 进行推算
+// a = row2 + 1 , col2 + 1
+// b = row1 + 1 - 1 , col2 + 1
+// c = row2 + 1, (col1 + 1 - 1)
+// d = (row1 + 1 - 1) (col1 + 1 -1)
 ```
 
 ![image-20260228140032257](https://i.postimg.cc/Q8qWg1cN/image-20260228140032257.png?dl=1)
 
+### 前缀积
+
+#### 1. 算出“左侧积累” (prefix)
+
+`prefix[i]` 代表从开头一直乘到 `i` 的结果。
+
+- `nums`: `[2, 3, 4, 5]`
+- `prefix`: `[2, 6, 24, 120]` (分别是 2, 2*3, 2*3*4...)
+
+#### 2. 算出“右侧积累” (suffix)
+
+`suffix[i]` 代表从末尾一直乘回 `i` 的结果。
+
+- `nums`: `[2, 3, 4, 5]`
+- `suffix`: `[120, 60, 20, 5]` (分别是 2*3*4*5, 3*4*5, 4*5, 5)
+
+#### 3. 左右合体 (res)
+
+现在我们要算第 `i` 个位置（比如 `nums[1]`，也就是数字 `3`）：
+
+- 它的**左边**所有人积是 `prefix[0]` (即 `2`)
+- 它的**右边**所有人积是 `suffix[2]` (即 `4*5 = 20`)
+- **结果** = `2 * 20 = 40`。你看，数字 `3` 就这样被绕过去了。
+
+```js
+var productExceptSelf = function(nums) {
+    let n = nums.length;
+    // 从左到右的前缀积，prefix[i] 是 nums[0..i] 的元素积
+    let prefix = new Array(n);
+    prefix[0] = nums[0];
+    for (let i = 1; i < nums.length; i++) {
+        prefix[i] = prefix[i - 1] * nums[i];
+    }
+    // 从右到左的前缀积，suffix[i] 是 nums[i..n-1] 的元素积
+    let suffix = new Array(n);
+    suffix[n - 1] = nums[n - 1];
+    for (let i = n - 2; i >= 0; i--) {
+        suffix[i] = suffix[i + 1] * nums[i];
+    }
+    // 结果数组
+    let res = new Array(n);
+    res[0] = suffix[1]; // 数组的最左边和最右边，代码通过手动赋值来规避
+    res[n - 1] = prefix[n - 2]; // 最右边，代表从第 1 个数到倒数第 2 个数的积
+    for (let i = 1; i < n - 1; i++) { // 跳过第一个和最后一个
+        // 除了 nums[i] 自己的元素积就是 nums[i] 左侧和右侧所有元素之积
+        res[i] = prefix[i - 1] * suffix[i + 1];
+    }
+    return res;
+};
+```
 
 
 
+// 用“除法”来求区间积
 
