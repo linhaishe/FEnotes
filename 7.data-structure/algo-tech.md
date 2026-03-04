@@ -1,6 +1,8 @@
-# Algo-tech
 
-## 前缀和数组
+
+# 前缀和数组
+
+> 前缀和技巧适用于快速、频繁地计算一个索引区间内的元素之和。
 
 ### 一维数组
 
@@ -271,4 +273,78 @@ var productExceptSelf = function(nums) {
 
 // 用“除法”来求区间积
 ```
+
+# 差分数组
+
+> **差分数组的主要适用场景是频繁对原始数组的某个区间的元素进行增减**。
+
+如果你用 `for` 循环去修改区间，时间复杂度是 $O(N)$。如果有 10 万次修改，程序就慢死了。 但用差分数组，**每次修改只需要改两个数**，时间复杂度是 $O(1)$。最后只在查询结果时做一次 $O(N)$ 的累加即可。
+
+原数组不是 diff，本质上是 diff 的前缀和。`nums[k] = diff[0] + diff[1] + ... + diff[k]`
+
+每个 nums[k] 都包含前面所有 diff 的累加。
+
+```js
+let nums = [0, 0, 0, 0, 0];
+
+// 1️⃣ 创建差分对象
+let diff = new Difference(nums);
+
+// 2️⃣ 进行区间修改
+diff.increment(1, 3, 2);   // [1,3] +2
+diff.increment(2, 4, 3);   // [2,4] +3
+diff.increment(0, 2, -2);  // [0,2] -2
+
+// 3️⃣ 还原结果
+let result = diff.result();
+
+console.log(result);
+```
+
+```js
+// 原数组 = 差分数组的前缀和
+
+class Difference {
+    constructor(nums) {
+        // 差分数组
+        this.diff = new Array(nums.length);
+        // 根据初始数组构造差分数组
+        this.diff[0] = nums[0];
+        for (let i = 1; i < nums.length; i++) {
+            this.diff[i] = nums[i] - nums[i - 1];
+        }
+    }
+
+    // 给闭区间 [i, j] 增加 val（可以是负数）
+    increment(i, j, val) {
+        this.diff[i] += val;
+        if (j + 1 < this.diff.length) {
+            this.diff[j + 1] -= val;
+        }
+    }
+
+    // 返回结果数组
+    result() {
+        let res = new Array(this.diff.length);
+        // 根据差分数组构造结果数组
+        res[0] = this.diff[0];
+        for (let i = 1; i < this.diff.length; i++) {
+            res[i] = res[i - 1] + this.diff[i];
+        }
+        return res;
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
