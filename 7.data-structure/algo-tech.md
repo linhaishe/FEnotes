@@ -1,3 +1,38 @@
+# 数组-双指针
+
+## 快慢指针
+
+一般用于数组原地修改
+
+1. 原地修改数组 leetcode 26/80/27
+2. 原地修改链表 83 
+
+```js
+var removeDuplicates = function(nums) {
+    if (nums.length === 0) {
+        return 0;
+    }
+    let slow = 0, fast = 0;
+    while (fast < nums.length) {
+        if (nums[fast] !== nums[slow]) {
+            slow++;
+            // 维护 nums[0..slow] 无重复
+            nums[slow] = nums[fast];
+        fast++;
+    }
+    // 数组长度为索引 + 1
+    return slow + 1;
+};
+```
+
+2. 滑动窗口
+
+## 左右指针
+
+## 
+
+
+
 
 
 # 前缀和数组
@@ -37,7 +72,7 @@ prefix: [0,0,0,0,0,0]
 // 构造 prefix：
 prefix: [0, 2, 6, 12, 20, 30]
 
-// 求 [1,3]
+// 求 [1,3] index 1-3
 
 prefix[4] - prefix[1] 
 = (2+4+6+8) - (2)
