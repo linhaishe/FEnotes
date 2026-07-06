@@ -4576,57 +4576,3113 @@ https://docs.python.org/zh-cn/3/library/index.html
 
 ------
 
-1. 高级教程
-2. 正则表达式
-3. CGI编程
-4. MySQL(mysql-connector)
-5. MySQL(PyMySQL)
-6. 网络编程
-7. SMTP发送邮件
-8. 多线程
-9. XML 解析
-10. JSON
-11. 日期和时间
-12. 内置函数
-13. MongoDB
-14. urllib
-15. uWSGI 安装配置
-16. pip
-17. operator
-18. math
-19. requests
-20. random
-21. OpenAI
-22. 有用的资源
-23. AI 绘画
-24. statistics
-25. hashlib
-26. 量化
-27. pyecharts
-28. selenium 库
-29. 爬虫
-30. Scrapy 库
-31. Markdown
-32. sys 模块
-33. Pickle 模块
-34. subprocess 模块
-35. queue 模块
-36. StringIO 模块
-37. logging 模块
-38. datetime 模块
-39. re 模块
-40. csv 模块
-41. threading 模块
-42. asyncio 模块
-43. PyQt
-44. for 循环
-45. while 循环
+# 内置核心能力
+
+## 内置函数
+
+Python 提供了大量**内置函数（Built-in Functions）**，无需导入任何库即可直接使用。 这些函数覆盖了**数据类型转换、数学计算、迭代操作、反射机制**等常见场景，是每个 Python 初学者必须掌握的基础工具。
+
+- **数值计算：**`abs()`、`round()`、`min()`、`max()`、`sum()`
+- **类型转换：**`int()`、`float()`、`str()`、`list()`、`tuple()`
+- **迭代与函数式：**code>map()、`filter()`、`zip()`、`enumerate()`
+- **反射与对象：**`type()`、`isinstance()`、`getattr()`、`setattr()`
+- **输入输出：**`print()`、`input()`、`open()`
+
+```
+# 求和
+sum([1, 2, 3])  # 6
+
+# 最大值
+max([3, 6, 2])  # 6
+
+# 类型转换
+int("123")      # 123
+
+# 枚举
+for i, v in enumerate(['a', 'b']):
+    print(i, v)
+
+# map
+list(map(lambda x: x * 2, [1,2,3]))  # [2,4,6]
+```
+
+|                           内置函数                           |                                                              |                                                              |                                                              |                                                              |
+| :----------------------------------------------------------: | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [abs()](https://www.runoob.com/python3/python3-func-number-abs.html) | [dict()](https://www.runoob.com/python3/python3-func-dict.html) | [help()](https://www.runoob.com/python3/python3-func-help.html) | [min()](https://www.runoob.com/python3/python3-func-number-min.html) | [setattr()](https://www.runoob.com/python3/python3-func-setattr.html) |
+| [all()](https://www.runoob.com/python3/python3-func-all.html) | [dir()](https://www.runoob.com/python3/python3-func-dir.html) | [hex()](https://www.runoob.com/python3/python3-func-hex.html) | [next()](https://www.runoob.com/python3/python3-func-next.html) | [slice()](https://www.runoob.com/python3/python3-func-slice.html) |
+| [any()](https://www.runoob.com/python3/python3-func-any.html) | [divmod()](https://www.runoob.com/python3/python3-func-divmod.html) | [id()](https://www.runoob.com/python3/python3-func-id.html)  | [object()](https://www.runoob.com/python3/python-func-object.html) | [sorted()](https://www.runoob.com/python3/python3-func-sorted.html) |
+| [ascii()](https://www.runoob.com/python3/python3-func-ascii.html) | [enumerate()](https://www.runoob.com/python3/python3-func-enumerate.html) | [input()](https://www.runoob.com/python/python3-func-input.html) | [oct()](https://www.runoob.com/python/python3-func-oct.html) | [staticmethod()](https://www.runoob.com/python3/python3-func-staticmethod.html) |
+| [bin()](https://www.runoob.com/python3/python3-func-bin.html) | [eval()](https://www.runoob.com/python3/python3-func-eval.html) | [int()](https://www.runoob.com/python3/python3-func-int.html) | [open()](https://www.runoob.com/python3/python3-func-open.html) | [str()](https://www.runoob.com/python3/python3-func-str.html) |
+| [bool()](https://www.runoob.com/python3/python3-func-bool.html) | [exec()](https://www.runoob.com/python3/python3-func-exec.html) | [isinstance()](https://www.runoob.com/python3/python3-func-isinstance.html) | [ord()](https://www.runoob.com/python3/python3-func-ord.html) | [sum()](https://www.runoob.com/python3/python3-func-sum.html) |
+| [bytearray()](https://www.runoob.com/python3/python3-func-bytearray.html) | [filter()](https://www.runoob.com/python3/python3-func-filter.html) | [issubclass()](https://www.runoob.com/python3/python3-func-issubclass.html) | [pow()](https://www.runoob.com/python3/python3-func-number-pow.html) | [super()](https://www.runoob.com/python3/python3-func-super.html) |
+| [bytes()](https://www.runoob.com/python3/python3-func-bytes.html) | [float()](https://www.runoob.com/python3/python3-func-float.html) | [iter()](https://www.runoob.com/python3/python3-func-iter.html) | [print()](https://www.runoob.com/python3/python3-func-print.html) | [tuple()](https://www.runoob.com/python3/python3-func-tuple.html) |
+| [callable()](https://www.runoob.com/python3/python3-func-callable.html) | [format()](https://www.runoob.com/python/att-string-format.html) | [len()](https://www.runoob.com/python3/python3-string-len.html) | [property()](https://www.runoob.com/python3/python3-func-property.html) | [type()](https://www.runoob.com/python3/python3-func-type.html) |
+| [chr()](https://www.runoob.com/python3/python3-func-chr.html) | [frozenset()](https://www.runoob.com/python3/python3-func-frozenset.html) | [list()](https://www.runoob.com/python3/python3-att-list-list.html) | [range()](https://www.runoob.com/python3/python3-func-range.html) | [vars()](https://www.runoob.com/python3/python3-func-vars.html) |
+| [classmethod()](https://www.runoob.com/python3/python3-func-classmethod.html) | [getattr()](https://www.runoob.com/python3/python3-func-getattr.html) | [locals()](https://www.runoob.com/python3/python3-func-locals.html) | [repr()](https://www.runoob.com/python3/python3-func-repr.html) | [zip()](https://www.runoob.com/python3/python3-func-zip.html) |
+| [compile()](https://www.runoob.com/python3/python3-func-compile.html) | [globals()](https://www.runoob.com/python3/python3-func-globals.html) | [map()](https://www.runoob.com/python/python3-func-map.html) | [reversed()](https://www.runoob.com/python3/python3-func-reversed.html) | [__import__()](https://www.runoob.com/python3/python3-func-__import__.html) |
+| [complex()](https://www.runoob.com/python3/python3-func-complex.html) | [hasattr()](https://www.runoob.com/python3/python3-func-hasattr.html) | [max()](https://www.runoob.com/python3/python3-func-number-max.html) | [round()](https://www.runoob.com/python3/python3-func-number-round.html) | [reload()](https://www.runoob.com/python3/python3-func-reload.html) |
+| [delattr()](https://www.runoob.com/python3/python3-func-delattr.html) | [hash()](https://www.runoob.com/python3/python3-func-hash.html) | [memoryview()](https://www.runoob.com/python3/python3-func-memoryview.html) | [set()](https://www.runoob.com/python3/python3-func-set.html) |                                                              |
+
+## math 模块
+
+**Python math 模块**提供了大量常用数学函数，可用于完成：
+
+- 三角函数计算（sin / cos / tan）
+- 对数与指数运算（log / exp / pow）
+- 取整与舍入（ceil / floor / trunc）
+- 组合排列与阶乘（comb / perm / factorial）
+- 距离与几何计算（dist / hypot / sqrt）
+
+https://www.runoob.com/python3/python-math.html
+
+## random 模块
+
+```
+# 导入 random 包
+import random
+
+# 生成随机数
+print(random.random())
+```
+
+```
+#!/usr/bin/python3
+import random
+
+random.seed()
+print ("使用默认种子生成随机数：", random.random())
+print ("使用默认种子生成随机数：", random.random())
+
+random.seed(10)
+print ("使用整数 10 种子生成随机数：", random.random())
+random.seed(10)
+print ("使用整数 10 种子生成随机数：", random.random())
+
+random.seed("hello",2)
+print ("使用字符串种子生成随机数：", random.random())
+```
+
+| 方法                                                         | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [seed()](https://www.runoob.com/python3/python3-func-number-seed.html) | 初始化随机数生成器                                           |
+| getstate()                                                   | 返回捕获生成器当前内部状态的对象。                           |
+| setstate()                                                   | state 应该是从之前调用 getstate() 获得的，并且 setstate() 将生成器的内部状态恢复到 getstate() 被调用时的状态。 |
+| getrandbits(k)                                               | 返回具有 k 个随机比特位的非负 Python 整数。 此方法随 MersenneTwister 生成器一起提供，其他一些生成器也可能将其作为 API 的可选部分提供。 在可能的情况下，getrandbits() 会启用 randrange() 来处理任意大的区间。 |
+| [randrange()](https://www.runoob.com/python3/ref-random-randrange.html) | 从 range(start, stop, step) 返回一个随机选择的元素。         |
+| [randint(a, b)](https://www.runoob.com/python3/ref-random-randint.html) | 返回随机整数 N 满足 a <= N <= b。                            |
+| [choice(seq)](https://www.runoob.com/python3/python3-func-number-choice.html) | 从非空序列 seq 返回一个随机元素。 如果 seq 为空，则引发 IndexError。 |
+| choices(population, weights=None, *, cum_weights=None, k=1)  | 从 population 中选择替换，返回大小为 k 的元素列表。 如果 population 为空，则引发 IndexError。 |
+| [shuffle(x[, random\])](https://www.runoob.com/python3/python3-func-number-shuffle.html) | 将序列 x 随机打乱位置。                                      |
+| sample(population, k, *, counts=None)                        | 返回从总体序列或集合中选择的唯一元素的 k 长度列表。 用于无重复的随机抽样。 |
+| [random()](https://www.runoob.com/python3/python3-func-number-random.html) | 返回 [0.0, 1.0) 范围内的下一个随机浮点数。                   |
+| [uniform()](https://www.runoob.com/python3/python3-func-number-uniform.html) | 返回一个随机浮点数 N ，当 a <= b 时 a <= N <= b ，当 b < a 时 b <= N <= a 。 |
+| triangular(low, high, mode)                                  | 返回一个随机浮点数 N ，使得 low <= N <= high 并在这些边界之间使用指定的 mode 。 low 和 high 边界默认为零和一。 mode 参数默认为边界之间的中点，给出对称分布。 |
+| betavariate(alpha, beta)                                     | Beta 分布。 参数的条件是 alpha > 0 和 beta > 0。 返回值的范围介于 0 和 1 之间。 |
+| expovariate(lambd)                                           | 指数分布。 lambd 是 1.0 除以所需的平均值，它应该是非零的。   |
+| gammavariate()                                               | Gamma 分布（ 不是伽马函数） 参数的条件是 alpha > 0 和 beta > 0。 |
+| gauss(mu, sigma)                                             | 正态分布，也称高斯分布。 mu 为平均值，而 sigma 为标准差。 此函数要稍快于下面所定义的 normalvariate() 函数。 |
+| lognormvariate(mu, sigma)                                    | 对数正态分布。 如果你采用这个分布的自然对数，你将得到一个正态分布，平均值为 mu 和标准差为 sigma 。 mu 可以是任何值，sigma 必须大于零。 |
+| normalvariate(mu, sigma)                                     | 正态分布。 mu 是平均值，sigma 是标准差。                     |
+| vonmisesvariate(mu, kappa)                                   | 冯·米塞斯分布。 mu 是平均角度，以弧度表示，介于0和 2*pi 之间，kappa 是浓度参数，必须大于或等于零。 如果 kappa 等于零，则该分布在 0 到 2*pi 的范围内减小到均匀的随机角度。 |
+| paretovariate(alpha)                                         | 帕累托分布。 alpha 是形状参数。                              |
+| weibullvariate(alpha, beta)                                  | 威布尔分布。 alpha 是比例参数，beta 是形状参数。             |
+
+## sys 模块
+
+`sys` 是 Python 标准库中的一个模块，提供了与 Python 解释器及其环境交互的功能。
+
+通过 `sys` 库，你可以访问与 Python 解释器相关的变量和函数，例如命令行参数、标准输入输出、程序退出等。
+
+```
+import sys
+
+# 列出 os 模块的所有属性和方法
+print(dir(os))
+```
+
+### sys 模块常用属性
+
+| 属性             | 说明                                                    |
+| :--------------- | :------------------------------------------------------ |
+| `sys.argv`       | 命令行参数列表，`sys.argv[0]` 是脚本名称                |
+| `sys.path`       | Python 模块搜索路径（`PYTHONPATH`）                     |
+| `sys.modules`    | 已加载模块的字典                                        |
+| `sys.platform`   | 操作系统平台标识（如 `'win32'`, `'linux'`, `'darwin'`） |
+| `sys.version`    | Python 解释器版本信息                                   |
+| `sys.executable` | Python 解释器的绝对路径                                 |
+| `sys.stdin`      | 标准输入流（文件对象）                                  |
+| `sys.stdout`     | 标准输出流（文件对象）                                  |
+| `sys.stderr`     | 标准错误流（文件对象）                                  |
+| `sys.byteorder`  | 字节序（`'little'` 或 `'big'`）                         |
+| `sys.maxsize`    | 最大整数值（`2**31-1` 或 `2**63-1`）                    |
+
+------
+
+### sys 模块常用方法
+
+| 方法                           | 说明                                           |
+| :----------------------------- | :--------------------------------------------- |
+| `sys.exit([status])`           | 退出程序，`status=0` 表示正常退出              |
+| `sys.getsizeof(obj)`           | 返回对象占用的内存字节数                       |
+| `sys.getdefaultencoding()`     | 获取默认字符串编码（通常 `'utf-8'`）           |
+| `sys.setrecursionlimit(limit)` | 设置递归深度限制（默认 `1000`）                |
+| `sys.getrecursionlimit()`      | 获取当前递归深度限制                           |
+| `sys.getrefcount(obj)`         | 返回对象的引用计数                             |
+| `sys.exc_info()`               | 获取当前异常信息（`(type, value, traceback)`） |
+| `sys.settrace(tracefunc)`      | 设置调试跟踪函数                               |
+| `sys.setprofile(profilefunc)`  | 设置性能分析函数                               |
+
+### operator 模块
+
+比较两个列表、数字或字符串等的大小关系。
+
+| 运算         | 语法                | 函数                                |
+| :----------- | :------------------ | :---------------------------------- |
+| 加法         | `a + b`             | `add(a, b)`                         |
+| 字符串拼接   | `seq1 + seq2`       | `concat(seq1, seq2)`                |
+| 包含测试     | `obj in seq`        | `contains(seq, obj)`                |
+| 除法         | `a / b`             | `truediv(a, b)`                     |
+| 除法         | `a // b`            | `floordiv(a, b)`                    |
+| 按位与       | `a & b`             | `and_(a, b)`                        |
+| 按位异或     | `a ^ b`             | `xor(a, b)`                         |
+| 按位取反     | `~ a`               | `invert(a)`                         |
+| 按位或       | `a | b`             | `or_(a, b)`                         |
+| 取幂         | `a ** b`            | `pow(a, b)`                         |
+| 标识         | `a is b`            | `is_(a, b)`                         |
+| 标识         | `a is not b`        | `is_not(a, b)`                      |
+| 索引赋值     | `obj[k] = v`        | `setitem(obj, k, v)`                |
+| 索引删除     | `del obj[k]`        | `delitem(obj, k)`                   |
+| 索引取值     | `obj[k]`            | `getitem(obj, k)`                   |
+| 左移         | `a << b`            | `lshift(a, b)`                      |
+| 取模         | `a % b`             | `mod(a, b)`                         |
+| 乘法         | `a * b`             | `mul(a, b)`                         |
+| 矩阵乘法     | `a @ b`             | `matmul(a, b)`                      |
+| 取反（算术） | `- a`               | `neg(a)`                            |
+| 取反（逻辑） | `not a`             | `not_(a)`                           |
+| 正数         | `+ a`               | `pos(a)`                            |
+| 右移         | `a >> b`            | `rshift(a, b)`                      |
+| 切片赋值     | `seq[i:j] = values` | `setitem(seq, slice(i, j), values)` |
+| 切片删除     | `del seq[i:j]`      | `delitem(seq, slice(i, j))`         |
+| 切片取值     | `seq[i:j]`          | `getitem(seq, slice(i, j))`         |
+| 字符串格式化 | `s % obj`           | `mod(s, obj)`                       |
+| 减法         | `a - b`             | `sub(a, b)`                         |
+| 真值测试     | `obj`               | `truth(obj)`                        |
+| 比较         | `a < b`             | `lt(a, b)`                          |
+| 比较         | `a <= b`            | `le(a, b)`                          |
+| 相等         | `a == b`            | `eq(a, b)`                          |
+| 不等         | `a != b`            | `ne(a, b)`                          |
+| 比较         | `a >= b`            | `ge(a, b)`                          |
+| 比较         | `a > b`             | `gt(a, b)`                          |
+
+```
+# Python 实例
+# add(), sub(), mul()
+  
+# 导入  operator 模块
+import operator
+  
+# 初始化变量
+a = 4
+  
+b = 3
+  
+# 使用 add() 让两个值相加
+print ("add() 运算结果 :",end="");
+print (operator.add(a, b))
+  
+# 使用 sub() 让两个值相减
+print ("sub() 运算结果 :",end="");
+print (operator.sub(a, b))
+  
+# 使用 mul() 让两个值相乘
+print ("mul() 运算结果 :",end="");
+print (operator.mul(a, b))
+```
+
+# 文件 / 数据处理
+
+## JSON 数据解析
+
+- **json.dumps():** 对数据进行编码。
+- **json.loads():** 对数据进行解码。
+
+### Python 编码为 JSON 类型转换对应表：
+
+| Python                                 | JSON   |
+| :------------------------------------- | :----- |
+| dict                                   | object |
+| list, tuple                            | array  |
+| str                                    | string |
+| int, float, int- & float-derived Enums | number |
+| True                                   | true   |
+| False                                  | false  |
+| None                                   | null   |
+
+### JSON 解码为 Python 类型转换对应表：
+
+| JSON          | Python |
+| :------------ | :----- |
+| object        | dict   |
+| array         | list   |
+| string        | str    |
+| number (int)  | int    |
+| number (real) | float  |
+| true          | True   |
+| false         | False  |
+| null          | None   |
+
+```
+#!/usr/bin/python3
+ 
+import json
+ 
+# Python 字典类型转换为 JSON 对象
+data = {
+    'no' : 1,
+    'name' : 'Runoob',
+    'url' : 'https://www.runoob.com'
+}
+ 
+json_str = json.dumps(data)
+print ("Python 原始数据：", repr(data))
+print ("JSON 对象：", json_str)
+```
+
+```
+Python 原始数据： {'no': 1, 'name': 'Runoob', 'url': 'https://www.runoob.com'}
+JSON 对象： {"no": 1, "name": "Runoob", "url": "https://www.runoob.com"}
+```
+
+https://docs.python.org/3/library/json.html
+
+## csv 模块
+
+CSV（Comma-Separated Values）文件是一种常见的文件格式，用于存储表格数据。
+
+CSV 文件由纯文本组成，每一行代表表格中的一行数据，而每一列则通过逗号（或其他分隔符）分隔。
+
+CSV 文件通常用于数据交换，因为它简单且易于处理。
+
+Python 提供了一个内置的 `csv` 模块，用于读取和写入 CSV 文件。这个模块简化了处理 CSV 文件的过程，使得开发者可以轻松地操作表格数据。
+
+### 1. 读取 CSV 文件
+
+要读取 CSV 文件，可以使用 `csv.reader` 对象。以下是一个简单的示例：
+
+```
+import csv
+
+# 打开 CSV 文件
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    # 创建 csv.reader 对象
+    csv_reader = csv.reader(file)
+    
+    # 逐行读取数据
+    for row in csv_reader:
+        print(row)
+```
+
+代码解释：
+
+- `open('data.csv', mode='r', encoding='utf-8')`：以只读模式打开名为 `data.csv` 的文件，并指定编码为 UTF-8。
+- `csv.reader(file)`：创建一个 `csv.reader` 对象，用于读取文件内容。
+- `for row in csv_reader`：逐行读取文件内容，每一行数据会被解析为一个列表。
+
+------
+
+### 2. 写入 CSV 文件
+
+要写入 CSV 文件，可以使用 `csv.writer` 对象。以下是一个示例：
+
+```
+import csv
+
+# 要写入的数据
+data = [
+    ['Name', 'Age', 'City'],
+    ['Alice', '30', 'New York'],
+    ['Bob', '25', 'Los Angeles']
+]
+
+# 打开 CSV 文件
+with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
+    # 创建 csv.writer 对象
+    csv_writer = csv.writer(file)
+    
+    # 写入数据
+    for row in data:
+        csv_writer.writerow(row)
+```
+
+代码解释：
+
+- `open('output.csv', mode='w', encoding='utf-8', newline='')`：以写入模式打开名为 `output.csv` 的文件，并指定编码为 UTF-8。`newline=''` 用于避免在 Windows 系统中出现空行。
+- `csv.writer(file)`：创建一个 `csv.writer` 对象，用于写入文件内容。
+- `csv_writer.writerow(row)`：将每一行数据写入文件。
+
+------
+
+### 3. 使用字典读取和写入 CSV 文件
+
+`csv` 模块还提供了 `DictReader` 和 `DictWriter` 类，它们可以将 CSV 文件的每一行解析为字典，或者将字典写入 CSV 文件。
+
+#### 使用 `DictReader` 读取 CSV 文件：
+
+```
+import csv
+
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    csv_dict_reader = csv.DictReader(file)
+    
+    for row in csv_dict_reader:
+        print(row)
+```
+
+#### 使用 `DictWriter` 写入 CSV 文件：
+
+```
+import csv
+
+data = [
+    {'Name': 'Alice', 'Age': '30', 'City': 'New York'},
+    {'Name': 'Bob', 'Age': '25', 'City': 'Los Angeles'}
+]
+
+with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
+    fieldnames = ['Name', 'Age', 'City']
+    csv_dict_writer = csv.DictWriter(file, fieldnames=fieldnames)
+    
+    # 写入表头
+    csv_dict_writer.writeheader()
+    
+    # 写入数据
+    for row in data:
+        csv_dict_writer.writerow(row)
+```
+
+------
+
+### 常用的属性和方法
+
+#### csv 模块核心方法
+
+| 方法                           | 说明                                | 示例                                               |
+| :----------------------------- | :---------------------------------- | :------------------------------------------------- |
+| **`csv.reader()`**             | 从文件对象读取 CSV 数据             | `reader = csv.reader(file)`                        |
+| **`csv.writer()`**             | 将数据写入 CSV 文件                 | `writer = csv.writer(file)`                        |
+| **`csv.DictReader()`**         | 将 CSV 行读取为字典（带表头）       | `dict_reader = csv.DictReader(file)`               |
+| **`csv.DictWriter()`**         | 将字典写入 CSV 文件（需指定字段名） | `dict_writer = csv.DictWriter(file, fieldnames)`   |
+| **`csv.register_dialect()`**   | 注册自定义 CSV 格式（如分隔符）     | `csv.register_dialect('mydialect', delimiter='|')` |
+| **`csv.unregister_dialect()`** | 删除已注册的方言                    | `csv.unregister_dialect('mydialect')`              |
+| **`csv.list_dialects()`**      | 列出所有已注册的方言                | `print(csv.list_dialects())`                       |
+
+#### csv.reader 和 csv.writer 对象常用方法
+
+| 方法                  | 说明                                | 适用对象 |
+| :-------------------- | :---------------------------------- | :------- |
+| **`__next__()`**      | 迭代读取下一行（或使用 `for` 循环） | `reader` |
+| **`writerow(row)`**   | 写入单行数据                        | `writer` |
+| **`writerows(rows)`** | 写入多行数据（列表的列表）          | `writer` |
+
+#### csv.DictReader 和 csv.DictWriter 对象特性
+
+| 特性/方法           | 说明                                      | 示例                        |
+| :------------------ | :---------------------------------------- | :-------------------------- |
+| **`fieldnames`**    | 字段名列表（`DictReader` 自动从首行获取） | `dict_reader.fieldnames`    |
+| **`writeheader()`** | 写入表头行（`DictWriter` 专用）           | `dict_writer.writeheader()` |
+
+#### 常用参数说明
+
+| 参数               | 说明                     | 示例值                      | 适用方法        |
+| :----------------- | :----------------------- | :-------------------------- | :-------------- |
+| `delimiter`        | 字段分隔符               | `','`（默认）, `'\t'`       | `reader/writer` |
+| `quotechar`        | 引用字符（包围特殊字段） | `'"'`（默认）               | `reader/writer` |
+| `quoting`          | 引用规则                 | `csv.QUOTE_ALL`（全部引用） | `reader/writer` |
+| `skipinitialspace` | 忽略分隔符后的空格       | `True`/`False`              | `reader`        |
+| `lineterminator`   | 行结束符                 | `'\r\n'`（默认）            | `writer`        |
+| `dialect`          | 预定义的方言名称         | `'excel'`（默认）           | 所有方法        |
+
+## 日期和时间
+
+Python 程序能用很多方式处理日期和时间，转换日期格式是一个常见的功能。
+
+Python 提供了一个 time 和 calendar 模块可以用于格式化日期和时间。
+
+时间间隔是以秒为单位的浮点小数。
+
+每个时间戳都以自从 1970 年 1 月 1 日午夜（历元）经过了多长时间来表示。
+
+Python 的 time 模块下有很多函数可以转换常见日期格式。如函数 time.time() 用于获取当前时间戳, 
+
+```
+#!/usr/bin/python3
+
+import time  # 引入time模块
+
+ticks = time.time()
+print ("当前时间戳为:", ticks)
+```
+
+### time 模块
+
+| 序号 | 属性及描述                                                   |
+| :--- | :----------------------------------------------------------- |
+| 1    | **time.timezone** 属性time.timezone是当地时区（未启动夏令时）距离格林威治的偏移秒数（>0，美洲;<=0大部分欧洲，亚洲，非洲）。 |
+| 2    | **time.tzname** 属性time.tzname包含一对根据情况的不同而不同的字符串，分别是带夏令时的本地时区名称，和不带的。 |
+
+| 方法                              | 解释                                         | 例子                                                   |
+| --------------------------------- | -------------------------------------------- | ------------------------------------------------------ |
+| `time.altzone`                    | 返回夏令时地区相对 UTC 的偏移秒数。          | `print(time.altzone)`                                  |
+| `time.asctime([tupletime])`       | 把时间元组转成可读字符串。                   | `time.asctime(time.localtime())`                       |
+| `time.clock()`                    | 已废弃，Python 3.8 已移除。                  | 用 `time.perf_counter()` 或 `time.process_time()` 替代 |
+| `time.ctime([secs])`              | 把时间戳转成可读字符串。                     | `time.ctime()`                                         |
+| `time.gmtime([secs])`             | 把时间戳转成 UTC 时间元组。                  | `time.gmtime(time.time())`                             |
+| `time.localtime([secs])`          | 把时间戳转成本地时间元组。                   | `time.localtime(time.time())`                          |
+| `time.mktime(tupletime)`          | 把本地时间元组转成时间戳。                   | `time.mktime(time.localtime())`                        |
+| `time.sleep(secs)`                | 让程序暂停指定秒数。                         | `time.sleep(5)`                                        |
+| `time.strftime(fmt[, tupletime])` | 把时间元组格式化成字符串。                   | `time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())` |
+| `time.strptime(str, fmt)`         | 把时间字符串解析成时间元组。                 | `time.strptime("2026-07-06", "%Y-%m-%d")`              |
+| `time.time()`                     | 返回当前时间戳。                             | `time.time()`                                          |
+| `time.tzset()`                    | 根据环境变量 `TZ` 重新设置时区。             | `time.tzset()`                                         |
+| `time.perf_counter()`             | 高精度计时，适合统计代码耗时，包含睡眠时间。 | `start = time.perf_counter()`                          |
+| `time.process_time()`             | 统计当前进程 CPU 执行时间，不包含睡眠时间。  | `start = time.process_time()`                          |
+
+### datetime模块
+
+#### **1. 核心类**
+
+| 类                       | 说明                            | 示例                            |
+| :----------------------- | :------------------------------ | :------------------------------ |
+| **`datetime.date`**      | 日期类（年、月、日）            | `date(2023, 5, 15)`             |
+| **`datetime.time`**      | 时间类（时、分、秒、微秒）      | `time(14, 30, 0)`               |
+| **`datetime.datetime`**  | 日期时间类（包含日期和时间）    | `datetime(2023, 5, 15, 14, 30)` |
+| **`datetime.timedelta`** | 时间间隔类（用于日期/时间计算） | `timedelta(days=5)`             |
+| **`datetime.tzinfo`**    | 时区信息基类（需子类化实现）    | 自定义时区类                    |
+
+#### **2. `date` 对象常用方法/属性**
+
+| 方法/属性                     | 说明                           | 示例                                      |
+| :---------------------------- | :----------------------------- | :---------------------------------------- |
+| **`date.today()`**            | 返回当前本地日期               | `date.today()` → `date(2023, 5, 15)`      |
+| **`date.fromisoformat(str)`** | 从 `YYYY-MM-DD` 字符串解析日期 | `date.fromisoformat("2023-05-15")`        |
+| **`date.year`**               | 年份（只读）                   | `d.year` → `2023`                         |
+| **`date.month`**              | 月份（1-12，只读）             | `d.month` → `5`                           |
+| **`date.day`**                | 日（1-31，只读）               | `d.day` → `15`                            |
+| **`date.weekday()`**          | 返回星期几（0=周一，6=周日）   | `d.weekday()` → `0`                       |
+| **`date.isoformat()`**        | 返回 `YYYY-MM-DD` 格式字符串   | `d.isoformat()` → `"2023-05-15"`          |
+| **`date.strftime(format)`**   | 自定义格式化输出               | `d.strftime("%Y/%m/%d")` → `"2023/05/15"` |
+
+#### **3. `time` 对象常用方法/属性**
+
+| 方法/属性                   | 说明                              | 示例                              |
+| :-------------------------- | :-------------------------------- | :-------------------------------- |
+| **`time.hour`**             | 小时（0-23，只读）                | `t.hour` → `14`                   |
+| **`time.minute`**           | 分钟（0-59，只读）                | `t.minute` → `30`                 |
+| **`time.second`**           | 秒（0-59，只读）                  | `t.second` → `0`                  |
+| **`time.microsecond`**      | 微秒（0-999999，只读）            | `t.microsecond` → `0`             |
+| **`time.isoformat()`**      | 返回 `HH:MM:SS.mmmmmm` 格式字符串 | `t.isoformat()` → `"14:30:00"`    |
+| **`time.strftime(format)`** | 自定义格式化输出                  | `t.strftime("%H:%M")` → `"14:30"` |
+
+#### **4. `datetime` 对象常用方法/属性**
+
+| 方法/属性                        | 说明                         | 示例                                                   |
+| :------------------------------- | :--------------------------- | :----------------------------------------------------- |
+| **`datetime.now()`**             | 返回当前本地日期时间         | `datetime.now()` → `datetime(2023, 5, 15, 14, 30, 0)`  |
+| **`datetime.utcnow()`**          | 返回当前 UTC 日期时间        | `datetime.utcnow()`                                    |
+| **`datetime.fromtimestamp(ts)`** | 从时间戳创建 `datetime` 对象 | `datetime.fromtimestamp(1684146600)`                   |
+| **`datetime.timestamp()`**       | 返回时间戳（浮点数秒）       | `dt.timestamp()` → `1684146600.0`                      |
+| **`datetime.date()`**            | 提取日期部分                 | `dt.date()` → `date(2023, 5, 15)`                      |
+| **`datetime.time()`**            | 提取时间部分                 | `dt.time()` → `time(14, 30)`                           |
+| **`datetime.year`**              | 年份（同 `date`）            | `dt.year` → `2023`                                     |
+| **`datetime.strftime(format)`**  | 自定义格式化输出             | `dt.strftime("%Y-%m-%d %H:%M")` → `"2023-05-15 14:30"` |
+
+#### **5. `timedelta` 对象常用属性**
+
+| 属性               | 说明               | 示例                              |
+| :----------------- | :----------------- | :-------------------------------- |
+| **`days`**         | 天数（可正可负）   | `delta.days` → `5`                |
+| **`seconds`**      | 秒数（0-86399）    | `delta.seconds` → `3600`（1小时） |
+| **`microseconds`** | 微秒数（0-999999） | `delta.microseconds` → `0`        |
+
+#### **6. 常用格式化符号（`strftime`）**
+
+| 符号 | 说明                  | 示例输出 |
+| :--- | :-------------------- | :------- |
+| `%Y` | 四位年份              | `2023`   |
+| `%m` | 两位月份（01-12）     | `05`     |
+| `%d` | 两位日（01-31）       | `15`     |
+| `%H` | 24小时制小时（00-23） | `14`     |
+| `%M` | 分钟（00-59）         | `30`     |
+| `%S` | 秒（00-59）           | `00`     |
+| `%A` | 完整星期名            | `Monday` |
+| `%a` | 缩写星期名            | `Mon`    |
+| `%B` | 完整月份名            | `May`    |
+| `%b` | 缩写月份名            | `May`    |
+
+### 日历（Calendar）模块
+
+| 序号 | 函数及描述                                                   |
+| :--- | :----------------------------------------------------------- |
+| 1    | **calendar.calendar(year,w=2,l=1,c=6)** 返回一个多行字符串格式的 year 年年历，3 个月一行，间隔距离为 c。 每日宽度间隔为w字符。每行长度为 **21\* W+18+2\* C**。**l** 是每星期行数。 |
+| 2    | **calendar.firstweekday( )** 返回当前每周起始日期的设置。默认情况下，首次载入 calendar 模块时返回 0，即星期一。 |
+| 3    | **calendar.isleap(year)** 是闰年返回 True，否则为 False。`>>> import calendar >>> print(calendar.isleap(2000)) True >>> print(calendar.isleap(1900)) False` |
+| 4    | **calendar.leapdays(y1,y2)** 返回在Y1，Y2两年之间的闰年总数。 |
+| 5    | **calendar.month(year,month,w=2,l=1)** 返回一个多行字符串格式的year年month月日历，两行标题，一周一行。每日宽度间隔为w字符。每行的长度为7* w+6。l是每星期的行数。 |
+| 6    | **calendar.monthcalendar(year,month)** 返回一个整数的单层嵌套列表。每个子列表装载代表一个星期的整数。Year年month月外的日期都设为0;范围内的日子都由该月第几日表示，从1开始。 |
+| 7    | **calendar.monthrange(year,month)** 返回两个整数。第一个是该月的星期几，第二个是该月有几天。星期几是从0（星期一）到 6（星期日）。`>>> import calendar >>> calendar.monthrange(2014, 11) (5, 30)`(5, 30)解释：5 表示 2014 年 11 月份的第一天是周六，30 表示 2014 年 11 月份总共有 30 天。 |
+| 8    | **calendar.prcal(year, w=0, l=0, c=6, m=3)** 相当于 print (calendar.calendar(year, w=0, l=0, c=6, m=3))。 |
+| 9    | **calendar.prmonth(theyear, themonth, w=0, l=0)** 相当于 **print(calendar.month(theyear, themonth, w=0, l=0))**。 |
+| 10   | **calendar.setfirstweekday(weekday)** 设置每周的起始日期码。0（星期一）到6（星期日）。 |
+| 11   | **calendar.timegm(tupletime)** 和time.gmtime相反：接受一个时间元组形式，返回该时刻的时间戳（1970纪元后经过的浮点秒数）。 |
+| 12   | **calendar.weekday(year,month,day)** 返回给定日期的日期码。0（星期一）到6（星期日）。月份为 1（一月） 到 12（12月）。 |
+
+# 字符串核心能力
+
+## re 模块 / 正则表达式
+
+https://www.runoob.com/python3/python3-reg-expressions.html
+
+https://www.runoob.com/python3/python-re.html
+
+# 网络 & HTTP
+
+## urllib
+
+Python urllib 库用于操作网页 URL，并对网页的内容进行抓取处理。
+
+urllib 包 包含以下几个模块：
+
+- **urllib.request** - 打开和读取 URL。
+- **urllib.error** - 包含 urllib.request 抛出的异常。
+- **urllib.parse** - 解析 URL。
+- **urllib.robotparser** - 解析 robots.txt 文件。
+
+Python urllib 库用于操作网页 URL，并对网页的内容进行抓取处理。
+
+本文主要介绍 Python3 的 urllib。
+
+urllib 包 包含以下几个模块：
+
+- **urllib.request** - 打开和读取 URL。
+- **urllib.error** - 包含 urllib.request 抛出的异常。
+- **urllib.parse** - 解析 URL。
+- **urllib.robotparser** - 解析 robots.txt 文件。
+
+![img](https://www.runoob.com/wp-content/uploads/2021/04/ulrib-py3.svg)
+
+------
+
+### urllib.request
+
+urllib.request 定义了一些打开 URL 的函数和类，包含授权验证、重定向、浏览器 cookies等。
+
+urllib.request 可以模拟浏览器的一个请求发起过程。
+
+我们可以使用 urllib.request 的 urlopen 方法来打开一个 URL，语法格式如下：
+
+```
+urllib.request.urlopen(url, data=None, [timeout, ]*, cafile=None, capath=None, cadefault=False, context=None)
+```
+
+- **url**：url 地址。
+- **data**：发送到服务器的其他数据对象，默认为 None。
+- **timeout**：设置访问超时时间。
+- **cafile 和 capath**：cafile 为 CA 证书， capath 为 CA 证书的路径，使用 HTTPS 需要用到。
+- **cadefault**：已经被弃用。
+- **context**：ssl.SSLContext类型，用来指定 SSL 设置。
+
+```
+from urllib.request import urlopen
+
+myURL = urlopen("https://www.runoob.com/")
+print(myURL.read())
+```
+
+- **read()** - 读取整个网页内容
+
+  ```
+  from urllib.request import urlopen
+  
+  myURL = urlopen("https://www.runoob.com/")
+  print(myURL.read(300))
+  ```
+
+- **readline()** - 读取文件的一行内容
+
+  ```
+  from urllib.request import urlopen
+  
+  myURL = urlopen("https://www.runoob.com/")
+  print(myURL.readline()) #读取一行内容
+  ```
+
+- **readlines()** - 读取文件的全部内容，它会把读取的内容赋值给一个列表变量。
+
+  ```
+  from urllib.request import urlopen
+  
+  myURL = urlopen("https://www.runoob.com/")
+  lines = myURL.readlines()
+  for line in lines:
+      print(line) 
+  ```
+
+如果要将抓取的网页保存到本地
+
+```
+from urllib.request import urlopen
+
+myURL = urlopen("https://www.runoob.com/")
+f = open("runoob_urllib_test.html", "wb")
+content = myURL.read()  # 读取网页内容
+f.write(content)
+f.close()
+```
+
+URL 的编码与解码可以使用 
+
+- **urllib.request.quote()** 
+- **urllib.request.unquote()** 
+
+```
+import urllib.request 
+
+encode_url = urllib.request.quote("https://www.runoob.com/")  # 编码
+print(encode_url)
+
+unencode_url = urllib.request.unquote(encode_url)    # 解码
+print(unencode_url)
+```
+
+### 模拟头部信息
+
+我们抓取网页一般需要对 headers（网页头信息）进行模拟，这时候需要使用到 urllib.request.Request 类：
+
+```
+class urllib.request.Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
+```
+
+- **url**：url 地址。
+- **data**：发送到服务器的其他数据对象，默认为 None。
+- **headers**：HTTP 请求的头部信息，字典格式。
+- **origin_req_host**：请求的主机地址，IP 或域名。
+- **unverifiable**：很少用这个参数，用于设置网页是否需要验证，默认是 False。
+- **method**：请求方法， 如 GET、POST、DELETE、PUT等。
+
+ - py3_urllib_test.py 文件代码
+
+```
+import urllib.request
+import urllib.parse
+
+url = 'https://www.runoob.com/?s='  # 菜鸟教程搜索页面
+keyword = 'Python 教程' 
+key_code = urllib.request.quote(keyword)  # 对请求进行编码
+url_all = url+key_code
+header = {
+    'User-Agent':'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+}   #头部信息
+request = urllib.request.Request(url_all,headers=header)
+reponse = urllib.request.urlopen(request).read()
+
+fh = open("./urllib_test_runoob_search.html","wb")    # 将文件写入到当前目录中
+fh.write(reponse)
+fh.close()
+```
+
+------
+
+### urllib.error
+
+urllib.error 模块为 urllib.request 所引发的异常定义了异常类，基础异常类是 URLError。
+
+urllib.error 包含了两个方法，URLError 和 HTTPError。
+
+URLError 是 OSError 的一个子类，用于处理程序在遇到问题时会引发此异常（或其派生的异常），包含的属性 reason 为引发异常的原因。
+
+HTTPError 是 URLError 的一个子类，用于处理特殊 HTTP 错误例如作为认证请求的时候，包含的属性 **code** 为 HTTP 的状态码， **reason** 为引发异常的原因，**headers** 为导致 HTTPError 的特定 HTTP 请求的 HTTP 响应头。
+
+对不存在的网页抓取并处理异常:
+
+```
+import urllib.request
+import urllib.error
+
+myURL1 = urllib.request.urlopen("https://www.runoob.com/")
+print(myURL1.getcode())   # 200
+
+try:
+    myURL2 = urllib.request.urlopen("https://www.runoob.com/no.html")
+except urllib.error.HTTPError as e:
+    if e.code == 404:
+        print(404)   # 404
+```
+
+更多网页状态码可以查阅：https://www.runoob.com/http/http-status-codes.html。
+
+------
+
+### urllib.parse
+
+urllib.parse 用于解析 URL，格式如下：
+
+```
+urllib.parse.urlparse(urlstring, scheme='', allow_fragments=True)
+```
+
+urlstring 为 字符串的 url 地址，scheme 为协议类型，
+
+allow_fragments 参数为 false，则无法识别片段标识符。相反，它们被解析为路径，参数或查询组件的一部分，并 fragment 在返回值中设置为空字符串。
+
+```
+from urllib.parse import urlparse
+
+o = urlparse("https://www.runoob.com/?s=python+%E6%95%99%E7%A8%8B")
+print(o)
+```
+
+以上实例输出结果为：
+
+```
+ParseResult(scheme='https', netloc='www.runoob.com', path='/', params='', query='s=python+%E6%95%99%E7%A8%8B', fragment='')
+```
+
+从结果可以看出，内容是一个元组，包含 6 个字符串：协议，位置，路径，参数，查询，判断。
+
+我们可以直接读取协议内容：
+
+```
+from urllib.parse import urlparse
+
+o = urlparse("https://www.runoob.com/?s=python+%E6%95%99%E7%A8%8B")
+print(o.scheme)
+```
+
+以上实例输出结果为：
+
+```
+https
+```
+
+完整内容如下：
+
+| 属性       | 索引 | 值                       | 值（如果不存在） |
+| :--------- | :--- | :----------------------- | :--------------- |
+| `scheme`   | 0    | URL协议                  | *scheme* 参数    |
+| `netloc`   | 1    | 网络位置部分             | 空字符串         |
+| `path`     | 2    | 分层路径                 | 空字符串         |
+| `params`   | 3    | 最后路径元素的参数       | 空字符串         |
+| `query`    | 4    | 查询组件                 | 空字符串         |
+| `fragment` | 5    | 片段识别                 | 空字符串         |
+| `username` |      | 用户名                   | `None`           |
+| `password` |      | 密码                     | `None`           |
+| `hostname` |      | 主机名（小写）           | `None`           |
+| `port`     |      | 端口号为整数（如果存在） | `None`           |
+
+------
+
+### urllib.robotparser
+
+urllib.robotparser 用于解析 robots.txt 文件。
+
+robots.txt（统一小写）是一种存放于网站根目录下的 robots 协议，它通常用于告诉搜索引擎对网站的抓取规则。
+
+urllib.robotparser 提供了 RobotFileParser 类，语法如下：
+
+```
+class urllib.robotparser.RobotFileParser(url='')
+```
+
+这个类提供了一些可以读取、解析 robots.txt 文件的方法：
+
+- set_url(url) - 设置 robots.txt 文件的 URL。
+- read() - 读取 robots.txt URL 并将其输入解析器。
+- parse(lines) - 解析行参数。
+- can_fetch(useragent, url) - 如果允许 useragent 按照被解析 robots.txt 文件中的规则来获取 url 则返回 True。
+- mtime() -返回最近一次获取 robots.txt 文件的时间。 这适用于需要定期检查 robots.txt 文件更新情况的长时间运行的网页爬虫。
+- modified() - 将最近一次获取 robots.txt 文件的时间设置为当前时间。
+- crawl_delay(useragent) -为指定的 useragent 从 robots.txt 返回 Crawl-delay 形参。 如果此形参不存在或不适用于指定的 useragent 或者此形参的 robots.txt 条目存在语法错误，则返回 None。
+- request_rate(useragent) -以 named tuple RequestRate(requests, seconds) 的形式从 robots.txt 返回 Request-rate 形参的内容。 如果此形参不存在或不适用于指定的 useragent 或者此形参的 robots.txt 条目存在语法错误，则返回 None。
+- site_maps() - 以 list() 的形式从 robots.txt 返回 Sitemap 形参的内容。 如果此形参不存在或者此形参的 robots.txt 条目存在语法错误，则返回 None。
+
+## requests 模块
+
+| 对比项         | `requests`               | `urllib.request` |
+| -------------- | ------------------------ | ---------------- |
+| 来源           | 第三方库                 | Python 标准库    |
+| 是否需要安装   | ✔ `pip install requests` | ❌ 不需要         |
+| 易用性         | ⭐⭐⭐⭐⭐                    | ⭐⭐               |
+| 代码量         | 少                       | 多               |
+| 可读性         | 很高                     | 一般             |
+| JSON 支持      | ✔ 内置                   | ❌ 手动处理       |
+| Session/Cookie | ✔ 很方便                 | 支持但较麻烦     |
+| 文件上传       | ✔ 很简单                 | 较复杂           |
+| 超时设置       | ✔ 简单                   | 支持但写法复杂   |
+| 实际项目       | ⭐⭐⭐⭐⭐                    | ⭐                |
+
+Python requests 是一个常用的 HTTP 请求库，可以方便地向网站发送 HTTP 请求，并获取响应结果。
+
+requests 模块比 [urllib](https://www.runoob.com/python3/python-urllib.html) 模块更简洁。
+
+使用 requests 发送 HTTP 请求需要先导入 requests 模块：
+
+```
+import requests
+```
+
+导入后就可以发送 HTTP 请求，使用 requests 提供的方法向指定 URL 发送 HTTP 请求，例如：
+
+```
+# 导入 requests 包
+import requests
+
+# 发送请求
+x = requests.get('https://www.runoob.com/')
+
+# 返回网页内容
+print(x.text)
+```
+
+每次调用 requests 请求之后，会返回一个 response 对象，该对象包含了具体的响应信息，如状态码、响应头、响应内容等：
+
+```
+print(response.status_code)  # 获取响应状态码
+print(response.headers)  # 获取响应头
+print(response.content)  # 获取响应内容
+```
+
+更多响应信息如下：
+
+| 属性或方法            | 说明                                                         |
+| :-------------------- | :----------------------------------------------------------- |
+| apparent_encoding     | 编码方式                                                     |
+| close()               | 关闭与服务器的连接                                           |
+| content               | 返回响应的内容，以字节为单位                                 |
+| cookies               | 返回一个 CookieJar 对象，包含了从服务器发回的 cookie         |
+| elapsed               | 返回一个 timedelta 对象，包含了从发送请求到响应到达之间经过的时间量，可以用于测试响应速度。比如 r.elapsed.microseconds 表示响应到达需要多少微秒。 |
+| encoding              | 解码 r.text 的编码方式                                       |
+| headers               | 返回响应头，字典格式                                         |
+| history               | 返回包含请求历史的响应对象列表（url）                        |
+| is_permanent_redirect | 如果响应是永久重定向的 url，则返回 True，否则返回 False      |
+| is_redirect           | 如果响应被重定向，则返回 True，否则返回 False                |
+| iter_content()        | 迭代响应                                                     |
+| iter_lines()          | 迭代响应的行                                                 |
+| json()                | 返回结果的 JSON 对象 (结果需要以 JSON 格式编写的，否则会引发错误) |
+| links                 | 返回响应的解析头链接                                         |
+| next                  | 返回重定向链中下一个请求的 PreparedRequest 对象              |
+| ok                    | 检查 "status_code" 的值，如果小于400，则返回 True，如果不小于 400，则返回 False |
+| raise_for_status()    | 如果发生错误，方法返回一个 HTTPError 对象                    |
+| reason                | 响应状态的描述，比如 "Not Found" 或 "OK"                     |
+| request               | 返回请求此响应的请求对象                                     |
+| status_code           | 返回 http 的状态码，比如 404 和 200（200 是 OK，404 是 Not Found） |
+| text                  | 返回响应的内容，unicode 类型数据                             |
+| url                   | 返回响应的 URL                                               |
+
+```
+# 导入 requests 包
+import requests
+
+# 发送请求
+x = requests.get('https://www.runoob.com/')
+
+# 返回 http 的状态码
+print(x.status_code)
+
+# 响应状态的描述
+print(x.reason)
+
+# 返回编码
+print(x.apparent_encoding)
+
+# 200
+# OK
+# utf-8
+```
+
+### requests 方法
+
+requests 方法如下表：
+
+| 方法                             | 描述                            |
+| :------------------------------- | :------------------------------ |
+| delete(*url*, *args*)            | 发送 DELETE 请求到指定 url      |
+| get(*url*, *params, args*)       | 发送 GET 请求到指定 url         |
+| head(*url*, *args*)              | 发送 HEAD 请求到指定 url        |
+| patch(*url*, *data, args*)       | 发送 PATCH 请求到指定 url       |
+| post(*url*, *data, json, args*)  | 发送 POST 请求到指定 url        |
+| put(*url*, *data, args*)         | 发送 PUT 请求到指定 url         |
+| request(*method*, *url*, *args*) | 向指定的 url 发送指定的请求方法 |
+
+使用 requests.request() 发送 get 请求：
+
+```
+# 导入 requests 包
+import requests
+
+# 发送请求
+x = requests.request('get', 'https://www.runoob.com/')
+
+# 返回网页内容
+print(x.status_code)
+```
+
+设置请求头：
+
+```
+# 导入 requests 包
+import requests
+
+ 
+kw = {'s':'python 教程'}
+
+# 设置请求头
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"}
+ 
+# params 接收一个字典或者字符串的查询参数，字典类型自动转换为url编码，不需要urlencode()
+response = requests.get("https://www.runoob.com/", params = kw, headers = headers)
+
+# 查看响应状态码
+print (response.status_code)
+
+# 查看响应头部字符编码
+print (response.encoding)
+
+# 查看完整url地址
+print (response.url)
+
+# 查看响应内容，response.text 返回的是Unicode格式的数据
+print(response.text)
+```
+
+输出结果如下：
+
+```
+200
+UTF-8
+https://www.runoob.com/?s=python+%E6%95%99%E7%A8%8B
+
+... 其他内容...
+```
+
+post() 方法可以发送 POST 请求到指定 url，一般格式如下：
+
+```
+requests.post(url, data={key: value}, json={key: value}, args)
+```
+
+- **url** 请求 url。
+- **data** 参数为要发送到指定 url 的字典、元组列表、字节或文件对象。
+- **json** 参数为要发送到指定 url 的 JSON 对象。
+- **args** 为其他参数，比如 cookies、headers、verify等。
+
+```
+# 导入 requests 包
+import requests
+
+# 发送请求
+x = requests.post('https://www.runoob.com/try/ajax/demo_post.php')
+
+# 返回网页内容
+print(x.text)
+```
+
+输出结果如下：
+
+```
+<p style='color:red;'>本内容是使用 POST 方法请求的。</p><p style='color:red;'>请求时间：
+2022-05-26 17:30:47</p>
+```
+
+post 请求带参数：
+
+```
+# 导入 requests 包
+import requests
+
+# 表单参数，参数名为 fname 和 lname
+myobj = {'fname': 'RUNOOB','lname': 'Boy'}
+
+# 发送请求
+x = requests.post('https://www.runoob.com/try/ajax/demo_post2.php', data = myobj)
+
+# 返回网页内容
+print(x.text)
+```
+
+输出结果如下：
+
+```
+<p style='color:red;'>你好，RUNOOB Boy，今天过得怎么样？</p>
+```
+
+------
+
+### 附加请求参数
+
+发送请求我们可以在请求中附加额外的参数，例如请求头、查询参数、请求体等，例如：
+
+```
+headers = {'User-Agent': 'Mozilla/5.0'}  # 设置请求头
+params = {'key1': 'value1', 'key2': 'value2'}  # 设置查询参数
+data = {'username': 'example', 'password': '123456'}  # 设置请求体
+response = requests.post('https://www.runoob.com', headers=headers, params=params, data=data)
+```
+
+上述代码发送一个 POST 请求，并附加了请求头、查询参数和请求体。
+
+除了基本的 GET 和 POST 请求外，requests 还支持其他 HTTP 方法，如 PUT、DELETE、HEAD、OPTIONS 等。
+
+# 爬虫体系
+
+BeautifulSoup
+
+Scrapy
+
+selenium
+
+Playwright
+
+| 对比项                 | BeautifulSoup          | Scrapy    | Selenium             | Playwright        |
+| ---------------------- | ---------------------- | --------- | -------------------- | ----------------- |
+| 定位                   | HTML 解析库            | 爬虫框架  | 浏览器自动化         | 现代浏览器自动化  |
+| 是否发送 HTTP 请求     | ❌（需配合 `requests`） | ✔         | ✔                    | ✔                 |
+| 是否解析 HTML          | ✔                      | ✔         | ✔                    | ✔                 |
+| 是否执行 JavaScript    | ❌                      | ❌（默认） | ✔                    | ✔                 |
+| 是否打开真实浏览器     | ❌                      | ❌         | ✔                    | ✔                 |
+| 支持无头模式           | ❌                      | ❌         | ✔                    | ✔                 |
+| 支持 Chrome / Edge     | ❌                      | ❌         | ✔                    | ✔                 |
+| 支持 Firefox           | ❌                      | ❌         | ✔                    | ✔                 |
+| 支持 Safari/WebKit     | ❌                      | ❌         | 部分                 | ✔                 |
+| 自动等待元素           | ❌                      | ❌         | 一般（经常手动等待） | ✔（内置自动等待） |
+| 网络请求拦截           | ❌                      | 一般      | ✔                    | ✔（更强）         |
+| 多标签页               | ❌                      | ❌         | ✔                    | ✔                 |
+| 多浏览器上下文         | ❌                      | ❌         | 一般                 | ✔                 |
+| 登录自动化             | ❌                      | ❌         | ✔                    | ✔                 |
+| 文件上传/下载          | ❌                      | ❌         | ✔                    | ✔                 |
+| 截图/PDF               | ❌                      | ❌         | ✔                    | ✔                 |
+| 性能                   | ⭐⭐⭐⭐⭐                  | ⭐⭐⭐⭐⭐     | ⭐⭐                   | ⭐⭐⭐⭐              |
+| 学习成本               | ⭐                      | ⭐⭐⭐⭐      | ⭐⭐                   | ⭐⭐⭐               |
+| 企业使用频率（新项目） | ⭐⭐⭐                    | ⭐⭐⭐⭐      | ⭐⭐⭐                  | ⭐⭐⭐⭐⭐             |
+
+## 三者关系
+
+很多新人以为三者是竞争关系，其实不是：
+
+```
+          获取网页
+             │
+     ┌───────┴────────┐
+     │                │
+ requests         Selenium
+     │                │
+     └───────┬────────┘
+             │
+        HTML 内容
+             │
+     BeautifulSoup
+```
+
+而：
+
+```
+Scrapy
+```
+
+其实是：
+
+```
+Scrapy
+│
+├── 下载网页
+├── 调度请求
+├── 去重
+├── 并发
+├── 数据存储
+└── HTML解析（可用XPath/CSS，也可以集成BeautifulSoup）
+```
+
+它是一整套框架。
+
+- **`requests + BeautifulSoup`** 能解决大部分基础爬虫需求，也是学习网页抓取原理的最佳组合。
+- **Selenium** 能处理需要登录、点击、执行 JavaScript 的网站，在自动化测试和数据采集中都很有用。
+- **Scrapy** 更偏向专业爬虫工程，如果你以后不专门做爬虫开发，了解框架思想即可，不必投入太多时间。
+
+另外补充一点：如果你现在开始学习新项目，**Playwright** 已经逐渐取代 Selenium 成为很多团队的新选择，尤其在现代前端网站自动化方面表现更好。
+
+# 并发
+
+## 多线程
+
+### 什么是线程？
+
+你可以把线程想象成办公室里的员工：
+
+- 一个单线程程序就像只有一个员工，他必须顺序完成打印文档、回复邮件、泡咖啡等所有工作。
+- 多线程程序则像拥有多个员工，他们可以**同时**进行不同的任务，大大提高了工作效率。
+
+在计算机科学中：
+
+- **进程**：一个运行中的程序，拥有独立的内存空间（例如，你同时打开的浏览器和音乐播放器就是两个进程）。
+- **线程**：进程内的一个独立执行流，是 CPU 调度的基本单位。同一个进程内的所有线程**共享该进程的内存空间**（如全局变量）。
+
+### 为什么使用多线程？
+
+在单线程程序中，任务是一个接一个地顺序执行的。如果某个任务需要等待（例如等待网络响应或文件读取），整个程序会被阻塞，直到该任务完成。而多线程可以让程序在等待某个任务的同时，继续执行其他任务，从而提高程序的整体性能。
+
+### Python 的线程与全局解释器锁 (GIL)
+
+Python 有一个叫做 全局解释器锁 (Global Interpreter Lock， GIL) 的机制，GIL 确保了在任意时刻，只有一个线程可以执行 Python 字节码。
+
+**这意味着什么？** 对于 CPU 密集型任务（如科学计算、图像处理），由于 GIL 的存在，多线程通常无法利用多核优势来提升计算速度，甚至可能因为线程切换的开销而变慢。
+
+**那么，Python 多线程的用武之地在哪里？** 对于 I/O 密集型任务（如网络请求、读写文件、等待用户输入），线程在等待 I/O 操作完成时会释放 GIL，从而让其他线程运行。这可以显著提升程序的整体响应速度和效率，因为你在等待一个网页响应时，程序可以去处理另一个任务。
+
+多线程类似于同时执行多个不同程序，多线程运行有如下优点：
+
+- 使用线程可以把占据长时间的程序中的任务放到后台去处理。
+- 用户界面可以更加吸引人，比如用户点击了一个按钮去触发某些事件的处理，可以弹出一个进度条来显示处理的进度。
+- 程序的运行速度可能加快。
+- 在一些等待的任务实现上如用户输入、文件读写和网络收发数据等，线程就比较有用了。在这种情况下我们可以释放一些珍贵的资源如内存占用等等。
+
+每个独立的线程有一个程序运行的入口、顺序执行序列和程序的出口。但是线程不能够独立执行，必须依存在应用程序中，由应用程序提供多个线程执行控制。
+
+每个线程都有他自己的一组CPU寄存器，称为线程的上下文，该上下文反映了线程上次运行该线程的CPU寄存器的状态。
+
+指令指针和堆栈指针寄存器是线程上下文中两个最重要的寄存器，线程总是在进程得到上下文中运行的，这些地址都用于标志拥有线程的进程地址空间中的内存。
+
+- 线程可以被抢占（中断）。
+- 在其他线程正在运行时，线程可以暂时搁置（也称为睡眠） -- 这就是线程的退让。
+
+线程可以分为:
+
+- **内核线程：**由操作系统内核创建和撤销。
+- **用户线程：**不需要内核支持而在用户程序中实现的线程。
+
+Python3 线程中常用的两个模块为：
+
+- **_thread**
+- **threading(推荐使用)**
+
+thread 模块已被废弃。用户可以使用 threading 模块代替。所以，在 Python3 中不能再使用"thread" 模块。为了兼容性，Python3 将 thread 重命名为 "_thread"。
+
+Python中使用线程有两种方式：函数或者用类来包装线程对象。
+
+------
+
+### 线程模块 / threading
+
+Python3 通过两个标准库 _thread 和 threading 提供对线程的支持。
+
+_thread 提供了低级别的、原始的线程以及一个简单的锁，它相比于 threading 模块的功能还是比较有限的。
+
+threading 模块除了包含 _thread 模块中的所有方法外，还提供的其他方法：
+
+- **threading.current_thread()**: 返回当前的线程变量。
+- **threading.enumerate()**: 返回一个包含正在运行的线程的列表。正在运行指线程启动后、结束前，不包括启动前和终止后的线程。
+- **threading.active_count()**: 返回正在运行的线程数量，与 len(threading.enumerate()) 有相同的结果。
+- **threading.Thread(target, args=(), kwargs={}, daemon=None)**：
+  - 创建`Thread`类的实例。
+  - `target`：线程将要执行的目标函数。
+  - `args`：目标函数的参数，以元组形式传递。
+  - `kwargs`：目标函数的关键字参数，以字典形式传递。
+  - `daemon`：指定线程是否为守护线程。
+
+#### threading.Thread 类方法与属性:
+
+| 方法 / 属性                                                  | 作用                                                         | 示例                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `Thread.__init__(group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None)` | 初始化线程对象，指定执行函数、参数、线程名、是否守护线程等。 | `threading.Thread(target=task, args=(1,), daemon=True)` |
+| `start()`                                                    | 启动线程，内部自动调用 `run()`。                             | `t.start()`                                             |
+| `run()`                                                      | 定义线程执行的任务（通常重写该方法或通过 `target` 指定）。   | `class MyThread(Thread): def run(self): ...`            |
+| `join(timeout=None)`                                         | 等待线程执行结束，可设置最大等待时间。                       | `t.join()`、`t.join(5)`                                 |
+| `is_alive()`                                                 | 判断线程是否仍在运行。                                       | `t.is_alive()`                                          |
+| `getName()`                                                  | 获取线程名称（**已不推荐**，建议使用 `name` 属性）。         | `t.getName()`                                           |
+| `setName(name)`                                              | 设置线程名称（**已不推荐**，建议直接赋值 `name`）。          | `t.setName("Worker-1")`                                 |
+| `ident`                                                      | 获取线程唯一标识符（ID），只读属性。                         | `print(t.ident)`                                        |
+| `daemon`                                                     | 是否为守护线程，可读写属性。                                 | `t.daemon = True`                                       |
+| `isDaemon()`                                                 | 判断是否为守护线程（**已不推荐**，建议使用 `daemon` 属性）。 | `t.isDaemon()`                                          |
+
+```
+import threading
+import time
+
+def print_numbers():
+    for i in range(5):
+        time.sleep(1)
+        print(i)
+
+# 创建线程
+thread = threading.Thread(target=print_numbers)
+
+# 启动线程
+thread.start()
+
+# 等待线程结束
+thread.join()
+```
+
+输出结果为：
+
+```
+0
+1
+2
+3
+4
+```
+
+------
+
+#### 使用 threading 模块创建线程
+
+我们可以通过直接从 threading.Thread 继承创建一个新的子类，并实例化后调用 start() 方法启动新线程，即它调用了线程的 run() 方法：
+
+```
+#!/usr/bin/python3
+
+import threading
+import time
+
+exitFlag = 0
+
+class myThread (threading.Thread):
+    def __init__(self, threadID, name, delay):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.delay = delay
+    def run(self):
+        print ("开始线程：" + self.name)
+        print_time(self.name, self.delay, 5)
+        print ("退出线程：" + self.name)
+
+def print_time(threadName, delay, counter):
+    while counter:
+        if exitFlag:
+            threadName.exit()
+        time.sleep(delay)
+        print ("%s: %s" % (threadName, time.ctime(time.time())))
+        counter -= 1
+
+# 创建新线程
+thread1 = myThread(1, "Thread-1", 1)
+thread2 = myThread(2, "Thread-2", 2)
+
+# 开启新线程
+thread1.start()
+thread2.start()
+thread1.join()
+thread2.join()
+print ("退出主线程")
+```
+
+以上程序执行结果如下；
+
+```
+开始线程：Thread-1
+开始线程：Thread-2
+Thread-1: Wed Jan  5 17:34:54 2022
+Thread-2: Wed Jan  5 17:34:55 2022
+Thread-1: Wed Jan  5 17:34:55 2022
+Thread-1: Wed Jan  5 17:34:56 2022
+Thread-2: Wed Jan  5 17:34:57 2022
+Thread-1: Wed Jan  5 17:34:57 2022
+Thread-1: Wed Jan  5 17:34:58 2022
+退出线程：Thread-1
+Thread-2: Wed Jan  5 17:34:59 2022
+Thread-2: Wed Jan  5 17:35:01 2022
+Thread-2: Wed Jan  5 17:35:03 2022
+退出线程：Thread-2
+退出主线程
+```
+
+```
+thread1 = myThread(1, "Thread-1", 1)
+# 实际上 Python 帮你做了：
+myThread.__init__(thread1, 1, "Thread-1", 1)
+# Python 自动把：thread1 作为：self
+def __init__(self, threadID, name, delay):
+```
+
+------
+
+### 线程同步
+
+如果多个线程共同对某个数据修改，则可能出现不可预料的结果，为了保证数据的正确性，需要对多个线程进行同步。
+
+使用 Thread 对象的 Lock 和 Rlock 可以实现简单的线程同步，这两个对象都有 acquire 方法和 release 方法，对于那些需要每次只允许一个线程操作的数据，可以将其操作放到 acquire 和 release 方法之间。如下：
+
+多线程的优势在于可以同时运行多个任务（至少感觉起来是这样）。但是当线程需要共享数据时，可能存在数据不同步的问题。
+
+考虑这样一种情况：一个列表里所有元素都是 0，线程 "set" 从后向前把所有元素改成 1，而线程 "print" 负责从前往后读取列表并打印。
+
+那么，可能线程"set"开始改的时候，线程"print"便来打印列表了，输出就成了一半0一半1，这就是数据的不同步。为了避免这种情况，引入了锁的概念。
+
+锁有两种状态——锁定和未锁定。每当一个线程比如"set"要访问共享数据时，必须先获得锁定；如果已经有别的线程比如"print"获得锁定了，那么就让线程"set"暂停，也就是同步阻塞；等到线程"print"访问完毕，释放锁以后，再让线程"set"继续。
+
+经过这样的处理，打印列表时要么全部输出0，要么全部输出1，不会再出现一半0一半1的尴尬场面。
+
+```
+#!/usr/bin/python3
+
+import threading
+import time
+
+class myThread (threading.Thread):
+    def __init__(self, threadID, name, delay):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.delay = delay
+    def run(self):
+        print ("开启线程： " + self.name)
+        # 获取锁，用于线程同步
+        threadLock.acquire()
+        print_time(self.name, self.delay, 3)
+        # 释放锁，开启下一个线程
+        threadLock.release()
+
+def print_time(threadName, delay, counter):
+    while counter:
+        time.sleep(delay)
+        print ("%s: %s" % (threadName, time.ctime(time.time())))
+        counter -= 1
+
+threadLock = threading.Lock()
+threads = []
+
+# 创建新线程
+thread1 = myThread(1, "Thread-1", 1)
+thread2 = myThread(2, "Thread-2", 2)
+
+# 开启新线程
+thread1.start()
+thread2.start()
+
+# 添加线程到线程列表
+threads.append(thread1)
+threads.append(thread2)
+
+# 等待所有线程完成
+for t in threads:
+    t.join()
+print ("退出主线程")
+```
 
 
 
+执行以上程序，输出结果为：
+
+```
+开启线程： Thread-1
+开启线程： Thread-2
+Thread-1: Wed Jan  5 17:36:50 2022
+Thread-1: Wed Jan  5 17:36:51 2022
+Thread-1: Wed Jan  5 17:36:52 2022
+Thread-2: Wed Jan  5 17:36:54 2022
+Thread-2: Wed Jan  5 17:36:56 2022
+Thread-2: Wed Jan  5 17:36:58 2022
+退出主线程
+```
+
+------
+
+### 线程优先级队列（ Queue）
+
+Python 的 Queue 模块中提供了同步的、线程安全的队列类，包括FIFO（先入先出)队列Queue，LIFO（后入先出）队列LifoQueue，和优先级队列 PriorityQueue。
+
+这些队列都实现了锁原语，能够在多线程中直接使用，可以使用队列来实现线程间的同步。
+
+Queue 模块中的常用方法:
+
+| 方法                                        | 作用                                                     | 示例                    |
+| ------------------------------------------- | -------------------------------------------------------- | ----------------------- |
+| `Queue.qsize()`                             | 返回当前队列中的元素数量。                               | `q.qsize()`             |
+| `Queue.empty()`                             | 判断队列是否为空，空返回 `True`，否则返回 `False`。      | `q.empty()`             |
+| `Queue.full()`                              | 判断队列是否已满（与 `maxsize` 对应），满返回 `True`。   | `q.full()`              |
+| `Queue.get(block=True, timeout=None)`       | 从队列取出一个元素；可阻塞等待，可设置超时时间。         | `item = q.get()`        |
+| `Queue.get_nowait()`                        | 非阻塞获取元素，等价于 `q.get(False)`。                  | `item = q.get_nowait()` |
+| `Queue.put(item, block=True, timeout=None)` | 向队列放入一个元素；可阻塞等待，可设置超时时间。         | `q.put("hello")`        |
+| `Queue.put_nowait(item)`                    | 非阻塞放入元素，等价于 `q.put(item, False)`。            | `q.put_nowait("hello")` |
+| `Queue.task_done()`                         | 表示当前取出的任务已经处理完成，通常在 `get()` 后调用。  | `q.task_done()`         |
+| `Queue.join()`                              | 阻塞当前线程，直到队列中所有任务都调用了 `task_done()`。 | `q.join()`              |
+
+```
+#!/usr/bin/python3
+
+import queue
+import threading
+import time
+
+exitFlag = 0
+
+class myThread (threading.Thread):
+    def __init__(self, threadID, name, q):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.q = q
+    def run(self):
+        print ("开启线程：" + self.name)
+        process_data(self.name, self.q)
+        print ("退出线程：" + self.name)
+
+def process_data(threadName, q):
+    while not exitFlag:
+        queueLock.acquire()
+        if not workQueue.empty():
+            data = q.get()
+            queueLock.release()
+            print ("%s processing %s" % (threadName, data))
+        else:
+            queueLock.release()
+        time.sleep(1)
+
+threadList = ["Thread-1", "Thread-2", "Thread-3"]
+nameList = ["One", "Two", "Three", "Four", "Five"]
+queueLock = threading.Lock()
+workQueue = queue.Queue(10)
+threads = []
+threadID = 1
+
+# 创建新线程
+for tName in threadList:
+    thread = myThread(threadID, tName, workQueue)
+    thread.start()
+    threads.append(thread)
+    threadID += 1
+
+# 填充队列
+queueLock.acquire()
+for word in nameList:
+    workQueue.put(word)
+queueLock.release()
+
+# 等待队列清空
+while not workQueue.empty():
+    pass
+
+# 通知线程是时候退出
+exitFlag = 1
+
+# 等待所有线程完成
+for t in threads:
+    t.join()
+print ("退出主线程")
+```
+
+以上程序执行结果：
+
+```
+开启线程：Thread-1
+开启线程：Thread-2
+开启线程：Thread-3
+Thread-3 processing One
+Thread-1 processing Two
+Thread-2 processing Three
+Thread-3 processing Four
+Thread-1 processing Five
+退出线程：Thread-3
+退出线程：Thread-2
+退出线程：Thread-1
+退出主线程
+```
+
+```
+import queue
+
+q = queue.Queue()
+
+q.put("A")
+q.put("B")
+
+while not q.empty():
+    item = q.get()
+    print(item)
+
+    # 处理完成
+    q.task_done()
+
+# 等待所有任务完成
+q.join()
+
+print("所有任务完成")
+```
+
+```
+put(A)
+put(B)
+   │
+   ▼
+get(A)
+   │
+task_done()
+   │
+get(B)
+   │
+task_done()
+   │
+join() 发现所有任务都完成
+   │
+继续执行后面的代码
+```
+
+## threading / asyncio 区别
+
+| 对比项                 | `threading`              | `asyncio`                         |
+| ---------------------- | ------------------------ | --------------------------------- |
+| 并发方式               | 多线程                   | 单线程 + 协程（事件循环）         |
+| 是否创建线程           | ✔                        | ❌（默认只有一个线程）             |
+| 是否受 GIL 影响        | ✔                        | ✔（但影响较小，因为主要处理 I/O） |
+| CPU 密集型             | ❌ 不适合                 | ❌ 不适合                          |
+| I/O 密集型             | ✔ 适合                   | ✔✔✔ 更适合                        |
+| 线程切换               | 操作系统调度             | Python 事件循环调度               |
+| 内存开销               | 较大（每个线程有栈空间） | 很小                              |
+| 上下文切换             | 较慢                     | 很快                              |
+| 编程复杂度             | 较低                     | 较高                              |
+| 是否需要 `async/await` | ❌                        | ✔                                 |
+| 是否适合大量连接       | 一般                     | ✔ 非常适合                        |
+| 企业使用场景           | 后台任务、下载、文件处理 | Web 服务、高并发 API、网络通信    |
+| 学习优先级             | ⭐⭐⭐⭐                     | ⭐⭐⭐⭐⭐（AI / 后端必学）            |
+
+## threading 模块
+
+### 如何使用 threading 模块？
+
+使用 `threading` 模块的第一步就是导入它：
+
+```
+import threading
+import time  # 用于模拟耗时操作
+```
+
+创建线程最基本的方式是使用 `threading.Thread` 类。
+
+**语法说明：**
+
+```
+thread_obj = threading.Thread(target=函数名, args=(参数元组,))
+```
+
+- **target**: 指定线程启动后要执行的函数。
+- **args**: 传递给 target 函数的参数，必须是元组类型。如果只有一个参数，需要写成 `(参数,)` 的形式。
+
+#### 1. 创建线程
+
+在 Python 中，可以通过继承 `threading.Thread` 类或直接使用 `threading.Thread` 构造函数来创建线程。
+
+##### 方法 1：继承 `threading.Thread` 类
+
+```
+import threading
+
+class MyThread(threading.Thread):
+    def run(self):
+        print("线程开始执行")
+        # 在这里编写线程要执行的代码
+        print("线程执行结束")
+
+# 创建线程实例
+thread = MyThread()
+# 启动线程
+thread.start()
+# 等待线程执行完毕
+thread.join()
+print("主线程结束")
+```
+
+##### 方法 2：使用 `threading.Thread` 构造函数
+
+```
+import threading
+
+def my_function():
+    print("线程开始执行")
+    # 在这里编写线程要执行的代码
+    print("线程执行结束")
+
+# 创建线程实例
+thread = threading.Thread(target=my_function)
+# 启动线程
+thread.start()
+# 等待线程执行完毕
+thread.join()
+print("主线程结束")
+```
+
+#### 2. 线程同步
+
+在多线程编程中，多个线程可能会同时访问共享资源，这可能导致数据不一致的问题。为了避免这种情况，可以使用线程同步机制，如锁（`Lock`）。
+
+```
+import threading
+
+# 创建一个锁对象
+lock = threading.Lock()
+
+def my_function():
+    with lock:
+        print("线程开始执行")
+        # 在这里编写线程要执行的代码
+        print("线程执行结束")
+
+# 创建线程实例
+thread1 = threading.Thread(target=my_function)
+thread2 = threading.Thread(target=my_function)
+# 启动线程
+thread1.start()
+thread2.start()
+# 等待线程执行完毕
+thread1.join()
+thread2.join()
+print("主线程结束")
+```
+
+#### 3. 线程间通信
+
+线程间通信可以通过队列（`Queue`）来实现。`Queue` 是线程安全的，可以在多个线程之间安全地传递数据。
+
+```
+import threading
+import queue
+
+def worker(q):
+    while not q.empty():
+        item = q.get()
+        print(f"处理项目: {item}")
+        q.task_done()
+
+# 创建一个队列并填充数据
+q = queue.Queue()
+for i in range(10):
+    q.put(i)
+
+# 创建线程实例
+thread1 = threading.Thread(target=worker, args=(q,))
+thread2 = threading.Thread(target=worker, args=(q,))
+# 启动线程
+thread1.start()
+thread2.start()
+# 等待队列中的所有项目被处理完毕
+q.join()
+print("所有项目处理完毕")
+```
+
+------
+
+### 常用类、方法及属性
+
+#### 1. 核心类
+
+| 类/方法/属性                     | 说明                             | 示例                                 |
+| :------------------------------- | :------------------------------- | :----------------------------------- |
+| **`threading.Thread`**           | 线程类，用于创建和管理线程       | `t = Thread(target=func, args=(1,))` |
+| **`threading.Lock`**             | 互斥锁（原始锁）                 | `lock = Lock()`                      |
+| **`threading.RLock`**            | 可重入锁（同一线程可多次获取）   | `rlock = RLock()`                    |
+| **`threading.Event`**            | 事件对象，用于线程同步           | `event = Event()`                    |
+| **`threading.Condition`**        | 条件变量，用于复杂线程协调       | `cond = Condition()`                 |
+| **`threading.Semaphore`**        | 信号量，控制并发线程数           | `sem = Semaphore(3)`                 |
+| **`threading.BoundedSemaphore`** | 有界信号量（防止计数超过初始值） | `b_sem = BoundedSemaphore(2)`        |
+| **`threading.Timer`**            | 定时器线程，延迟执行             | `timer = Timer(5.0, func)`           |
+| **`threading.local`**            | 线程局部数据（各线程独立存储）   | `local_data = threading.local()`     |
+
+#### 2. Thread 对象常用方法/属性
+
+| 方法/属性                | 说明                                 | 示例                  |
+| :----------------------- | :----------------------------------- | :-------------------- |
+| **`start()`**            | 启动线程                             | `t.start()`           |
+| **`run()`**              | 线程执行的方法（可重写）             | 自定义类时覆盖此方法  |
+| **`join(timeout=None)`** | 阻塞当前线程，直到目标线程结束       | `t.join()`            |
+| **`is_alive()`**         | 检查线程是否在运行                   | `if t.is_alive():`    |
+| **`name`**               | 线程名称（可修改）                   | `t.name = "Worker-1"` |
+| **`daemon`**             | 守护线程标志（主线程退出时自动结束） | `t.daemon = True`     |
+| **`ident`**              | 线程标识符（未启动时为 `None`）      | `print(t.ident)`      |
+
+#### 3. Lock/RLock 常用方法
+
+| 方法                                     | 说明                   | 示例                    |
+| :--------------------------------------- | :--------------------- | :---------------------- |
+| **`acquire(blocking=True, timeout=-1)`** | 获取锁（阻塞或非阻塞） | `lock.acquire()`        |
+| **`release()`**                          | 释放锁                 | `lock.release()`        |
+| **`locked()`**                           | 检查锁是否被占用       | `if not lock.locked():` |
+
+#### 4. Event 常用方法
+
+| 方法                     | 说明                           | 示例                 |
+| :----------------------- | :----------------------------- | :------------------- |
+| **`set()`**              | 设置事件为真，唤醒所有等待线程 | `event.set()`        |
+| **`clear()`**            | 重置事件为假                   | `event.clear()`      |
+| **`wait(timeout=None)`** | 阻塞直到事件为真或超时         | `event.wait(2.0)`    |
+| **`is_set()`**           | 检查事件状态                   | `if event.is_set():` |
+
+#### 5. Condition 常用方法
+
+| 方法                     | 说明                           | 示例                |
+| :----------------------- | :----------------------------- | :------------------ |
+| **`wait(timeout=None)`** | 释放锁并阻塞，直到被通知或超时 | `cond.wait()`       |
+| **`notify(n=1)`**        | 唤醒最多 `n` 个等待线程        | `cond.notify(2)`    |
+| **`notify_all()`**       | 唤醒所有等待线程               | `cond.notify_all()` |
+
+#### 6. 模块级函数/属性
+
+| 函数/属性                        | 说明                                | 示例                                                        |
+| :------------------------------- | :---------------------------------- | :---------------------------------------------------------- |
+| **`threading.active_count()`**   | 返回当前活跃线程数                  | `print(threading.active_count())`                           |
+| **`threading.current_thread()`** | 返回当前线程对象                    | `print(threading.current_thread().name)`                    |
+| **`threading.enumerate()`**      | 返回所有活跃线程的列表              | `for t in threading.enumerate():`                           |
+| **`threading.main_thread()`**    | 返回主线程对象                      | `if threading.current_thread() is threading.main_thread():` |
+| **`threading.get_ident()`**      | 返回当前线程的标识符（Python 3.3+） | `print(threading.get_ident())`                              |
+
+------
+
+### 注意事项
+
+1. **全局解释器锁（GIL）**：Python 的 GIL 会限制同一时间只有一个线程执行 Python 字节码。因此，在 CPU 密集型任务中，多线程可能不会带来性能提升。对于 I/O 密集型任务，多线程仍然是有益的。
+2. **线程安全**：在多线程环境中，确保对共享资源的访问是线程安全的，避免数据竞争和死锁。
+3. **线程数量**：创建过多的线程可能会导致系统资源耗尽，影响程序性能。合理控制线程数量，或使用线程池（`ThreadPoolExecutor`）来管理线程。
 
 
 
+## asyncio 模块
+
+`asyncio` 是 Python 标准库中的一个模块，用于编写异步 I/O 操作的代码。
+
+asyncio 提供了一种高效的方式来处理并发任务，特别适用于 I/O 密集型操作，如网络请求、文件读写等。
+
+通过使用 `asyncio`，你可以在单线程中同时处理多个任务，而无需使用多线程或多进程。
+
+### 为什么需要 asyncio？
+
+在传统的同步编程中，当一个任务需要等待 I/O 操作（如网络请求）完成时，程序会阻塞，直到操作完成。这会导致程序的效率低下，尤其是在需要处理大量 I/O 操作时。
+
+`asyncio` 通过引入异步编程模型，允许程序在等待 I/O 操作时继续执行其他任务，从而提高了程序的并发性和效率。
+
+> 想象一下你正在经营一家餐厅：
+>
+> - **同步模式（普通函数）：** 你只有一个厨师。客人 A 点了一份牛排，厨师开始煎牛排（这需要等待 5 分钟）。在煎牛排的这 5 分钟里，厨师完全被占用，不能做任何其他事，即使客人 B 只想点一杯水，也必须干等着。
+> - **异步模式（asyncio）：** 你有多个厨师（实际上还是一个，但非常聪明）。厨师开始煎客人 A 的牛排后，发现需要等待，他立刻把这份牛排标记为等待中，然后转头去给客人 B 倒水。倒完水回来，看看牛排是不是快好了，如果还没好，又可以去处理客人 C 的订单。这样，在等待 I/O（如煎牛排、网络请求、读写文件）的时间里，厨师（CPU）一直在高效地工作。
+>
+> asyncio 就是 Python 用来实现这种聪明工作模式的标准库，它允许你编写 单线程并发 的代码，特别适用于网络爬虫、Web 服务器、微服务等 I/O 密集型场景。
+
+它的核心是 事件循环、协程 和 任务。
+
+------
+
+### asyncio 的核心概念
+
+#### 1. 协程（Coroutine）
+
+协程是 `asyncio` 的核心概念之一。它是一个特殊的函数，可以在执行过程中暂停，并在稍后恢复执行。协程通过 `async def` 关键字定义，并通过 `await` 关键字暂停执行，等待异步操作完成。
+
+```
+import asyncio
+
+async def say_hello():
+    print("Hello")
+    await asyncio.sleep(1)
+    print("World")
+```
+
+#### 2. 事件循环（Event Loop）
+
+事件循环是 `asyncio` 的核心组件，负责调度和执行协程。它不断地检查是否有任务需要执行，并在任务完成后调用相应的回调函数。
+
+```
+async def main():
+    await say_hello()
+
+asyncio.run(main())
+```
+
+#### 3. 任务（Task）
+
+任务是对协程的封装，表示一个正在执行或将要执行的协程。你可以通过 `asyncio.create_task()` 函数创建任务，并将其添加到事件循环中。
+
+```
+async def main():
+    task = asyncio.create_task(say_hello())
+    await task
+```
+
+#### 4. Future
+
+`Future` 是一个表示异步操作结果的对象。它通常用于底层 API，表示一个尚未完成的操作。你可以通过 `await` 关键字等待 `Future` 完成。
+
+```
+async def main():
+    future = asyncio.Future()
+    await future
+```
+
+#### 基础用法与代码示例
+
+让我们通过一个经典的并发访问多个网址的例子来理解上述概念。
+
+假设我们需要获取三个不同网址的内容。使用同步方式会顺序执行，总耗时是三次请求耗时的总和。使用 `asyncio`，我们可以让这三个请求同时发出，总耗时接近于最慢的那一次请求。
+
+#### 同步版本（作为对比）
+
+```
+import time
+import requests
+
+def fetch_url(url):
+    """模拟一个耗时的网络请求（同步版本）"""
+    print(f"开始获取: {url}")
+    time.sleep(2)  # 模拟 2 秒网络延迟
+    print(f"完成获取: {url}")
+    return f"来自 {url} 的数据"
+
+def main_sync():
+    urls = ['https://example.com/1', 'https://example.com/2', 'https://example.com/3']
+    results = []
+    start = time.time()
+    
+    for url in urls:
+        result = fetch_url(url)  # 必须等上一个完成才能开始下一个
+        results.append(result)
+    
+    end = time.time()
+    print(f"同步版本总耗时: {end - start:.2f} 秒")
+    print(f"结果: {results}")
+
+if __name__ == "__main__":
+    main_sync()
+```
+
+**预期运行结果**：
+
+```
+开始获取: https://example.com/1
+完成获取: https://example.com/1
+开始获取: https://example.com/2
+完成获取: https://example.com/2
+开始获取: https://example.com/3
+完成获取: https://example.com/3
+同步版本总耗时: 6.00 秒
+结果: [‘来自 https://example.com/1 的数据‘, ‘来自 https://example.com/2 的数据‘, ‘来自 https://example.com/2 的数据‘]
+```
+
+总共花了约 6 秒。
+
+#### 异步版本（使用 asyncio）
+
+我们需要用 `aiohttp` 库来替代 `requests` 进行异步 HTTP 请求。首先安装它：`pip install aiohttp`。
+
+```
+import asyncio
+import aiohttp
+import time
+
+async def fetch_url_async(session, url):
+    """模拟一个耗时的网络请求（异步版本）"""
+    print(f"开始异步获取: {url}")
+    # 注意：这里我们使用 aiohttp 的异步 get 方法，并用 await 等待
+    async with session.get(url) as response:
+        # 模拟处理响应也需要时间
+        await asyncio.sleep(2)  # 使用 asyncio.sleep 模拟 I/O 等待，它不会阻塞线程
+        text = await response.text()
+        print(f"完成异步获取: {url}")
+        return f"来自 {url} 的数据 (长度: {len(text)})"
+
+async def main_async():
+    urls = ['https://httpbin.org/get', 'https://httpbin.org/delay/1', 'https://httpbin.org/headers']
+    
+    async with aiohttp.ClientSession() as session:  # 创建异步 HTTP 会话
+        # 为每个 URL 创建一个任务（Task）
+        tasks = []
+        for url in urls:
+            # create_task 会将协程加入事件循环，立即开始调度
+            task = asyncio.create_task(fetch_url_async(session, url))
+            tasks.append(task)
+        
+        print("所有任务已创建，开始并发执行...")
+        
+        # 使用 asyncio.gather 并发运行所有任务，并等待它们全部完成
+        # gather 返回一个结果列表，顺序与传入的任务顺序一致
+        results = await asyncio.gather(*tasks)
+        
+        return results
+
+if __name__ == "__main__":
+    start = time.time()
+    # asyncio.run() 是启动事件循环并运行顶层协程的简便方法
+    final_results = asyncio.run(main_async())
+    end = time.time()
+    
+    print(f"\n异步版本总耗时: {end - start:.2f} 秒")
+    for res in final_results:
+        print(res)
+```
+
+**预期运行结果**：
+
+```
+所有任务已创建，开始并发执行...
+开始异步获取: https://httpbin.org/get
+开始异步获取: https://httpbin.org/delay/1
+开始异步获取: https://httpbin.org/headers
+（大约 2 秒后，所有请求几乎同时完成）
+完成异步获取: https://httpbin.org/headers
+完成异步获取: https://httpbin.org/get
+完成异步获取: https://httpbin.org/delay/1
+
+异步版本总耗时: 2.10 秒  # 注意！总耗时远小于 6 秒
+来自 https://httpbin.org/get 的数据 (长度: 274)
+来自 https://httpbin.org/delay/1 的数据 (长度: 392)
+来自 https://httpbin.org/headers 的数据 (长度: 177)
+```
+
+**代码解析**：
+
+- `async def`：定义了协程函数 `fetch_url_async` 和 `main_async`。
+- `await`：在 `fetch_url_async` 中，我们 `await session.get()` 和 `await response.text()`，这告诉事件循环："这个网络请求需要时间，你先去执行其他就绪的任务吧"。
+- `asyncio.create_task()`：将 `fetch_url_async` 协程包装成 `Task`，使其被事件循环调度，实现并发。
+- `asyncio.gather(*tasks)`：一个非常实用的函数，它并发运行所有传入的协程/任务，并等待它们全部完成，最后收集所有结果。
+- `asyncio.run(main_async())`：Python 3.7+ 推荐的方式，它负责创建事件循环、运行协程并关闭循环。
+
+#### 关键函数与参数说明
+
+下面以表格形式列出 `asyncio` 中几个最常用的高级函数：
+
+| 函数                                                         | 主要作用                                                     | 常用参数说明                                                 |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| **`asyncio.run(coro, \*, debug=False)`**                     | 运行一个顶层协程，管理事件循环的生命周期。是程序的主入口。   | `coro`: 要运行的协程对象。 `debug`: 设为 `True` 可启用事件循环的调试模式。 |
+| **`asyncio.create_task(coro, \*, name=None)`**               | 将协程包装成一个 **Task** 对象，并排入事件循环等待调度。这是实现并发的主要方式。 | `coro`: 要包装的协程对象。 `name`: （Python 3.8+）为任务指定一个名称，便于调试。 |
+| **`asyncio.gather(\*aws, return_exceptions=False)`**         | **并发运行**多个异步任务（`aws` 可接受协程、任务等），并等待所有完成，返回结果列表。 | `*aws`: 可变参数，传入多个异步对象。 `return_exceptions`: 默认为 `False`，任何任务抛出异常都会立即传播给 `gather` 的调用者。设为 `True` 时，异常会作为结果的一部分返回。 |
+| **`asyncio.sleep(delay, result=None)`**                      | **异步地**休眠指定秒数。这是与 `time.sleep`（阻塞）的关键区别。 | `delay`: 休眠的秒数。 `result`: 休眠结束后返回的值。         |
+| **`asyncio.wait(aws, \*, timeout=None, return_when=ALL_COMPLETED)`** | 并发运行任务，并等待满足指定条件。返回两个集合 `(done, pending)`，分别是已完成和未完成的任务。 | `aws`: 异步对象集合。 `timeout`: 超时时间（秒）。 `return_when`: 决定何时返回，可选：`FIRST_COMPLETED`（第一个完成）、`FIRST_EXCEPTION`（第一个异常）、`ALL_COMPLETED`（全部完成，默认）。 |
+| **`asyncio.to_thread(func, /, \*args, \**kwargs)`**          | （Python 3.9+）将一个普通的、可能阻塞的同步函数放到一个单独的线程中运行，并返回一个可 `await` 的协程。用于处理 CPU 密集型或阻塞式 I/O。 | `func`: 要在线程中运行的同步函数。 `*args, **kwargs`: 传递给函数的参数。 |
+
+#### 可视化理解：异步任务调度流程
+
+<img src="https://www.runoob.com/wp-content/uploads/2025/04/asyncio-python-runoob12-scaled.jpg" alt="img" style="zoom:50%;" />
+
+**图解说明**： 这个流程图展示了事件循环如何像调度员一样工作。它维护一个任务队列，当一个任务执行到 `await`（例如等待网络响应）时，它会被挂起，事件循环立即从队列中找出下一个可以运行（就绪）的任务来执行。当被挂起任务的 I/O 操作完成后，事件循环会收到通知，将该任务状态改回就绪，并在未来某个时刻继续执行它。通过这种方式，在 I/O 等待期间，CPU 被充分利用来执行其他任务，实现了单线程内的并发。
+
+------
+
+### asyncio 的基本用法
+
+#### 1. 运行协程
+
+要运行一个协程，你可以使用 `asyncio.run()` 函数。它会创建一个事件循环，并运行指定的协程。
+
+```
+import asyncio
+
+async def main():
+    print("Start")
+    await asyncio.sleep(1)
+    print("End")
+
+asyncio.run(main())
+```
+
+#### 2. 并发执行多个任务
+
+你可以使用 `asyncio.gather()` 函数并发执行多个协程，并等待它们全部完成。
+
+```
+import asyncio
+
+async def task1():
+    print("Task 1 started")
+    await asyncio.sleep(1)
+    print("Task 1 finished")
+
+async def task2():
+    print("Task 2 started")
+    await asyncio.sleep(2)
+    print("Task 2 finished")
+
+async def main():
+    await asyncio.gather(task1(), task2())
+
+asyncio.run(main())
+```
+
+#### 3. 超时控制
+
+你可以使用 `asyncio.wait_for()` 函数为协程设置超时时间。如果协程在指定时间内未完成，将引发 `asyncio.TimeoutError` 异常。
+
+```
+import asyncio
+
+async def long_task():
+    await asyncio.sleep(10)
+    print("Task finished")
+
+async def main():
+    try:
+        await asyncio.wait_for(long_task(), timeout=5)
+    except asyncio.TimeoutError:
+        print("Task timed out")
+
+asyncio.run(main())
+```
+
+------
+
+### asyncio 的应用场景
+
+`asyncio` 特别适用于以下场景：
+
+1. **网络请求**：如 HTTP 请求、WebSocket 通信等。
+2. **文件 I/O**：如异步读写文件。
+3. **数据库操作**：如异步访问数据库。
+4. **实时数据处理**：如实时消息队列处理。
+
+------
+
+### 常用类、方法和函数
+
+#### **1. 核心函数**
+
+| 方法/函数                       | 说明                          | 示例                                                 |
+| :------------------------------ | :---------------------------- | :--------------------------------------------------- |
+| **`asyncio.run(coro)`**         | 运行异步主函数（Python 3.7+） | `asyncio.run(main())`                                |
+| **`asyncio.create_task(coro)`** | 创建任务并加入事件循环        | `task = asyncio.create_task(fetch_data())`           |
+| **`asyncio.gather(\*coros)`**   | 并发运行多个协程              | `await asyncio.gather(task1, task2)`                 |
+| **`asyncio.sleep(delay)`**      | 异步等待（非阻塞）            | `await asyncio.sleep(1)`                             |
+| **`asyncio.wait(coros)`**       | 控制任务完成方式              | `done, pending = await asyncio.wait([task1, task2])` |
+
+#### **2. 事件循环（Event Loop）**
+
+| 方法                                   | 说明                 | 示例                              |
+| :------------------------------------- | :------------------- | :-------------------------------- |
+| **`loop.run_until_complete(future)`**  | 运行直到任务完成     | `loop.run_until_complete(main())` |
+| **`loop.run_forever()`**               | 永久运行事件循环     | `loop.run_forever()`              |
+| **`loop.stop()`**                      | 停止事件循环         | `loop.stop()`                     |
+| **`loop.close()`**                     | 关闭事件循环         | `loop.close()`                    |
+| **`loop.call_soon(callback)`**         | 安排回调函数立即执行 | `loop.call_soon(print, "Hello")`  |
+| **`loop.call_later(delay, callback)`** | 延迟执行回调         | `loop.call_later(5, callback)`    |
+
+#### **3. 协程（Coroutine）与任务（Task）**
+
+| 方法/装饰器              | 说明                               | 示例                                   |
+| :----------------------- | :--------------------------------- | :------------------------------------- |
+| **`@asyncio.coroutine`** | 协程装饰器（旧版，Python 3.4-3.7） | `@asyncio.coroutine` `def old_coro():` |
+| **`async def`**          | 定义协程（Python 3.5+）            | `async def fetch():`                   |
+| **`task.cancel()`**      | 取消任务                           | `task.cancel()`                        |
+| **`task.done()`**        | 检查任务是否完成                   | `if task.done():`                      |
+| **`task.result()`**      | 获取任务结果（需任务完成）         | `data = task.result()`                 |
+
+#### **4. 同步原语（类似`threading`）**
+
+| 类                        | 说明       | 示例                                              |
+| :------------------------ | :--------- | :------------------------------------------------ |
+| **`asyncio.Lock()`**      | 异步互斥锁 | `lock = asyncio.Lock()` `async with lock:`        |
+| **`asyncio.Event()`**     | 事件通知   | `event = asyncio.Event()` `await event.wait()`    |
+| **`asyncio.Queue()`**     | 异步队列   | `queue = asyncio.Queue()` `await queue.put(item)` |
+| **`asyncio.Semaphore()`** | 信号量     | `sem = asyncio.Semaphore(5)` `async with sem:`    |
+
+#### **5. 网络与子进程**
+
+| 方法/类                                | 说明          | 示例                                                         |
+| :------------------------------------- | :------------ | :----------------------------------------------------------- |
+| **`asyncio.open_connection()`**        | 建立TCP连接   | `reader, writer = await asyncio.open_connection('host', 80)` |
+| **`asyncio.start_server()`**           | 创建TCP服务器 | `server = await asyncio.start_server(handle, '0.0.0.0', 8888)` |
+| **`asyncio.create_subprocess_exec()`** | 创建子进程    | `proc = await asyncio.create_subprocess_exec('ls')`          |
+
+#### **6. 实用工具**
+
+| 方法                                  | 说明             | 示例                                   |
+| :------------------------------------ | :--------------- | :------------------------------------- |
+| **`asyncio.current_task()`**          | 获取当前任务     | `task = asyncio.current_task()`        |
+| **`asyncio.all_tasks()`**             | 获取所有任务     | `tasks = asyncio.all_tasks()`          |
+| **`asyncio.shield(coro)`**            | 保护任务不被取消 | `await asyncio.shield(critical_task)`  |
+| **`asyncio.wait_for(coro, timeout)`** | 带超时的等待     | `try: await asyncio.wait_for(task, 5)` |
+
+------
+
+#### **注意事项**
+
+1. **Python版本**：部分功能需Python 3.7+（如`asyncio.run()`）。
+2. **阻塞操作**：避免在协程中使用同步阻塞代码（如`time.sleep()`）。
+3. **调试**：设置`PYTHONASYNCIODEBUG=1`环境变量可启用调试模式。
+4. **取消任务**：被取消的任务会引发`CancelledError`，需妥善处理。
+
+# 系统 & 工具
+
+## subprocess 模块
+
+`subprocess` 是 Python 标准库中的一个模块，用于创建和管理子进程。
+
+`subprocess` 允许你在 Python 程序中执行外部命令，并与这些命令进行交互。
+
+通过 `subprocess` 模块，你可以执行系统命令、调用其他程序，并获取它们的输出或错误信息。
+
+### 为什么使用 subprocess 模块？
+
+在 Python 中，有时我们需要执行一些系统命令或调用其他程序来完成特定的任务。例如，你可能需要运行一个 shell 命令、启动一个外部应用程序，或者与一个命令行工具进行交互。`subprocess` 模块提供了一种安全且灵活的方式来处理这些需求。
+
+与早期的 `os.system()` 或 `os.popen()` 相比，`subprocess` 模块提供了更强大的功能和更好的控制能力。它允许你更精细地管理子进程的输入、输出和错误流，并且可以处理更复杂的场景。
+
+------
+
+### subprocess 模块的核心功能
+
+#### 1. 执行外部命令
+
+`subprocess.run()` 是 `subprocess` 模块中最常用的函数之一。它可以执行一个外部命令，并等待命令完成。以下是一个简单的示例：
+
+```
+import subprocess
+
+# 执行一个简单的 shell 命令
+result = subprocess.run(['ls', '-l'], capture_output=True, text=True)
+
+# 打印命令的输出
+print(result.stdout)
+```
+
+在这个例子中，`subprocess.run()` 执行了 `ls -l` 命令，并将输出捕获到 `result.stdout` 中。
+
+#### 2. 处理输入和输出
+
+`subprocess` 模块允许你控制子进程的输入、输出和错误流。你可以将数据传递给子进程的标准输入，或者从子进程的标准输出和标准错误中读取数据。以下是一个示例：
+
+```
+import subprocess
+
+# 执行一个命令，并将输入传递给子进程
+result = subprocess.run(['grep', 'python'], input='hello\npython\nworld', capture_output=True, text=True)
+
+# 打印命令的输出
+print(result.stdout)
+```
+
+在这个例子中，`subprocess.run()` 执行了 `grep python` 命令，并将字符串 `'hello\npython\nworld'` 作为输入传递给子进程。
+
+#### 3. 处理错误
+
+`subprocess` 模块还允许你处理子进程的错误。如果子进程返回非零的退出状态码，`subprocess.run()` 会抛出一个 `CalledProcessError` 异常。你可以通过检查 `result.returncode` 来获取子进程的退出状态码。
+
+```
+import subprocess
+
+try:
+    result = subprocess.run(['ls', 'nonexistent_file'], capture_output=True, text=True, check=True)
+except subprocess.CalledProcessError as e:
+    print(f"Command failed with return code {e.returncode}")
+    print(f"Error output: {e.stderr}")
+```
+
+在这个例子中，`subprocess.run()` 执行了 `ls nonexistent_file` 命令，由于文件不存在，命令失败并抛出了 `CalledProcessError` 异常。
+
+------
+
+### subprocess 模块的高级用法
+
+#### 1. 使用 Popen 类
+
+`subprocess.Popen` 类提供了更底层的接口，允许你更灵活地控制子进程。你可以使用 `Popen` 来启动一个子进程，并在后台运行它，或者与它进行交互。
+
+```
+import subprocess
+
+# 启动一个子进程
+process = subprocess.Popen(['ping', 'google.com'], stdout=subprocess.PIPE, text=True)
+
+# 读取子进程的输出
+while True:
+    output = process.stdout.readline()
+    if output == '' and process.poll() is not None:
+        break
+    if output:
+        print(output.strip())
+
+# 获取子进程的退出状态码
+return_code = process.poll()
+print(f"Process finished with return code {return_code}")
+```
+
+在这个例子中，`subprocess.Popen` 启动了一个 `ping google.com` 命令，并在后台运行它。程序通过循环读取子进程的输出，并在子进程结束后获取其退出状态码。
+
+#### 2. 使用管道
+
+`subprocess` 模块允许你使用管道将多个命令连接在一起。你可以将一个命令的输出作为另一个命令的输入。
+
+```
+import subprocess
+
+# 使用管道连接两个命令
+p1 = subprocess.Popen(['ls', '-l'], stdout=subprocess.PIPE)
+p2 = subprocess.Popen(['grep', 'py'], stdin=p1.stdout, stdout=subprocess.PIPE, text=True)
+
+# 获取最终输出
+output = p2.communicate()[0]
+print(output)
+```
+
+在这个例子中，`ls -l` 命令的输出被传递给 `grep py` 命令，最终输出包含 `py` 的文件或目录。
+
+------
+
+### subprocess 模块的常用方法、类和参数
+
+以下是 Python subprocess 模块的常用方法、类和参数的说明，包含功能描述及示例：
+
+#### subprocess 模块核心方法
+
+| 方法                            | 说明                         | 示例                                                         |
+| :------------------------------ | :--------------------------- | :----------------------------------------------------------- |
+| **`subprocess.run()`**          | 执行命令并等待完成（推荐）   | `subprocess.run(["ls", "-l"], capture_output=True, text=True)` |
+| **`subprocess.Popen()`**        | 创建子进程（底层控制）       | `proc = subprocess.Popen(["ping", "google.com"], stdout=subprocess.PIPE)` |
+| **`subprocess.call()`**         | 执行命令并返回退出码（旧版） | `exit_code = subprocess.call(["python", "--version"])`       |
+| **`subprocess.check_call()`**   | 执行命令，失败时抛出异常     | `subprocess.check_call(["git", "commit"])`                   |
+| **`subprocess.check_output()`** | 执行命令并返回输出（旧版）   | `output = subprocess.check_output(["date"], text=True)`      |
+
+#### subprocess.CompletedProcess 对象属性（run() 方法的返回对象）
+
+| 属性         | 说明                                     |
+| :----------- | :--------------------------------------- |
+| `args`       | 执行的命令参数列表                       |
+| `returncode` | 进程退出状态码（0表示成功）              |
+| `stdout`     | 标准输出内容（若设置了`capture_output`） |
+| `stderr`     | 标准错误内容（若设置了`capture_output`） |
+
+#### subprocess.Popen 类常用方法/属性
+
+| 方法/属性       | 说明                                     | 示例                                              |
+| :-------------- | :--------------------------------------- | :------------------------------------------------ |
+| `poll()`        | 检查进程是否终止（返回`None`表示运行中） | `if proc.poll() is None: print("Running")`        |
+| `wait()`        | 阻塞等待进程结束                         | `proc.wait()`                                     |
+| `communicate()` | 交互式输入/输出                          | `stdout, stderr = proc.communicate(input="data")` |
+| `terminate()`   | 发送终止信号（SIGTERM）                  | `proc.terminate()`                                |
+| `kill()`        | 强制终止进程（SIGKILL）                  | `proc.kill()`                                     |
+| `stdin`         | 进程的标准输入流                         | `proc.stdin.write("input")`                       |
+| `stdout`        | 进程的标准输出流                         | `print(proc.stdout.read())`                       |
+| `stderr`        | 进程的标准错误流                         | `errors = proc.stderr.read()`                     |
+
+#### 常用参数说明（适用于 run() 和 Popen()）
+
+| 参数      | 说明                            | 示例值                                    |
+| :-------- | :------------------------------ | :---------------------------------------- |
+| `args`    | 命令（列表或字符串）            | `["ls", "-l"]` 或 `"ls -l"`               |
+| `stdin`   | 标准输入配置                    | `subprocess.PIPE`（管道）、`None`（继承） |
+| `stdout`  | 标准输出配置                    | `subprocess.PIPE`、`open('log.txt', 'w')` |
+| `stderr`  | 标准错误配置                    | `subprocess.STDOUT`（合并到stdout）       |
+| `shell`   | 是否通过Shell执行               | `True`（支持字符串命令）                  |
+| `cwd`     | 工作目录路径                    | `"/tmp"`                                  |
+| `env`     | 自定义环境变量                  | `{"PATH": "/usr/bin"}`                    |
+| `timeout` | 超时时间（秒）                  | `30`                                      |
+| `text`    | 输入/输出是否为字符串（非字节） | `True`                                    |
 
 
+
+## queue 模块
+
+在 Python 中，`queue` 模块提供了一个线程安全的队列实现，用于在多线程编程中安全地传递数据。
+
+队列是一种先进先出（FIFO）的数据结构，`queue` 模块提供了多种队列类型，包括 `Queue`、`LifoQueue` 和 `PriorityQueue`，以满足不同的需求。
+
+------
+
+### 队列类型
+
+#### 1. Queue
+
+`Queue` 是 `queue` 模块中最常用的队列类型，它实现了标准的先进先出（FIFO）队列。以下是 `Queue` 的基本用法：
+
+```
+import queue
+
+# 创建一个队列
+q = queue.Queue()
+
+# 向队列中添加元素
+q.put(1)
+q.put(2)
+q.put(3)
+
+# 从队列中获取元素
+print(q.get())  # 输出: 1
+print(q.get())  # 输出: 2
+print(q.get())  # 输出: 3
+```
+
+#### 2. LifoQueue
+
+`LifoQueue` 是一种后进先出（LIFO）的队列，类似于栈。以下是 `LifoQueue` 的基本用法：
+
+```
+import queue
+
+# 创建一个 LIFO 队列
+q = queue.LifoQueue()
+
+# 向队列中添加元素
+q.put(1)
+q.put(2)
+q.put(3)
+
+# 从队列中获取元素
+print(q.get())  # 输出: 3
+print(q.get())  # 输出: 2
+print(q.get())  # 输出: 1
+```
+
+#### 3. PriorityQueue
+
+`PriorityQueue` 是一种优先级队列，元素按照优先级顺序被取出。以下是 `PriorityQueue` 的基本用法：
+
+```
+import queue
+
+# 创建一个优先级队列
+q = queue.PriorityQueue()
+
+# 向队列中添加元素，元素为元组 (优先级, 数据)
+q.put((3, 'Low priority'))
+q.put((1, 'High priority'))
+q.put((2, 'Medium priority'))
+
+# 从队列中获取元素
+print(q.get())  # 输出: (1, 'High priority')
+print(q.get())  # 输出: (2, 'Medium priority')
+print(q.get())  # 输出: (3, 'Low priority')
+```
+
+------
+
+### 常用方法
+
+| 方法                                  | 作用                   | 行为说明                                                     | 示例             |
+| ------------------------------------- | ---------------------- | ------------------------------------------------------------ | ---------------- |
+| `put(item, block=True, timeout=None)` | 向队列中放入元素       | 队列满时：• `block=True` → 阻塞等待空位（可设置超时）• `block=False` → 直接报错 | `q.put("A")`     |
+| `get(block=True, timeout=None)`       | 从队列中取出并删除元素 | 队列空时：• `block=True` → 阻塞等待元素（可设置超时）• `block=False` → 直接报错 | `item = q.get()` |
+| `qsize()`                             | 返回队列当前元素数量   | 只是“估计值”，在多线程环境下不完全精确                       | `q.qsize()`      |
+| `empty()`                             | 判断队列是否为空       | 为空返回 `True`，否则 `False`                                | `q.empty()`      |
+| `full()`                              | 判断队列是否已满       | 达到 `maxsize` 返回 `True`                                   | `q.full()`       |
+
+------
+
+### 线程安全
+
+`queue` 模块的所有队列类型都是线程安全的，这意味着多个线程可以安全地同时操作同一个队列，而不需要额外的同步机制。这使得 `queue` 模块成为多线程编程中传递数据的理想选择。
+
+------
+
+### 示例：多线程队列
+
+以下是一个使用 `Queue` 在多线程之间传递数据的示例：
+
+```
+import queue
+import threading
+import time
+
+# 创建一个队列
+q = queue.Queue()
+
+# 生产者线程
+def producer():
+    for i in range(5):
+        print(f'生产 {i}')
+        q.put(i)
+        time.sleep(1)
+
+# 消费者线程
+def consumer():
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        print(f'消费 {item}')
+        q.task_done()
+
+# 启动生产者线程
+producer_thread = threading.Thread(target=producer)
+producer_thread.start()
+
+# 启动消费者线程
+consumer_thread = threading.Thread(target=consumer)
+consumer_thread.start()
+
+# 等待生产者线程完成
+producer_thread.join()
+
+# 等待队列中的所有任务完成
+q.join()
+
+# 发送结束信号
+q.put(None)
+consumer_thread.join()
+```
+
+------
+
+### 常用的属性和方法
+
+以下是 Python queue 模块（线程安全队列）的常用类、方法及属性的表格说明，包含功能描述和示例：
+
+#### queue 模块核心类
+
+| 类                        | 说明                            | 适用场景             |
+| :------------------------ | :------------------------------ | :------------------- |
+| **`queue.Queue`**         | 先进先出（FIFO）队列            | 通用任务队列         |
+| **`queue.LifoQueue`**     | 后进先出（LIFO）队列（类似栈）  | 需要后进先出的场景   |
+| **`queue.PriorityQueue`** | 优先级队列（最小堆实现）        | 按优先级处理任务     |
+| **`queue.SimpleQueue`**   | 更简单的FIFO队列（Python 3.7+） | 不需要高级功能的场景 |
+
+#### 通用方法（所有队列类都支持）
+
+| 方法              | 说明                         | 示例               | 返回值         |
+| :---------------- | :--------------------------- | :----------------- | :------------- |
+| **`put(item)`**   | 放入元素                     | `q.put("task1")`   | None           |
+| **`get()`**       | 取出并移除元素               | `item = q.get()`   | 队列元素       |
+| **`empty()`**     | 判断队列是否为空             | `if q.empty():`    | `True`/`False` |
+| **`full()`**      | 判断队列是否已满             | `if q.full():`     | `True`/`False` |
+| **`qsize()`**     | 返回队列当前大小             | `size = q.qsize()` | 整数           |
+| **`task_done()`** | 标记任务完成（用于`join()`） | `q.task_done()`    | None           |
+| **`join()`**      | 阻塞直到所有任务完成         | `q.join()`         | None           |
+
+#### 阻塞控制参数
+
+| 参数      | 说明                    | 默认值 | 示例                  |
+| :-------- | :---------------------- | :----- | :-------------------- |
+| `block`   | 当队列为空/满时是否阻塞 | `True` | `q.get(block=False)`  |
+| `timeout` | 阻塞超时时间（秒）      | `None` | `q.put(x, timeout=5)` |
+
+#### PriorityQueue 专用用法
+
+```
+import queue, threading
+
+q = queue.Queue(maxsize=3)  # 容量为3的队列
+
+def producer():
+    for i in range(5):
+        q.put(f"Task-{i}")
+        print(f"Produced: Task-{i}")
+
+def consumer():
+    while True:
+        item = q.get()
+        print(f"Consumed: {item}")
+        q.task_done()
+
+threading.Thread(target=producer, daemon=True).start()
+threading.Thread(target=consumer, daemon=True).start()
+q.join()  # 等待所有任务完成
+```
+
+## Pickle 模块
+
+在 Python 开发中，我们经常需要把运行时的对象保存下来，或者在程序重启后恢复之前的状态，例如：
+
+- 将计算结果缓存到磁盘，避免重复计算
+- 保存用户配置、程序中间状态
+- 在不同 Python 进程之间传递复杂对象
+
+`pickle` 模块正是 Python 为解决这类问题提供的**官方内置方案**。
+
+Python 的 `pickle` 模块是一个用于序列化和反序列化 Python 对象的标准库模块。
+
+在开始使用 Pickle 之前，需要理解两个核心概念：
+
+- 序列化（Pickling）：将 Python 对象转换为字节序列
+- 反序列化（Unpickling）：将字节序列转换回 Python 对象
+
+`pickle` 模块可以将几乎所有的 Python 对象（如列表、字典、类实例等）保存到文件中，或者通过网络传输，然后在需要时重新加载。
+
+### 为什么使用 Pickle 模块？
+
+1. **数据持久化**：将 Python 对象保存到文件中，以便在程序关闭后仍然可以访问这些数据。
+2. **数据传输**：通过网络传输 Python 对象，例如在分布式系统中传递数据。
+3. **快速存储和加载**：`pickle` 模块可以高效地处理复杂的数据结构，适合需要快速存储和加载的场景。
+
+### Pickle 的典型使用场景
+
+`pickle` 非常适合以下场景：
+
+1. 本地数据持久化
+2. 程序运行状态保存与恢复
+3. 中间计算结果缓存
+4. Python 进程间通信（IPC）
+5. 机器学习模型、特征数据的保存
+
+不适合的场景：
+
+- 跨语言数据交换
+- 前后端接口数据传输
+- 不可信数据源的反序列化
+
+#### Pickle 支持哪些对象？
+
+##### 1. 支持的对象类型
+
+| 类型                      | 是否支持 |
+| :------------------------ | :------- |
+| int / float / bool / str  | 支持     |
+| list / tuple / dict / set | 支持     |
+| None                      | 支持     |
+| 自定义类实例              | 支持     |
+| 嵌套结构                  | 支持     |
+
+##### 不支持或不推荐的对象
+
+- 打开的文件对象
+- socket、数据库连接
+- 操作系统资源
+- 依赖运行环境状态的对象
+
+#### 导入模块
+
+使用 Pickle 模块非常简单，只需要导入即可：
+
+```
+import pickle
+```
+
+------
+
+### Pickle 模块的基本用法
+
+#### 1. 序列化对象
+
+使用 `pickle.dump()` 方法可以将 Python 对象序列化并保存到文件中。
+
+```
+import pickle
+
+# 创建一个 Python 对象
+data = {
+    'name': 'Alice',
+    'age': 25,
+    'hobbies': ['reading', 'traveling']
+}
+
+# 将对象序列化并保存到文件
+with open('data.pkl', 'wb') as file:
+    pickle.dump(data, file)
+```
+
+- `'wb'` 表示以二进制写模式打开文件。
+- `pickle.dump()` 将 `data` 对象序列化并写入文件。
+
+#### 2. 反序列化对象
+
+使用 `pickle.load()` 方法可以从文件中加载并反序列化 Python 对象。
+
+```
+import pickle
+
+# 从文件中加载并反序列化对象
+with open('data.pkl', 'rb') as file:
+    loaded_data = pickle.load(file)
+
+print(loaded_data)
+```
+
+- `'rb'` 表示以二进制读模式打开文件。
+- `pickle.load()` 从文件中读取字节流并反序列化为 Python 对象。
+
+#### 3.序列化到字节串
+
+如果不想保存到文件，可以使用 pickle.dumps() 将对象序列化为字节串：
+
+```
+import pickle
+data = [1, 2, 3, 4, 5]
+
+# 序列化为字节串
+byte_data = pickle.dumps(data)
+print(byte_data)
+# 输出类似: b'\x80\x04\x95\x0f\x00\x00\x00...'
+```
+
+#### 4. 从字节串反序列化
+
+使用 pickle.loads() 可以从字节串反序列化对象：
+
+```
+import pickle
+
+byte_data = b'\x80\x04\x95\x0f\x00\x00\x00\x00\x00\x00\x00]\x94(K\x01K\x02K\x03K\x04K\x05e.'
+
+# 从字节串反序列化
+original_data = pickle.loads(byte_data)
+print(original_data)
+# 输出: [1, 2, 3, 4, 5]
+```
+
+#### 5. 可以序列化的对象类型
+
+Pickle 可以序列化大多数 Python 对象，包括：
+
+- 基本数据类型：整数、浮点数、字符串、布尔值、None
+- 集合类型：列表、元组、字典、集合
+- 自定义类的实例
+- 函数和类（有一定限制）
+
+```
+import pickle
+
+# 序列化不同类型的数据
+numbers = [1, 2, 3]
+text = "Hello, Pickle"
+dictionary = {'key': 'value'}
+tuple_data = (1, 2, 3)
+set_data = {1, 2, 3}
+
+# 将所有数据放入一个列表
+all_data = [numbers, text, dictionary, tuple_data, set_data]
+
+# 序列化
+with open('mixed_data.pkl', 'wb') as f:
+    pickle.dump(all_data, f)
+
+# 反序列化
+with open('mixed_data.pkl', 'rb') as f:
+    loaded_data = pickle.load(f)
+    print(loaded_data)
+```
+
+#### 6. 序列化自定义类
+
+Pickle 可以很好地处理自定义类的实例：
+
+```
+import pickle
+
+class Student:
+    def __init__(self, name, age, grade):
+        self.name = name
+        self.age = age
+        self.grade = grade
+    
+    def __repr__(self):
+        return f"Student(name={self.name}, age={self.age}, grade={self.grade})"
+
+# 创建实例
+student = Student("李四", 20, "大三")
+
+# 序列化
+with open('student.pkl', 'wb') as f:
+    pickle.dump(student, f)
+
+# 反序列化
+with open('student.pkl', 'rb') as f:
+    loaded_student = pickle.load(f)
+    print(loaded_student)
+    # 输出: Student(name=李四, age=20, grade=大三)
+```
+
+#### 7. 序列化多个对象
+
+可以多次调用 pickle.dump() 来保存多个对象：
+
+```
+import pickle
+
+data1 = {'item': 'apple', 'count': 5}
+data2 = ['banana', 'orange', 'grape']
+data3 = 42
+
+# 保存多个对象
+with open('multiple.pkl', 'wb') as f:
+    pickle.dump(data1, f)
+    pickle.dump(data2, f)
+    pickle.dump(data3, f)
+
+# 读取多个对象（顺序必须一致）
+with open('multiple.pkl', 'rb') as f:
+    loaded_data1 = pickle.load(f)
+    loaded_data2 = pickle.load(f)
+    loaded_data3 = pickle.load(f)
+    
+print(loaded_data1)
+print(loaded_data2)
+print(loaded_data3)
+```
+
+### Pickle 模块的注意事项
+
+1. **安全性**：`pickle` 模块在反序列化时会执行任意代码，因此不要加载来自不可信来源的 `pickle` 数据，以免遭受恶意攻击。
+2. **兼容性**：`pickle` 生成的字节流是 Python 特有的，不同版本的 Python 之间可能存在兼容性问题。
+3. **性能**：对于大型数据集，`pickle` 的序列化和反序列化可能会比较慢，可以考虑使用更高效的序列化工具，如 `json` 或 `msgpack`。
+
+### pickle 模块常用方法
+
+| 方法                      | 说明                          | 示例                                                  |
+| :------------------------ | :---------------------------- | :---------------------------------------------------- |
+| `pickle.dump(obj, file)`  | 将对象序列化并写入文件        | `pickle.dump(data, open('data.pkl', 'wb'))`           |
+| `pickle.load(file)`       | 从文件读取并反序列化对象      | `data = pickle.load(open('data.pkl', 'rb'))`          |
+| `pickle.dumps(obj)`       | 将对象序列化为字节串          | `bytes_data = pickle.dumps([1, 2, 3])`                |
+| `pickle.loads(bytes)`     | 从字节串反序列化对象          | `lst = pickle.loads(bytes_data)`                      |
+| `pickle.HIGHEST_PROTOCOL` | 可用的最高协议版本（属性）    | `pickle.dump(..., protocol=pickle.HIGHEST_PROTOCOL)`  |
+| `pickle.DEFAULT_PROTOCOL` | 默认协议版本（属性，通常为4） | `pickle.dumps(obj, protocol=pickle.DEFAULT_PROTOCOL)` |
+
+## StringIO 模块
+
+在 Python 中，`StringIO` 模块是一个非常有用的工具，它允许我们在内存中处理字符串，就像处理文件一样。通常情况下，我们处理文件时需要打开、读取、写入和关闭文件，而 `StringIO` 模块则提供了一种更灵活的方式，让我们可以在内存中完成这些操作，而不需要实际创建文件。
+
+### 为什么使用 StringIO 模块？
+
+1. **内存效率**：`StringIO` 模块在内存中操作字符串，避免了频繁的磁盘 I/O 操作，提高了程序的运行效率。
+2. **灵活性**：它允许我们像操作文件一样操作字符串，非常适合需要临时存储和处理字符串的场景。
+3. **测试和调试**：在编写测试代码时，`StringIO` 可以模拟文件对象，方便我们进行单元测试和调试。
+
+------
+
+### 如何使用 StringIO 模块？
+
+#### 导入 StringIO 模块
+
+在 Python 3 中，`StringIO` 模块位于 `io` 模块中，因此我们需要从 `io` 模块中导入它：
+
+`from io import StringIO`
+
+```
+# 创建 StringIO 对象
+string_io = StringIO()
+
+# 写入数据
+string_io.write("Hello, World!")
+
+# 读取数据
+data = string_io.getvalue()
+print(data)  # 输出: Hello, World!
+
+# 移动指针
+string_io.seek(0)  # 将指针移动到开头
+
+# 读取一行数据
+line = string_io.readline()
+print(line)  # 输出: Hello, World!
+
+string_io.close()
+```
+
+### 实际应用示例
+
+#### 示例 1：模拟文件操作
+
+```
+from io import StringIO
+
+# 创建 StringIO 对象
+string_io = StringIO()
+
+# 写入数据
+string_io.write("Python is awesome!\n")
+string_io.write("StringIO is useful!")
+
+# 移动指针到开头
+string_io.seek(0)
+
+# 读取数据
+print(string_io.read())
+
+# 关闭 StringIO 对象
+string_io.close()
+```
+
+#### 示例 2：单元测试中的使用
+
+在单元测试中，`StringIO` 可以用于模拟文件对象，方便我们测试代码的输入输出。
+
+```
+from io import StringIO
+import unittest
+
+def process_input(input_data):
+    return input_data.upper()
+
+class TestProcessInput(unittest.TestCase):
+    def test_process_input(self):
+        input_data = "hello"
+        expected_output = "HELLO"
+        
+        # 使用 StringIO 模拟输入
+        input_stream = StringIO(input_data)
+        result = process_input(input_stream.read())
+        
+        self.assertEqual(result, expected_output)
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+------
+
+### 常用类、方法和函数
+
+以下是 `StringIO` 模块中常用的属性和方法，以表格形式列出：
+
+| **属性/方法**            | **描述**                                                     |
+| :----------------------- | :----------------------------------------------------------- |
+| `StringIO()`             | 创建一个 `StringIO` 对象，可以传入初始字符串作为参数。       |
+| `write(s)`               | 将字符串 `s` 写入 `StringIO` 对象。                          |
+| `read([size])`           | 从 `StringIO` 对象中读取最多 `size` 个字符。如果未指定 `size`，则读取全部内容。 |
+| `readline([size])`       | 从 `StringIO` 对象中读取一行，最多读取 `size` 个字符。       |
+| `readlines([sizehint])`  | 从 `StringIO` 对象中读取所有行，并返回一个列表。`sizehint` 用于限制读取的字符数。 |
+| `getvalue()`             | 返回 `StringIO` 对象中的所有内容，作为一个字符串。           |
+| `seek(offset[, whence])` | 移动文件指针到指定位置。`offset` 是偏移量，`whence` 是参考位置（0：文件开头，1：当前位置，2：文件末尾）。 |
+| `tell()`                 | 返回当前文件指针的位置。                                     |
+| `truncate([size])`       | 截断 `StringIO` 对象的内容到指定大小。如果未指定 `size`，则截断到当前文件指针位置。 |
+| `close()`                | 关闭 `StringIO` 对象，释放资源。                             |
+| `closed`                 | 返回一个布尔值，表示 `StringIO` 对象是否已关闭。             |
+
+
+
+## logging 模块
+
+在编程中，日志记录（logging）是一种非常重要的工具，它可以帮助我们跟踪程序的运行状态、调试错误以及记录重要信息。
+
+Python 提供了一个内置的 `logging` 模块，专门用于处理日志记录任务。与简单的 `print` 语句相比，`logging` 模块更加灵活和强大，能够满足不同场景下的日志需求。
+
+### 为什么使用 logging 模块？
+
+1. **灵活性**：`logging` 模块允许你根据需要设置日志的级别、格式和输出位置。
+2. **可扩展性**：你可以轻松地将日志输出到文件、控制台、网络等不同的目标。
+3. **结构化日志**：`logging` 模块支持结构化日志记录，便于后续的分析和处理。
+4. **性能优化**：与 `print` 相比，`logging` 模块在性能上进行了优化，适合在生产环境中使用。
+
+------
+
+### logging 模块的基本用法
+
+#### 1. 导入 logging 模块
+
+首先，我们需要导入 `logging` 模块：`**import** logging`
+
+#### 2. 配置日志级别
+
+日志级别用于控制日志的详细程度。`logging` 模块提供了以下几种日志级别：
+
+- **DEBUG**：详细的调试信息，通常用于开发阶段。
+- **INFO**：程序正常运行时的信息。
+- **WARNING**：表示潜在的问题，但程序仍能正常运行。
+- **ERROR**：表示程序中的错误，导致某些功能无法正常工作。
+- **CRITICAL**：表示严重的错误，可能导致程序崩溃。
+
+你可以通过以下代码设置日志级别：
+
+`logging.basicConfig(level=logging.DEBUG)`
+
+#### 3. 记录日志
+
+设置好日志级别后，你可以使用以下方法记录日志：
+
+```
+logging.debug("这是一条调试信息")
+logging.info("这是一条普通信息")
+logging.warning("这是一条警告信息")
+logging.error("这是一条错误信息")
+logging.critical("这是一条严重错误信息")
+```
+
+#### 4. 日志输出格式
+
+你可以通过 `basicConfig` 方法自定义日志的输出格式。例如：
+
+```
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+```
+
+#### 5. 将日志输出到文件
+
+默认情况下，日志会输出到控制台。如果你希望将日志保存到文件中，可以这样配置：
+
+```
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="app.log"
+)
+```
+
+------
+
+### logging 模块的高级用法
+
+#### 1. 使用多个日志记录器
+
+在大型项目中，你可能需要为不同的模块或组件创建独立的日志记录器。可以通过以下方式实现：
+
+```
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# 创建文件处理器
+file_handler = logging.FileHandler("my_logger.log")
+file_handler.setLevel(logging.DEBUG)
+
+# 创建控制台处理器
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# 设置日志格式
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# 将处理器添加到日志记录器
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# 记录日志
+logger.debug("这是一条调试信息")
+logger.info("这是一条普通信息")
+```
+
+#### 2. 日志过滤器
+
+你可以通过过滤器来控制哪些日志需要被记录。例如：
+
+```
+class MyFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelno == logging.ERROR
+
+logger.addFilter(MyFilter())
+```
+
+#### 3. 日志轮转
+
+当日志文件过大时，可以使用 `RotatingFileHandler` 或 `TimedRotatingFileHandler` 实现日志轮转：
+
+```
+from logging.handlers import RotatingFileHandler
+
+handler = RotatingFileHandler("app.log", maxBytes=1024, backupCount=3)
+logger.addHandler(handler)
+```
+
+------
+
+### logging 模块常用的属性和方法
+
+#### 1. 核心类
+
+| 类                      | 说明                                                         | 示例                                                         |
+| :---------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| **`logging.Logger`**    | 记录器，用于发出日志消息（通过 `logging.getLogger(name)` 获取） | `logger = logging.getLogger("my_logger")`                    |
+| **`logging.Handler`**   | 处理器，决定日志输出位置（如文件、控制台等）                 | `handler = logging.FileHandler("app.log")`                   |
+| **`logging.Formatter`** | 格式化器，控制日志输出的格式                                 | `formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')` |
+| **`logging.Filter`**    | 过滤器，用于更精细地控制日志记录                             | `filter = logging.Filter("module.name")`                     |
+
+#### 2. Logger 对象常用方法
+
+| 方法                             | 说明                                               | 示例                             |
+| :------------------------------- | :------------------------------------------------- | :------------------------------- |
+| **`logger.setLevel(level)`**     | 设置日志级别（如 `logging.DEBUG`、`logging.INFO`） | `logger.setLevel(logging.DEBUG)` |
+| **`logger.debug(msg)`**          | 记录 DEBUG 级别日志                                | `logger.debug("调试信息")`       |
+| **`logger.info(msg)`**           | 记录 INFO 级别日志                                 | `logger.info("程序启动")`        |
+| **`logger.warning(msg)`**        | 记录 WARNING 级别日志                              | `logger.warning("磁盘空间不足")` |
+| **`logger.error(msg)`**          | 记录 ERROR 级别日志                                | `logger.error("操作失败")`       |
+| **`logger.critical(msg)`**       | 记录 CRITICAL 级别日志                             | `logger.critical("系统崩溃")`    |
+| **`logger.addHandler(handler)`** | 添加处理器                                         | `logger.addHandler(handler)`     |
+| **`logger.addFilter(filter)`**   | 添加过滤器                                         | `logger.addFilter(filter)`       |
+
+#### 3. Handler 常用类型
+
+| Handler 类型                   | 说明                 | 示例                                                         |
+| :----------------------------- | :------------------- | :----------------------------------------------------------- |
+| **`StreamHandler`**            | 输出到流（如控制台） | `handler = logging.StreamHandler()`                          |
+| **`FileHandler`**              | 输出到文件           | `handler = logging.FileHandler("app.log")`                   |
+| **`RotatingFileHandler`**      | 按文件大小分割日志   | `handler = logging.RotatingFileHandler("app.log", maxBytes=1e6, backupCount=3)` |
+| **`TimedRotatingFileHandler`** | 按时间分割日志       | `handler = logging.TimedRotatingFileHandler("app.log", when="midnight")` |
+| **`SMTPHandler`**              | 通过邮件发送日志     | `handler = logging.SMTPHandler("mail.example.com", "from@example.com", "to@example.com", "Error Log")` |
+
+#### 4. 日志级别（常量）
+
+| 级别           | 数值 | 说明                           |
+| :------------- | :--- | :----------------------------- |
+| **`CRITICAL`** | 50   | 严重错误，程序可能无法继续运行 |
+| **`ERROR`**    | 40   | 错误，但程序仍可运行           |
+| **`WARNING`**  | 30   | 警告信息（默认级别）           |
+| **`INFO`**     | 20   | 程序运行信息                   |
+| **`DEBUG`**    | 10   | 调试信息                       |
+| **`NOTSET`**   | 0    | 继承父记录器的级别             |
+
+#### 5. Formatter 常用格式字段
+
+| 字段            | 说明             | 示例输出                  |
+| :-------------- | :--------------- | :------------------------ |
+| `%(asctime)s`   | 日志创建时间     | `2023-01-01 12:00:00,123` |
+| `%(levelname)s` | 日志级别名称     | `INFO`                    |
+| `%(message)s`   | 日志消息内容     | `程序启动成功`            |
+| `%(name)s`      | 记录器名称       | `my_logger`               |
+| `%(filename)s`  | 生成日志的文件名 | `app.py`                  |
+| `%(lineno)d`    | 生成日志的行号   | `42`                      |
+| `%(funcName)s`  | 生成日志的函数名 | `main`                    |
+
+#### 6. 快速配置方法
+
+| 方法                        | 说明                                                 | 示例                                                         |
+| :-------------------------- | :--------------------------------------------------- | :----------------------------------------------------------- |
+| **`logging.basicConfig()`** | 一键配置日志级别、处理器和格式（通常在程序入口调用） | `logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')` |
+
+**常用参数**：
+
+- `level`：设置根记录器级别
+- `filename`：输出到文件
+- `filemode`：文件模式（如 `'w'` 覆盖）
+- `format`：格式字符串
+- `datefmt`：日期格式（如 `"%Y-%m-%d %H:%M:%S"`）
+
+# 通信
+
+## SMTP发送邮件
+
+SMTP（Simple Mail Transfer Protocol）即简单邮件传输协议,它是一组用于由源地址到目的地址传送邮件的规则，由它来控制信件的中转方式。
+
+python的smtplib提供了一种很方便的途径发送电子邮件。它对smtp协议进行了简单的封装。
+
+https://www.runoob.com/python3/python3-smtp.html
+
+# 可视化 & 数据分析
+
+## pyecharts库
+
+pyecharts 是一个基于 ECharts 的 Python 数据可视化库，它允许用户使用 Python 语言生成各种类型的交互式图表和数据可视化。
+
+ECharts 是一个使用 JavaScript 实现的开源可视化库，而 Pyecharts 则是 ECharts 的 Python 封装，使得在 Python 中使用 ECharts 变得更加方便。
+
+pyecharts 提供了一组简单而灵活的 API，使用户能够轻松地创建各种图表，包括但不限于折线图、柱状图、散点图、饼图、地图等。
+
+通过 pyecharts，用户可以使用 Python 语言处理和准备数据，然后使用简洁的代码生成交互式的图表，这些图表可以嵌入到 Web 应用程序中或保存为静态文件。
+
+**pyecharts 特点与功能：**
+
+- **简单易用：** Pyecharts 提供了直观而友好的 API，使得用户能够快速上手，轻松生成各种图表。
+- **丰富的图表类型：** 支持多种常见的图表类型，包括线图、柱状图、散点图、饼图、地图等，满足不同场景的需求。
+- **支持主流数据格式：** 能够处理常见的数据格式，如列表、字典、Pandas DataFrame 等。
+- **交互性：** 生成的图表可以具有交互性，用户可以通过鼠标悬停、缩放等方式与图表进行互动。
+- **丰富的配置选项：** 提供了丰富的配置选项，允许用户自定义图表的样式、布局等属性。
+- **支持主题：** 提供多种主题，用户可以根据需要选择合适的主题，使图表更符合应用的整体风格。
+
+## statistics 模块
+
+在数据分析和科学计算中，统计学是一个非常重要的工具。
+
+Python 提供了一个内置的 `statistics` 模块，专门用于处理基本的统计计算。本文将详细介绍 `statistics` 模块的功能和使用方法，帮助初学者快速掌握如何使用这个模块进行基本的统计分析。
+
+`statistics` 模块提供了许多常用的统计函数，如均值、中位数、方差、标准差等。
+
+### statistics 模块方法
+
+| 方法                                                         | 描述                                                     |
+| :----------------------------------------------------------- | :------------------------------------------------------- |
+| [statistics.harmonic_mean()](https://www.runoob.com/python3/ref-stat-harmonic_mean.html) | 计算给定数据集的调和平均值。                             |
+| [statistics.mean()](https://www.runoob.com/python3/ref-stat-mean.html) | 计算数据集的平均值                                       |
+| [statistics.median()](https://www.runoob.com/python3/ref-stat-median.html) | 计算数据集的中位数                                       |
+| [statistics.median_grouped()](https://www.runoob.com/python3/ref-stat-median_grouped.html) | 计算给定分组数据集的分组中位数                           |
+| [statistics.median_high()](https://www.runoob.com/python3/ref-stat-median_high.html) | 计算给定数据集的高位中位数                               |
+| [statistics.median_low()](https://www.runoob.com/python3/ref-stat-median_low.html) | 计算给定数据集的低位中位数。                             |
+| [statistics.mode()](https://www.runoob.com/python3/ref-stat-mode.html) | 算数据集的众数（出现频率最高的值）                       |
+| [statistics.pstdev()](https://www.runoob.com/python3/ref-stat-pstdev.html) | 计算给定数据集的样本标准偏差                             |
+| [statistics.stdev()](https://www.runoob.com/python3/ref-stat-stdev.html) | 计算数据集的标准差                                       |
+| [statistics.pvariance()](https://www.runoob.com/python3/ref-stat-pvariance.html) | 计算给定数据集的样本方差                                 |
+| [statistics.variance()](https://www.runoob.com/python3/ref-stat-variance.html) | 计算数据集的方差                                         |
+| [statistics.quantiles()](https://www.runoob.com/python3/ref-stat-quantiles.html) | 计算数据集的分位数，可指定分位数的数量（默认为四分位数） |
 
