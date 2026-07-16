@@ -5904,9 +5904,440 @@ with open("myfile.txt") as f:
 
 以上这段代码执行完毕后，就算在处理过程中出问题了，文件 f 总是会关闭。
 
+# Classes & Object
+
+## Class
+
+In Python, classes and objects work hand in hand to organize and manage data. You build a class to define shared behavior, then create objects that use those behaviors.
+
+In other words, a class is like a blueprint or template you use to create objects with.
+
+```py
+class ClassName:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def sample_method(self):               
+        print(self.name.upper())
+```
+
+- `class ClassName` is made up of the `class` keyword to create a class, followed by the name of the class, here called `ClassName`. It is common in Python to use the **PascalCase** convention when naming classes.
+
+- `def __init__(self, name, age)` is the special method automatically called when a new object is created. It initializes the attributes of the objects that will be created with the class.
+
+  In addition to that, the first parameter of `__init__` is always a reference to the specific object being created or used. By convention, this parameter is named `self`, but technically, you can use any name. `self` lets you access the object's own attributes and methods.
+
+- `self.name = name` and `self.age = age` are the attributes the objects will have.
+
+- `def sample_method(self):` is the method each object created can call.
+
+- `print(self.name.upper())` is what the `sample_method` method will do, in this case, it prints the name in uppercase.
+
+```py
+object_1 = ClassName(attribute_1, attribute_2)
+object_2 = ClassName(attribute_1, attribute_2)
+
+object_1.method_name()
+object_2.method_name()
+```
+
+```py
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def bark(self):
+        print(f"{self.name.upper()} says woof woof! I'm {self.age} years old!")
+
+dog_1 = Dog("Jack", 3)
+dog_2 = Dog("Thatcher", 5)
+
+# Call the bark method
+dog_1.bark()  # JACK says woof woof! I'm 3 years old!
+dog_2.bark()  # THATCHER says woof woof! I'm 5 years old!
+```
+
+## instance attributes and class attributes
+
+```py
+class Dog:
+    species = "French Bulldog" # Class attribute
+
+    def __init__(self, name):
+        self.name = name # Instance attribute
+
+print(Dog.species) # French Bulldog
+
+dog1 = Dog("Jack")
+print(dog1.name)    # Jack
+print(dog1.species) # French Bulldog
+
+dog2 = Dog("Tom")
+print(dog2.name)    # Tom
+print(dog2.species) # French Bulldog
+```
+
+## Special Methods 
+
+Special methods in Python, also known as "magic methods" or "dunder methods", are special Python methods that start and end with double underscores (`__`). The word "dunder" itself comes from double underscores (**d** for double, **under** for underscores).
+
+You've probably used special methods already without knowing it. Every time you write something like `3 + 4`, Python quietly runs `3.__add__(4)` under the hood. That's a special method in action. So while you *can* call special methods directly, you rarely do. Something like `3 + 4` is much clearer and easier to read than calling `3.__add__(4)` yourself.
+
+Remember, you don't need to call special methods directly. Instead, Python automatically calls them when certain actions happen. These operations include:
+
+- **Arithmetic operations like addition, subtraction, multiplication, division, and others**. For addition, `__add__()` is called, `__sub__()` for subtraction, `__mul__()` for multiplication, and `__truediv__()` for division.
+- **String operations like concatenation, repetition, formatting, and conversion to text**. `__add__()` is called for concatenation, `__mul__()` for repetition, `__format__()` for formatting, `__str__()` and `__repr__()` for text conversion, and so on.
+- **Comparison operations like equality, less-than, greater-than, and others**. `__eq__()` is called for equality checks, `__lt__()` for less-than, `__gt__()` for greater-than, and so on.
+- **Iteration operations like making an object iterable and advancing through items**. `__iter__()` is called to return an iterator and `__next__()` to fetch the next item.
+
+```py
+class Book:
+   def __init__(self, title, pages):
+       self.title = title
+       self.pages = pages
+
+book1 = Book("Built Wealth Like a Boss", 420)
+book2 = Book("Be Your Own Start", 420)
+
+print(len(book1)) # TypeError: object of type 'Book' has no len()
+print(str(book1)) # <__main__.Book object at 0x102ed2900>
+print(book1 == book2) # False even though they have the same number of pages
+```
+
+```py
+class Book:
+   def __init__(self, title, pages):
+       self.title = title
+       self.pages = pages
+
+   def __len__(self):
+       return self.pages
+
+   def __str__(self):
+       return f"'{self.title}' has {self.pages} pages"
+
+   def __eq__(self, other):
+       return self.pages == other.pages
+  
+book1 = Book("Built Wealth Like a Boss", 420)
+book2 = Book("Be Your Own Start", 420)
+
+print(len(book1)) # 420
+print(len(book2)) # 420
+print(str(book1)) # 'Built Wealth Like a Boss' has 420 pages
+print(str(book2)) # 'Be Your Own Start' has 420 pages
+print(book1 == book2) # True
+```
+
+```py
+class Planet:
+    def __init__(self, name, planet_type, star):
+        if not (isinstance(name, str) and isinstance(planet_type, str) and isinstance(star, str)):
+            raise TypeError("name, planet type, and star must be strings")
+        
+        if not name or not planet_type or not star:
+            raise ValueError("name, planet_type, and star must be non-empty strings")
+
+        self.name = name
+        self.planet_type = planet_type
+        self.star = star   
+    
+    def orbit(self):
+        return (f"{self.name} is orbiting around {self.star}...")
+
+    def __str__(self):
+        return (f"Planet: {self.name} | Type: {self.planet_type} | Star: {self.star}")
+
+planet_1 = Planet('test1', "type1", "start1")
+planet_2 = Planet('test2', "type2", "start2")
+planet_3 = Planet('test3', "type3", "start3")
+
+print((planet_1)) # automatically output with __str__
+print((planet_2))
+print((planet_3))
+
+print(planet_1.orbit())
+print(planet_2.orbit())
+print(planet_3.orbit())
+```
 
 
-# 面向对象
+
+## Handle Object Attributes Dynamically
+
+To work with attributes whose names aren't known until runtime.
+
+`getattr()`, `setattr()`, `hasattr()`, and `delattr()`.
+
+`getattr()` makes it possible to read an attribute from an object when you don't know its name until runtime. If the attribute doesn't exist, it raises an `AttributeError`, unless you provide a default value.
+
+```py
+getattr(object, attribute_name, default_value) 
+```
+
+```py
+class Person: 
+    def __init__(self, name, age): 
+        self.name = name 
+        self.age = age 
+
+person = Person('John Doe', 30) 
+ 
+print(getattr(person, 'name')) # John Doe 
+print(getattr(person, 'age')) # 30 
+print(getattr(person, 'city', 'Milano')) # Milano
+```
+
+```py
+class Person: 
+    def __init__(self, name, age): 
+        self.name = name 
+        self.age = age 
+
+person = Person('John Doe', 30)
+
+attr_name = input('Enter the attribute you want to see: ')
+print(getattr(person, attr_name, 'Attribute not found'))
+```
+
+`dir()`: look through all the attributes an object has, not just the ones you already know
+
+`callable()` is a built-in function that returns `True` if the object passed to it can be called like a function or method, and `False` otherwise. By checking `not callable(getattr(person, attr))`, the loop skips over methods and only prints the data attributes like `name` and `age`.
+
+```py
+class Person: 
+    def __init__(self, name, age): 
+        self.name = name 
+        self.age = age 
+
+person = Person('John Doe', 30)
+
+# Loop through all attributes of the person object with dir() function
+for attr in dir(person):
+    # Ignore dunder methods like __init__ or __str__ and regular methods
+    if not attr.startswith('__') and not callable(getattr(person, attr)): 
+        value = getattr(person, attr)
+        print(f'{attr}: {value}')
+
+# Output
+# age: 30
+# name: John Doe
+```
+
+The `setattr()` function lets you create a new attribute or update an existing one dynamically. The syntax looks like this:
+
+```py
+setattr(object, attribute_name, value) 
+```
+
+```py
+class Configuration:
+    pass
+
+# Data loaded at runtime (like from a config or env file)
+settings_data = {
+    'server_url': 'https://api.example.com',
+    'timeout_sec': 30,
+    'max_retries': 5
+}
+
+config_obj = Configuration()
+
+# Dynamically set attributes using dictionary keys and values
+for attr_name, attr_value in settings_data.items():
+    setattr(config_obj, attr_name, attr_value)
+
+print(config_obj.server_url) # https://api.example.com
+print(config_obj.timeout_sec) # 30
+```
+
+There is also `hasattr()`. Before you do something with an attribute or delete it, it's a good practice to check if it exists. That's what `hasattr()` lets you do. It checks if an attribute exists and returns `True` or `False` based on the result.
+
+```py
+hasattr(object, attribute_name)  
+```
+
+```python
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+product_a = Product('T-Shirt', 25)
+
+required_attributes = ['name', 'price', 'inventory_id']
+
+for attr in required_attributes:
+    if not hasattr(product_a, attr):
+        print(f"ERROR: Product is missing the required attribute: '{attr}'")
+    else:
+        # Access the attributes dynamically once their existence is confirmed
+        print(f'{attr}: {getattr(product_a, attr)}')
+
+# Output:
+# name: T-Shirt
+# price: 25
+# ERROR: Product is missing the required attribute: 'inventory_id'
+```
+
+`delattr()` lets you remove an attribute dynamically:
+
+```python
+class UserSession:
+    def __init__(self, user_id, token):
+        self.user_id = user_id
+        self.auth_token = token # sensitive
+        self.temp_counter = 0 # temporary
+
+session = UserSession(101, 'a1b2c3d4e5')
+
+# List of attributes to remove dynamically before "saving" the session
+attributes_to_clean = ['auth_token', 'temp_counter']
+
+# Dynamically remove specified attributes
+for attr in attributes_to_clean:
+    if hasattr(session, attr):
+        delattr(session, attr)
+        print(f'Removed attribute: {attr}')
+
+print('\nFinal attributes remaining:')
+
+# Loop through the remaining attributes with dir()
+for attr in dir(session):
+    # Ignore dunder methods like __init__ or __str__ and regular methods
+    if not attr.startswith('__') and not callable(getattr(session, attr)):
+        print(f' - {attr}: {getattr(session, attr)}')
+
+# Output:
+# Removed attribute: auth_token
+# Removed attribute: temp_counter
+```
+
+```py
+import datetime
+
+class Email:
+    def __init__(self, sender, receiver, subject, body):
+        self.sender = sender
+        self.receiver = receiver
+        self.subject = subject
+        self.body = body
+        self.timestamp = datetime.datetime.now()
+        self.read = False
+
+    def mark_as_read(self):
+        self.read = True
+
+    def display_full_email(self):
+        self.mark_as_read()
+        print('\n--- Email ---')
+        print(f'From: {self.sender.name}')
+        print(f'To: {self.receiver.name}')
+        print(f'Subject: {self.subject}')
+        print(f"Received: {self.timestamp.strftime('%Y-%m-%d %H:%M')}")
+        print(f'Body: {self.body}')
+        print('------------\n')
+
+    def __str__(self):
+        status = 'Read' if self.read else 'Unread'
+        return f"[{status}] From: {self.sender.name} | Subject: {self.subject} | Time: {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+
+class User:
+    def __init__(self, name):
+        self.name = name
+        self.inbox = Inbox()
+
+    def send_email(self, receiver, subject, body):
+        email = Email(sender=self, receiver=receiver, subject=subject, body=body)
+        receiver.inbox.receive_email(email)
+        print(f'Email sent from {self.name} to {receiver.name}!\n')
+
+    def check_inbox(self):
+        print(f"\n{self.name}'s Inbox:")
+        self.inbox.list_emails()
+
+    def read_email(self, index):
+        self.inbox.read_email(index)
+
+    def delete_email(self, index):
+        self.inbox.delete_email(index)
+
+class Inbox:
+    def __init__(self):
+        self.emails = []
+
+    def receive_email(self, email):
+        self.emails.append(email)
+
+    def list_emails(self):
+        if not self.emails:
+            print('Your inbox is empty.\n')
+            return
+        print('\nYour Emails:')
+        for i, email in enumerate(self.emails, start=1):
+            print(f'{i}. {email}')
+
+    def read_email(self, index):
+        if not self.emails:
+            print('Inbox is empty.\n')
+            return
+        actual_index = index - 1
+        if actual_index < 0 or actual_index >= len(self.emails):
+            print('Invalid email number.\n')
+            return
+        self.emails[actual_index].display_full_email()
+
+    def delete_email(self, index):
+        if not self.emails:
+            print('Inbox is empty.\n')
+            return
+        actual_index = index - 1
+        if actual_index < 0 or actual_index >= len(self.emails):
+            print('Invalid email number.\n')
+            return
+        del self.emails[actual_index]
+        print('Email deleted.\n')
+
+def main():
+    tory = User('Tory')
+    ramy = User('Ramy')        
+    
+    tory.send_email(ramy, 'Hello', 'Hi Ramy, just saying hello!')
+    ramy.send_email(tory, 'Re: Hello', 'Hi Tory, hope you are fine.')
+    ramy.check_inbox()
+    ramy.read_email(1)
+    ramy.delete_email(1)
+    ramy.check_inbox()
+
+
+    
+if __name__ == '__main__':
+    main()
+    
+```
+
+
+
+
+
+
+
+
+
+# 面向对象oop
+
+- **类(Class):** 用来描述具有相同的属性和方法的对象的集合。它定义了该集合中每个对象所共有的属性和方法。对象是类的实例。
+- **方法：**类中定义的函数。
+- **类变量：**类变量在整个实例化的对象中是公用的。类变量定义在类中且在函数体之外。类变量通常不作为实例变量使用。
+- **数据成员：**类变量或者实例变量用于处理类及其实例对象的相关的数据。
+- **方法重写：**如果从父类继承的方法不能满足子类的需求，可以对其进行改写，这个过程叫方法的覆盖（override），也称为方法的重写。
+- **局部变量：**定义在方法中的变量，只作用于当前实例的类。
+- **实例变量：**在类的声明中，属性是用变量来表示的，这种变量就称为实例变量，实例变量就是一个用 self 修饰的变量。
+- **继承：**即一个派生类（derived class）继承基类（base class）的字段和方法。继承也允许把一个派生类的对象作为一个基类对象对待。例如，有这样一个设计：一个Dog类型的对象派生自Animal类，这是模拟"是一个（is-a）"关系（例图，Dog是一个Animal）。
+- **实例化：**创建一个类的实例，类的具体对象。
+- **对象：**通过类定义的数据结构实例。对象包括两个数据成员（类变量和实例变量）和方法。
 
 # 命名空间/作用域
 
