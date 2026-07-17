@@ -6328,6 +6328,8 @@ if __name__ == '__main__':
 
 # 面向对象oop
 
+Object-oriented programming has four key principles that help you organize and manage code effectively. They are encapsulation, inheritance, polymorphism, and abstraction.
+
 - **类(Class):** 用来描述具有相同的属性和方法的对象的集合。它定义了该集合中每个对象所共有的属性和方法。对象是类的实例。
 - **方法：**类中定义的函数。
 - **类变量：**类变量在整个实例化的对象中是公用的。类变量定义在类中且在函数体之外。类变量通常不作为实例变量使用。
@@ -6338,6 +6340,664 @@ if __name__ == '__main__':
 - **继承：**即一个派生类（derived class）继承基类（base class）的字段和方法。继承也允许把一个派生类的对象作为一个基类对象对待。例如，有这样一个设计：一个Dog类型的对象派生自Animal类，这是模拟"是一个（is-a）"关系（例图，Dog是一个Animal）。
 - **实例化：**创建一个类的实例，类的具体对象。
 - **对象：**通过类定义的数据结构实例。对象包括两个数据成员（类变量和实例变量）和方法。
+
+- `__dict__` 属于 Python 的一组特殊属性（dunder attributes），和下面这些是同一类：
+
+- `__class__`：对象所属的类
+- `__name__`：模块、函数、类的名称
+- `__module__`：定义所在模块
+- `__doc__`：文档字符串
+- `__annotations__`：类型注解
+- `__bases__`：类的父类
+- `__mro__`：方法解析顺序（继承查找顺序）
+
+## encapsulation
+
+| **命名方式**             | **术语名称**             | **外部能直接访问吗？**      | **核心目的 / 真实作用**                                |
+| ------------------------ | ------------------------ | --------------------------- | ------------------------------------------------------ |
+| **`_score`** (单下划线)  | 弱内部使用指示器         | **能**                      | **提示/警告**：告诉别的程序员这是内部变量，别乱动。    |
+| **`__score`** (双下划线) | 名称修饰 (Name Mangling) | **不能直接访问** (被改名了) | **技术隔离**：防止子类意外覆盖（重写）父类的同名属性。 |
+
+To remind you of the difference between them, a single underscore is a convention that means the attribute is meant for internal use in the class and should not be directly accessed from outside the class. Double underscore, on the other hand, prevents that attribute from being accessed directly from outside the class.
+
+```py
+class Example:
+    def __init__(self):
+        self._internal = 'I can be accessed from outside the class, but should not'
+        self.__private = 'You cannot access me directly from outside the class'
+
+obj = Example()
+
+print(obj._internal) # I can be accessed from outside the class, but should not
+print(obj.__private)  # AttributeError: 'Example' object has no attribute '__private'
+```
+
+```py
+class Example:
+    def __init__(self, internal, private):
+        self._internal = internal
+        self.__private = private
+
+example1 = Example(
+    'I can be accessed from outside the class, but should not',
+    'I cannot be accessed directly from outside the class'
+)
+
+print(example1.__dict__)
+
+# result
+{
+  '_internal': 'I can be accessed from outside the class, but should not',
+  '_Example__private': 'I cannot be accessed directly from outside the class'
+}
+```
+
+```py
+class Wallet:
+   def __init__(self, balance):
+       self._balance = balance # For internal use by convention
+
+   def deposit(self, amount):
+       if amount > 0:
+           self._balance += amount # Add to the balance safely
+
+   def withdraw(self, amount):
+       if 0 < amount <= self._balance:
+           self._balance -= amount # Remove from the balance safely
+```
+
+```py
+class Wallet:
+   def __init__(self, balance):
+       self.__balance = balance # Private attribute
+
+   def deposit(self, amount):
+       if amount > 0:
+           self.__balance += amount # Add to the balance safely
+
+   def withdraw(self, amount):
+       if 0 < amount <= self.__balance:
+           self.__balance -= amount # Remove from the balance safely
+
+account = Wallet(500)
+print(account.__balance) # AttributeError: 'Wallet' object has no attribute '__balance'
+```
+
+```python
+class Wallet:
+   def __init__(self):
+       self.__balance = 0
+
+   def __validate(self, amount):
+       if amount < 0:
+           raise ValueError('Amount must be positive')
+
+   def deposit(self, amount):
+       self.__validate(amount)
+       self.__balance += amount
+
+   def withdraw(self, amount):
+       self.__validate(amount)
+       if amount > self.__balance:
+           raise ValueError('Insufficient funds')
+       self.__balance -= amount
+
+   def get_balance(self):
+       return self.__balance
+
+acct_one = Wallet()
+acct_one.deposit(3)
+print(acct_one.get_balance()) # 3
+
+acct_one.deposit(50)
+print(acct_one.get_balance()) # 53
+
+acct_one.deposit(-4)  # ValueError: Amount must be positive
+acct_one.withdraw(-8) # ValueError: Amount must be positive
+acct_one.withdraw(58) # ValueError: Insufficient funds
+```
+
+### Setter and getter
+
+Getters and setters are methods that let you control how the attributes of a class are accessed and modified. With getters you retrieve a value, and with setters you set a value.
+
+Properties act like attributes but behave like methods under the hood. 属性的行为类似于特性，但其底层行为类似于方法。
+
+In Python, a decorator is a function that modifies the functionalities of other functions, or classes, without changing their original code.
+
+ you define a method and place the `@property` decorator above it. This turns the method into a property, so it can be accessed like an attribute while internally calling the decorated method.
+
+The `@property` decorator is used in Python to turn a method into a property. It is typically used to define getter methods, which are methods used to retrieve the value of an attribute:
+
+[装饰器](# 装饰器)
+
+```py
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def radius(self): # A getter to get the radius
+        return self._radius
+  
+    @property
+    def area(self):  # A getter to calculate area
+        return 3.14 * (self._radius ** 2)
+
+my_circle = Circle(3)
+
+print(my_circle.radius) # 3
+print(my_circle.area) # 28.26
+```
+
+```py
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius # Calling the setter
+
+    @property
+    def radius(self):  # A getter to get the radius
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):  # A setter to set the radius
+        if value <= 0:
+            raise ValueError('Radius must be positive')
+        self._radius = value
+
+my_circle = Circle(3)
+print('Initial radius:', my_circle.radius) # Initial radius: 3
+
+my_circle.radius = 8
+print('After modifying the radius:', my_circle.radius) # After modifying the radius: 8
+
+my_circle.radius # This will call the getter
+my_circle.radius = 4 # This will call the setter
+```
+
+A deleter runs custom logic when you use the del statement on a property. To create one, you use the `@<property_name>.deleter` decorator: `@<property_name>.deleter`
+
+```py
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    # Getter
+    @property
+    def radius(self):
+        return self._radius
+
+    # Setter
+    @radius.setter
+    def radius(self, value):
+        if value <= 0:
+            raise ValueError("Radius must be positive")
+        self._radius = value
+
+    # Deleter
+    @radius.deleter
+    def radius(self):
+        print("Deleting radius...")
+        del self._radius
+```
+
+Here's how the deleter can be put to use:
+
+```py
+# Create circle object with a radius
+my_circle = Circle(33)
+print("Initial radius:", my_circle.radius)  # 33
+
+# Delete the radius
+# This calls the deleter
+del my_circle.radius # Deleting radius...
+print("Radius deleted!") # Radius deleted!
+
+# Try to access radius after deletion
+try:
+    print(my_circle.radius)
+except AttributeError as e:
+    print("Error:", e) # Error: 'Circle' object has no attribute '_radius'
+```
+
+- Getters let you retrieve a value or even compute a value on the fly.
+- Setters let you modify the values safely by running checks before assignment.
+- Properties are what tie these getters and setters together so you can write logic while still using dot notation.
+- Deleters let you define what happens when an attribute is deleted.
+
+The `__repr__` method is a special method that is supposed to return a string representation of the object that can be used to instantiate it.
+
+----
+
+```py
+class Employee:
+    _base_salaries = {
+        'trainee': 1000,
+        'junior': 2000,
+        'mid-level': 3000,
+        'senior': 4000,
+    }
+
+    def __init__(self, name, level):
+        self.name = name
+        self.level = level
+        self.salary = Employee._base_salaries[level]
+
+    def __str__(self):
+        return f'{self.name}: {self.level}'
+
+    def __repr__(self):
+        return f"Employee('{self.name}', '{self.level}')"
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, new_name):
+        if not isinstance(new_name, str):
+            raise TypeError("'name' must be a string.")
+        self._name = new_name
+        print(f"'name' updated to '{self.name}'.")
+
+    @property
+    def level(self):
+        return self._level
+
+    @level.setter
+    def level(self, new_level):
+        if not isinstance(new_level, str):
+            raise TypeError("'level' must be a string.")
+        if new_level not in Employee._base_salaries:
+            raise ValueError(f"Invalid value '{new_level}' for 'level' attribute.")
+        if hasattr(self, '_level') and new_level == self.level:
+            raise ValueError(f"'{self.level}' is already the selected level.")
+        if hasattr(self, '_level') and Employee._base_salaries[new_level] < Employee._base_salaries[self.level]:
+            raise ValueError("Cannot change to lower level.")
+        print(f"'{self.name}' promoted to '{new_level}'.")
+        self._salary = Employee._base_salaries[new_level]
+        self._level = new_level
+
+    @property
+    def salary(self):
+        return self._salary
+
+    @salary.setter
+    def salary(self, new_salary):
+        if not isinstance(new_salary, (int, float)):
+            raise TypeError("'salary' must be a number.")
+        if hasattr(self, '_level') and new_salary < Employee._base_salaries[self.level]:
+            raise ValueError(f'Salary must be higher than minimum salary ${Employee._base_salaries[self.level]}.')
+        self._salary = new_salary
+        print(f'Salary updated to ${self.salary}.')
+
+charlie_brown = Employee('Charlie Brown', 'trainee')
+print(charlie_brown)
+print(f'Base salary: ${charlie_brown.salary}')
+charlie_brown.level = 'junior'
+```
+
+
+
+**既可以不用下划线（使用 `self.name`），也可以继续用下划线（使用 `self._name`），但它们的运行效果和意义完全不同。**
+
+这也是很多 Python 初学者甚至老手都会感到模糊的一个关键点。我们来彻底拆解一下：
+
+### 1. 如果写成 `self.name = name`（不带下划线）
+
+这意味着：在 `__init__` 初始化的一瞬间，Python 会**立刻跑去调用你写的 `@name.setter` 方法**。
+
+- **好处**：如果你的 `setter` 里面有非常严格的格式验证（比如必须是字符串、必须大于多少个字符），初始化时就能**顺便把这些验证也跑一遍**，防止脏数据在一开始就混进来。
+
+- **代价**：由于触发了 `setter`，任何写在 `setter` 里面的副作用都会被触发。比如你当前的 `name.setter` 里面有一行 `print()`，所以当你在最后执行 `Employee('Charlie Brown', 'trainee')` 时，你的屏幕上会立刻跳出来一行：
+
+  Plaintext
+
+  ```
+  'name' updated to 'Charlie Brown'.
+  ```
+
+  （这也是之前你的测试总是不通过的原因之一，因为在对象“出生”的时候，它就莫名其妙打印了一次“名字已更新”）。
+
+### 2. 如果写成 `self._name = name`（带下划线）
+
+这意味着：在 `__init__` 初始化时，Python 会**绕过（不触发）setter 方法**，直接把值塞到最底层的私有变量中。
+
+- **好处**：初始化过程非常纯粹、干净。它不会触发任何 `setter` 里的 `print` 语句，只会在对象出生后，你**手动**执行 `charlie_brown.name = 'Bob'` 的时候，才会第一次打印更新提示。
+- **代价**：它不会自动运行 `setter` 里的类型检查（也就是 `if not isinstance(new_name, str)` 这一段）。如果你在初始化时传入了一个整数 `Employee(123, 'trainee')`，代码在初始化时不会报错，只有等对象建好后去改名字时才会报错。
+
+### 💡 行业里的通用最佳实践
+
+在实际开发中，大家通常会这样选择：
+
+1. **如果 `setter` 里只有安全检查（Raise Error），没有 `print` 等多余动作**： 大家通常喜欢在 `__init__` 里写**不带下划线**的 `self.name = name`。因为这样可以在出生时就共享 `setter` 的安全验证，避免代码重复。
+2. **如果 `setter` 里有 `print`、写入日志或者触发警报等动作**： 大家会选择在 `__init__` 里写**带下划线**的 `self._name = name`。初始化时我们自己手动在 `__init__` 里做检查，确保对象出生时保持安静。
+
+----
+
+## Inheritance
+
+With inheritance, a subclass (or child class) can use the attributes and methods of a base class (or parent class). This allows you to reuse code, create clear class hierarchies, and customize behavior without rewriting everything. You can customize by extending existing methods or overriding them in the child class.
+
+```py
+# single inheritance
+class Parent:
+    # Parent attributes and methods
+
+class Child(Parent):
+    # Child inherits, extends, and/or overrides where necessary
+```
+
+```py
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack makes a sound
+print(jack.bark)  # woof! woof!! woof!!!
+```
+
+```py
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound.'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+    # Override sound() to use bark class variable
+    def sound(self):
+        return f'{self.name} barks {self.bark}'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack barks woof! woof!! woof!!!
+```
+
+```py
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+    # Call Animal.sound(), then append bark
+    def sound(self):
+        base = super().sound()
+        return f'{base}, then {self.name} barks {self.bark}'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack makes a sound, then Jack barks woof! woof!! woof!!!
+```
+
+```py
+# multiple inheritance,
+class Parent:
+    # Attributes and methods for Parent
+
+class Child:
+    # Attributes and methods for Child
+
+class GrandChild(Parent, Child):
+    # GrandChild inherits from both Parent and Child
+    # GrandChild can combine or override behavior from each
+```
+
+```py
+class Walker:
+    def walk(self):
+        return 'I can walk on land'
+
+class Swimmer:
+    def swim(self):
+        return 'I can swim in water'
+
+# Amphibian inherits from both Walker and Swimmer
+class Amphibian(Walker, Swimmer):
+    def __init__(self, name):
+        self.name = name
+
+    def introduce(self):
+        return f"I'm {self.name} the frog. {self.walk()} and {self.swim()}."
+
+frog = Amphibian('Freddy')
+print(frog.introduce())
+# Output: I'm Freddy the frog. I can walk on land and I can swim in water.
+```
+
+## Polymorphism
+
+Polymorphism allows methods in different classes to share the same name but perform different tasks. You call the same method name on different objects, and each responds in its own way.
+
+```py
+class A:
+   def action(self): ...
+
+class B:
+   def action(self): ...
+
+class C:
+   def action(self): ...
+
+Class().method()  # Works for A, B, or C
+```
+
+```py
+class Cat:
+   def speak(self):
+       return "A cat meow"
+
+class Bird:
+   def speak(self):
+       return "A bird tweet"
+  
+class Monkey:
+   def speak(self):
+       return "A monkey ooh ooh aah aah ooh ooh aah aah"
+
+def animal_sound(animal):
+   print(animal.speak())
+
+animal_sound(Cat())
+animal_sound(Bird())
+animal_sound(Monkey())
+```
+
+```py
+class Twitter:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"🐦 Tweet: '{self.content}' (280 chars max)"
+
+class Instagram:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"📸 Instagram Post: '{self.content}' + ✨ filters"
+
+class LinkedIn:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"💼 LinkedIn Article: '{self.content}' (Professional Mode)"
+
+def start(social_media):
+   print(social_media.post())  # Calls .post() on any object
+
+# Instances
+tweet = Twitter('Just learned Python polymorphism!')
+photo = Instagram('Sunset vibes 🌅')
+article = LinkedIn('Why OOP matters in 2024')
+
+# The polymorphic calls - same function, different outputs
+start(tweet) # 🐦 Tweet: 'Just learned Python polymorphism!' (280 chars max)
+start(photo) # 📸 Instagram Post: 'Sunset vibes 🌅' + ✨ filters
+start(article) # 💼 LinkedIn Article: 'Why OOP matters in 2024' (Professional Mode)
+```
+
+##  inheritance-based polymorphism
+
+In inheritance-based polymorphism, a parent class defines a method, and multiple child classes override that method in their own way. You can then call the same method on any child object, and it behaves differently depending on which child class it is.
+
+```py
+class Animal:
+   def speak(self):
+       return 'Some generic sound'
+
+class Cat(Animal):
+   def speak(self):
+       return 'A cat meow'
+
+class Dog(Animal):
+   def speak(self):
+       return 'A dog barks woof woof'
+
+class Monkey(Animal):
+   def speak(self):
+       return 'A monkey ooh ooh aah aah ooh ooh aah aah'
+  
+print(Cat().speak()) # A cat meow
+print(Dog().speak()) # A dog barks woof woof
+print(Monkey().speak()) # A monkey ooh ooh aah aah ooh ooh aah aah
+print(Animal().speak()) # Some generic sound
+```
+
+```py
+animals = [Cat(), Dog(), Monkey()]
+
+for animal in animals:
+   print(animal.speak())
+
+# Output:
+# A cat meow
+# A dog barks woof woof
+# A monkey ooh ooh aah aah ooh ooh aah aah
+```
+
+## name mangling
+
+The main purpose of name mangling is to prevent accidental attribute and method overriding when you use inheritance. Here's an example that makes that clear:
+
+```py
+class Parent:
+    def __init__(self):
+        self.__data = 'Parent data'
+
+class Child(Parent):
+    def __init__(self):
+        super().__init__()
+        self.__data = 'Child data'
+
+c = Child()
+print(c.__dict__) # {'_Parent__data': 'Parent data', '_Child__data': 'Child data'}
+```
+
+You can see that both the `Parent` class and the `Child` that inherits from it have their separate `_class__data` attributes. This is made possible with name mangling. Otherwise, the `Child` would have overwritten the Parent data by accident.
+
+```py
+class Parent:
+   def __init__(self):
+       self.data = 'Parent data'
+
+class Child(Parent):
+   def __init__(self):
+       super().__init__()
+       self.data = 'Child data'
+
+c = Child()
+print(c.__dict__)  # {'data': 'Child data'}
+```
+
+So, which should you use to prefix attributes between single underscore (`_`) and double underscore (`__`)? It depends. If an attribute is only meant for internal use within the class, stick with a single underscore.
+
+But if you're working with a class that will be inherited, you should use a double underscore so the attribute from the parent doesn't get overridden.
+
+## Abstraction
+
+Abstraction is the process of hiding complex implementation details and showing only the essential features of an object or system. Think of it as focusing on what something does rather than how it does it.
+
+Abstraction is not limited to Python. It's a programming concept that can be implemented in many languages that support object-oriented programming.
+
+This module provides the `ABC` class (standing for “abstract base class”) and the `@abstractmethod` decorator.
+
+`ABC` is the class that is meant to be inherited from, but you cannot create direct objects from it. It is what defines a common interface of methods and properties that its subclasses must implement.
+
+On the other hand, an abstract method is a method declared in an Abstract Base Class (ABC) using the `@abstractmethod` decorator. It may have no implementation or a basic default one. However, any subclass must override it to be considered concrete and instantiable, even if a default implementation is provided.
+
+```py
+from abc import ABC, abstractmethod
+
+# Define an abstract base class
+class AbstractClass(ABC):
+    @abstractmethod
+    def abstract_method(self):
+        pass
+
+# Concrete subclass that implements the abstract method
+class ConcreteClassOne(AbstractClass):
+    def abstract_method(self):
+        print('Implementation in ConcreteClassOne')
+
+# Another concrete subclass
+class ConcreteClassTwo(AbstractClass):
+    def abstract_method(self):
+        print('Implementation in ConcreteClassTwo')
+```
+
+```py
+from abc import ABC, abstractmethod
+
+class Animal(ABC): # Inherits from abstract base class
+   @abstractmethod # Abstract method decorator
+   def make_sound(self):  # The method subclasses must override
+       pass
+
+# Concrete class that will override the abstract method
+class Dog(Animal):
+   def make_sound(self):
+       print('Woof!')
+
+# Another concrete class that will override the abstract method
+class Cat(Animal):
+   def make_sound(self):
+       print('Meow!')
+
+# Another concrete class that will override the abstract method
+class Monkey(Animal):
+   def make_sound(self):
+       print('Ooh ooh aah aah!')
+
+# Create instances of each concrete class
+animals = [Dog(), Cat(), Monkey()]
+
+# Loop through the instances to call the make_sound method
+for animal in animals:
+   animal.make_sound()
+
+# Output:
+# Woof!
+# Meow!
+# Ooh ooh aah aah!
+```
+
+
 
 # 命名空间/作用域
 
