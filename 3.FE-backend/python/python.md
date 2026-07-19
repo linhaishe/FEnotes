@@ -6351,6 +6351,10 @@ Object-oriented programming has four key principles that help you organize and m
 - `__bases__`：类的父类
 - `__mro__`：方法解析顺序（继承查找顺序）
 
+**Attribute（属性）**：对象真正存储的数据。
+
+**Property（属性接口）**：访问 Attribute 的一种方式（由 `@property` 提供）。
+
 ## encapsulation
 
 | **命名方式**             | **术语名称**             | **外部能直接访问吗？**      | **核心目的 / 真实作用**                                |
@@ -6995,6 +6999,305 @@ for animal in animals:
 # Woof!
 # Meow!
 # Ooh ooh aah aah!
+```
+
+```py
+class GameCharacter():
+    def __init__(self, name):
+        # 初始化时直接把值赋给底层私有属性
+        self._name = name
+        self._health = 100
+        self._mana = 50
+        self._level = 1
+
+    @property
+    def name(self):
+        return self._name  # 🎯 修复：返回带下划线的变量
+
+    @property
+    def health(self):
+        return self._health  # 🎯 修复：返回带下划线的变量
+
+    @health.setter
+    def health(self, value):
+        # 🎯 修复 1：赋值给底层的 _health
+        # 🎯 修复 2：将生命上限从 50 改为 100，契合初始值设定
+        self._health = max(0, min(value, 100))  
+
+    @property
+    def mana(self):
+        return self._mana  # 🎯 修复：返回带下划线的变量
+
+    @mana.setter
+    def mana(self, value):
+        # 🎯 修复：赋值给底层的 _mana，防止死循环
+        self._mana = max(0, min(value, 50))  
+
+    @property
+    def level(self):
+        return self._level  # 🎯 修复：返回带下划线的变量
+
+    def level_up(self):
+        # 升级时，我们可以通过修改底层的 _level 或者写一个 level 的 setter
+        # 这里因为没定义 level.setter，所以直接修改底层变量 self._level 即可
+        self._level += 1
+        self.health = 100  # 满血复原 (触发 health.setter，刚好是上限100)
+        self.mana = 50     # 满蓝复原 (触发 mana.setter，刚好是上限50)
+        print(f"{self.name} leveled up to {self.level}!")
+
+    def __str__(self):
+        return (
+            f"Name: {self.name}\n"
+            f"Level: {self.level}\n"
+            f"Health: {self.health}\n"
+            f"Mana: {self.mana}"
+        )
+
+# ---- 运行测试 ----
+kratos = GameCharacter('Kratos')
+print(kratos) 
+# 输出：
+# Name: Kratos
+# Level: 1
+# Health: 100
+# Mana: 50
+
+print("-" * 15)
+kratos.level_up() # 触发升级，打印: Kratos leveled up to 2!
+```
+
+```py
+class MediaError(Exception):
+    """Custom exception for media-related errors."""
+
+    def __init__(self, message, obj):
+        super().__init__(message)
+        self.obj = obj
+
+class Movie:
+    """Parent class representing a movie."""
+    
+    def __init__(self, title, year, director, duration):
+        if not title.strip():
+            raise ValueError('Title cannot be empty')
+        if year < 1895:
+            raise ValueError('Year must be 1895 or later')
+        if not director.strip():
+            raise ValueError('Director cannot be empty')
+        if duration <= 0:
+            raise ValueError('Duration must be positive')
+        self.title = title
+        self.year = year
+        self.director = director
+        self.duration = duration
+
+    def __str__(self):
+        return f'{self.title} ({self.year}) - {self.duration} min, {self.director}'
+
+class TVSeries(Movie):
+    """Child class representing an entire TV series."""
+
+    def __init__(self, title, year, director, duration, seasons, total_episodes):
+        super().__init__(title, year, director, duration)
+
+        if seasons < 1:
+            raise ValueError('Seasons must be 1 or greater')
+        if total_episodes < 1:
+            raise ValueError('Total episodes must be 1 or greater')
+        
+        self.seasons = seasons
+        self.total_episodes = total_episodes
+
+    def __str__(self):
+        return f'{self.title} ({self.year}) - {self.seasons} seasons, {self.total_episodes} episodes, {self.duration} min avg, {self.director}'
+
+class MediaCatalogue:
+    """A catalogue that can store different types of media items."""
+
+    def __init__(self):
+        self.items = []
+
+    def add(self, media_item):
+        if not isinstance(media_item, Movie):
+            raise MediaError('Only Movie or TVSeries instances can be added', media_item)
+        self.items.append(media_item)
+
+    def get_movies(self):
+        return [item for item in self.items if type(item) is Movie]
+
+    def get_tv_series(self):
+        return [item for item in self.items if isinstance(item, TVSeries)]
+    
+    def __str__(self):
+        if not self.items:
+            return 'Media Catalogue (empty)'
+        
+        movies = self.get_movies()
+        series = self.get_tv_series()
+
+        result = f'Media Catalogue ({len(self.items)} items):\n\n'
+        if movies:
+            result += '=== MOVIES ===\n'
+            for i, movie in enumerate(movies, 1):
+                result += f'{i}. {movie}\n'
+        if series:
+            result += '=== TV SERIES ===\n'
+            for i, tv_show in enumerate(series, 1):
+                result += f'{i}. {tv_show}\n'
+        
+        return result
+
+catalogue = MediaCatalogue()
+
+try:
+    movie1 = Movie('The Matrix', 1999, 'The Wachowskis', 136)
+    catalogue.add(movie1)
+    movie2 = Movie('Inception', 2010, 'Christopher Nolan', 148)
+    catalogue.add(movie2)
+
+    series1 = TVSeries('Scrubs', 2001, 'Bill Lawrence', 24, 9, 182)
+    catalogue.add(series1)
+    series2 = TVSeries('Breaking Bad', 2008, 'Vince Gilligan', 47, 5, 62)
+    catalogue.add(series2)
+
+    print(catalogue)
+except ValueError as e:
+    print(f'Validation Error: {e}')
+except MediaError as e:
+    print(f'Media Error: {e}')
+    print(f'Unable to add {e.obj}: {type(e.obj)}')
+
+```
+
+```py
+from abc import ABC, abstractmethod
+
+class Product:
+    def __init__(self, name: str, price: float) -> None:
+        self.name = name
+        self.price = price
+
+    def __str__(self) -> str:
+        return f'{self.name} - ${self.price}'
+
+class DiscountStrategy(ABC):
+    @abstractmethod
+    def is_applicable(self, product: Product, user_tier: str) -> bool:
+        pass
+
+    @abstractmethod
+    def apply_discount(self, product: Product) -> float:
+        pass
+
+class PercentageDiscount(DiscountStrategy):
+    def __init__(self, percent: int) -> None:
+        self.percent = percent
+
+    def is_applicable(self, product: Product, user_tier: str) -> bool:
+        return self.percent <= 70
+
+    def apply_discount(self, product: Product) -> float:
+        return product.price * (1 - self.percent / 100)
+
+class FixedAmountDiscount(DiscountStrategy):
+    def __init__(self, amount: int) -> None:
+        self.amount = amount
+
+    def is_applicable(self, product: Product, user_tier: str) -> bool:
+        return product.price * 0.9 > self.amount
+
+    def apply_discount(self, product: Product) -> float:
+        return product.price - self.amount
+
+class PremiumUserDiscount(DiscountStrategy):
+    def is_applicable(self, product: Product, user_tier: str) -> bool:
+        return user_tier.lower() == 'premium'
+
+    def apply_discount(self, product: Product) -> float:
+        return product.price * 0.8
+
+class DiscountEngine:
+    def __init__(self, strategies: list[DiscountStrategy]) -> None:
+        self.strategies = strategies
+
+    def calculate_best_price(self, product: Product, user_tier: str) -> float:
+        prices = [product.price]
+
+        for strategy in self.strategies:
+            if strategy.is_applicable(product, user_tier):
+                discounted = strategy.apply_discount(product)
+                prices.append(discounted)
+        print(f'Best price for {product.name} for {user_tier} user: ${min(prices):.2f}')
+        return min(prices)
+          
+
+if __name__ == '__main__':
+    product = Product('Wireless Mouse', 50.0)
+    user_tier = 'Premium'
+
+    strategies = [
+        PercentageDiscount(10),
+        FixedAmountDiscount(5),
+        PremiumUserDiscount()
+    ]
+
+    engine = DiscountEngine(strategies)
+    best_price = engine.calculate_best_price(product, user_tier)
+```
+
+```py
+from abc import ABC, abstractmethod
+import random
+
+class Player(ABC):
+    def __init__(self):
+        # 严格按照题目要求初始化属性，不需要外部传参
+        self.moves = []
+        self.position = (0, 0)
+        self.path = [self.position]
+    
+    def make_move(self):
+        # 1. 随机选择一步
+        random_move = random.choice(self.moves)
+        
+        # 2. 计算新坐标
+        curr_x, curr_y = self.position
+        move_x, move_y = random_move  # 修正变量名一致性
+        new_position = (curr_x + move_x, curr_y + move_y)
+        
+        # 3. 更新并记录路径
+        self.position = new_position
+        self.path.append(new_position)
+        return new_position
+
+    @abstractmethod
+    def level_up(self):
+        pass
+
+
+class Pawn(Player):
+    def __init__(self):
+        # 使用 super() 调用父类的初始化方法
+        super().__init__()
+        # 设置基础移动：上 (0, 1)、下 (0, -1)、左 (-1, 0)、右 (1, 0)
+        self.moves = [(0, 1), (0, -1), (-1, 0), (1, 0)]
+
+    def level_up(self):
+        # 升级：向 moves 列表中追加四个对角线移动坐标
+        diagonal_moves = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+        self.moves.extend(diagonal_moves)
+
+
+# --- 测试运行 ---
+if __name__ == "__main__":
+    pawn = Pawn()
+    print("初始移动选项:", pawn.moves)
+    print("第1步移动后位置:", pawn.make_move())
+    
+    pawn.level_up()
+    print("升级后的移动选项(增加了对角线):", pawn.moves)
+    print("第2步移动后位置:", pawn.make_move())
+    print("完整移动路径:", pawn.path)
 ```
 
 
