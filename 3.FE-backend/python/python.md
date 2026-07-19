@@ -10557,3 +10557,29 @@ https://www.freecodecamp.org/learn/python-v9/lecture-understanding-error-handlin
 
 ## How Does Exception Handling Work?
 
+# data-structures
+
+An **algorithm** is a set of unambiguous instructions for solving a problem or carrying out a task.
+
+Algorithms have two key characteristics:
+
+- They cannot continue indefinitely. They must finish in a finite number of steps.
+- Each step must be precise and unambiguous.
+
+**Big O notation**
+
+Big O notation describes the worst-case performance, or growth rate, of an algorithm as the input size increases.
+
+**`O(1)`** is known as "Constant Time Complexity". When an algorithm has constant time complexity, it takes the same amount of time to run, regardless of input size.
+
+**`O(log n)`** is known as "Logarithmic Time Complexity". This means that the time required by the algorithm increases slowly as the input size grows. This is common in problems in which the size of the problem is repeatedly reduced by a constant fraction.
+
+For example, a popular search algorithm called Binary Search has `O(log n)` worst-case time complexity. This is because it eliminates half of the remaining elements in each comparison, which makes it more efficient overall.
+
+**`O(n)`** is known as "Linear Time Complexity". The running time of algorithms with this time complexity increases proportionally to the input size.
+
+**`O(n log n)`** is known as "Log-Linear Time Complexity". This is a common time complexity of efficient sorting algorithms, like Merge Sort and Quick Sort.
+
+**`O(n²)`** is known as "Quadratic Time Complexity". The running time of these algorithms increases quadratically relative to the input size, which is generally not efficient for real-world problems.
+
+Pseudocode is not as formal as actual code, since it's only intended for humans to read. It should be easy to understand at a glance. Its main purpose is to give a clear idea of the sequence of steps that will be performed.
