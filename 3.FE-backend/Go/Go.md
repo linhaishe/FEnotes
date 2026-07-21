@@ -238,6 +238,32 @@ func main() {
 | Can be used **inside** and **outside** of functions          | Can only be used **inside** functions                        |
 | Variable declaration and value assignment **can be done separately** | Variable declaration and value assignment **cannot be done separately** (must be done in the same line) |
 
+```Go
+package main
+
+import "fmt"
+
+var c, python, java bool
+
+func main() {
+	var i int
+	fmt.Println(i, c, python, java)
+}
+
+// 0 false false false
+```
+
+```Go
+var i, j int = 1, 2
+
+func main() {
+	var c, python, java = true, false, "no!"
+	fmt.Println(i, j, c, python, java)
+}
+
+// 1 2 true false no!
+```
+
 ```go
 package main
 import ("fmt")
@@ -587,6 +613,14 @@ func main() {
 
   Unsigned integers, declared with one of the `uint` keywords, can only store non-negative values:
 
+**8 位**：小箱子，只能装小数字。
+
+**16 位**：中箱子。
+
+**32 位**：大箱子。
+
+**64 位**：超大箱子。
+
 
 | Type    | Size                                                         | Range                                                        |
 | :------ | :----------------------------------------------------------- | :----------------------------------------------------------- |
@@ -595,6 +629,9 @@ func main() {
 | `int16` | 16 bits/2 byte                                               | -32768 to 32767                                              |
 | `int32` | 32 bits/4 byte                                               | -2147483648 to 2147483647                                    |
 | `int64` | 64 bits/8 byte                                               | -9223372036854775808 to 9223372036854775807                  |
+| `uint`  | Unsigned Integer（无符号整数）不能表示负数                   | 32 或 64                                                     |
+| `uint8` | 无                                                           | 8                                                            |
+| uint16  | 无                                                           | 16                                                           |
 
 ```go
 package main
@@ -1431,6 +1468,13 @@ func FunctionName(param1 type, param2 type) type {
 }
 ```
 
+```Go
+// two or more consecutive named function parameters share a type, you can omit the type from all but the last
+func add(x, y int) int {
+	return x + y
+}
+```
+
 ## Naming Rules for Go Functions
 
 - A function name must start with a letter
@@ -1516,6 +1560,7 @@ func myFunction(x int, y string) (result int, txt1 string) {
 func main() {
   fmt.Println(myFunction(5, "Hello"))
 }
+// 10 Hello World!
 ```
 
 ## Recursion Functions
@@ -1938,6 +1983,70 @@ func main() {
 // map[brand:Ford model:Mustang year:1970]
 ```
 
+# Generics
+
+Go functions can be written to work on multiple types using type parameters. The type parameters of a function appear between brackets, before the function's arguments.
+
+```
+func Index[T comparable](s []T, x T) int
+```
+
+This declaration means that `s` is a slice of any type `T` that fulfills the built-in constraint `comparable`. `x` is also a value of the same type.
+
+`comparable` is a useful constraint that makes it possible to use the `==` and `!=` operators on values of the type. In this example, we use it to compare a value to all slice elements until a match is found. This `Index` function works for any type that supports comparison.
+
+```Go
+package main
+
+import "fmt"
+
+// Index returns the index of x in s, or -1 if not found.
+func Index[T comparable](s []T, x T) int {
+	for i, v := range s {
+		// v and x are type T, which has the comparable
+		// constraint, so we can use == here.
+		if v == x {
+			return i
+		}
+	}
+	return -1
+}
+
+func main() {
+	// Index works on a slice of ints
+	si := []int{10, 20, 15, -10}
+	fmt.Println(Index(si, 15))
+
+	// Index also works on a slice of strings
+	ss := []string{"foo", "bar", "baz"}
+	fmt.Println(Index(ss, "hello"))
+}
+
+// 2
+// -1
+
+```
+
+In addition to generic functions, Go also supports generic types. A type can be parameterized with a type parameter, which could be useful for implementing generic data structures.
+
+This example demonstrates a simple type declaration for a singly-linked list holding any type of value.
+
+```Go
+package main
+
+// List represents a singly-linked list that holds
+// values of any type.
+type List[T any] struct {
+	next *List[T]
+	val  T
+}
+
+func main() {
+}
+```
+
+
+
 # Error
 
 When a function executes as expected, nil is returned for the error parameter.
@@ -2165,7 +2274,7 @@ import (
 func sayHello() {
         for i := 0; i < 5; i++ {
                 fmt.Println("Hello")
-                time.Sleep(100 * time.Millisecond)
+                time.Sleep(100 * time.Millisecond) // 让当前 goroutine 暂停 100 毫秒（0.1 秒）。
         }
 }
 
@@ -2194,8 +2303,7 @@ func main() {
 
 ```go
 ch <- v    // 把 v 发送到通道 ch
-v := <-ch  // 从 ch 接收数据
-           // 并把值赋给 v
+v := <-ch  // 从 ch 接收数据 并把值赋给 v
 ```
 
 声明一个通道
@@ -2213,7 +2321,7 @@ package main
 
 import "fmt"
 
-func sum(s []int, c chan int) {
+func sum(s []int, c chan int) { // 参数名叫 c，它是一个只能传递 int 的 channel。
     sum := 0
     for _, v := range s {
         sum += v
@@ -2235,7 +2343,7 @@ func main() {
 // -5 17 12
 ```
 
-### 通道缓冲区
+## Buffered Channels 通道缓冲区
 
 带缓冲区的通道允许发送端的数据发送和接收端的数据获取处于异步状态，就是说发送端发送的数据可以放在缓冲区里面，可以等待接收端去获取数据，而不是立刻需要接收端去获取数据。
 
@@ -2269,11 +2377,21 @@ func main() {
 
 ### Go 遍历通道与关闭通道
 
-Go 通过 range 关键字来实现遍历读取到的数据，类似于与数组或切片。格式如下：
+Go 通过 range 关键字来实现遍历读取到的数据，类似于与数组或切片。
+
+The loop `for i := range c` receives values from the channel repeatedly until it is closed.
+
+A sender can `close` a channel to indicate that no more values will be sent. Receivers can test whether a channel has been closed by assigning a second parameter to the receive expression: after
 
 `v, ok := <-ch`
 
+`ok` is `false` if there are no more values to receive and the channel is closed.
+
 如果通道接收不到数据后 ok 就为 false，这时通道就可以使用 **close()** 函数来关闭。
+
+>  **Note:** Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
+>
+> **Another note:** Channels aren't like files; you don't usually need to close them. Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a `range` loop.
 
 ```go
 package main
@@ -2321,6 +2439,10 @@ func main() {
 
 `select` 语句使得一个 goroutine 可以等待多个通信操作。`select` 会阻塞，直到其中的某个 case 可以继续执行：
 
+The `select` statement lets a goroutine wait on multiple communication operations.
+
+A `select` blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
+
 ```go
 package main
 
@@ -2366,6 +2488,110 @@ func main() {
 34
 quit
 ```
+
+#### Default Selection
+
+The `default` case in a `select` is run if no other case is ready.
+
+```Go
+select {
+case i := <-c:
+    // use i
+default:
+    // receiving from c would block
+}
+```
+
+```Go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Now()
+	tick := time.Tick(100 * time.Millisecond)
+	boom := time.After(500 * time.Millisecond)
+	elapsed := func() time.Duration {
+		return time.Since(start).Round(time.Millisecond)
+	}
+	for {
+		select {
+		case <-tick:
+			fmt.Printf("[%6s] tick.\n", elapsed())
+		case <-boom:
+			fmt.Printf("[%6s] BOOM!\n", elapsed())
+			return
+		default:
+			fmt.Printf("[%6s]     .\n", elapsed())
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+}
+
+```
+
+## sync.Mutex
+
+we just want to make sure only one goroutine can access a variable at a time to avoid conflicts?
+
+This concept is called *mutual exclusion*, and the conventional name for the data structure that provides it is *mutex*.
+
+Go's standard library provides mutual exclusion with [`sync.Mutex`](https://go.dev/pkg/sync/#Mutex) and its two methods:
+
+- `Lock`
+- `Unlock`
+
+We can define a block of code to be executed in mutual exclusion by surrounding it with a call to `Lock` and `Unlock` as shown on the `Inc` method.
+
+We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
+
+```Go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// SafeCounter is safe to use concurrently.
+type SafeCounter struct {
+	mu sync.Mutex
+	v  map[string]int
+}
+
+// Inc increments the counter for the given key.
+func (c *SafeCounter) Inc(key string) {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+// Value returns the current value of the counter for the given key.
+func (c *SafeCounter) Value(key string) int {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	defer c.mu.Unlock()
+	return c.v[key]
+}
+
+func main() {
+	c := SafeCounter{v: make(map[string]int)}
+	for i := 0; i < 1000; i++ {
+		go c.Inc("somekey")
+	}
+
+	time.Sleep(time.Second)
+	fmt.Println(c.Value("somekey"))
+}
+
+```
+
+
 
 ## WaitGroup
 
@@ -2488,6 +2714,86 @@ Go 函数签名看到 `ctx`
 1. **凡是涉及到 I/O、网络调用、数据库查询的函数**，第一个参数统一写 `ctx context.Context`。
 2. **需要控制超时或传 TraceID 时**，用 `context`。
 3. 它本质就是一个**通知机制**（告诉后台：“时间到了/用户撤了，别干了”）+ **一个小背包**（带一点点请求级别的全局信息）。
+
+# packages
+
+Programs start running in package `main`.
+
+This program is using the packages with import paths `"fmt"` and `"math/rand"`.
+
+By convention, the package name is the same as the last element of the import path. For instance, the `"math/rand"` package comprises files that begin with the statement `package rand`.
+
+**一个目录 = 一个 package。**
+
+**目录里的每个 `.go` 文件都要写相同的 `package xxx`。**
+
+```Go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+)
+
+func main() {
+	fmt.Println("My favorite number is", rand.Intn(10))
+}
+```
+
+```
+myproject/
+│
+├── main.go
+│
+└── calculator/
+    ├── add.go
+    └── sub.go
+```
+
+```Go
+calculator/
+├── add.go          package calculator
+├── sub.go          package calculator
+└── add_test.go     package calculator_test
+```
+
+```Go
+// calculator/add.go
+package calculator
+
+func Add(a, b int) int {
+    return a + b
+}
+```
+
+```Go
+// main.go
+package main
+
+import (
+    "myproject/calculator"
+)
+
+func main() {
+    calculator.Add(1, 2)
+}
+```
+
+```
+import "myproject/calculator"
+```
+
+最后一级：
+
+```
+calculator
+```
+
+所以：
+
+```
+package calculator
+```
 
 # libraries
 
