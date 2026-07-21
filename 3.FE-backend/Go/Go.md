@@ -4,6 +4,7 @@
 
  - Learning Go: An Idiomatic Approach to Real-world Go Programming, 2nd Edition / *[Jon Bodner](https://z-lib.by/author/Jon Bodner)*
  - https://www.runoob.com/go/go-error-handling.html
+ - https://go.dev/tour/concurrency/11
 
 > ## 阶段一：基础语法与核心概念
 >
