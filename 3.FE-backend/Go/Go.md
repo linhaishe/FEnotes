@@ -6,6 +6,8 @@
  - https://www.runoob.com/go/go-error-handling.html
  - https://go.dev/tour/concurrency/11
 
+## go
+
 > ## 阶段一：基础语法与核心概念
 >
 > - **环境搭建**：安装 Go SDK、配置 `GOPATH` 与 `GOROOT`、掌握 `go module` 包管理机制，熟悉 VS Code 或 GoLand。
@@ -90,6 +92,8 @@
 
 ----
 
+## Go-projetc
+
 > ## 1. 命令行文件/文本并发搜索工具 (Mini-Grep)
 >
 > > **目标**：熟悉 Go 的文件操作、命令行参数解析，以及最核心的 **并发（Goroutine + Channel）**。
@@ -150,6 +154,8 @@
 >
 > 1. 先做 **项目 2（静态文件服务器）**：只要 30~50 行代码就能跑起来，非常有成就感。
 > 2. 再做 **项目 1（Mini-Grep）** 或 **项目 3（健康监测器）**：顺理成章地学会使用 Goroutine 和 Channel 处理并发。
+
+## Python-project
 
 > ## 推荐项目一：多源 API 数据抓取与本地报表生成器（以天气/财经/热搜为例）
 >
@@ -479,6 +485,42 @@ func main() {
   fmt.Println(A)
 }
 ```
+
+在 Go 里，常量的命名风格通常是：
+
+- 大写：适合公开导出的常量
+- 小写：适合包内私有常量
+
+你这段代码里：
+
+```go
+const (
+    uploadDir     = "uploads"
+    maxUploadSize = 16 << 20 // 16 MB
+)
+```
+
+它们是包内私有常量，所以用小写是更符合 Go 风格的。
+
+只有当你希望它们能被别的包引用时，才会写成：
+
+```go
+const (
+    UploadDir     = "uploads"
+    MaxUploadSize = 16 << 20
+)
+```
+
+不过你这个项目里是 `main` 包，通常就直接用小写即可。
+
+- 常量通常是“只在当前包里用”的配置
+- 公开常量通常更适合放在 `var` 或 `const` + 文档注释里
+- 你这个项目是一个小示例，直接用小写更自然
+
+所以结论是：
+
+- `const` 里小写：适合私有、内部使用
+- `const` 里全大写：适合公开、跨包使用，但这不是强制要求
 
 # Output Functions
 
@@ -1169,6 +1211,46 @@ if condition1 {
 }
 ```
 
+## 短变量声明 + if 判断
+
+```go
+if 初始化语句; 条件 {
+    // ...
+}
+
+// 可以理解成：
+
+初始化语句
+if 条件 {
+    // ...
+}
+```
+
+```go
+func Divide(a, b int) (int, error) {
+	if b == 0 {
+		return 0, errors.New("cannot divide by zero")
+	}
+	return a / b, nil
+}
+```
+
+```go
+result, err := Divide(10, 2)
+if err != nil {
+    fmt.Println(err)
+    return
+}
+
+fmt.Println(result)
+```
+
+```go
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		log.Fatalf("failed to create upload directory: %v", err)
+	}
+```
+
 ```go
 package main
 import ("fmt")
@@ -1476,6 +1558,18 @@ func add(x, y int) int {
 }
 ```
 
+```go
+// 一次返回多个独立的值
+func Divide(a, b int) (int, error) {
+    if b == 0 {
+        return 0, errors.New("cannot divide by zero")
+    }
+    return a / b, nil
+}
+
+result, err := Divide(10, 2) // 同时接收这两个返回值
+```
+
 ## Naming Rules for Go Functions
 
 - A function name must start with a letter
@@ -1715,6 +1809,35 @@ func printPerson(pers Person) { // type assertion
 // Job: Marketing
 // Salary: 4500
 ```
+
+```go
+type FileInfo struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+	Size int64  `json:"size"`
+}
+```
+
+结构体标签（struct tag）。它的作用是：
+
+- 给结构体字段附带额外元数据
+- 在 `encoding/json`序列化时，告诉它这个字段应该输出成什么 JSON key
+
+`json:"name`不是变量名，而是“JSON 字段名映射”。
+
+把这个结构体编码成 JSON，结果会类似
+
+```go
+[
+  {
+    "name": "xxx.png",
+    "url": "/uploads/xxx.png",
+    "size": 12345
+  }
+]
+```
+
+
 
 # Maps
 
@@ -2087,25 +2210,26 @@ func main() {
 package main
 
 import (
-        "errors"
-        "fmt"
+	"errors"
+	"fmt"
 )
 
 func divide(a, b int) (int, error) {
-        if b == 0 {
-                return 0, errors.New("division by zero")
-        }
-        return a / b, nil
+	if b == 0 {
+		return 0, errors.New("division by zero")
+	}
+	return a / b, nil
 }
 
 func main() {
-        result, err := divide(10, 0)
-        if err != nil {
-                fmt.Println("Error:", err)
-        } else {
-                fmt.Println("Result:", result)
-        }
+	result, err := divide(10, 0)
+	if err != nil {
+		fmt.Println("Error:", err)
+	} else {
+		fmt.Println("Result:", result)
+	}
 }
+
 ```
 
 ## 自定义错误
