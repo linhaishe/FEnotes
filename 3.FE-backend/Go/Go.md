@@ -90,105 +90,6 @@
 > 2. **进阶期**：动手写一个简易的 HTTP API 服务，接入 MySQL 和 Redis，熟悉 Gin + GORM 的组合。
 > 3. **拔高期**：尝试实现一个小型中间件（如简易的分布式缓存、RPC 框架或 KV 存储系统），深入剖析源码。
 
-----
-
-## Go-projetc
-
-> ## 1. 命令行文件/文本并发搜索工具 (Mini-Grep)
->
-> > **目标**：熟悉 Go 的文件操作、命令行参数解析，以及最核心的 **并发（Goroutine + Channel）**。
->
-> - **功能需求**：
->   - 接收命令行参数：目标文件夹路径、要搜索的关键词。
->   - 递归遍历文件夹下的所有文件。
->   - 为每个文件开启一个 Goroutine 搜索关键词。
->   - 通过 Channel 汇总所有匹配到关键词的文件名和行号并打印。
-> - **用到的 Go 特性**：
->   - `os`、`filepath` 模块进行目录遍历与文件读取。
->   - `flag` 模块解析命令行参数。
->   - `go func()` 启动协程、`chan` 传输结果、`sync.WaitGroup` 等待所有文件检索完成。
->
-> ## 2. 静态文件 HTTP 服务器 / 简易图床 API
->
-> > **目标**：体验 Go 原生强大的网络库，体会**几行代码搭一个高性能 Web 服务**的感觉。
->
-> - **功能需求**：
->   - **接口 1**：文件上传接口（接收图片并保存到本地文件夹）。
->   - **接口 2**：图片/静态资源预览接口（直接在浏览器访问图片路径即可查看）。
->   - **接口 3**：文件列表查看（返回当前已上传文件的 JSON 列表）。
-> - **用到的 Go 特性**：
->   - `net/http` 标准库（**完全不需要依赖外部 Web 框架**）。
->   - `struct` 结构体定义与 `encoding/json` 序列化。
->   - Go 原生并发处理 HTTP 请求（每个 Request 自动跑在独立 Goroutine 中）。
->
-> ## 3. 网站/API 可用性健康监测器 (Site Checker)
->
-> > **目标**：理解并发控制、定时器以及 Go 极简的错误处理机制。
->
-> - **功能需求**：
->   - 从配置文件或数组中读取 10+ 个网址（如 baidu.com, github.com 等）。
->   - 定时（如每 10 秒）向这些网址发送 HTTP GET 请求。
->   - 如果请求超时或状态码非 200，记录错误日志并输出提示。
->   - 用 `time.Ticker` 实现周期调度，用 `context.WithTimeout` 实现超时控制。
-> - **用到的 Go 特性**：
->   - `net/http` 发送 Client 请求。
->   - `time` 包（定时器 `Ticker`、休眠 `Sleep`）。
->   - `context` 上下文机制（控制 HTTP 请求超时）。
->   - `defer` 优雅关闭 HTTP 响应体（`resp.Body.Close()`）。
->
-> ## 4. 简易 Redis/KV 内存数据库 (Mini KV-Store)
->
-> > **目标**：理解指针、Map 结构以及**并发安全锁**的使用。
->
-> - **功能需求**：
->   - 基于内存实现一个简单的 Key-Value 存储系统。
->   - 支持基本命令：`SET key value`、`GET key`、`DELETE key`。
->   - 支持给 Key 设置过期时间（TTL），过期后自动清理。
->   - （可选扩展）通过 TCP 暴露服务（使用 `net` 包），可以用 `telnet` 或 `nc` 连接测试。
-> - **用到的 Go 特性**：
->   - `map[string]interface{}` 存取内存数据。
->   - `sync.RWMutex`（读写锁）保证并发读写安全。
->   - `time.AfterFunc` 或后台协程清理过期 Key。
->
-> ### 推荐的上手顺序
->
-> 1. 先做 **项目 2（静态文件服务器）**：只要 30~50 行代码就能跑起来，非常有成就感。
-> 2. 再做 **项目 1（Mini-Grep）** 或 **项目 3（健康监测器）**：顺理成章地学会使用 Goroutine 和 Channel 处理并发。
-
-## Python-project
-
-> ## 推荐项目一：多源 API 数据抓取与本地报表生成器（以天气/财经/热搜为例）
->
-> > **场景**：每天自动去网上调 API 抓取数据，清洗汇总后保存为本地 CSV 文件，并按日期自动创建文件夹归档。
->
-> ### 核心功能步骤：
->
-> 1. **网络请求 (`requests`)**：
->    - 调用免费的公开 API（比如某个天气 API、聚合热搜 API、或者加密货币价格 API）。
->    - 甚至可以用 `requests` 访问几个网页提取 JSON 响应。
-> 2. **数据解析 (`json` / `csv`)**：
->    - 用 `response.json()` 提取出你关心的关键字段（比如：城市、温度、天气状况、更新时间）。
->    - 使用 Python 自带的 `csv` 模块，把这些结构化数据追加写入到本地的 `weather_report.csv` 中。
-> 3. **文件与系统自动化 (`os` / `sys`)**：
->    - 使用 `sys.argv` 允许用户从命令行传入参数（例如指定城市或导出文件名：`python main.py --city Beijing`）。
->    - 用 `os.path.exists()` 检查今天日期的文件夹是否存在（如 `./reports/2026-07-20/`），如果不存在，用 `os.makedirs()` 自动创建文件夹并将 CSV 存入其中。
->
-> ## 推荐项目二：网页静态资源批量下载与分类整理器
->
-> > **场景**：给一个包含多张图片/文件链接的 API 或网页，自动把文件下载到本地，并根据文件类型或大小自动建文件夹归档。
->
-> ### 核心功能步骤：
->
-> 1. **网络请求 (`requests`)**：
->    - 用 `requests.get(url, stream=True)` 请求图片/文件链接，获取二进制流（`response.content`）。
-> 2. **文件与系统自动化 (`os` / `sys`)**：
->    - 接收命令行参数 `sys.argv[1]` 作为目标的保存路径。
->    - 用 `os.walk()` 或 `os.listdir()` 扫描指定目录。
->    - 根据下载文件的扩展名（如 `.jpg`, `.pdf`, `.json`），自动用 `os.mkdir()` 创建对应的子文件夹（如 `/images/`, `/docs/`），并用 `os.rename()` 或 `shutil.move()` 把文件归类放进去。
-> 3. **数据解析 (`json` / `csv`)**：
->    - 下载完成后，把所有下载成功的文件名、文件大小、下载时间、原始 URL 整理成一个字典列表。
->    - 用 `json.dump()` 将这次下载的历史记录保存为 `download_history.json`。
-
 # Syntax
 
 ```go
@@ -1246,10 +1147,52 @@ fmt.Println(result)
 ```
 
 ```go
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		log.Fatalf("failed to create upload directory: %v", err)
-	}
+if err := os.MkdirAll(uploadDir, 0755); err != nil {
+  log.Fatalf("failed to create upload directory: %v", err)
+}
+
+// equal
+
+err := os.MkdirAll(uploadDir, 0755)
+
+if err != nil {
+    log.Fatalf("failed to create upload directory: %v", err)
+}
 ```
+
+普通写法：
+
+```go
+file, err := os.Open("a.txt")
+
+if err != nil {
+    return err
+}
+
+defer file.Close()
+```
+
+这里**不能**缩写成：
+
+```go
+if file, err := os.Open("a.txt"); err != nil {
+    return err
+}
+
+defer file.Close() // ❌ file 在这里已经不存在了
+```
+
+因为 `file` 和 `err` 的作用域只在 `if` 和 `else` 中，出了 `if` 就不能用了。
+
+所以只有像下面这种情况：
+
+```go
+if err := doSomething(); err != nil {
+    return err
+}
+```
+
+**后面不需要再用 `err`**，Go 才推荐这种写法。
 
 ```go
 package main
@@ -1529,6 +1472,55 @@ func main() {
   }
 }
 ```
+
+## Range with channel
+
+因为 `range` 用在 channel 上时，语义就是：**不断从 channel 接收数据，直到 channel 被关闭。**
+
+```go
+ticker := time.NewTicker(checkInterval)
+
+for range ticker.C {
+    checkAll(targets)
+}
+```
+
+这里没有接收变量，表示“收到什么值不重要，只要收到一个值就执行循环体”。
+
+它更准确地等价于：
+
+```go
+for {
+    _, ok := <-ticker.C
+    if !ok {
+        break
+    }
+
+    checkAll(targets)
+}
+```
+
+其中：
+
+- `<-ticker.C`：等待并接收一个值；没收到时会阻塞。
+- `ok`：判断 channel 是否关闭。
+  - `ok == true`：正常收到一次 ticker 的时间通知。
+  - `ok == false`：channel 已关闭，退出循环。
+
+而你写的简化版：
+
+```go
+for {
+    <-ticker.C
+    checkAll(targets)
+}
+```
+
+在 `ticker.C` 一直不关闭时，效果相同。
+
+不过有个细节：`ticker.Stop()` 会停止后续定时通知，**但不会关闭 `ticker.C`**。因此无论是 `for range ticker.C` 还是简化的无限 `for`，停止 ticker 后都不会自然退出，而是会继续阻塞等待。
+
+
 
 # Functions
 
@@ -1891,6 +1883,39 @@ b := map[KeyType]ValueType{key1:value1, key2:value2,...}
 ```
 
 ```go
+type entry struct {
+	value     string
+	expiresAt time.Time
+	version   int64
+}
+
+type KVStore struct {
+	mu    sync.RWMutex
+	items map[string]entry
+}
+```
+
+用 string 作为索引（key），找到一个 entry 对象（value）。
+
+```go
+map[   key类型   ]   value类型
+       ↓              ↓
+    string          entry
+```
+
+```go
+people := map[string]Person{
+    "11010119900101": {
+        Name: "Tom",
+        Age: 30,
+    },
+}
+
+// map[身份证号] 人
+// map[string]Person
+```
+
+```go
 package main
 import ("fmt")
 
@@ -2235,33 +2260,33 @@ func main() {
 ## 自定义错误
 
 ```go
-package main
+// package main
 
-import (
-        "fmt"
-)
+// import (
+//         "fmt"
+// )
 
 type DivideError struct {
-        Dividend int
-        Divisor  int
+	Dividend int
+	Divisor  int
 }
 
 func (e *DivideError) Error() string {
-        return fmt.Sprintf("cannot divide %d by %d", e.Dividend, e.Divisor)
+	return fmt.Sprintf("cannot divide %d by %d", e.Dividend, e.Divisor)
 }
 
 func divide(a, b int) (int, error) {
-        if b == 0 {
-                return 0, &DivideError{Dividend: a, Divisor: b}
-        }
-        return a / b, nil
+	if b == 0 {
+		return 0, &DivideError{Dividend: a, Divisor: b}
+	}
+	return a / b, nil
 }
 
-func main() {
-        _, err := divide(10, 0)
-        if err != nil {
-                fmt.Println(err) // 输出：cannot divide 10 by 0
-        }
+func main2() {
+	_, err := divide(10, 0)
+	if err != nil {
+		fmt.Println(err) // 输出：cannot divide 10 by 0
+	}
 }
 ```
 
@@ -2392,23 +2417,23 @@ Go 允许使用 go 语句开启一个新的运行期线程， 即 goroutine，�
 package main
 
 import (
-        "fmt"
-        "time"
+	"fmt"
+	"time"
 )
 
 func sayHello() {
-        for i := 0; i < 5; i++ {
-                fmt.Println("Hello")
-                time.Sleep(100 * time.Millisecond) // 让当前 goroutine 暂停 100 毫秒（0.1 秒）。
-        }
+	for i := 0; i < 5; i++ {
+		fmt.Println("Hello")
+		time.Sleep(100 * time.Millisecond) // 让当前 goroutine 暂停 100 毫秒（0.1 秒）。
+	}
 }
 
 func main() {
-        go sayHello() // 启动 Goroutine
-        for i := 0; i < 5; i++ {
-                fmt.Println("Main")
-                time.Sleep(100 * time.Millisecond)
-        }
+	go sayHello() // 启动 Goroutine
+	for i := 0; i < 5; i++ {
+		fmt.Println("Main")
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 // 输出是没有固定先后顺序，因为它们是两个 goroutine 在执行
@@ -2416,6 +2441,7 @@ func main() {
 // Hello
 // Main
 // Hello
+
 ```
 
 ## Channel
@@ -2436,6 +2462,13 @@ v := <-ch  // 从 ch 接收数据 并把值赋给 v
 ```go
 ch := make(chan int)
 ```
+
+```go
+results := make(chan matchResult, 128)
+var wg sync.WaitGroup
+```
+
+
 
 > **注意**：默认情况下，通道是不带缓冲区的。发送端发送数据，同时必须有接收端相应的接收数据。
 >
@@ -2716,8 +2749,6 @@ func main() {
 
 ```
 
-
-
 ## WaitGroup
 
 sync.WaitGroup 用于等待多个 Goroutine 完成。
@@ -2728,26 +2759,26 @@ sync.WaitGroup 用于等待多个 Goroutine 完成。
 package main
 
 import (
-        "fmt"
-        "sync"
+  "fmt"
+  "sync"
 )
 
 func worker(id int, wg *sync.WaitGroup) {
-        defer wg.Done() // Goroutine 完成时调用 Done()
-        fmt.Printf("Worker %d started\n", id)
-        fmt.Printf("Worker %d finished\n", id)
+	defer wg.Done() // Goroutine 完成时调用 Done()
+	fmt.Printf("Worker %d started\n", id)
+	fmt.Printf("Worker %d finished\n", id)
 }
 
 func main() {
-        var wg sync.WaitGroup
+	var wg sync.WaitGroup
 
-        for i := 1; i <= 3; i++ {
-                wg.Add(1) // 增加计数器
-                go worker(i, &wg)
-        }
+	for i := 1; i <= 3; i++ {
+		wg.Add(1) // 增加计数器
+		go worker(i, &wg)
+	}
 
-        wg.Wait() // 等待所有 Goroutine 完成
-        fmt.Println("All workers done")
+	wg.Wait() // 等待所有 Goroutine 完成
+	fmt.Println("All workers done")
 }
 ```
 
@@ -2904,21 +2935,11 @@ func main() {
 }
 ```
 
-```
-import "myproject/calculator"
-```
+`import "myproject/calculator"`
 
-最后一级：
+最后一级：`calculator`
 
-```
-calculator
-```
-
-所以：
-
-```
-package calculator
-```
+所以：`package calculator`
 
 # libraries
 
