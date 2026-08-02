@@ -172,6 +172,650 @@ print("sum 数据类型为:",type(num_sum))
 | [bin(x)](https://www.runoob.com/python3/python3-func-bin.html") | 将一个整数转换为一个二进制字符串                    |
 | [ascii(x)](https://www.runoob.com/python3/python3-func-ascii.html") | 返回对象的 ASCII 表示，非 ASCII 字符会被转义        |
 
+# 数据类型判断
+
+Python 中判断数据类型主要有几种方法，常用的有：
+
+1. `type()`
+2. `isinstance()`
+3. `callable()`
+4. `id()`
+5. `hasattr()`
+6. `issubclass()`
+
+其中最重要的是前两个。
+
+------
+
+## 1. type() —— 查看对象的精确类型
+
+### 语法
+
+```python
+type(object)
+```
+
+返回对象的类型。
+
+------
+
+#### 示例
+
+```python
+x = 10
+
+print(type(x))
+```
+
+输出：
+
+```text
+<class 'int'>
+```
+
+------
+
+常见：
+
+```python
+print(type(10))
+print(type(3.14))
+print(type("hello"))
+print(type(True))
+print(type([1,2,3]))
+print(type({"a":1}))
+```
+
+输出：
+
+```text
+<class 'int'>
+<class 'float'>
+<class 'str'>
+<class 'bool'>
+<class 'list'>
+<class 'dict'>
+```
+
+------
+
+### type() 也可以做类型判断
+
+例如：
+
+```python
+x = 10
+
+if type(x) == int:
+    print("整数")
+```
+
+输出：
+
+```text
+整数
+```
+
+------
+
+但是：
+
+```python
+type()
+```
+
+有一个问题：
+
+它只判断**精确类型**。
+
+------
+
+例如：
+
+```python
+class Animal:
+    pass
+
+
+class Dog(Animal):
+    pass
+
+
+dog = Dog()
+
+
+print(type(dog) == Animal)
+```
+
+结果：
+
+```text
+False
+```
+
+因为：
+
+```python
+dog
+```
+
+实际类型是：
+
+```text
+Dog
+```
+
+不是：
+
+```text
+Animal
+```
+
+------
+
+## 2. isinstance() —— 判断是否属于某个类型（推荐）
+
+### 语法
+
+```python
+isinstance(object, class)
+```
+
+------
+
+例：
+
+```python
+age = 18
+
+print(isinstance(age, int))
+```
+
+输出：
+
+```text
+True
+```
+
+------
+
+常用：
+
+```python
+data = "hello"
+
+if isinstance(data, str):
+    print("字符串")
+```
+
+------
+
+输出：
+
+```text
+字符串
+```
+
+------
+
+### isinstance 支持多个类型
+
+例如：
+
+判断数字：
+
+```python
+x = 3.14
+
+if isinstance(x, (int, float)):
+    print("数字")
+```
+
+输出：
+
+```text
+数字
+```
+
+等价：
+
+```python
+x 是 int 或 float
+```
+
+------
+
+### isinstance 支持继承关系
+
+例如：
+
+```python
+class Animal:
+    pass
+
+
+class Dog(Animal):
+    pass
+
+
+dog = Dog()
+
+
+print(isinstance(dog, Dog))
+print(isinstance(dog, Animal))
+```
+
+输出：
+
+```text
+True
+True
+```
+
+因为：
+
+```
+Dog
+  ↑
+Animal
+```
+
+Dog 是 Animal 的子类。
+
+------
+
+## 3. callable() —— 判断是否可以调用
+
+这个你刚看到。
+
+### 语法：
+
+```python
+callable(object)
+```
+
+判断：
+
+能不能：
+
+```python
+object()
+```
+
+------
+
+### 函数
+
+```python
+def hello():
+    pass
+
+
+print(callable(hello))
+```
+
+输出：
+
+```text
+True
+```
+
+------
+
+### 类
+
+```python
+class Person:
+    pass
+
+
+print(callable(Person))
+```
+
+输出：
+
+```text
+True
+```
+
+因为：
+
+```python
+Person()
+```
+
+可以执行。
+
+------
+
+### 普通变量
+
+```python
+x = 100
+
+print(callable(x))
+```
+
+输出：
+
+```text
+False
+```
+
+------
+
+### 对象实现 **call**
+
+特殊：
+
+```python
+class AI:
+    def __call__(self):
+        print("调用AI")
+
+
+ai = AI()
+
+print(callable(ai))
+```
+
+输出：
+
+```text
+True
+```
+
+因为：
+
+```python
+ai()
+```
+
+合法。
+
+------
+
+## 4. issubclass() —— 判断类的继承关系
+
+注意：
+
+它判断的是**类**，不是对象。
+
+### 语法：
+
+```python
+issubclass(child, parent)
+```
+
+------
+
+例：
+
+```python
+class Animal:
+    pass
+
+
+class Dog(Animal):
+    pass
+
+
+print(issubclass(Dog, Animal))
+```
+
+输出：
+
+```text
+True
+```
+
+------
+
+错误：
+
+```python
+dog = Dog()
+
+issubclass(dog, Animal)
+```
+
+会报错：
+
+```
+TypeError
+```
+
+因为：
+
+dog 是对象，不是类。
+
+------
+
+## 5. hasattr() —— 判断对象有没有某个属性
+
+### 语法：
+
+```python
+hasattr(object, "属性名")
+```
+
+------
+
+例：
+
+```python
+class User:
+    name = "Tom"
+
+
+user = User()
+
+
+print(hasattr(user, "name"))
+```
+
+输出：
+
+```text
+True
+```
+
+------
+
+判断方法：
+
+```python
+class User:
+    def login(self):
+        pass
+
+
+user = User()
+
+print(hasattr(user, "login"))
+```
+
+输出：
+
+```text
+True
+```
+
+------
+
+常见场景：
+
+动态调用：
+
+```python
+if hasattr(obj, "run"):
+    obj.run()
+```
+
+------
+
+## 6. vars() / **dict** —— 查看对象有哪些属性
+
+### 示例：
+
+```python
+class User:
+    def __init__(self):
+        self.name = "Tom"
+        self.age = 18
+
+
+user = User()
+
+
+print(user.__dict__)
+```
+
+输出：
+
+```python
+{
+'name': 'Tom',
+'age': 18
+}
+```
+
+------
+
+也可以：
+
+```python
+print(vars(user))
+```
+
+效果一样。
+
+------
+
+## 7. 总结对比表
+
+| 方法           | 用途          | 判断对象 | 判断类 |
+| -------------- | ------------- | -------- | ------ |
+| `type()`       | 获取精确类型  | ✅        | ❌      |
+| `isinstance()` | 判断类型/继承 | ✅        | ✅      |
+| `callable()`   | 是否可调用    | ✅        | ✅      |
+| `issubclass()` | 判断继承      | ❌        | ✅      |
+| `hasattr()`    | 是否有属性    | ✅        | ✅      |
+| `vars()`       | 查看属性      | ✅        | ✅      |
+
+------
+
+## 实际开发推荐
+
+### 判断类型：
+
+优先：
+
+```python
+isinstance(x, int)
+```
+
+不要：
+
+```python
+type(x) == int
+```
+
+因为：
+
+`isinstance()` 支持继承，更符合 Python 面向对象思想。
+
+------
+
+### LangChain 里面经常看到：
+
+```python
+if isinstance(obj, BaseTool):
+```
+
+表示：
+
+> 这是 LangChain 工具对象
+
+```python
+elif callable(obj):
+```
+
+表示：
+
+> 这是一个可以执行的函数
+
+```python
+if hasattr(obj, "invoke"):
+```
+
+表示：
+
+> 这个对象有没有 invoke 方法
+
+这三个在 LangChain、Agent、插件系统里非常常见。
+
+## 类型提示 - cast()
+
+```python
+elif isinstance(function, langchain_core.tools.base.BaseTool):
+    oai_function = cast("dict", _format_tool_to_openai_function(function))
+elif callable(function):
+    oai_function = cast("dict", _convert_python_function_to_openai_function(function))
+```
+
+这里的 `cast()` 是 **Python 类型提示（type hint）工具**，来自 `typing` 模块。
+
+它的作用：告诉类型检查器：“这个对象，请按照我指定的类型来理解。” 注意：它不会真正改变对象的类型。
+
+```python
+from typing import cast
+
+cast(类型, 对象)
+```
+
+例如：
+
+```python
+from typing import cast
+
+x = "hello"
+
+y = cast(int, x)
+
+print(y)
+print(type(y))
+```
+
+输出：
+
+```python
+hello
+<class 'str'>
+```
+
+你会发现：
+
+虽然写了：
+
+```python
+cast(int, x)
+```
+
+但是：
+
+```python
+type(y)
+```
+
+还是：
+
+```python
+str
+```
+
+它没有把字符串变成整数。
+
 # 2. 注释
 
 ## 单行注释
