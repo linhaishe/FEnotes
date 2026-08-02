@@ -24,6 +24,16 @@ LangChain的消息（Message）对象包含三种字段
 - **Content**：消息内容
 - **Metadata**：（可选）元数据，存储额外信息。如：消息ID、响应时间、token消耗量、消息标签等
 
+在设计大语言模型时，开发团队将其角色定位为能够协助人类处理各种任务的**个人助手（Assistant）**，而不是单纯的聊天机器（Bot）或答题工具。
+
+在标准的 API 消息架构中，定义了三个最基础的核心角色（Roles）：
+
+| **角色 (role)** | **含义**   | **职责**                                                     |
+| --------------- | ---------- | ------------------------------------------------------------ |
+| **`system`**    | 系统指令   | 设定 AI 的行为准则、角色定位或全局约束（如：“你是一个精通 Python 的助手”）。 |
+| **`user`**      | 用户       | 提出问题或发出指令的实际操作者。                             |
+| **`assistant`** | 助手（AI） | 响应用户需求、遵循系统指令生成的回答。                       |
+
 ### 1.2 消息的类型
 
 LangChain定义了很多消息类型，通过`role` 区分。常用的有四种。
@@ -373,7 +383,7 @@ HumanMessage(
 
 - [OpenAI 的 API 手册](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)告诉我们，HumanMessage支持`name` 作为元数据字段，如下图所示。而DeepSeek的API官方文档明确支持`name` 作为元数据，但实测发现模型无法识别。
 
-![OpenAI API 文档中 name 字段的示例](assets/page-08-image-01.png)
+![image-20260802124930452](https://i.postimg.cc/NgHC5Yd5/image-20260802124930452.png?dl=1)
 
 **举例：**
 
@@ -627,7 +637,7 @@ rprint(response.usage_metadata)
 
 返回的内容分析：
 
-![AIMessage 返回内容字段分析表](assets/page-12-image-01.png)
+![image-20260802124913786](https://i.postimg.cc/D7DYvmPn/image-20260802124913786.png?dl=1)
 
 #### 1.5.4 ToolMessage参数列表（拓展）
 
@@ -805,6 +815,8 @@ content='今天北京天气晴朗，万里无云。' additional_kwargs={'refusal
 ```
 
 > 注意：每次对话都要在原有的消息列表中`添加新消息`，不可重新创建新的列表。
+>
+> 每次加一对回复：assistant(=ai reply), user
 
 错误举例1❌：
 
@@ -832,7 +844,9 @@ response2 = model.invoke(conversation)  # 丢失了历史
 conversation = []
 conversation.append({"role": "user", "content": "问题1"})
 response1 = model.invoke(conversation)
-# 忘记保存 response1.content！
+# 忘记保存 response1.content！只给 conversation 列表添加了用户提出的 问题1，却没有把 AI 返回的 response1.content 添加到 conversation 中。
+# 此时 conversation 列表里的内容变成了：
+# [{"role": "user", "content": "问题1"}, {"role": "user", "content": "问题2"}]
 
 conversation.append({"role": "user", "content": "问题2"})
 response2 = model.invoke(conversation)  # AI 不知道之前的回答
@@ -885,6 +899,35 @@ def keep_recent_messages(messages, max_pairs=3):
     # 返回：system + 最近对话
     return system_msgs + recent_msgs
 ```
+
+` system_msgs = [m for m in messages if m.get("role") == "system"]`
+
+```python
+# 传统写法（效果与该单行代码完全等价）：
+system_msgs = []
+for m in messages:
+    if m.get("role") == "system":
+        system_msgs.append(m)
+```
+
+**`[ ... ]`（外层的方括号）**
+
+- 表示要创建一个**新的列表**。
+
+**`for m in messages`（遍历部分）**
+
+- 遍历名为 `messages` 的列表/序列，每次循环把当前元素赋值给变量 `m`。
+- 这里 `m` 通常是一个字典（比如 `{"role": "system", "content": "你是一个助手"}`）。
+
+**`if m.get("role") == "system"`（条件过滤部分）**
+
+- 判断字典 `m` 中键 `"role"` 的值是否等于 `"system"`。
+- **为什么用 `.get("role")` 而不用 `m["role"]`？**
+  - 使用 `.get()` 更加**安全**！如果某个字典 `m` 中根本没有 `"role"` 这个键，`m["role"]` 会直接抛出 `KeyError` 报错程序崩掉；而 `m.get("role")` 会安全地返回 `None`，判断为 False 并顺利跳过。
+
+**最左侧的 `m`（结果表达式）**
+
+- 如果 `if` 条件成立，就把这个 `m`（即满足条件的整个字典）放入新列表中。
 
 测试：
 
@@ -983,11 +1026,12 @@ while True:
 
     # 流式输出模型回复
     print("🧚 小谷姐姐：", end="", flush=True)
+    # flush 控制是否立即刷新输出缓冲区。end="" 不换行的意思，默认配置是换行
 
     reply_content = ""
 
     # 优化历史记忆
-    memory_messages = keep_recent_messages(messages,max_pairs =MAX_PAIRS_HISTORY)
+    memory_messages = keep_recent_messages(messages,max_pairs = MAX_PAIRS_HISTORY)
     # 控制发送给模型的消息长度
     for chunk in model.stream(memory_messages):
         if chunk.content:
@@ -1002,6 +1046,13 @@ while True:
 ```
 
 其中，keep_recent_messages（）定义，见1.6.2小节。
+
+```python
+print("🧚 小谷姐姐：", end="")
+print("你好")
+
+# print("🧚 小谷姐姐：", end="")
+```
 
 ### 1.7 拓展-消息属性：content、content_blocks
 
@@ -1029,15 +1080,32 @@ print(msg2)
 
 如果需要发送的不只是文本，如多模态内容，则需要content的`字典列表`形式。
 
+**多模态（Multimodal）** 指的是：
+
+> 一个 AI 模型能够理解或处理**多种类型的信息输入或输出**，而不仅仅是文本。
+
+这里的“模态（modality）”就是信息的类型。
+
+常见模态：
+
+| 模态             | 示例               |
+| ---------------- | ------------------ |
+| 文本（Text）     | "介绍一下这张图片" |
+| 图片（Image）    | 一张猫的照片       |
+| 音频（Audio）    | 一段语音           |
+| 视频（Video）    | 一段监控视频       |
+| 文件（Document） | PDF、Word          |
+| 代码（Code）     | Python代码         |
+
 字典内容遵循模型供应商的API规范，以`openai: gpt-4.1` 为例。
 
 参考官方文档：<https://developers.openai.com/api/reference/python/resources/chat/subresources/completions/methods/create>
 
-![OpenAI 多模态消息 API 文档示例](assets/page-20-image-01.png)
+![image-20260802124802369](https://i.postimg.cc/9VtSdmC7/image-20260802124802369.png?dl=1)
 
 将下图置于代码所在的目录下（比如chapter04_message_prompt），命名为`image_test.png`
 
-![示例图片：香水瓶](assets/page-20-image-02.png)
+![image-20260802124813734](https://i.postimg.cc/yBX5m1sX/image-20260802124813734.png?dl=1)
 
 测试代码如下
 
@@ -1237,7 +1305,7 @@ print(response.content)
 
 `content_blocks` 还可用于输出格式化，以deepseek官网的`deepseek-v4-flash` 为例，其输出包含思考内容，后者位于`additional_kwargs` 的`reasoning_content` 字段下。比如：
 
-![DeepSeek 响应中的思考内容与 content_blocks 输出示例](assets/page-24-image-01.png)
+![image-20260802124835498](https://i.postimg.cc/fD8rP83S/image-20260802124835498.png?dl=1)
 
 不同的模型其输出格式可能不同，仅为提取思考内容，切换模型都可能需要更改代码，非常不方便。
 
@@ -1434,7 +1502,7 @@ ChatPromptTemplate是创建`聊天消息列表`的提示模板。它比普通 Pr
 
 ChatPromptTemplate 可以通过`初始化方法`或 `from_messages`  方法来实例化提示词模板。实例化时需要传入 `messages参数`。常见类型是：tuple构成的列表，参数类型（role ： str，content ： str ）
 
-**方式1（推荐）：调用from_messages()**
+##### **方式1（推荐）：调用from_messages()**
 
 该方法允许传入一个由元组（Tuple）构成的列表，列表中的每一个元组都代表一条具有特定角色的消息。
 
@@ -1465,7 +1533,7 @@ print(prompt)
 messages=[SystemMessage(content='你是一个有帮助的AI机器人，你的名字是小明。',additional_kwargs={}, response_metadata={}), HumanMessage(content='你好，最近怎么样？', additional_kwargs={}, response_metadata={}),AIMessage(content='我很好，谢谢！', additional_kwargs={},response_metadata={}, tool_calls=[], invalid_tool_calls=[]),HumanMessage(content='你叫什么名字？', additional_kwargs={},response_metadata={})]
 ```
 
-**方式2：使用实例初始化方法**
+##### **方式2：使用实例初始化方法**
 
 举例：
 
@@ -1496,7 +1564,9 @@ messages=[SystemMessage(content='你是一个AI开发工程师. 你的名字是 
 
 对比：`invoke()` 、`format()` 、`format_messages()`
 
-**方式1：使用 invoke()**
+返回的类型不同
+
+##### **方式1：使用 invoke()**
 
 返回ChatPromptValue
 
@@ -1521,10 +1591,9 @@ print(len(prompt.messages))
 ```python
 <class 'langchain_core.prompt_values.ChatPromptValue'>
 messages=[SystemMessage(content='你是一个AI开发工程师. 你的名字是 小谷AI.',additional_kwargs={}, response_metadata={}), HumanMessage(content='你能开发哪些AI应用?', additional_kwargs={}, response_metadata={}), AIMessage(content='我能开发很多AI应用,比如聊天机器人, 图像识别, 自然语言处理等.', additional_kwargs={}, response_metadata={}),HumanMessage(content='你能帮我做什么?', additional_kwargs={}, response_metadata={})]
-4
 ```
 
-**方式2：使用format()**
+##### **方式2：使用 format()**
 
 返回字符串
 
@@ -1555,7 +1624,7 @@ AI: 我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语�
 Human: 你能帮我做什么?
 ```
 
-**方式3：使用format_messages()**
+##### **方式3：使用format_messages()**
 
 返回消息列表
 
@@ -1655,7 +1724,7 @@ def __init__(self,
 
 结论：参数是列表类型，列表的元素可以是字符串、字典、字符串构成的元组、消息类型、提示词模板类型、消息提示词模板类型等
 
-**类型1：str列表类型**
+##### **类型1：str列表类型**
 
 列表参数格式是str类型（不推荐），**因为默认角色都是human**
 
@@ -1667,7 +1736,7 @@ from langchain_core.prompts import ChatPromptTemplate
 chat_template = ChatPromptTemplate.from_messages(
   [
     "Hello, {name}!"  # 等价于 ("human", "Hello, {name}!")
-    ]
+  ]
 )
 
 # 3. 使用invoke执行
@@ -1681,7 +1750,7 @@ print(messages)
 messages=[HumanMessage(content='Hello, 小谷AI!', additional_kwargs={},response_metadata={})]
 ```
 
-**类型2：tuple列表类型**
+##### **类型2：tuple列表类型**
 
 列表参数格式是元组类型
 
@@ -1699,7 +1768,7 @@ print(prompt.invoke({"role":"小智"}))
 messages=[SystemMessage(content='你的名字是小智.', additional_kwargs={},response_metadata={}), HumanMessage(content='很高兴认识你',additional_kwargs={}, response_metadata={})]
 ```
 
-**类型3：dict列表类型**
+##### **类型3：dict列表类型**
 
 列表参数格式是dict类型
 
@@ -1717,7 +1786,7 @@ print(prompt.invoke({"role":"小智"}))
 messages=[SystemMessage(content='你的名字是小智.', additional_kwargs={},response_metadata={}), HumanMessage(content='很高兴认识你',additional_kwargs={}, response_metadata={})]
 ```
 
-**类型4：Message列表类型**
+##### **类型4：Message列表类型**
 
 ```python
 from langchain_core.messages import SystemMessage,HumanMessage
@@ -1738,7 +1807,7 @@ messages=[SystemMessage(content='我是一个贴心的智能助手', additional_
 <class 'langchain_core.prompt_values.ChatPromptValue'>
 ```
 
-注意：在XxxMessage中不能有占位符。即：
+注意：在XxxMessage中不能有占位符。即：消息对象中不能声明变量，可以使用dict or tuple
 
 ```python
 from langchain_core.messages import SystemMessage,HumanMessage
@@ -1759,7 +1828,7 @@ messages=[SystemMessage(content='我是一个贴心的智能助手', additional_
 <class 'langchain_core.prompt_values.ChatPromptValue'>
 ```
 
-**类型5：MessagePromptTemplate列表类型**
+##### **类型5：MessagePromptTemplate列表类型**
 
 LangChain提供不同类型的MessagePromptTemplate。最常用的是`SystemMessagePromptTemplate` 、`HumanMessagePromptTemplate` 和`AIMessagePromptTemplate` ，分别创建系统消息、人工消息和AI消息。
 
@@ -1800,7 +1869,7 @@ print(formatted_messages)
 messages=[SystemMessage(content='你是一个物理学家', additional_kwargs={},response_metadata={}), HumanMessage(content='给我解释相对论，用浅显易懂的语言', additional_kwargs={}, response_metadata={})]
 ```
 
-**类型6：BaseChatPromptTemplate列表类型**
+##### **类型6：BaseChatPromptTemplate列表类型**
 
 使用 BaseChatPromptTemplate，可以理解为ChatPromptTemplate里嵌套了ChatPromptTemplate。
 
@@ -1884,6 +1953,28 @@ prompt.invoke({"role":"人工智能专家","user_input":"介绍一下大模型�
 ChatPromptValue(messages=[SystemMessage(content='你是一个AI工程师。',additional_kwargs={}, response_metadata={}), HumanMessage(content='你好！', additional_kwargs={}, response_metadata={}),SystemMessage(content='你是一个人工智能专家.', additional_kwargs={},response_metadata={}), HumanMessage(content='介绍一下大模型的应用场景',additional_kwargs={}, response_metadata={}), SystemMessage(content='嵌套提示词', additional_kwargs={}, response_metadata={})])
 ```
 
+|                  | MessagePromptTemplate列表 | BaseChatPromptTemplate列表         |
+| ---------------- | ------------------------- | ---------------------------------- |
+| 层级             | 低                        | 高                                 |
+| 内容             | 单条消息模板              | 聊天模板组件                       |
+| 常见元素         | System/Human/AI Message   | Message模板、Placeholder、组合模板 |
+| 是否支持动态历史 | ❌                         | ✅                                  |
+| 使用场景         | 固定Prompt                | ChatBot、Agent                     |
+| 灵活性           | 较低                      | 高                                 |
+
+实际项目中更常用的是 **类型6（BaseChatPromptTemplate体系）**，因为：
+
+- RAG 需要插入检索结果
+- ChatBot 需要插入历史消息
+- Agent 需要插入工具调用消息
+
+所以理解重点：
+
+> **MessagePromptTemplate = 一条消息的模板**
+>  **BaseChatPromptTemplate = 一组聊天逻辑的模板，可以包含动态消息位置**
+
+这也是为什么 LangChain 后期大量使用 `ChatPromptTemplate + MessagesPlaceholder`。
+
 ### 2.4 高级特性
 
 #### 2.4.1 部分变量预填充：partial()
@@ -1955,7 +2046,7 @@ ChatPromptValue(messages=[SystemMessage(content='你是销售部门的销售顾�
 
 **使用场景：**多轮对话系统存储历史消息以及Agent的中间步骤处理此功能非常有用。
 
-**方式1：JSON形式**
+##### **方式1：JSON形式**
 
 举例1：
 
@@ -1989,7 +2080,7 @@ print(prompt_value)
 messages=[SystemMessage(content='你是一个有用的AI助手', additional_kwargs={}, response_metadata={}), HumanMessage(content='你好!',additional_kwargs={}, response_metadata={}), AIMessage(content='今天我能帮你做什么？', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[]), HumanMessage(content='你能给我做一个冰激凌吗？',additional_kwargs={}, response_metadata={}), AIMessage(content='抱歉，我没有这样的能力', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[])]
 ```
 
-**方式2：MessagesPlaceholder实例**
+##### **方式2：MessagesPlaceholder实例**
 
 举例1：
 
@@ -2109,7 +2200,7 @@ FRIENDLY_ASSISTANT = ChatPromptTemplate.from_messages([
 
 将多个模板片段组合成复杂的提示词。
 
-**方法 1：字符串组合**
+##### **方法 1：字符串组合**
 
 ```python
 # 定义可复用的部分
@@ -2126,7 +2217,7 @@ template = ChatPromptTemplate.from_messages([
 ])
 ```
 
-**方法 2：使用 + 运算符**
+##### **方法 2：使用 + 运算符**
 
 ```python
 template1 = ChatPromptTemplate.from_messages([

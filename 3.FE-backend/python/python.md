@@ -1084,6 +1084,16 @@ print(name) # 'Alice'
 print(rest) # [34, 'Rust Developer']
 ```
 
+```python
+recent_messages = conversation_messages[-(max_pairs * 2):]
+
+# conversation_messages[-4:]
+# 从倒数第4个元素开始，一直到列表末尾
+
+```
+
+
+
 ## 方法
 
 | 方法                  | 功能                                                   | 例子                                                         |
@@ -1129,8 +1139,6 @@ numbers = [1, 2, 3, 4, 5]
 result = [(num, 'Even') if num % 2 == 0 else (num, 'Odd') for num in numbers]
 print(result)
 ```
-
-
 
 # 7. Tuple（元组）
 
@@ -1206,7 +1214,7 @@ print(rest) # [34, 'Rust Developer']
 | `sorted(iterable, reverse=True)` | 降序排序                                              | `numbers = (3, 1, 2)\nsorted(numbers, reverse=True)\n`       | `[3, 2, 1]`                  |
 | `sorted(iterable, key=function)` | 根据指定规则排序                                      | `langs = ('Rust', 'Java', 'Python')\nsorted(langs, key=len)\n` | `['Rust', 'Java', 'Python']` |
 
-### tuple 方法总结
+## tuple 方法总结
 
 | 方法      | 作用             | 是否修改原元组 | 返回类型 |
 | --------- | ---------------- | -------------- | -------- |
@@ -1215,7 +1223,7 @@ print(rest) # [34, 'Rust Developer']
 
 ------
 
-### tuple 排序相关
+## tuple 排序相关
 
 | 方法          | 适用对象                              | 是否修改原数据 | 返回类型 |
 | ------------- | ------------------------------------- | -------------- | -------- |
@@ -1263,8 +1271,6 @@ for developer in developer_names:
         continue
     print(developer)
 ```
-
-
 
 # 8. Set（集合）
 
@@ -1331,8 +1337,6 @@ Each one of these operators also has its corresponding compound assignment opera
 my_set -= your_set
 print(my_set) # {1, 5}
 ```
-
-
 
 ```python
 #!/usr/bin/python3
@@ -2105,7 +2109,34 @@ def sequence(n):
     return " ".join(str(num + 1) for num in range(n))
 ```
 
+` system_msgs = [m for m in messages if m.get("role") == "system"]`
 
+```python
+# 传统写法（效果与该单行代码完全等价）：
+system_msgs = []
+for m in messages:
+    if m.get("role") == "system":
+        system_msgs.append(m)
+```
+
+**`[ ... ]`（外层的方括号）**
+
+- 表示要创建一个**新的列表**。
+
+**`for m in messages`（遍历部分）**
+
+- 遍历名为 `messages` 的列表/序列，每次循环把当前元素赋值给变量 `m`。
+- 这里 `m` 通常是一个字典（比如 `{"role": "system", "content": "你是一个助手"}`）。
+
+**`if m.get("role") == "system"`（条件过滤部分）**
+
+- 判断字典 `m` 中键 `"role"` 的值是否等于 `"system"`。
+- **为什么用 `.get("role")` 而不用 `m["role"]`？**
+  - 使用 `.get()` 更加**安全**！如果某个字典 `m` 中根本没有 `"role"` 这个键，`m["role"]` 会直接抛出 `KeyError` 报错程序崩掉；而 `m.get("role")` 会安全地返回 `None`，判断为 False 并顺利跳过。
+
+**最左侧的 `m`（结果表达式）**
+
+- 如果 `if` 条件成立，就把这个 `m`（即满足条件的整个字典）放入新列表中。
 
 ## for...else
 
