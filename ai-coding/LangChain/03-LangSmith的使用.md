@@ -80,6 +80,21 @@ LangSmith 是 LangChain 生态系统中专门用于 LLM（大语言模型）应�
 
 > **建议：**现阶段大家可以重点关注 Tracing（观察你的项目里的调用细节）和 Playground（快速调优提示词）。当你的应用结构开始走向复杂（比如引入了复杂的 RAG 检索或多 Agent 协同）时，再逐步引入 Datasets 进行量化评估，并利用 Studio 进行可视化调试。
 
+**有免费额度，但超过后或团队使用需要付费。**  
+
+LangSmith 采用了“免费层 + 团队订阅 + 按量计费”（Freemium）的商业模式：
+
+| **方案版本**             | **适合人群**          | **费用**            | **核心包含额度与限制**                                       |
+| ------------------------ | --------------------- | ------------------- | ------------------------------------------------------------ |
+| **开发者版 (Developer)** | 个人开发者、AI 爱好者 | **免费**            | 限制 **1 个用户**  每月 **5,000 次免费跟踪 (Traces)**  数据保留 14 天 |
+| **团队/Plus 版 (Plus)**  | 小型团队、初创企业    | **$39 / 席位 / 月** | 支持多人协同（最多 10 席位）  每月 **10,000 次免费跟踪** 数据保留时间更长 |
+| **企业版 (Enterprise)**  | 中大型企业            | **定制按需付费**    | 无席位限制、自托管部署 (VPC)  、SSO 登录、专属技术支持与 SLA |
+
+**核心总结：**
+
+1. **个人学习/小项目测试：** 完全可以**免费使用**。每月 5,000 次调用跟踪（Trace）对于日常开发调试绰绰有余。
+2. **超额或商业生产部署：** 如果超过免费额度，额外的 Trace 会按量扣费（如每额外 1,000 次跟踪收费约 $0.50 - $2.50 不等，具体取决于存储时长）。同时多人在同一个项目里协作也需要买 $39/月的席位。
+
 ## 2、准备账号
 
 ### 2.1 注册或登录
@@ -140,7 +155,7 @@ LANGSMITH_PROJECT="pr-clear-harmony-32"
 
 ## 3、查看监控指标
 
-添加上述环境变量后，在程序中通过 `load_dotenv()` 加载，而后运行 LangChain 代码，LangSmith 会自动记录运行指标，并同步至后台服务，我们可以在 LangSmith 官网查看运行记录。
+添加上述环境变量后，在程序中通过 `load_dotenv()` 加载，而后运行 LangChain 代码，==LangSmith 会自动记录运行指标，并同步至后台服务==，我们可以在 LangSmith 官网查看运行记录。
 
 **步骤1：运行任意LangChain程序**
 
@@ -177,13 +192,15 @@ import os
 
 load_dotenv(override=True)
 
-CLOSEAI_API_KEY=os.getenv("CLOSEAI_API_KEY")
-CLOSEAI_BASE_URL=os.getenv("CLOSEAI_BASE_URL")
+CLOSEAI_API_KEY = os.getenv("CLOSEAI_API_KEY")
+CLOSEAI_BASE_URL = os.getenv("CLOSEAI_BASE_URL")
 
-model = init_chat_model(model="deepseek-v4-flash",
-                        model_provider="openai",
-                        api_key=CLOSEAI_API_KEY,
-                        base_url=CLOSEAI_BASE_URL)
+model = init_chat_model(
+    model="deepseek-v4-flash",
+    model_provider="openai",
+    api_key=CLOSEAI_API_KEY,
+    base_url=CLOSEAI_BASE_URL,
+)
 
 print(model.invoke("你好，用一句话回答"))
 ```
@@ -211,8 +228,12 @@ model = init_chat_model(
     temperature=0.2,
     max_tokens=500,
     # 指定可调整参数
-    configurable_fields=("model", "model_provider", "temperature",
-                         "max_tokens"),
+    configurable_fields=(
+        "model",
+        "model_provider",
+        "temperature",
+        "max_tokens",
+    ),
 )
 
 # 2. 准备 config 字典
@@ -220,22 +241,19 @@ config = {
     "run_name": "joke_generation",  # 在LangSmith中这次运行会显示为"joke_generation"
     "tags": ["my_tag1", "my_tag2"],  # 打上标签便于分类查找
     "metadata": {
-        "user_id": "shkstart",      # 记录用户ID
-        "session_id": "sess_123"    # 记录会话ID
+        "user_id": "shkstart",  # 记录用户ID
+        "session_id": "sess_123",  # 记录会话ID
     },
     "configurable": {
         "model": "deepseek-v4-pro",  # 配置模型参数
         "model_provider": "openai",  # 配置模型提供商参数
         "temperature": 0.7,  # 配置温度参数
-        "max_tokens": 1000  # 配置最大令牌数
-    }
+        "max_tokens": 1000,  # 配置最大令牌数
+    },
 }
 
 # 3. 调用模型并传入config
-response = model.invoke(
-    "1 + 2 = ？",
-    config=config
-)
+response = model.invoke("1 + 2 = ？", config=config)
 
 rprint(response)
 ```

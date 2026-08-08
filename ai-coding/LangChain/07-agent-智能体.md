@@ -44,11 +44,11 @@
 
 在 LangChain 0.x 时代，框架内的 Agent 系统经历了“碎片化”阶段。当时的设计理念是 “针对场景设计特定 Agent”：
 
-- 如果你要实现思维链推理（ReAct），就用 create_react_agent；
+- 如果你要实现思维链推理（ReAct），就用 `create_react_agent`；
 
-- 如果需要结构化输出，就用 create_structured_chat_agent；
+- 如果需要结构化输出，就用 `create_structured_chat_agent`；
 
-- 要工具调用，则用 create_tool_calling_agent。
+- 要工具调用，则用 `create_tool_calling_agent`。
 
 举例：❌ v0.x 的复杂方式
 
@@ -99,7 +99,7 @@ result = executor.invoke({"input": "问题"})
 
 #### 1.4.2 全新的调用
 
-LangChain 在 1.0 版本后，团队做出了彻底重构：将所有 Agent 的创建方式统一为一个入口：create_agent()。它取代了旧版本中的 create_react_agent、create_json_agent、create_tool_calling_agent 等多种分支函数，真正让开发者用一行代码即可创建任何类型的智能体。
+LangChain 在 1.0 版本后，团队做出了彻底重构：将所有 Agent 的创建方式统一为一个入口：`create_agent()`。它取代了旧版本中的 `create_react_agent`、`create_json_agent`、`create_tool_calling_agent` 等多种分支函数，真正让开发者用一行代码即可创建任何类型的智能体。
 
 同时在底层通过“中间件机制（Middleware）”和“标准模型接口（invoke / stream）”实现全局统一。这让框架更轻、更稳，也更易于被集成到其他 Agent 平台中。
 
@@ -226,7 +226,9 @@ display(Image(agent.get_graph().draw_mermaid_png()))
 
 ## 3、Agent的基本用法2：如何调用Agent
 
-`agent.invoke()`是Agent 最基本的==同步调用==方法，它会阻塞程序执行直到返回最终结果。具体的：
+### `agent.invoke()`
+
+是 Agent 最基本的==同步调用==方法，它会阻塞程序执行直到返回最终结果。具体的：
 
 - 输入：传入的参数为字典类型，字典内通过messages字段传递消息列表。即：`“ {"messages":[{"role": "...", "content": "..."}]} ”`
 
@@ -248,6 +250,18 @@ response = agent.invoke({"messages": [...]})
 # 获取最终回答 final AIMessage
 final_answer = response['messages'][-1].content
 ```
+
+| **调用方法**                 | **运行模式** | **阻窄/响应特点**              | **核心作用与典型应用场景**                                   |
+| ---------------------------- | ------------ | ------------------------------ | ------------------------------------------------------------ |
+| **`agent.invoke()`**         | 同步         | **阻塞**                       | 最基础的同步调用。程序会等待 Agent 完成所有思考、工具调用并得到最终结果后一次性返回。适合后台任务或简单脚本。 |
+| **`agent.ainvoke()`**        | 异步         | **非阻塞 (async/await)**       | `invoke` 的异步版本。在 Web 框架（如 FastAPI、Tornado）或高并发服务中使用，避免阻塞主事件循环。 |
+| **`agent.stream()`**         | 同步流式     | **逐块输出 (Generator)**       | 以生成器形式逐步输出 Agent 的执行过程（如思考过程、工具调用细节或最终文本 Token），常用于构建打字机效果。 |
+| **`agent.astream()`**        | 异步流式     | **逐块输出 (Async Generator)** | `stream` 的异步版本。在异步 HTTP 服务中搭配 SSE（Server-Sent Events）或 WebSocket 实现前端实时打字机推流。 |
+| **`agent.astream_events()`** | 异步事件流   | **粒度最细的事件回调**         | 实时监听 Agent 执行过程中的细粒度事件（如 `on_chat_model_start`、`on_tool_end`），适合构建复杂的 UI 交互或实时日志监控。 |
+| **`agent.batch()`**          | 同步批处理   | **并行/批量阻塞**              | 接收一个输入列表，并发或顺序批量处理多个独立的 Agent 请求，最终一次性返回所有结果。 |
+| **`agent.abatch()`**         | 异步批处理   | **并行/批量非阻塞**            | `batch` 的异步版本。高并发下批量处理多个 Agent 请求，效率更高。 |
+| **`agent.get_state()`**      | 状态查询     | **即时** *(LangGraph)*         | 获取当前线程（Thread）下 Agent 的内存状态、执行节点和历史消息，常用于检查断点或恢复对话。 |
+| **`agent.update_state()`**   | 状态修改     | **即时** *(LangGraph)*         | 手动修改或注入 Agent 的状态数据，常用于**人机协同（Human-in-the-loop）**场景（如在 Agent 执行下一步前人工干预/纠错）。 |
 
 举例1：
 
@@ -396,8 +410,7 @@ rprint(resp)
                      'reasoning_tokens': 0,
                      'rejected_prediction_tokens': 0
                  },
-                 'prompt_tokens_details': {'audio_tokens': 0,
-'cached_tokens': 0},
+                 'prompt_tokens_details': {'audio_tokens': 0, 'cached_tokens': 0},
                  'latency_checkpoint': {
                      'engine_tbt_ms': 6,
                      'engine_ttft_ms': 33,
@@ -435,7 +448,7 @@ rprint(resp)
 
 ## 4、Agent的基本用法3：绑定工具
 
-只有接入了一些工具，create_agent完成Agent创建才算完整。tools
+只有接入了一些工具，`create_agent`完成Agent创建才算完整。`tools`
 
 Agent支持静态和动态绑定工具，这章节讲解静态，后者需要用到中间件(动态)，后面会讲。在执行时：
 
@@ -632,50 +645,64 @@ display(Image(agent.get_graph().draw_mermaid_png()))
 
 #### 举例2：接入内置工具
 
-绑定内置的TavilySearch搜索工具，可以借助Tavily进行网络搜索和信息爬取。
+绑定内置的`TavilySearch`搜索工具，可以借助`Tavily`进行网络搜索和信息爬取。
 
-这里我们需要先在tavily官网注册并获得API-KEY（每月有免费额度）：<https://www.tavily.com/>。
+这里我们需要先在tavily官网注册并获得`API-KEY`（每月有免费额度）：<https://www.tavily.com/>。
 
-然后将API-KEY写到本地.env中的TAVILY_API_KEY 变量中，即可进行调用了。
+然后将`API-KEY`写到本地`.env`中的`TAVILY_API_KEY`变量中，即可进行调用了。
 
 ```python
-from langchain_tavily import TavilySearch
 from dotenv import load_dotenv
+from langchain_tavily import TavilySearch
 import os
 
 load_dotenv(override=True)
 
 web_search = TavilySearch(
-    tavily_api_key=os.getenv("TAVILY_API_KEY"),
-    max_results=2
+    tavily_api_key=os.getenv("TAVILY_API_KEY"), 
+  	max_results=2
 )
 
-#这是一个高度封装的网络搜索工具，可以直接调用：
+# 这是一个高度封装的网络搜索工具，可以直接调用：
 web_search.invoke("请问2026年足球世界杯有哪些参赛队？")
-{'query': '请问2026年足球世界杯有哪些参赛队？',
-'follow_up_questions': None,
-'answer': None,
-'images': [],
-'results': [{'url': 'https://www.instagram.com/p/DWk8mU-geNg',
-'title': '你準備好了嗎？ 2026 FIFA世界盃™ 48支隊伍全數到齊 ... - Instagram',
-'content': '本屆賽事由美國、加拿大、墨西哥三國聯合主辦，總共48 支球隊、104 場比
-賽、39 天賽程，這次的世界盃賽程本身就是前所未見的規模。',
-'score': 0.9974885,
-'raw_content': None},
-{'url': 'https://zh.wikipedia.org/zh-
-hans/2026%E5%B9%B4%E5%9C%8B%E9%9A%9B%E8%B6%B3%E5%8D%94%E4%B8%96%E7%95%8
-C%E7%9B%83%E5%A4%96%E5%9C%8D%E8%B3%BD',
-'title': '2026年国际足联世界杯预选赛 - 维基百科',
-'content': '2026年国际足联世界杯预选赛是一项国家队足球预选赛赛事，以决定出哪些球队
-能够参与由加拿大、墨西哥和美国联合举办的2026年国际足联世界杯。本届世界杯决赛周名额
-增',
-'score': 0.9974291,
-'raw_content': None}],
-'response_time': 0.79,
-'request_id': 'dc00f93f-1b75-4222-86cc-4b6af567edf1'}
+
+{
+    "query": "请问2026年足球世界杯有哪些参赛队？",
+    "follow_up_questions": None,
+    "answer": None,
+    "images": [],
+    "results": [
+        {
+            "url": "https://www.instagram.com/p/DWk8mU-geNg",
+            "title": (
+                "你準備好了嗎？ 2026 FIFA世界盃™ 48支隊伍全數到齊 ..."
+                " - Instagram"
+            ),
+            "content": (
+                "本屆賽事由美國、加拿大、墨西哥三國聯合主辦，總共48"
+                " 支球隊、104 場比賽、39 天賽程，這次的世界盃賽程本身就是前所未見的規模。"
+            ),
+            "score": 0.9974885,
+            "raw_content": None,
+        },
+        {
+            "url": (
+                "https://zh.wikipedia.org/zh-hans/2026%E5%B9%B4%E5%9C%8B%E9%9A%9B%E8%B6%B3%E5%8D%94%E4%B8%96%E7%95%8C%E7%9B%83%E5%A4%96%E5%9C%8D%E8%B3%BD"
+            ),
+            "title": "2026年国际足联世界杯预选赛 - 维基百科",
+            "content": (
+                "2026年国际足联世界杯预选赛是一项国家队足球预选赛赛事，以决定出哪些球队能够参与由加拿大、墨西哥和美国联合举办的2026年国际足联世界杯。本届世界杯决赛周名额增"
+            ),
+            "score": 0.9974291,
+            "raw_content": None,
+        },
+    ],
+    "response_time": 0.79,
+    "request_id": "dc00f93f-1b75-4222-86cc-4b6af567edf1",
+}
 ```
 
-可以直接带入create_agent中作为外部工具。
+可以直接带`入create_agent`中作为外部工具。
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -700,7 +727,7 @@ web_search = TavilySearch(max_results=2)
 agent = create_agent(
     model=model,
     tools=[web_search],
-    #system_prompt="你是一名多才多艺的智能助手，可以调用工具帮助用户解决问题。"
+    # system_prompt="你是一名多才多艺的智能助手，可以调用工具帮助用户解决问题。"
 )
 
 # 4.运行Agent获得结果
@@ -710,6 +737,7 @@ result = agent.invoke(
 
 # rprint(result)
 print(result['messages'][-1].content)
+
 2024年诺贝尔物理学奖得主是：
 
 - **John J. Hopfield**
@@ -734,7 +762,8 @@ from rich import print as rprint
 
 load_dotenv()
 
-@tool(parse_docstring=True)
+# 自动解析函数文档字符串（Docstring）中的参数说明，用来填充工具的参数描述（Parameter Descriptions）。
+@tool(parse_docstring=True) 
 def get_weather(city: str):
     """
     天气查询工具
@@ -749,13 +778,13 @@ def get_news():
     """
     新闻查询工具
     """
-    return "近期，受全球储蓄芯片短缺等多重因素影响，多地回收商称废旧手机回收市场迎来“火热
-潮”，回收价格普遍上涨，旧手机成“香饽饽”。"
+    return "近期，受全球储蓄芯片短缺等多重因素影响，多地回收商称废旧手机回收市场迎来“火热潮”，回收价格普遍上涨，旧手机成“香饽饽”。"
 
 agent = create_agent(
     model,
     tools=[get_weather, get_news]
 )
+
 response = agent.invoke({
     "messages": ["你好，杭州今天的天气如何？今天有哪些新闻？"]
 })
@@ -1143,7 +1172,7 @@ agent = create_agent(
 
 #### **问题4：如何知道 Agent 何时完成？**
 
-当 AIMessage 不包含 tool_calls 时：
+当 `AIMessage` 不包含 `tool_calls` 时：
 
 ```python
 for msg in response['messages']:
@@ -1166,7 +1195,7 @@ for msg in response['messages']:
 
 #### **问题6：如何限制工具调用次数？**
 
-LangChain 1.0 的 create_agent 默认使用 LangGraph，可以通过配置限制：
+`LangChain 1.0 `的 `create_agent` 默认使用` LangGraph`，可以通过配置限制：
 
 ```python
 # 注意：这是高级用法，后续会详细学习
@@ -1179,7 +1208,7 @@ response = agent.invoke(input, config=config)
 
 ## 5、Agent的高级用法1：设置Agent名称
 
-创建Agent时，LangChain允许用户指定其名称
+创建`Agent`时，`LangChain`允许用户指定其名称
 
 ### 5.1 用法
 
@@ -1217,12 +1246,10 @@ for msg in response["messages"]:
 输出
 
 ```yaml
-================================ Human Message
-=================================
+================================ Human Message =================================
 
 你好
-================================== Ai Message
-==================================
+================================== Ai Message ==================================
 Name: chat_assistant
 
 你好！有什么我可以帮你的吗？
@@ -1689,8 +1716,8 @@ def create_agent(
 ==使用模型提供商的原生结构化输出功能实现结构化输出。==
 
 - 这里所说的“原生结构化输出”指的是大语言模型（LLM）提供商通过其API直接提供的、在模型响应阶段就强制保证输出格式符合预定规范的能力，这种能力能够在模型生成内容的源头确保结构化准确性。
+  - 适用于支持原生结构化输出的模型，比如`OpenAI`、`Anthropic` `Claude`或`xAI Grok`等。
 
-- 适用于支持原生结构化输出的模型，比如OpenAI、Anthropic Claude或xAI Grok等。
 
 举例：
 
@@ -1713,6 +1740,7 @@ model = init_chat_model(
     api_key=os.getenv("CLOSEAI_API_KEY"),
     base_url=os.getenv("CLOSEAI_BASE_URL")
 )
+
 # 2.Pydantic结构化方式定义
 class ContactInfo(BaseModel):
     """用户的联系方式"""
@@ -1815,7 +1843,7 @@ name='John Doe' email='john@atguigu.com' phone='(010) 56253825'
 
 官方没有在参数列表或官方文档列出这种策略，但阅读源码可以看到。
 
-```text
+```python
 ResponseFormat = ToolStrategy[SchemaT] | ProviderStrategy[SchemaT] | AutoStrategy[SchemaT]
 """Union type for all supported response format strategies."""
 ```
@@ -1856,7 +1884,7 @@ print(result["structured_response"])
 name='John Doe' email='john@atguigu.com' phone='(010) 56253825'
 ```
 
-特别注意：在LangChain 1.0及以上版本中，直接传递模式（如response_format=ContactInfo）不再支持，必须显式使用ToolStrategy或ProviderStrategy。（经过测试，目前LangChain 1.2版本还可使用）。
+==特别注意：在LangChain 1.0及以上版本中，直接传递模式（如response_format=ContactInfo）不再支持==，必须显式使用ToolStrategy或ProviderStrategy。（经过测试，目前LangChain 1.2版本还可使用）。
 
 举例2：
 
@@ -1893,35 +1921,34 @@ name='John Doe' email='john@atguigu.com' phone='(010) 56253825'
 
 在实际大模型Agent开发场景中，如果使用到了结构化输出，推荐使用“ToolStrategy”策略，所以后续重点介绍这种策略方式结构化输出。
 
-### 7.3 ToolStrategy使用详解
+### 7.3 `ToolStrategy` 使用详解
 
-ToolStrategy通过工具调用（Tool Calling/Function Calling）实现结构化输出，所以LangChain会在消息列表末尾追加一条ToolMessage，让整个链路完整。但实际上没有实际的工具执行，这是一条伪消息。
+`ToolStrategy`通过工具调用（`Tool Calling/Function Calling`）实现结构化输出，所以`LangChain`会在消息列表末尾追加一条`ToolMessage`，让整个链路完整。但实际上没有实际的工具执行，这是一条伪消息。
 
-ToolStrategy适用于任何支持工具调用的现代模型。
+`ToolStrategy`适用于任何支持工具调用的现代模型。
 
-ToolStrategy的配置包含三个主要参数：
+`ToolStrategy`的配置包含三个主要参数：
 
 ```python
 class ToolStrategy(Generic[SchemaT]):
     schema: type[SchemaT]
     tool_message_content: str | None
-    handle_errors: Union[bool, str, type[Exception], tuple[type[Exception],
-...], Callable[[Exception], str]]
+    handle_errors: Union[bool, str, type[Exception], tuple[type[Exception],...],Callable[[Exception],str]]
 ```
 
-- schema（必需参数）：与提供商策略的schema参数功能一致，支持Pydantic模型、TypedDict、JSON Schema、数据类(@dataclass)，同时还支持联合类型Union[类型1, 类型2] （允许模型根据输入内容选择最匹配的数据结构）。
+- `schema`（必需参数）：与提供商策略的schema参数功能一致，支持`Pydantic`模型、`TypedDict`、`JSON Schema`、数据类(`@dataclass`)，同时还支持联合类型Union[类型1, 类型2] （允许模型根据输入内容选择最匹配的数据结构）。
 
-- tool_message_content（可选参数）：用于自定义生成结构化输出时，会话历史中记录的提示信息。默认使用展示输出数据的标准响应语句。
+- `tool_message_content`（可选参数）：用于自定义生成结构化输出时，会话历史中记录的提示信息。默认使用展示输出数据的标准响应语句。
 
-- handle_errors（可选参数）：用于指定数据校验失败时的重试策略，默认值为True。
+- `handle_errors`（可选参数）：用于指定数据校验失败时的重试策略，默认值为True。
 
 #### 7.3.1 结构化输出：schema参数
 
-下面演示四种Schema进行结构化输出代码实现。
+下面演示四种`Schema`进行结构化输出代码实现。
 
 提前说明：因为涉及到不同的Schema在不同模型供应商下表现的支持力度不同（上一章有说明，这里提供了两个模型供应商，大家自己选择）
 
-使用CloseAI平台的模型：
+使用`CloseAI`平台的模型：
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -1942,7 +1969,7 @@ model = init_chat_model(
 )
 ```
 
-使用OpenRouter平台的模型（使用梯子）：
+使用`OpenRouter`平台的模型（使用梯子）：
 
 ```python
 from langchain_openrouter import ChatOpenRouter
@@ -2483,13 +2510,11 @@ for msg in response["messages"]:
     msg.pretty_print()
 
 # print(response["structured_response"])
-================================ Human Message
-=================================
+================================ Human Message =================================
 
 从这段话中抽取结构化信息：小明的邮箱地址为：songhk@atguigu.com，手机号：
 12345678912
-================================== Ai Message
-==================================
+================================== Ai Message ==================================
 Tool Calls:
 ContactInfo (call_3MRoBpJHDaoYB6jK7plgW1YF)
 Call ID: call_3MRoBpJHDaoYB6jK7plgW1YF
@@ -2497,8 +2522,7 @@ Args:
  name: 小明
  email: songhk@atguigu.com
  phone: 12345678912
-================================= Tool Message
-=================================
+================================= Tool Message =================================
 Name: ContactInfo
 
 Returning structured response: ContactInfo(name='小明',
@@ -2556,10 +2580,7 @@ def send_email(customer: str) -> str:
 class CustomerAnalysis:
     """客户分析报告"""
     customer_name: str = Field(None, description="客户姓名")
-    customer_tier: Literal["潜在客户", "普通客户", "VIP客户", "流失风险"] =
-Field("潜在客户",
-
-     description="客户等级,只能是潜在客户、普通客户、VIP客户或流失风险")
+    customer_tier: Literal["潜在客户", "普通客户", "VIP客户", "流失风险"] = Field("潜在客户", description="客户等级,只能是潜在客户、普通客户、VIP客户或流失风险")
     recent_activity: str = Field(None, description="最近活动")
     spending_level: Literal["低", "中", "高"] = Field(None, description="消费水平")
     send_email: bool = Field(False, description="是否已发送感谢邮件")
@@ -2597,7 +2618,7 @@ CustomerAnalysis(customer_name='张三', customer_tier='VIP客户',recent_activi
 
 ##### **多schema联合模式**
 
-ToolStrategy允许指定多个类型“Union[类型1, 类型2] ”这种写法，LLM能够根据输入文本的内容，智能地选择最合适的一个数据模型（Schema）来生成结构化输出，但是最终会只有一种类型输出。
+`ToolStrategy`允许指定多个类型`Union[类型1, 类型2] `这种写法，LLM能够根据输入文本的内容，智能地选择最合适的一个数据模型（Schema）来生成结构化输出，但是最终会只有一种类型输出。
 
 适用于根据不同输入内容，生成不同的结构化输出的场景，但是底层工具转换结构化输出只会转换成一种结构化类型输出。
 
@@ -3400,7 +3421,7 @@ handle_errors指定自定义错误处理，运行后结果如下：
 
 ### 8.1 流式输出的说明
 
-通过invoke调用Agent时，内部可能经历多次调用，长时间看不到调用情况，用户体验不好，可以通过流式调用（渐进式显示输出）优化用户体验，实时显示 Agent 运行过程中的更新。特别是在处理LLM 延迟时尤其有效。
+通过`invoke`调用`Agent`时，内部可能经历多次调用，长时间看不到调用情况，用户体验不好，可以通过流式调用（渐进式显示输出）优化用户体验，实时显示 `Agent` 运行过程中的更新。特别是在处理`LLM` 延迟时尤其有效。
 
 **流式输出好处：**
 

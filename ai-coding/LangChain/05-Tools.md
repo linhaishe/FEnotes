@@ -6,7 +6,7 @@
 
 要构建更强大的AI工程应用，只有生成文本这样的“纸上谈兵”能力自然是不够的。
 
-工具是赋予大语言模型 与外部世界交互能力 的关键组件，从而能让智能体执行搜索、计算、数据库查询、邮件发送或调用第三方API等，进而构建功能强大的AI应用。借助工具，大模型才能从“认识世界”走向“改变世界”。
+工具是赋予大语言模型与外部世界交互能力的关键组件，从而能让智能体执行搜索、计算、数据库查询、邮件发送或调用第三方API等，进而构建功能强大的AI应用。借助工具，大模型才能从“认识世界”走向“改变世界”。
 
 大模型和智能体的区别，就是是否能够调用工具。大模型能分析出来我们需求中需要用到的工具。但是如何调用工具得依靠智能体。
 
@@ -22,16 +22,20 @@
 
 在LangChain中，工具（Tools）实际上是指明确定义了输入和输出的 可调用函数。因此， 工具调用（Tool Calling） 也被称为 函数调用（Function Calling）。mcp 是 fc 的一种
 
+MCP 的全称是 **Model Context Protocol**（模型上下文协议）。
+
+它是由 Anthropic 开源的一项标准协议，旨在为大语言模型（LLM）与外部数据源、本地工具及应用之间提供统一的接口规范。
+
 具体有两种调用方式：
 
-**方式1：直接调用**
+#### **方式1：直接调用**
 
 这种方式，适合测试时使用。
 
 ```python
 from langchain_core.tools import tool
 
-@tool
+@tool # 写工具类提示
 def get_weather(city: str) -> str:
     """
     获取指定城市的天气信息
@@ -56,7 +60,7 @@ print(result)
 北京晴天，温度 15°C
 ```
 
-**方式2：绑定到模型（主流）**
+#### **方式2：绑定到模型（主流）**
 
 这种方式，让AI来调用，开发中使用。
 
@@ -78,6 +82,7 @@ model = init_chat_model(
     api_key=CLOSEAI_API_KEY,
     base_url=CLOSEAI_BASE_URL
 )
+
 from langchain_core.tools import tool
 
 # 定义工具
@@ -115,7 +120,7 @@ AI 想调用工具： [{'name': 'get_weather', 'args': {'city': '北京'}, 'id':
 
 ![image-20260802150811010](https://i.postimg.cc/b8QqMSjv/image-20260802150811010.png?dl=1)
 
-我们现在编写的LangChain应用对应上图中的AI助手或应用。
+大致的意思就是，用户提出询问，模型会判断出使用什么tools，数据返回在`tool_call`字段里，但是模型无法调用tools，我们就得通过ai 调用tools，得到tools输出后的结果，再将结果交给模型整理输出回答。
 
 ### 1.4 从Message流转看工具的调用
 
@@ -145,11 +150,9 @@ model = init_chat_model(
 ```python
 from langchain.messages import HumanMessage, ToolMessage
 
-
 def get_weather(city: str):
     """获取天气的工具"""
     return f"{city}天气晴朗"
-
 
 # 将模型和工具绑定
 model_with_tools = model.bind_tools([get_weather])
@@ -166,6 +169,7 @@ messages.append(response)
 
 tool_calls = response.tool_calls
 
+# 手动拼接tools message
 for tool_call in tool_calls:
     if tool_call["name"] == "get_weather":
         # 拼接出ToolMessage实例
@@ -183,9 +187,9 @@ final_response = model_with_tools.invoke(messages)
 print(f"final_response: \n{final_response}")
 ```
 
-#### 参考2：使用@tool修饰
-
 ![image-20260802155953311](https://i.postimg.cc/NYfW8dkp/image-20260802155953311.png?dl=1)
+
+#### 参考2：使用@tool修饰
 
 ```python
 from langchain.messages import HumanMessage, ToolMessage
@@ -214,7 +218,7 @@ tool_calls = response.tool_calls
 for tool_call in tool_calls:
     if tool_call["name"] == "get_weather":
       	# 我们主动让大模型去调用工具
-        # 返回的是ToolMessage类型消息，添加到消息列表中
+        # 返回的是ToolMessage类型消息，添加到消息列表中，不需要拼接
         tool_response = get_weather.invoke(tool_call)
         print(type(tool_response))
         messages.append(tool_response)
@@ -230,43 +234,73 @@ print(f"final_response: \n{final_response}")
 
 说明：被 @tool 修饰的函数可以调用 invoke 接收模型返回的入参信息执行函数，并返回ToolMessage 实例，我们不再需要手动拼接 ToolMessage。
 
-```text
-<class 'langchain_core.messages.tool.ToolMessage'>
+```python
+# <class 'langchain_core.messages.tool.ToolMessage'>
+"""
 =====================> messages <=====================
-================================ Human Message
-=================================
+================================ Human Message =================================
 
 今天北京天气如何
-================================== Ai Message
-==================================
+================================== Ai Message ==================================
 
 好的，我来帮你查一下今天北京的天气情况。
 Tool Calls:
-get_weather (call_00_f65kV4JKjBPK0HhURzO99449)
-Call ID: call_00_f65kV4JKjBPK0HhURzO99449
-Args:
- city: 北京
-================================= Tool Message
-=================================
+  get_weather (call_00_f65kV4JKjBPK0HhURzO99449)
+ Call ID: call_00_f65kV4JKjBPK0HhURzO99449
+ Args:
+  city: 北京
+================================= Tool Message =================================
 Name: get_weather
 
 北京天气晴朗~
 =====================> messages <=====================
-final_response:
-content='今天北京天气**晴朗** ☀，是个好天气！如果你要出门的话，可以放心出行哦～'
-additional_kwargs={'refusal': None} response_metadata={'token_usage':
-{'completion_tokens': 24, 'prompt_tokens': 343, 'total_tokens': 367,
-'completion_tokens_details': None, 'prompt_tokens_details':
-{'audio_tokens': None, 'cached_tokens': 256},
-'prompt_cache_hit_tokens': 256, 'prompt_cache_miss_tokens': 87},
-'model_provider': 'deepseek', 'model_name': 'deepseek-v4-flash',
-'system_fingerprint': 'fp_8b330d02d0_prod0820_fp8_kvcache_20260402',
-'id': 'fabbebd6-498e-40f0-b1f6-e9fb43a36297', 'finish_reason': 'stop',
-'logprobs': None} id='lc_run--019e5a90-f0ca-7d43-a4e5-3d34379e8208-0'
-tool_calls=[] invalid_tool_calls=[] usage_metadata={'input_tokens':
-343, 'output_tokens': 24, 'total_tokens': 367, 'input_token_details':
-{'cache_read': 256}, 'output_token_details': {}}
+"""
+
+final_response = AIMessage(
+    content="今天北京天气**晴朗** ☀，是个好天气！如果你要出门的话，可以放心出行哦～",
+    additional_kwargs={"refusal": None},
+    response_metadata={
+        "token_usage": {
+            "completion_tokens": 24,
+            "prompt_tokens": 343,
+            "total_tokens": 367,
+            "completion_tokens_details": None,
+            "prompt_tokens_details": {
+                "audio_tokens": None,
+                "cached_tokens": 256,
+            },
+            "prompt_cache_hit_tokens": 256,
+            "prompt_cache_miss_tokens": 87,
+        },
+        "model_provider": "deepseek",
+        "model_name": "deepseek-v4-flash",
+        "system_fingerprint": "fp_8b330d02d0_prod0820_fp8_kvcache_20260402",
+        "id": "fabbebd6-498e-40f0-b1f6-e9fb43a36297",
+        "finish_reason": "stop",
+        "logprobs": None,
+    },
+    id="lc_run--019e5a90-f0ca-7d43-a4e5-3d34379e8208-0",
+    tool_calls=[],
+    invalid_tool_calls=[],
+    usage_metadata={
+        "input_tokens": 343,
+        "output_tokens": 24,
+        "total_tokens": 367,
+        "input_token_details": {"cache_read": 256},
+        "output_token_details": {},
+    },
+)
 ```
+
+#### 核心区别对比
+
+| **维度**                  | **不使用 @tool（纯普通函数）**                               | **使用 @tool 装饰器**                                        |
+| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **工具类型**              | 普通 Python 函数 (`function`)                                | LangChain 工具对象 (`StructuredTool`)                        |
+| **参数提取**              | 需手动用 `**tool_call["args"]` 解包                          | 自动解析 `tool_call` 结构                                    |
+| **构建 ToolMessage**      | 必须**手动创建** `ToolMessage(...)` 实例并传入 `tool_call_id` 等参数 | **自动打包**为包含 `tool_call_id` 和输出内容的 `ToolMessage` 对象 |
+| **错误处理**              | 需要自己写 `try-except` 捕获工具报错                         | 内置错误捕获机制 (可通过 `handle_tool_error` 策略自动兜底)   |
+| **Agent / Executor 集成** | **无法**直接被 `create_react_agent` 等标准 Agent 组件直接调用 | **完美兼容** LangChain 所有的工具自动调用框架（如 LangGraph, AgentExecutor） |
 
 对应图示（以参考1为例）：
 
@@ -331,64 +365,63 @@ rprint(response)
 
 ```json
 AIMessage(
- content='',
- additional_kwargs={'refusal': None},
- response_metadata={
-     'token_usage': {
-         'completion_tokens': 18,
-         'prompt_tokens': 121,
-         'total_tokens': 139,
-         'completion_tokens_details': {
-             'accepted_prediction_tokens': 0,
-             'audio_tokens': 0,
-             'reasoning_tokens': 0,
-             'rejected_prediction_tokens': 0
-         },
-         'prompt_tokens_details': {'audio_tokens': 0, 'cached_tokens':
-0},
-         'latency_checkpoint': {
-             'engine_tbt_ms': 3,
-             'engine_ttft_ms': 41,
-             'engine_ttlt_ms': 100,
-             'pre_inference_ms': 99,
-             'service_tbt_ms': 3,
-             'service_ttft_ms': 207,
-             'service_ttlt_ms': 260,
-             'total_duration_ms': 168,
-             'user_visible_ttft_ms': 108
-         }
-     },
-     'model_provider': 'openai',
-     'model_name': 'gpt-5.4-mini-2026-03-17',
-     'system_fingerprint': None,
-     'id': 'chatcmpl-Dif1tWr37cPmJRNpJuCLJNU9Yrxlk',
-     'service_tier': 'default',
-     'finish_reason': 'tool_calls',
-     'logprobs': None
- },
- id='lc_run--019e54a4-6989-71b1-8c7e-6efcfa08d4bb-0',
- tool_calls=[
-     {
-         'name': 'get_weather',
-         'args': {'city': '北京'},
-         'id': 'call_ECvZNV7RLTWpKQSjhvdGzKBd',
-         'type': 'tool_call'
-     }
- ],
- invalid_tool_calls=[],
- usage_metadata={
-     'input_tokens': 121,
-     'output_tokens': 18,
-     'total_tokens': 139,
-     'input_token_details': {'audio': 0, 'cache_read': 0},
-     'output_token_details': {'audio': 0, 'reasoning': 0}
- }
+    content="",
+    additional_kwargs={"refusal": None},
+    response_metadata={
+        "token_usage": {
+            "completion_tokens": 18,
+            "prompt_tokens": 121,
+            "total_tokens": 139,
+            "completion_tokens_details": {
+                "accepted_prediction_tokens": 0,
+                "audio_tokens": 0,
+                "reasoning_tokens": 0,
+                "rejected_prediction_tokens": 0,
+            },
+            "prompt_tokens_details": {"audio_tokens": 0, "cached_tokens": 0},
+            "latency_checkpoint": {
+                "engine_tbt_ms": 3,
+                "engine_ttft_ms": 41,
+                "engine_ttlt_ms": 100,
+                "pre_inference_ms": 99,
+                "service_tbt_ms": 3,
+                "service_ttft_ms": 207,
+                "service_ttlt_ms": 260,
+                "total_duration_ms": 168,
+                "user_visible_ttft_ms": 108,
+            },
+        },
+        "model_provider": "openai",
+        "model_name": "gpt-5.4-mini-2026-03-17",
+        "system_fingerprint": None,
+        "id": "chatcmpl-Dif1tWr37cPmJRNpJuCLJNU9Yrxlk",
+        "service_tier": "default",
+        "finish_reason": "tool_calls",
+        "logprobs": None,
+    },
+    id="lc_run--019e54a4-6989-71b1-8c7e-6efcfa08d4bb-0",
+    tool_calls=[
+        {
+            "name": "get_weather",
+            "args": {"city": "北京"},
+            "id": "call_ECvZNV7RLTWpKQSjhvdGzKBd",
+            "type": "tool_call",
+        }
+    ],
+    invalid_tool_calls=[],
+    usage_metadata={
+        "input_tokens": 121,
+        "output_tokens": 18,
+        "total_tokens": 139,
+        "input_token_details": {"audio": 0, "cache_read": 0},
+        "output_token_details": {"audio": 0, "reasoning": 0},
+    },
 )
 ```
 
 ### 2.2 工具描述的各部分详解
 
-#### 2.2.1 了解：convert_to_openai_tool
+#### 1. 了解：`convert_to_openai_tool`
 
 执行 `model.bind_tools([get_weather])`，底层最终会调用 `convert_to_openai_tool`生成工具描述。所以我们可以直接调用后者查看解析后的工具描述。
 
@@ -407,34 +440,34 @@ rprint(convert_to_openai_tool(get_weather))
 
 ```JSON
 {
-'type': 'function',
-'function': {
-  'name': 'get_weather',
-  'description': '',
-  'parameters': {
-      'properties': {
-          'city': {
-              'type': 'string'
-          }
-      },
-      'required': ['city'],
-      'type': 'object'
+  'type': 'function',
+  'function': {
+    'name': 'get_weather',
+    'description': '',
+    'parameters': {
+        'properties': {
+            'city': {
+                'type': 'string'
+            }
+        },
+        'required': ['city'],
+        'type': 'object'
+    }
   }
-}
 }
 ```
 
 **结果字段说明：**
 
-- （1） type：定义当前数据节点必须是什么数据类型。常见类型有 string, number, integer, boolean,object, array, null。object即是json对象。
+- （1） `type`：定义当前数据节点必须是什么数据类型。常见类型有 string, number, integer, boolean,object, array, null。object即是json对象。
 
-- （2） properties：用于定义JSON 对象（Object）中可以包含哪些属性（键），以及每个属性对应的值类型和说明。
+- （2） `properties`：用于定义JSON 对象（Object）中可以包含哪些属性（键），以及每个属性对应的值类型和说明。
 
-- （3） required：当 type为 "object"时使用，是一个数组，列出了对象中必须存在的属性名。
+- （3） `required`：当 type为 "object"时使用，是一个数组，列出了对象中必须存在的属性名。
 
-**问题：为什么不使用@tool装饰器修饰的函数，也可以理解为工具呢？**
+**问题：为什么不使用`@tool`装饰器修饰的函数，也可以理解为工具呢？**
 
-查看 convert_to_openai_tool 底层源码：
+查看 `convert_to_openai_tool` 底层源码：
 
 ```python
 elif isinstance(function, langchain_core.tools.base.BaseTool):
@@ -443,13 +476,13 @@ elif callable(function):
     oai_function = cast("dict", _convert_python_function_to_openai_function(function))
 ```
 
-相当于加了@tool修饰的函数走上面的分支，没有加@tool修饰的函数走下面的分支，后者会基于函数定义和docstring生成pydantic模式的描述，然后转换为规范的tool_schema。
+相当于加了`@tool`修饰的函数走上面的分支，没有加`@tool`修饰的函数走下面的分支，后者会基于函数定义和`docstring`生成`pydantic`模式的描述，然后转换为规范的`tool_schema`。
 
-#### 2.2.2 description说明
+#### 2. `description`说明
 
-convert_to_openai_tool 会从 docstring(文档字符串) 加载工具的描述信息，上面的案例中，docstring 为空，所以抽取的 description 为空。
+`convert_to_openai_tool` 会从 `docstring`(文档字符串) 加载工具的描述信息，上面的案例中，`docstring`为空，所以抽取的 `description` 为空。
 
-docstring，文档字符串，使用三个双引号表示开始和结束。
+`docstring`，文档字符串，使用三个双引号表示开始和结束。
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -485,9 +518,9 @@ rprint(convert_to_openai_tool(get_weather))
 }
 ```
 
-#### 2.2.3 参数说明
+#### 3. 参数说明
 
-convert_to_openai_tool 会从 docstring 加载参数说明，这里的 docstring 必须遵循 Google 风格。
+`convert_to_openai_tool` 会从 `docstring` 加载参数说明，这里的 `docstring` 必须遵循 `Google` 风格。
 
 - Google 风格 docstring 说明：<https://google.github.io/styleguide/pyguide.html>
 
@@ -513,7 +546,7 @@ def get_weather(city: str):
 rprint(convert_to_openai_tool(get_weather))
 ```
 
-使用 Args:、 Returns:、 Raises: 等关键字，这种方式可读性强。Agent通过工具的这些注释来理解工具的用途和调用时机，因此清晰、准确的文档字符串是工具能被正确调用的前提。
+使用 `Args:、 Returns:、 Raises:` 等关键字，这种方式可读性强。Agent通过工具的这些注释来理解工具的用途和调用时机，因此清晰、准确的文档字符串是工具能被正确调用的前提。
 
 输出如下：
 
@@ -563,7 +596,7 @@ def search_products(query: str) -> str:
     ...
 ```
 
-#### 2.2.4 参数类型说明
+#### 4. 参数类型说明
 
 参数类型来源于函数的类型注解。
 
@@ -601,7 +634,7 @@ rprint(convert_to_openai_tool(get_weather))
 
 删除了参数类型注解，则工具描述中不包含参数类型说明
 
-注意：如果docstring中包含参数说明，则对应的参数必须有类型注解，否则报错
+注意：如果`docstring`中包含参数说明，则对应的参数必须有类型注解，否则报错
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -626,7 +659,27 @@ Traceback...
 ValueError: Arg city in docstring not found in function signature.
 ```
 
-#### 2.2.5 参数默认值说明
+```python
+from typing import Any, Dict
+from langchain_core.utils.function_calling import convert_to_openai_tool
+from rich import print as rprint
+
+
+def get_weather(city: str) -> None:
+    """天气查询工具
+
+    Args:
+        city: 城市名称
+    """
+    print("天气晴朗")
+
+
+# 转换并输出 OpenAI Tool Schema
+tool_schema: Dict[str, Any] = convert_to_openai_tool(get_weather)
+rprint(tool_schema)
+```
+
+#### 5. 参数默认值说明
 
 如果参数没有默认值，则会包含 在required对应的列表 中。
 
@@ -726,11 +779,11 @@ rprint(convert_to_openai_tool(get_weather))
 
 此方式 最直接，代码量极少，非常适合快速验证想法或创建参数简单的工具。
 
-### 3.1 自定义工具描述：description
+### 3.1 自定义工具描述：`description`
 
-#### 情况1：仅提供docstring信息
+#### 情况1：仅提供`docstring`信息
 
-在bind_tools()调用时，先将函数封装为 BaseTool 类型的对象，再传递给 convert_to_openai_tool  函数，生成工具的描述。
+在`bind_tools()`调用时，先将函数封装为 `BaseTool` 类型的对象，再传递给 `convert_to_openai_tool`  函数，生成工具的描述。
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -743,14 +796,14 @@ def get_weather(city: str):
 print(convert_to_openai_tool(get_weather))
 ```
 
-@tool 会从 docstring 生成描述信息，同样要求遵循 Google docstring 规范。如果没有 docstring则报错，如下。
+`@tool`会从 `docstring` 生成描述信息，同样要求遵循 `Google docstring` 规范。如果没有`docstring`则报错，如下。
 
 ```text
 Traceback...
 ValueError: Function must have a docstring if description not provided.
 ```
 
-补充 docstring
+补充 `docstring`
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -789,9 +842,9 @@ print(convert_to_openai_tool(get_weather))
 }
 ```
 
-#### 情况2：添加工具描述：description
+#### 情况2：添加工具描述：`description`
 
-@tool 的参数 description 可以更改工具描述，优先级高于 docstring 的函数说明
+`@tool` 的参数 `description` 可以更改工具描述，优先级高于 `docstring` 的函数说明
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -831,9 +884,9 @@ rprint(convert_to_openai_tool(get_weather))
 }
 ```
 
-#### 情况3：解析docstring：parse_docstring
+#### 情况3：解析`docstring：parse_docstring`
 
-当我们没有向 @tool 传递 description 参数时，默认情况下， tool 会将 docstring 整体视为description，如下
+当我们没有向 `@tool`传递 `description` 参数时，默认情况下， `tool` 会将 `docstring` 整体视为`description`，如下
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -851,8 +904,7 @@ False) -> str:
         include_forecast: 是否包含未来五日的天气预报
     """
     temp = 22 if units == "celsius" else 72
-    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华
-氏度"}'
+    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华氏度"}'
     if include_forecast:
         result += "\n未来五天都是晴天"
     return result
@@ -909,8 +961,7 @@ False) -> str:
         include_forecast: 是否包含未来五日的天气预报
     """
     temp = 22 if units == "celsius" else 72
-    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华
-氏度"}'
+    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华氏度"}'
     if include_forecast:
         result += "\n未来五天都是晴天"
     return result
@@ -952,7 +1003,7 @@ rprint(convert_to_openai_tool(get_weather))
 }
 ```
 
-要注意：不使用 @tool 装饰器时，docstring不合法会被视为普通文本，作为 description，但如果使用了 @tool 时 docstring 不合法，将会抛出异常
+要注意：不使用` @tool `装饰器时，`docstring`不合法会被视为普通文本，作为 `description`，但如果使用了` @tool `时 `docstring `不合法，将会抛出异常
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -968,8 +1019,7 @@ False) -> str:
         include_forecast: 是否包含未来五日的天气预报
     """
     temp = 22 if units == "celsius" else 72
-    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华
-氏度"}'
+    result = f'{city}当天气温: {temp} {"摄氏度" if units == "celsius" else "华氏度"}'
     if include_forecast:
         result += "\n未来五天都是晴天"
     return result
@@ -986,7 +1036,7 @@ ValueError: Found invalid Google-Style docstring.
 
 ### 3.2 更改工具名称：name_or_callable
 
-默认情况，使用函数名作为工具名称，但可以向@tool 传参 name_or_callable，以更改工具名称。
+默认情况，使用函数名作为工具名称，但可以向`@tool` 传参 `name_or_callable`，以更改工具名称。
 
 ```python
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -1043,7 +1093,7 @@ print(convert_to_openai_tool(get_weather))
 
 输出如下
 
-```text
+```json
 {
  'type': 'function',
  'function': {
@@ -1060,7 +1110,7 @@ print(convert_to_openai_tool(get_weather))
          ],
          'type': 'object'
      }
- }
+  }
 }
 ```
 
@@ -1127,7 +1177,7 @@ def __init__(self, /, **data: Any) -> None:
 
 ###### **② Field**
 
-Field()：用来“定制字段”的函数，可用于设置默认值、描述等。
+`Field()`：用来“定制字段”的函数，可用于设置默认值、描述等。
 
 举例1：设置默认值
 
@@ -1135,9 +1185,7 @@ Field()：用来“定制字段”的函数，可用于设置默认值、描述�
 from pydantic import BaseModel, Field
 
 class WeatherInput(BaseModel):
-    city: str = Field(
-        default= "北京"
-    )
+    city: str = Field(default= "北京")
 
 print(WeatherInput())
 ```
@@ -1244,7 +1292,7 @@ city='北京' unit='celsius' include_forecast=False
 
 ##### 3.3.1.2 使用Pydantic定义args_schema
 
-通过 @tool(args_schema=PydanticModelCls) 将这个 Pydantic 模型与工具函数关联。
+通过 `@tool(args_schema=PydanticModelCls)` 将这个 `Pydantic` 模型与工具函数关联。
 
 利用 Pydantic 的类型系统进行参数验证，当大模型需要调用工具前，Pydantic 会自动验证参数的类型和有效性。
 
@@ -1274,8 +1322,7 @@ def get_weather(city: str, unit: str = "celsius", include_forecast: bool =
 False) -> str:
     """获取当日天气，可选未来五日天气预报"""
     temp = 22 if unit == "celsius" else 72
-    result = f'{city}当天气温: {temp} {"摄氏度" if unit == "celsius" else "华氏
-度"}'
+    result = f'{city}当天气温: {temp} {"摄氏度" if unit == "celsius" else "华氏度"}'
     if include_forecast:
         result += "\n未来五天都是晴天"
     return result
@@ -1362,7 +1409,7 @@ convert_to_openai_tool(get_weather)
 
 举例：
 
-通过 @tool(args_schema=json_schema_dict) 将一个符合 JSON Schema 标准的字典与工具函数关联。
+通过 `@tool(args_schema=json_schema_dict)` 将一个符合 JSON Schema 标准的字典与工具函数关联。
 
 ```python
 from langchain.tools import tool
@@ -1383,8 +1430,7 @@ def get_weather(city: str, unit: str = "celsius", include_forecast: bool =
 False) -> str:
     """获取当日天气，可选未来五日天气预报"""
     temp = 22 if unit == "celsius" else 72
-    result = f'{city}当天气温: {temp} {"摄氏度" if unit == "celsius" else "华氏
-度"}'
+    result = f'{city}当天气温: {temp} {"摄氏度" if unit == "celsius" else "华氏度"}'
     if include_forecast:
         result += "\n未来五天都是晴天"
     return result
@@ -1473,7 +1519,6 @@ print(convert_to_openai_tool(get_weather))
 
 # 工具绑定到模型
 model_with_tools = model.bind_tools([get_weather])
-
 
 messages = [HumanMessage("今天杭州天气如何？明天呢？")] # 维护消息列表
 response = model_with_tools.invoke(messages)

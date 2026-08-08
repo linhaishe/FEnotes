@@ -181,7 +181,7 @@ messages = [
 
 ### 1.4 举例
 
-**举例1：JSON格式**
+#### **举例1：JSON格式**
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -213,50 +213,7 @@ response = model.invoke(messages)
 print(response.content)
 ```
 
-```markdown
-机器学习，简单说，就是**让计算机通过数据自己学规律**，而不是每一步都靠人手工写死规则。
-
-### 直观理解
-比如你想让电脑识别“这是一张猫的图片”：
-
-- 传统方法：程序员手写很多规则，比如“有胡须、三角耳朵、眼睛大概率是猫”。
-- 机器学习：给电脑很多猫和非猫的图片，让它自己从数据里总结出“猫长什么样”的规律。
-
-### 核心特点
-1. **数据驱动**：靠大量数据来学习。
-2. **自动找规律**：模型自己从例子中总结模式。
-3. **可以预测或判断**：学完以后，能对新数据做出预测。
-
-### 常见应用
-- **垃圾邮件过滤**
-- **人脸识别**
-- **推荐系统**（比如短视频、商品推荐）
-- **语音识别**
-- **天气、销量预测**
-
-### 一个简单比喻
-机器学习就像**学生做题**：
-- 训练数据 = 练习题和答案
-- 学习过程 = 学生总结解题方法
-- 新数据 = 考试新题
-- 目标 = 做对没见过的新题
-
-### 它不是“自动变聪明”
-机器学习的效果依赖：
-- 数据质量
-- 数据数量
-- 模型设计
-- 训练方法
-
-如果数据有问题，学出来的结果也可能不准。
-
-如果你愿意，我还可以继续用**“最适合初学者的方式”**给你讲：
-1. 机器学习和人工智能的区别
-2. 监督学习、无监督学习是什么
-3. 一个具体例子带你看懂训练过程
-```
-
-**举例2：对象格式**
+#### **举例2：对象格式**
 
 ```python
 from langchain_core.messages import SystemMessage,HumanMessage,AIMessage
@@ -287,52 +244,6 @@ messages = [
 
 response = model.invoke(messages)
 print(response.content)
-```
-
-```markdown
-机器学习，简单来说，就是**让计算机通过数据自己找规律、学会做判断**，而不是每一步都由人手工写死规则。
-
-### 直观理解
-比如你想让电脑识别“垃圾邮件”：
-- 传统方法：人来写规则，比如“标题里有免费、中奖、优惠，可能是垃圾邮件”
-- 机器学习：给电脑很多“邮件 + 是否垃圾”的样本，让它自己总结出特征和判断方法
-
-### 它的核心特点
-1. **输入数据**
-   机器学习需要大量数据作为“教材”。
-
-2. **训练模型**
-   计算机会从数据中学习规律，得到一个“模型”。
-
-3. **做预测/决策**
-   学完后，模型可以对新数据做判断，比如：
-   - 这封邮件是不是垃圾邮件
-   - 这张图片里是什么物体
-   - 明天的温度大概多少
-
-### 一个简单例子
-如果你给机器看很多房子的资料：
-- 面积
-- 地段
-- 房龄
-- 对应价格
-
-它就可能学会：
-**面积更大、地段更好，价格通常更高**。
-以后看到新房子，它就能估算价格。
-
-### 常见应用
-- 人脸识别
-- 语音助手
-- 推荐系统（比如短视频、购物推荐）
-- 自动翻译
-- 金融风控
-- 医疗辅助诊断
-
-### 一句话总结
-**机器学习就是让机器从数据中自动学习规律，并用这些规律去预测或决策。**
-
-如果你愿意，我还可以继续用**“小学生能懂的方式”**或者**“结合人工智能和深度学习的关系”**给你讲。
 ```
 
 ### 1.5 消息对象字段说明
@@ -816,7 +727,7 @@ content='今天北京天气晴朗，万里无云。' additional_kwargs={'refusal
 
 > 注意：每次对话都要在原有的消息列表中`添加新消息`，不可重新创建新的列表。
 >
-> 每次加一对回复：assistant(=ai reply), user
+> 每次加一对回复：`assistant(=ai reply), user`
 
 错误举例1❌：
 
@@ -910,24 +821,24 @@ for m in messages:
         system_msgs.append(m)
 ```
 
-**`[ ... ]`（外层的方括号）**
-
-- 表示要创建一个**新的列表**。
-
-**`for m in messages`（遍历部分）**
-
-- 遍历名为 `messages` 的列表/序列，每次循环把当前元素赋值给变量 `m`。
-- 这里 `m` 通常是一个字典（比如 `{"role": "system", "content": "你是一个助手"}`）。
-
-**`if m.get("role") == "system"`（条件过滤部分）**
-
-- 判断字典 `m` 中键 `"role"` 的值是否等于 `"system"`。
-- **为什么用 `.get("role")` 而不用 `m["role"]`？**
-  - 使用 `.get()` 更加**安全**！如果某个字典 `m` 中根本没有 `"role"` 这个键，`m["role"]` 会直接抛出 `KeyError` 报错程序崩掉；而 `m.get("role")` 会安全地返回 `None`，判断为 False 并顺利跳过。
-
-**最左侧的 `m`（结果表达式）**
-
-- 如果 `if` 条件成立，就把这个 `m`（即满足条件的整个字典）放入新列表中。
+> **`[ ... ]`（外层的方括号）**
+>
+> - 表示要创建一个**新的列表**。
+>
+> **`for m in messages`（遍历部分）**
+>
+> - 遍历名为 `messages` 的列表/序列，每次循环把当前元素赋值给变量 `m`。
+> - 这里 `m` 通常是一个字典（比如 `{"role": "system", "content": "你是一个助手"}`）。
+>
+> **`if m.get("role") == "system"`（条件过滤部分）**
+>
+> - 判断字典 `m` 中键 `"role"` 的值是否等于 `"system"`。
+> - **为什么用 `.get("role")` 而不用 `m["role"]`？**
+>   - 使用 `.get()` 更加**安全**！如果某个字典 `m` 中根本没有 `"role"` 这个键，`m["role"]` 会直接抛出 `KeyError` 报错程序崩掉；而 `m.get("role")` 会安全地返回 `None`，判断为 False 并顺利跳过。
+>
+> **最左侧的 `m`（结果表达式）**
+>
+> - 如果 `if` 条件成立，就把这个 `m`（即满足条件的整个字典）放入新列表中。
 
 测试：
 
@@ -979,6 +890,12 @@ AI 回复: 你第一个问题问的是：**“列表和元组有什么区别？�
 
 基于模型初始化、流式响应以及消息列表的拼接来创建多轮聊天机器人。
 
+这段代码之所以能够实现**多轮对话（具备记忆能力）**，核心原因在于：**它把历史对话记录通过 `messages` 列表不断追加保存，并在每一轮调用模型时，把完整的历史上下文一起发给了大模型。**
+
+大模型本身是无状态（Stateless）**的——它不会自动记住上一次和你聊了什么。要实现多轮对话，必须由**客户端（也就是你的代码）负责维护并传递历史记录。
+
+这段代码的核心功能是：**在终端（命令行）中构建一个带“记忆截断”功能的交互式 AI 聊天机器人（小谷姐姐）。**
+
 ```python
 from langchain.chat_models import init_chat_model
 import os
@@ -1002,7 +919,7 @@ model = init_chat_model(
 messages = [
     {
         "role":"system",
-        "content":"你是小谷姐姐，尚硅谷教育的数字员工，也是一名耐心、友好的智能助手。我会用自然、清晰的方式回答用户问题。"
+        "content":"你是小谷姐姐，是一名耐心、友好的智能助手。我会用自然、清晰的方式回答用户问题。"
     }
 ]
 
@@ -1045,14 +962,40 @@ while True:
     messages.append({"role":"assistant","content":reply_content})
 ```
 
-其中，keep_recent_messages（）定义，见1.6.2小节。
+其中，`keep_recent_messages`定义，见1.6.2小节。
 
 ```python
 print("🧚 小谷姐姐：", end="")
 print("你好")
-
-# print("🧚 小谷姐姐：", end="")
 ```
+
+从整体架构来看，它主要完成了以下 **5 个核心工作**：
+
+1. 环境初始化与模型加载
+
+- 通过 `dotenv` 读取配置（API Key 和 Base URL）。
+- 使用 LangChain 的 `init_chat_model` 初始化了一个 Chat Model（这里指定了 `gpt-5.4-mini` 模型与 OpenAI 接口规范）。
+
+2. 设定人设（System Message）
+
+- 初始化 `messages` 列表，并放入一条角色为 `system` 的消息。
+- 明确告诉大模型它的身份是“尚硅谷教育的数字员工——小谷姐姐”，为其奠定回复的语气和立场。
+
+3. 维护上下文历史（实现多轮记忆）
+
+- 使用 `while True` 建立无限循环，支持持续交互。
+- 每轮对话中，将**用户的输入 (`user`)** 和 **AI 的回复 (`assistant`)** 依次存入 `messages` 列表。
+- 借助 `keep_recent_messages` 函数控制历史消息的长度（最多保留近 10 轮），防止历史记录过长导致 Token 消耗过大或超出模型的上下文窗口限制。
+
+4. 流式打字机输出（Stream Output）
+
+- 采用 `model.stream(...)` 方式调用大模型。
+- 配合 `print(..., end="", flush=True)` 实现类似 ChatGPT 的**打字机实时逐字输出效果**，提升交互体验。
+
+5. 交互控制与状态打印
+
+- 实时打印轮次提示（如 `-> 第 1 轮对话开始 <-`）。
+- 提供退出机制：当用户输入 `quit`（不区分大小写）时，打印结束语并打断循环退出程序。
 
 ### 1.7 拓展-消息属性：content、content_blocks
 
@@ -1353,7 +1296,7 @@ content='你好，请说出您的问题，我会用一句话回答。' additiona
 
 在 LangChain 开发中，构造提示词既可以直接使用 Python 字符串拼接（如 f-string、format() 或 +），也可以使用 LangChain 提供的 `PromptTemplate` 或 `ChatPromptTemplate` 。
 
-**举例1：字符串拼接方式**
+#### **举例1：字符串拼接方式**
 
 ```python
 # 字符串拼接
@@ -1367,20 +1310,20 @@ response = model.invoke(prompt_str)
 print(f"AI 回复：{response.content}...\n")
 ```
 
-**优点✅：**
+**优点：**
 
 - 简单直接，上手快
 - 适合临时 demo
 - 无额外学习成本
 
-**缺点❌：**
+**缺点：**
 
 - 可读性差（变量多时混乱）
 - 不易维护（修改容易出错）
 - 无变量校验（容易漏/拼错）
 - 难以支持复杂场景（多轮对话 / RAG / Few-shot）
 
-**举例2：提示词模板**
+#### **举例2：提示词模板**
 
 ```python
 from langchain.prompts import PromptTemplate
@@ -1407,12 +1350,12 @@ prompt_template = ChatPromptTemplate([
     ("human", "{user_input}")
 ])
 
-#调用format()方法，返回字符串
+# 调用format()方法，返回字符串
 prompt = prompt_template.invoke({"name":"小谷AI", "user_input":"你能帮我做什么?"})
 print(prompt)
 ```
 
-**优点✅：**
+**优点：**
 
 - 结构清晰（变量占位）
 - 易维护、可复用
@@ -1421,7 +1364,7 @@ print(prompt)
 - 可与 LangChain 生态无缝集成
 - 便于调试与日志追踪
 
-**缺点❌：**
+**缺点：**
 
 - 有一定学习成本
 - 初期写法略复杂
@@ -1500,7 +1443,7 @@ ChatPromptTemplate是创建`聊天消息列表`的提示模板。它比普通 Pr
 
 #### 2.3.1 两种实例化方式
 
-ChatPromptTemplate 可以通过`初始化方法`或 `from_messages`  方法来实例化提示词模板。实例化时需要传入 `messages参数`。常见类型是：tuple构成的列表，参数类型（role ： str，content ： str ）
+`ChatPromptTemplate` 可以通过`初始化方法`或 `from_messages`  方法来实例化提示词模板。实例化时需要传入 `messages参数`。常见类型是：tuple构成的列表，参数类型`（role ： str，content ： str ）`
 
 ##### **方式1（推荐）：调用from_messages()**
 
@@ -1530,7 +1473,30 @@ print(prompt)
 ```
 
 ```python
-messages=[SystemMessage(content='你是一个有帮助的AI机器人，你的名字是小明。',additional_kwargs={}, response_metadata={}), HumanMessage(content='你好，最近怎么样？', additional_kwargs={}, response_metadata={}),AIMessage(content='我很好，谢谢！', additional_kwargs={},response_metadata={}, tool_calls=[], invalid_tool_calls=[]),HumanMessage(content='你叫什么名字？', additional_kwargs={},response_metadata={})]
+messages = [
+    SystemMessage(
+        content="你是一个有帮助的AI机器人，你的名字是小明。",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你好，最近怎么样？",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="我很好，谢谢！",
+        additional_kwargs={},
+        response_metadata={},
+        tool_calls=[],
+        invalid_tool_calls=[],
+    ),
+    HumanMessage(
+        content="你叫什么名字？",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
 ##### **方式2：使用实例初始化方法**
@@ -1555,20 +1521,41 @@ print(prompt)
 ```
 
 ```python
-messages=[SystemMessage(content='你是一个AI开发工程师. 你的名字是 小谷AI.',additional_kwargs={}, response_metadata={}), HumanMessage(content='你能开发哪些AI应用?', additional_kwargs={}, response_metadata={}),AIMessage(content='我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语言处理等.', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[]), HumanMessage(content='你能帮我做什么?',additional_kwargs={}, response_metadata={})]
+messages = [
+    SystemMessage(
+        content="你是一个AI开发工程师. 你的名字是 小谷AI.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你能开发哪些AI应用?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语言处理等.",
+        additional_kwargs={},
+        response_metadata={},
+        tool_calls=[],
+        invalid_tool_calls=[],
+    ),
+    HumanMessage(
+        content="你能帮我做什么?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
-> 说明：from_messages()的底层，也是调用的类的`__init__()`方法
+> 说明：`from_messages()`的底层，也是调用的类的`__init__()`方法
 
 #### 2.3.2 模板调用的3种方式
 
-对比：`invoke()` 、`format()` 、`format_messages()`
-
-返回的类型不同
+对比：`invoke()` 、`format()` 、`format_messages()` 各自返回的类型不同
 
 ##### **方式1：使用 invoke()**
 
-返回ChatPromptValue
+==返回`ChatPromptValue`==
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -1589,13 +1576,34 @@ print(len(prompt.messages))
 ```
 
 ```python
-<class 'langchain_core.prompt_values.ChatPromptValue'>
-messages=[SystemMessage(content='你是一个AI开发工程师. 你的名字是 小谷AI.',additional_kwargs={}, response_metadata={}), HumanMessage(content='你能开发哪些AI应用?', additional_kwargs={}, response_metadata={}), AIMessage(content='我能开发很多AI应用,比如聊天机器人, 图像识别, 自然语言处理等.', additional_kwargs={}, response_metadata={}),HumanMessage(content='你能帮我做什么?', additional_kwargs={}, response_metadata={})]
+# <class 'langchain_core.prompt_values.ChatPromptValue'>
+messages = [
+    SystemMessage(
+        content="你是一个AI开发工程师. 你的名字是 小谷AI.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你能开发哪些AI应用?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="我能开发很多AI应用,比如聊天机器人, 图像识别, 自然语言处理等.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你能帮我做什么?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
 ##### **方式2：使用 format()**
 
-返回字符串
+==返回字符串==
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -1615,8 +1623,8 @@ print(type(prompt))
 print(prompt)
 ```
 
-```text
-<class 'str'>
+```python
+# <class 'str'>
 
 System: 你是一个AI开发工程师. 你的名字是 小谷AI.
 Human: 你能开发哪些AI应用?
@@ -1624,9 +1632,9 @@ AI: 我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语�
 Human: 你能帮我做什么?
 ```
 
-##### **方式3：使用format_messages()**
+##### **方式3：使用`format_messages()`**
 
-返回消息列表
+==返回消息列表==
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
@@ -1638,15 +1646,38 @@ prompt_template = ChatPromptTemplate([
     ("human", "{user_input}")
 ])
 
-#调用format_messages()方法，返回消息列表
+# 调用format_messages()方法，返回消息列表
 prompt = prompt_template.format_messages(name="小谷AI", user_input="你能帮我做什么?")
 print(type(prompt))
 print(prompt)
 ```
 
 ```python
-<class 'list'>
-[SystemMessage(content='你是一个AI开发工程师. 你的名字是 小谷AI.',additional_kwargs={}, response_metadata={}), HumanMessage(content='你能开发哪些AI应用?', additional_kwargs={}, response_metadata={}),AIMessage(content='我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语言处理等.', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[]), HumanMessage(content='你能帮我做什么?',additional_kwargs={}, response_metadata={})]
+# <class 'list'>
+[
+    SystemMessage(
+        content="你是一个AI开发工程师. 你的名字是 小谷AI.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你能开发哪些AI应用?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="我能开发很多AI应用, 比如聊天机器人, 图像识别, 自然语言处理等.",
+        additional_kwargs={},
+        response_metadata={},
+        tool_calls=[],
+        invalid_tool_calls=[],
+    ),
+    HumanMessage(
+        content="你能帮我做什么?",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
 #### 2.3.3 结合LLM调用
@@ -1701,25 +1732,43 @@ print(output.content)
 
 #### 2.3.4 更丰富的初始化参数类型
 
-前面讲了ChatPromptTemplate的两种创建方式。我们看到不管使用实例初始化方法，还是使用from_messages()，参数类型都是`列表类型`。列表中的元素可以是多种类型，前面我们主要测试了元组类型。
+前面讲了`ChatPromptTemplate`的两种创建方式。我们看到不管使用实例初始化方法，还是使用`from_messages()`，参数类型都是`列表类型`。列表中的元素可以是多种类型，前面我们主要测试了元组类型。
 
 源码：
 
 ```python
-def __init__(self,
-             messages: Sequence[BaseMessagePromptTemplate | BaseMessage |BaseChatPromptTemplate | tuple[str | type, str | list[dict] | list[object]] |str | dict[str, Any]],
-             *,
-             template_format: Literal["f-string", "mustache", "jinja2"] = "f-string",
-             **kwargs: Any) -> None
+def __init__(
+    self,
+    messages: Sequence[
+        BaseMessagePromptTemplate
+        | BaseMessage
+        | BaseChatPromptTemplate
+        | tuple[str | type, str | list[dict] | list[object]]
+        | str
+        | dict[str, Any]
+    ],
+    *,
+    template_format: Literal["f-string", "mustache", "jinja2"] = "f-string",
+    **kwargs: Any,
+) -> None
 ```
 
 源码：
 
 ```python
-@classmethod def from_messages(cls,
-                  messages: Sequence[BaseMessagePromptTemplate | BaseMessage| BaseChatPromptTemplate | tuple[str | type, str | list[dict] | list[object]]| str | dict[str, Any]],
-                  template_format: Literal["f-string", "mustache", "jinja2"]= "f-string")
-  -> ChatPromptTemplate
+@classmethod
+def from_messages(
+    cls,
+    messages: Sequence[
+        BaseMessagePromptTemplate
+        | BaseMessage
+        | BaseChatPromptTemplate
+        | tuple[str | type, str | list[dict] | list[object]]
+        | str
+        | dict[str, Any]
+    ],
+    template_format: Literal["f-string", "mustache", "jinja2"] = "f-string",
+) -> ChatPromptTemplate
 ```
 
 结论：参数是列表类型，列表的元素可以是字符串、字典、字符串构成的元组、消息类型、提示词模板类型、消息提示词模板类型等
@@ -1765,7 +1814,18 @@ print(prompt.invoke({"role":"小智"}))
 ```
 
 ```python
-messages=[SystemMessage(content='你的名字是小智.', additional_kwargs={},response_metadata={}), HumanMessage(content='很高兴认识你',additional_kwargs={}, response_metadata={})]
+messages = [
+    SystemMessage(
+        content="你的名字是小智.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="很高兴认识你",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
 ##### **类型3：dict列表类型**
@@ -1783,7 +1843,18 @@ print(prompt.invoke({"role":"小智"}))
 ```
 
 ```python
-messages=[SystemMessage(content='你的名字是小智.', additional_kwargs={},response_metadata={}), HumanMessage(content='很高兴认识你',additional_kwargs={}, response_metadata={})]
+messages = [
+    SystemMessage(
+        content="你的名字是小智.",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="很高兴认识你",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
 ```
 
 ##### **类型4：Message列表类型**
@@ -1803,8 +1874,19 @@ print(type(messages))
 ```
 
 ```python
-messages=[SystemMessage(content='我是一个贴心的智能助手', additional_kwargs={},response_metadata={}), HumanMessage(content='我的问题是:人工智能英文怎么说？',additional_kwargs={}, response_metadata={})]
-<class 'langchain_core.prompt_values.ChatPromptValue'>
+messages = [
+    SystemMessage(
+        content="我是一个贴心的智能助手",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="我的问题是:人工智能英文怎么说？",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
+# <class 'langchain_core.prompt_values.ChatPromptValue'>
 ```
 
 注意：在XxxMessage中不能有占位符。即：消息对象中不能声明变量，可以使用dict or tuple
@@ -1824,17 +1906,28 @@ print(type(messages))
 ```
 
 ```python
-messages=[SystemMessage(content='我是一个贴心的智能助手', additional_kwargs={}, response_metadata={}), HumanMessage(content='我的问题是:{word}英文怎么说？', additional_kwargs={}, response_metadata={})]
-<class 'langchain_core.prompt_values.ChatPromptValue'>
+messages = [
+    SystemMessage(
+        content="我是一个贴心的智能助手",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="我的问题是:{word}英文怎么说？",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+]
+# <class 'langchain_core.prompt_values.ChatPromptValue'>
 ```
 
 ##### **类型5：MessagePromptTemplate列表类型**
 
-LangChain提供不同类型的MessagePromptTemplate。最常用的是`SystemMessagePromptTemplate` 、`HumanMessagePromptTemplate` 和`AIMessagePromptTemplate` ，分别创建系统消息、人工消息和AI消息。
+LangChain提供不同类型的`MessagePromptTemplate`。最常用的是`SystemMessagePromptTemplate` 、`HumanMessagePromptTemplate` 和`AIMessagePromptTemplate` ，分别创建系统消息、人工消息和AI消息。
 
 **基本概念：**
 
-HumanMessagePromptTemplate，专用于生成`用户消息（HumanMessage）`的模板类
+`HumanMessagePromptTemplate`，专用于生成`用户消息（HumanMessage）`的模板类
 
 - `模板化`：支持使用变量占位符，可以在运行时填充具体值
 - `格式化`：能够将模板与输入变量结合生成最终的聊天消息
@@ -1871,7 +1964,7 @@ messages=[SystemMessage(content='你是一个物理学家', additional_kwargs={}
 
 ##### **类型6：BaseChatPromptTemplate列表类型**
 
-使用 BaseChatPromptTemplate，可以理解为ChatPromptTemplate里嵌套了ChatPromptTemplate。
+使用 `BaseChatPromptTemplate`，可以理解为`ChatPromptTemplate`里嵌套了`ChatPromptTemplate`。
 
 举例1：带参数
 
@@ -1887,7 +1980,8 @@ nested_prompt_template2 = ChatPromptTemplate.from_messages([
 ])
 
 prompt_template = ChatPromptTemplate.from_messages([
-    nested_prompt_template1,nested_prompt_template2
+    nested_prompt_template1,
+  	nested_prompt_template2
 ])
 
 prompt_template.invoke({"name":"小智","question":"你为什么这么帅？"})
@@ -1950,7 +2044,35 @@ prompt.invoke({"role":"人工智能专家","user_input":"介绍一下大模型�
 ```
 
 ```python
-ChatPromptValue(messages=[SystemMessage(content='你是一个AI工程师。',additional_kwargs={}, response_metadata={}), HumanMessage(content='你好！', additional_kwargs={}, response_metadata={}),SystemMessage(content='你是一个人工智能专家.', additional_kwargs={},response_metadata={}), HumanMessage(content='介绍一下大模型的应用场景',additional_kwargs={}, response_metadata={}), SystemMessage(content='嵌套提示词', additional_kwargs={}, response_metadata={})])
+ChatPromptValue(
+    messages=[
+        SystemMessage(
+            content="你是一个AI工程师。",
+            additional_kwargs={},
+            response_metadata={},
+        ),
+        HumanMessage(
+            content="你好！",
+            additional_kwargs={},
+            response_metadata={},
+        ),
+        SystemMessage(
+            content="你是一个人工智能专家.",
+            additional_kwargs={},
+            response_metadata={},
+        ),
+        HumanMessage(
+            content="介绍一下大模型的应用场景",
+            additional_kwargs={},
+            response_metadata={},
+        ),
+        SystemMessage(
+            content="嵌套提示词",
+            additional_kwargs={},
+            response_metadata={},
+        ),
+    ]
+)
 ```
 
 |                  | MessagePromptTemplate列表 | BaseChatPromptTemplate列表         |
@@ -1977,7 +2099,7 @@ ChatPromptValue(messages=[SystemMessage(content='你是一个AI工程师。',add
 
 ### 2.4 高级特性
 
-#### 2.4.1 部分变量预填充：partial()
+#### 2.4.1 部分变量预填充：`partial()`
 
 预填充某些固定不变的变量，创建模板的变体。
 
@@ -2077,10 +2199,40 @@ print(prompt_value)
 输出
 
 ```python
-messages=[SystemMessage(content='你是一个有用的AI助手', additional_kwargs={}, response_metadata={}), HumanMessage(content='你好!',additional_kwargs={}, response_metadata={}), AIMessage(content='今天我能帮你做什么？', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[]), HumanMessage(content='你能给我做一个冰激凌吗？',additional_kwargs={}, response_metadata={}), AIMessage(content='抱歉，我没有这样的能力', additional_kwargs={}, response_metadata={}, tool_calls=[],invalid_tool_calls=[])]
+messages = [
+    SystemMessage(
+        content="你是一个有用的AI助手",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    HumanMessage(
+        content="你好!",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="今天我能帮你做什么？",
+        additional_kwargs={},
+        response_metadata={},
+        tool_calls=[],
+        invalid_tool_calls=[],
+    ),
+    HumanMessage(
+        content="你能给我做一个冰激凌吗？",
+        additional_kwargs={},
+        response_metadata={},
+    ),
+    AIMessage(
+        content="抱歉，我没有这样的能力",
+        additional_kwargs={},
+        response_metadata={},
+        tool_calls=[],
+        invalid_tool_calls=[],
+    ),
+]
 ```
 
-##### **方式2：MessagesPlaceholder实例**
+##### **方式2：`MessagesPlaceholder`实例**
 
 举例1：
 
@@ -2092,13 +2244,25 @@ prompt_template = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful assistant"),
     MessagesPlaceholder("msgs")
 ])
+
 prompt_template.invoke({"msgs": [HumanMessage(content="hi!")]})
 
 # prompt_template.format_messages(msgs=[HumanMessage(content="hi!")])
 ```
 
+当你调用 `.invoke({"msgs": [HumanMessage(content="hi!")]})` 时：
+
+1. LangChain 会读取名字为 `"msgs"` 的传入参数。
+2. 识别出传入的是一个列表 `[HumanMessage(content="hi!")]`。
+3. 把这个列表里的所有元素平铺（解包）插入到 `MessagesPlaceholder` 原本所在的位置。
+
+最终生成的 `ChatPromptValue` 内部消息结构为：
+
 ```python
-ChatPromptValue(messages=[SystemMessage(content='You are a helpfulassistant', additional_kwargs={}, response_metadata={}),HumanMessage(content='hi!', additional_kwargs={}, response_metadata={})])
+[
+    SystemMessage(content="You are a helpful assistant"), # 来自 ("system", ...)
+    HumanMessage(content="hi!")                          # 来自 MessagesPlaceholder("msgs")
+]
 ```
 
 这将生成两条消息，第一条是系统消息，第二条是我们传入的 HumanMessage。 如果我们传入了 5 条消息，那么总共会生成 6 条消息（系统消息加上传入的 5 条消息）。 这对于将一系列消息插入到特定位置非常有用。
@@ -2137,7 +2301,7 @@ ChatPromptValue(messages=[SystemMessage(content='你是一个非常友好的AI�
 
 举例1：
 
-templates.py文件声明如下
+`templates.py`文件声明如下
 
 ```python
 from langchain_core.prompts import ChatPromptTemplate
