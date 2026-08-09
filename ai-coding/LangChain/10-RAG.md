@@ -6,8 +6,6 @@
 
 Retrieval直接翻译过来即“检索”，本章Retrieval模块包括与检索步骤相关的所有内容，例如数据的获取、切分、向量化、向量存储、向量检索等模块。
 
-
-
 官方文档地址：<https://docs.langchain.com/oss/python/langchain/retrieval>
 
 ## 1、Retrieval模块的设计意义
@@ -92,7 +90,7 @@ RAG（Retrieval-Augmented Generation，检索增强生成）是一种结合信�
 
 ![image-20260806135936695](https://i.postimg.cc/HHGLRMxT/image-20260806135936695.png?dl=1)
 
-**环节1：Source（数据源）**
+#### **环节1：Source（数据源）**
 
 指的是RAG架构中所外挂的知识库。这里有三点说明：
 
@@ -104,7 +102,7 @@ RAG（Retrieval-Augmented Generation，检索增强生成）是一种结合信�
 
 - 可以是某一个业务流程外放的API，可以是某个网站的实时数据等
 
-**环节2：Load（加载）**
+#### **环节2：Load（加载）**
 
 文档加载器（Document Loaders）负责将来自不同数据源的非结构化文本，加载到内存，成为文档(Document)对象。
 
@@ -125,7 +123,7 @@ loader = TextLoader("./test.txt")
 print(loader.load())
 ```
 
-**环节3：Transform（转换）**
+#### **环节3：Transform（转换）**
 
 文档转换器(Document Transformers) 负责对加载的文档进行转换和处理，以便更好地适应下游任务的需求。
 
@@ -145,7 +143,7 @@ print(loader.load())
 
 在这些功能中，文档拆分器是必须的操作。下面单独说明。
 
-**环节3.1：Text Splitting（文档拆分）**
+##### **环节3.1：Text Splitting（文档拆分）**
 
 - 拆分/分块的必要性：前一个环节加载后的文档对象可以直接传入文档拆分器进行拆分，而文档切块后才能向量化并存入数据库中。
 
@@ -155,7 +153,7 @@ print(loader.load())
 
 在构建RAG应用程序的整个流程中，拆分/分块是最具挑战性的环节之一，它显著影响检索效果。目前还没有通用的方法可以明确指出哪一种分块策略最为有效。不同的使用场景和数据类型都会影响分块策略的选择。
 
-**环节4：Embed（嵌入）**
+#### **环节4：Embed（嵌入）**
 
 文档嵌入模型（Text Embedding Models）负责将文本转换为向量表示，即模型赋予了文本计算机可理解的数值表示，使文本可用于向量空间中的各种运算，大大拓展了文本分析的可能性，是自然语言处理领域非常重要的技术。
 
@@ -179,13 +177,13 @@ print(loader.load())
 
 - 自然语言处理：将词语、句子等表示为稠密向量，为神经网络等下游任务提供输入。
 
-**环节5：Store（存储）**
+#### **环节5：Store（存储）**
 
 LangChain 还支持把文本嵌入存储到向量存储或临时缓存，以避免需要重新计算它们。这里就出现了数据库，支持这些嵌入的高效存储和搜索的需求。
 
 ![image-20260806140036543](https://i.postimg.cc/GcWc00bN/image-20260806140036543.png?dl=1)
 
-**环节6：Retrieve（检索）**
+#### **环节6：Retrieve（检索）**
 
 检索器（Retrievers）是一种用于响应非结构化查询的接口，它可以返回符合查询要求的文档。
 
@@ -2464,7 +2462,7 @@ docs = loader.load_and_split() # 加载的同时进行切分
 
 #print(len(docs))
 
-# 存放的是每一个chrunk的embedding。
+# 存放的是每一个chunk的embedding。
 
 texts = [doc.page_content for doc in docs]
 
