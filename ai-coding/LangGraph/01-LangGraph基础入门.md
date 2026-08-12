@@ -37,6 +37,15 @@ LangGraph 运行时底层基于自研的 Pregel 运行时，其核心思想借�
 
 > `LangChain` 提供易于使用的 Agent 高层抽象，`LangGraph` 提供可靠、可持久化且可精细控制的底层执行能力。
 
+**LangChain 解决的是“链式（DAG）执行”，而 LangGraph 解决的是“复杂循环（Loop）与状态持久化（Stateful Persistence）”。** 它是为了补齐 LangChain 在构建 **Agent（智能体）** 时的致命短板而专门推出的全新底层架构。
+
+LangGraph **并不是**把 LangChain 里的提示词模板（Prompts）、模型接口（Chat Models）、工具（Tools）或输出解析器（Parsers）重新写了一遍。
+
+- **LangChain 负责“组件”**：它依然提供最基础的 AI 组装单元（如 `ChatOpenAI`, `PromptTemplate`）。
+- **LangGraph 负责“编排与调度”**：它提供了一套基于 **StateGraph（状态图）** 的执行引擎，用来替代原先基于 LCEL（LangChain Expression Language）的管道（Pipe `|`）编排。
+
+两者的关系是：**LangGraph 是运行在 LangChain 基础组件之上的“高级流程图引擎”。**
+
 对于大多数 Agent 项目，从 LangChain 的 create_agent 开始即可；需要复杂工作流编排、确定性步骤与 Agent 步骤混合、长时间运行或底层状态控制时，再引入 LangGraph。
 
 ![ChatGPT Image 2026年6月25日 18_25_23](https://i.postimg.cc/Td81nMC3/Chat-GPT-18-25-23.png?dl=1)
