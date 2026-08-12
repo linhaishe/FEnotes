@@ -2782,6 +2782,55 @@ for m in messages:
 
 - 如果 `if` 条件成立，就把这个 `m`（即满足条件的整个字典）放入新列表中。
 
+### 列表推导式（List Comprehension）
+
+```python
+def router(state: inputState) -> Sequence[Send]:
+    router_prompt = "请生成关于{} 的 {}"
+    english2Chinese = {"poem": "七言绝句", "joke": "笑话", "ci_poem": "中文词"}
+    topic = state["topic"]
+
+    # 1. 先创建一个空列表
+    send_list = []
+
+    # 2. 传统 for 循环迭代
+    for content_type in CONTENT_TYPES:
+        # 产生一个 Send 对象并加入列表
+        send_item = Send(
+            "worker_node",
+            {
+                "content_type": content_type,
+                "prompt": router_prompt.format(
+                    topic, english2Chinese[content_type]
+                ),
+            },
+        )
+        send_list.append(send_item)
+
+    # 3. 返回列表
+    return send_list
+```
+
+```python
+# 列表推导式
+return [
+    # 【生成的元素】：你要放入列表里的每个 Send 对象
+    Send(
+        "worker_node",
+        {
+            "content_type": content_type,
+            "prompt": router_prompt.format(topic, english2Chinese[content_type]),
+        },
+    )
+    # 【循环控制】：遍历 CONTENT_TYPES 中的每一个类型
+    for content_type in CONTENT_TYPES
+]
+```
+
+**代码更直观**：列表推导式将“创建列表”、“迭代遍历”和“填充元素”压缩成一步完成，省去了显式定义 `send_list = []` 和逐个 `.append()` 的样板代码。
+
+**符合 LangGraph 路由规范**：条件路由函数（Router）需要**直接返回**一个包含多个 `Send` 对象的序列/列表。列表推导式能在一行 `return` 语句中一次性生成并直接返回。
+
 ## for...else
 
 ```python
