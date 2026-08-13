@@ -4252,7 +4252,16 @@ test = create_character('ren',4,2,1)
 print(test)
 ```
 
+## 类型表达
 
+在原生 Python（`typing` 模块）中，表达一个函数类型的标准语法是 **`Callable[[参数类型], 返回值类型]`**。
+
+```python
+from typing import Callable, Any, Dict
+
+# 原生 Python 表达：一个接收 State(dict)，返回字典(dict) 的函数类型
+MyFunctionType = Callable[[Dict[str, Any]], Dict[str, Any]]
+```
 
 # lambda（匿名函数）
 

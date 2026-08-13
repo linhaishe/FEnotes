@@ -8,6 +8,25 @@
 
 因此，在 LangGraph 中，基础的控制流结构都可以通过 **`add_edge`** 进行构建。
 
+```python
+add_node(
+  self,
+  node: str | StateNode[NodeInputT, ContextT],
+  action: StateNode[NodeInputT, ContextT] | None = None,
+  *,
+  defer: bool = False,
+  metadata: dict[str, Any] | None = None,
+  input_schema: type[NodeInputT] | None = None,
+  retry_policy: RetryPolicy | Sequence[RetryPolicy] | None = None,
+  cache_policy: CachePolicy | None = None,
+  error_handler: StateNode[Any, ContextT] | None = None,
+  destinations: dict[str, str] | tuple[str, ...] | None = None,
+  timeout: float | timedelta | TimeoutPolicy | None = None,
+  trace_policy: TracePolicy | None = None,
+  **kwargs: Unpack[DeprecatedKwargs] = {}
+) -> Self
+```
+
 **示例如下：**
 
 ```python
@@ -84,7 +103,62 @@ graph TD;
 
 如果需要构建一组按顺序执行的节点，也可以使用 **`add_sequence`**。
 
-**`add_sequence`** 支持传入一个可执行对象列表。LangGraph 会按照列表顺序依次添加节点，并在相邻节点之间自动添加边。默认情况下，函数名会被用作节点名称。
+```python
+add_sequence(
+  self,
+  nodes: Sequence[StateNode[NodeInputT, ContextT] | tuple[str, StateNode[NodeInputT, ContextT]]]
+) -> Self
+```
+
+**StateNode 这个节点函数接收什么类型的 State（输入数据），以及全局使用什么类型的 Context（运行时上下文/配置）。**
+
+泛型参数拆解
+
+1. `NodeInputT`（节点输入的 State 类型）
+
+- **代表什么**：当前 Graph 所使用的 **State 结构类型**（比如你定义的 `TypedDict` 或 `BaseModel`）。
+- **作用**：让 IDE 知道你在节点函数里写 `state["xxx"]` 时，这个 `xxx` 是否合法，以及它的返回值是什么类型。
+
+2. `ContextT`（运行时上下文/环境类型）
+
+- **代表什么**：运行时传入 Graph 的 **Context/Runtime 配置类型**。
+
+- **作用**：对应定义中 `_NodeWithRuntime[NodeInputT, ContextT]` 这种高级节点签名。如果你的节点函数需要接收全局共享的依赖项（比如数据库连接池、全局环境变量等），就会用到它。
+
+- `ContextT` 默认值通常是 `Any` 或 `None`。**大部分应用不需要全局 Runtime Context**： 日常开发中，节点之间传递数据**全靠 `State`**。只要你在定义 `StateGraph` 时指定了 `state_schema`，LangGraph 就会自动把 `NodeInputT` 锁定为你的 State 类型，而 `ContextT` 保持默认。
+
+  只有一种罕见场景你才需要用到它
+
+  只有当你的应用架构非常复杂，**不想把某些全局依赖（如全局数据库连接池、外部 API 密钥句柄）塞进 State 中**，而是想通过 LangGraph 的 `Runtime` 在底层全局注入时，才会显式声明和传递它：
+
+  ```python
+  # 只有这种高级架构，你才会写出带 Context 的节点
+  def my_node(state: OverAllState, runtime: Runtime[MyContext]):
+      # 显式使用 ContextT (MyContext)
+      db = runtime.context.db_conn 
+      return {"result": "ok"}
+  ```
+
+  **`add_sequence`** 支持传入一个可执行对象列表。LangGraph 会按照列表顺序依次添加节点，并在相邻节点之间自动添加边。默认情况下，函数名会被用作节点名称。
+
+  LangGraph 作者觉得每次都写 `Callable[[NodeInputT], Dict[str, Any]]` 太长太累了，而且节点还可能支持 `config`、`writer`、`store` 等多种参数组合。
+
+  所以 LangGraph 在源码里用 `TypeAlias` 给这一大串复杂的 `Callable` 集合起了一个**快捷代号（别名）**，叫 `StateNode`：
+
+  ```Python
+  # 框架作者在 LangGraph 源码里偷偷做了类似这样的简化：
+  StateNode = Callable[[NodeInputT], dict] | Callable[[NodeInputT, Config], dict] | ...
+  ```
+
+  方括号里的 `[NodeInputT, ContextT]` 是 Python 的**泛型（Generics）**，用来向这个别名里“传递参数”：
+
+  - **`NodeInputT`**：告诉类型检查工具，这个函数接收的 `State` 具体的类型是什么（比如你的 `OverAllState`）。
+  - **`ContextT`**：告诉类型检查工具，全局 Runtime Context 的类型是什么。
+
+  总结
+
+  - **`Callable[[Input], Output]`**  ->  这才是 Python 官方标准的函数类型表达方式。
+  - **`StateNode[NodeInputT, ContextT]`**  ->  这是 **LangGraph 专属**的打包别名，本质上包装了一堆 `Callable`。
 
 `add_sequence` 是 LangGraph 中简化**线性（串联）工作流**的语法糖。它会同时自动完成**节点注册**与**顺序边连接**。
 
@@ -108,7 +182,12 @@ builder.add_edge(START, "node_a")
 builder.add_edge("node_b", END)
 ```
 
-
+```python
+builder.add_sequence([
+    ("step_1", process_pipeline),
+    ("step_2", process_pipeline) # 同一个函数，不同的节点名
+])
+```
 
 **2. 使用注意事项**
 
@@ -160,7 +239,26 @@ display(graph)
 }
 ```
 
-![image-20260527181941605](assets/image-20260527181941605.png)
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	node_a(node_a)
+	node_b(node_b)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> node_a;
+	node_a --> node_b;
+	node_b --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
+```
+
+
 
 上述代码中：
 
@@ -356,8 +454,10 @@ def node_b(state: OverAllState) -> OverAllState:
     }
 
 builder = StateGraph(state_schema=OverAllState)
+
 builder.add_node("node_a", node_a)
 builder.add_node("node_b", node_b)
+
 builder.add_edge(START, "node_a")
 builder.add_edge(START, "node_b")
 
@@ -432,7 +532,7 @@ def add_conditional_edges(
 不考虑 **`self`**，核心参数有三个：
 
 - **`source`**：条件分支的起始节点；
-- **`path`**：路由规则，是一个可执行对象，通常是函数
+- **`path`**：路由规则，是一个可执行对象，通常是函数。函数返回值是node节点名称。
 - **`path_map`**：路由规则的返回值到真实节点名之间的映射关系。
 
 其中，**`path`** 的返回值表示跳转的目标节点，可以是：
@@ -464,7 +564,7 @@ def add_conditional_edges(
 
   此时也要求 **`path`** 返回值中出现的字符串必须是合法的节点名称。
 
-##### 4.2.1.2.1. 不使用 `path_map`
+##### 4.2.1.2.1. `add_conditional_edges`
 
 如果不传 **`path_map`**，那么路由函数的返回值通常应当直接是图中的节点名称。如下
 
@@ -526,7 +626,9 @@ def router(state: OverAllState) -> Literal["node_a", "node_b"]:
 builder = StateGraph(state_schema=OverAllState)
 builder.add_node("node_a", node_a)
 builder.add_node("node_b", node_b)
+
 builder.add_conditional_edges(START, router)
+
 builder.add_edge("node_a", END)
 builder.add_edge("node_b", END)
 
@@ -588,7 +690,7 @@ graph TD;
 
 观察图结构可以发现，`__start__`指向`node_a`和`node_b`的线是虚线，这表示节点的跳转是有条件的，不是固定的。
 
-##### 4.2.1.2.2. 使用 `path_map`
+##### 4.2.1.2.2.  `path_map`
 
 如果不希望路由函数直接返回节点名，而是返回业务语义更强的标识，可以使用 **`path_map`** 进行映射。如下：
 
@@ -669,10 +771,12 @@ def my_route(state: OverAllState) -> Literal["poem","joke"]:
 builder = StateGraph(state_schema=OverAllState)
 builder.add_node(node_a)
 builder.add_node(node_b)
-builder.add_conditional_edges(START,my_route,path_map={
+
+builder.add_conditional_edges(START, my_route, path_map={
     "poem":"node_a",
     "joke":"node_b"
 })
+
 builder.add_edge("node_b",END)
 builder.add_edge("node_a",END)
 
@@ -816,10 +920,12 @@ builder = StateGraph(state_schema=OverAllState)
 builder.add_node("node_a", node_a)
 builder.add_node("node_b", node_b)
 builder.add_node("node_c", node_c)
+
 builder.add_conditional_edges(
     START,
     router
 )
+
 builder.add_edge("node_a", END)
 builder.add_edge("node_b", END)
 builder.add_edge("node_c", END)
@@ -920,7 +1026,6 @@ from langgraph.graph import StateGraph, START, END
 from langchain.chat_models import init_chat_model
 from rich import print as rprint
 import os
-
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
@@ -1075,7 +1180,7 @@ builder.add_node("audit_node", audit_node, defer=True)
 
 ##### 4.2.1.3.1. 底层实现机制
 
-![Defer-yan-chi-chu-fa-di-ceng-ji-zhi.png](https://i.postimg.cc/pV194mRj/Defer-yan-chi-chu-fa-di-ceng-ji-zhi.png)](https://postimg.cc/fkmT0T3W)
+![Defer-yan-chi-chu-fa-di-ceng-ji-zhi.png](https://i.postimg.cc/pV194mRj/Defer-yan-chi-chu-fa-di-ceng-ji-zhi.png)
 
 ###### 1. 编译阶段：使用特殊 Channel
 
@@ -1094,6 +1199,8 @@ builder.add_node("audit_node", audit_node, defer=True)
    **`defer`** 默认值为 **`False`**
 
    对于普通节点，边对应的通道类型是 **`EphemeralValue`**，可以理解为普通临时通道；而对于 **`defer=True`** 的节点，边对应的通道类型是特殊的 **`LastValueAfterFinish`**。
+   
+   `defer=True` 的核心作用是：**告诉 LangGraph，“即使这个节点的上游触发条件已经满足了，也请先不要急着运行它，等图中的其他并行任务（非 defer 节点）全部运行完之后，再最后执行我。”**
 
 ###### 2. 常规运行阶段-写入但不触发
 
@@ -1176,6 +1283,7 @@ builder.add_node("audit_node",audit_node,defer=True)
 builder.add_edge(START,"node_a")
 builder.add_edge(START,"node_b")
 builder.add_edge(START,"audit_node")
+
 builder.add_edge("node_a",END)
 builder.add_edge("node_b",END)
 builder.add_edge("audit_node",END)
@@ -1194,15 +1302,20 @@ print(raw_mermaid)
 
 在这个图中：
 
-- **`node_a`** 和 **`node_b`** 是普通节点，在常规流程中被触发；
-- **`audit_node`** 虽然也由 **`START`** 触发，但由于设置了 **`defer=True`**，不会立即执行；
-- **`node_a`** 和 **`node_b`** 都执行完成后，常规运行流程结束，**`audit_node`** 才会在额外的超步中执行；
-- 因此，**`audit_node`** 中可以读取到 **`node_a`** 和 **`node_b`** 已经写入并提交后的状态。
+**第 1 步**：从 `START` 出发，`node_a` 和 `node_b` 开始并发请求 Gemini API 生成诗和笑话。
+
+**第 2 步**：`audit_node` 虽然上游条件也满足了，但因为标记了 `defer=True`，LangGraph 会把它**挂起（推迟）**，排队挂在后台。
+
+**第 3 步**：等待 `node_a` 和 `node_b` 全部生成完毕、并将结果写入 State 后。
+
+**第 4 步**：此时图中没有其他普通的活动节点了，LangGraph 才终于唤醒并执行 `audit_node`。
+
+**结果**：`audit_node` 成功读取到了 `node_a` 和 `node_b` 最新生成好的诗和笑话，控制台正确打印了 `诗已生成,笑话已生成`。
 
 **输出如下**
 
 ```json
-2026-08-12 15:13:45.206 | INFO     | __main__:audit_node:42 - 任务阶段已经全部执行完毕,诗已生成,笑话已生成
+2026-08-12 15:13:45.206 | INFO | __main__:audit_node:42 - 任务阶段已经全部执行完毕,诗已生成,笑话已生成
 {
     'topic': '猫咪',
     'poem': 
@@ -1250,6 +1363,12 @@ graph TD;
 
 > 因此， **`defer=True`** 将节点的触发信号延迟释放，使该节点在常规流程结束后执行。
 
+**`defer` 针对的是“顺序/调度”（Execution Scheduling），而不是“时间延迟”（Time Delay）。**
+
+它没有 `time.sleep()` 的时间单位，它的“延迟”单位是“等待其他非 defer 节点运行完毕”。
+
+**典型用途**：实现像你代码中这样的 **后置审计节点 (Audit Node)、收尾清理节点 (Cleanup Node) 或全局汇总节点 (Reporter Node)**。
+
 ### 4.2.2. 动态分支（Dynamic Branch）
 
 - **定义**：根据你的状态和条件，决定节点运行的次数。
@@ -1284,6 +1403,17 @@ graph TD;
 运行时，**`LangGraph`** 会根据返回的每个 **`Send`** 实例创建对应的任务。这些任务通常会在同一个超步中并行执行。
 
 **`Send`** 类构造器源码如下
+
+```python
+Send(
+  self,
+  /,
+  node: str,
+  arg: Any,
+  *,
+  timeout: float | timedelta | TimeoutPolicy | None = None
+)
+```
 
 ```python
 def __init__(self, /, node: str, arg: Any) -> None:
@@ -1358,7 +1488,7 @@ def worker_node(state: WorkerState) -> OutputState:
     }
 
 def router(state: InputState) -> Sequence[Send]:
-    prompt = "请生成关于 {} 的 {}"
+    prompt = "请生成关于{}的 {}"
     english2chinese = {
         "poem": "一首诗",
         "ci_poem": "一首词",
@@ -1378,11 +1508,13 @@ def router(state: InputState) -> Sequence[Send]:
 
 builder = StateGraph(state_schema=OverAllState, input_schema=InputState, output_schema=OutputState)
 builder.add_node("worker_node", worker_node)
+
 builder.add_conditional_edges(
     START,
     router,
     path_map=["worker_node"]
 )
+
 builder.add_edge("worker_node", END)
 
 graph = builder.compile()
@@ -1392,6 +1524,10 @@ print(res)
 from IPython.display import display
 display(graph)
 ```
+
+> 你写 `path_map=["worker_node"]` 时，LangGraph 在内部会自动将其展开转换为类似 `{"worker_node": "worker_node"}` 的字典映射结构。
+>
+> 甚至在较新版本的 LangGraph 中，如果你的 `Send` 目标节点已经通过 `builder.add_node` 注册过，你**完全可以省略 `path_map` 参数**，LangGraph 会自动推导出路由目标：
 
 在这个案例中，**`router()`** 并没有直接返回某一个固定的下游节点名称，而是返回了多个 **`Send`** 实例：
 
@@ -1660,6 +1796,46 @@ builder.add_edge("router", "joke_node")
 > **`Command(goto=...)` 解决的是：当前节点执行完后要去哪里。**
 
 不过，无论是 **`Send`** 还是 **`Command(goto=...)`**，目标节点通常都需要提前注册到图中。所谓“动态”，主要是运行时动态决定任务数量、任务输入或跳转路径，而不是运行时临时创建新的节点。
+
+### 4.2.3 区别
+
+这两个概念的核心区别在于：**图的“骨架”（节点和连线）是在编译时就彻底画死了，还是在运行时可以凭空制造出新的任务/路线。**
+
+#### 1. 概念重新说明
+
+- **静态分支（Static Branch）**
+  - **通俗理解**：**“多选题”**。
+  - **逻辑说明**：你在写代码构建图时，已经用 `add_node` 把所有的节点（比如 A, B, C）全部注册进去了，并且明确画好了线。在运行时，程序只是根据条件判断“这次走路径 A 还是路径 B”（或者同时走 A 和 B）。无论运行多少次，**整个图的节点总量和连线网络是绝对固定不变的**。
+- **动态分支（Dynamic Branch）**
+  - **通俗理解**：**“工厂流水线动态增产”**。
+  - **逻辑说明**：在图编译时，你**无法预知到底会有多少个节点被执行**。运行时，程序根据输入数据（比如一个包含 N 个元素的列表），动态地**创建/触发 N 个并发任务（Map-Reduce / Send 模式）**。例如：读取到一个列表有 5 个元素，就在运行时动态裂变成 5 个并发节点去处理；如果是 100 个元素，就动态裂变成 100 个。
+
+#### 2. 静态分支 vs 动态分支 核心对比
+
+| **对比维度**           | **静态分支（Static Branch）**                         | **动态分支（Dynamic Branch）**                               |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+| **图拓扑结构**         | **完全固定**（编译阶段确定所有节点与连接）            | **运行时展开**（节点执行数量由运行数据决定）                 |
+| **节点数量**           | 确定（如：固定只有 A、B、C 节点）                     | 不确定（如：根据输入数组长度生成 N 个任务节点）              |
+| **LangGraph 实现方式** | `add_conditional_edges`（配合条件路由函数）           | `Send()` API（Map-Reduce 范式 / 动态 Send）                  |
+| **典型应用场景**       | **If-Else 决策**：如 LLM 判断是调用“搜索”还是“计算器” | **批处理/并行分发**：如将一篇长文档拆成 N 个章节，动态启动 N 个节点并行翻译 |
+| **可视化/调试难度**    | 极易可视化（图的形状是固定的）                        | 较难静态可视化（只有在运行时才能算出实际拓扑）               |
+
+- **静态分支**：路线早就画好了，只是做选择。
+
+  ```Python
+  # 节点 A, B 必须提前注册好
+  builder.add_conditional_edges("router_node", route_fn, {"go_a": "node_a", "go_b": "node_b"})
+  ```
+
+- **动态分支**：运行时根据数据列表，动态 `Send` 出 N 个并发任务。
+
+  ```Python
+  # 根据 state["items"] 的长度（可能是 3 个，也可能是 100 个），动态并发触发
+  def continue_to_subtasks(state):
+      return [Send("process_item", {"item": item}) for item in state["items"]]
+  ```
+
+
 
 ## 4.3. 多分支汇聚：Fan-in
 
@@ -1970,6 +2146,10 @@ builder.add_edge("node_d", "node_e")
 
 如果这些子任务分别产生中间结果，并在后续通过 **`Reducer`** 进行合并，也就是重新 **扇入** 到一个下游节点中，最终得到统一的结果，那么就构成了典型的 **`MapReduce`** 结构。
 
+**为什么叫动态？** 因为 N（子任务数量）不是写死的，传 3 篇文章就裂变 3 个节点，传 100 篇就裂变 100 个。
+
+**为什么叫 MapReduce？** Map 负责“把大任务切碎分发给各个 Worker”；Reduce 负责“把各个 Worker 散落的结果收集并合成为最终产物”。
+
 **`MapReduce`** 是大数据计算中的经典模型，通常包含两个核心阶段：
 
 * **`Map`：映射阶段**
@@ -1981,8 +2161,21 @@ builder.add_edge("node_d", "node_e")
   将多个子任务产生的中间结果进行汇总、合并或聚合，得到最终结果。
   
   在 **`LangGraph`** 中，通常由一个特定的 **`reducer`** 节点完成归约：它接收上游 **`mapper`** 节点实例产生的中间结果，处理后得到计算图的最终输出。
+  
+  **Reducer（状态合并器）**：
+  
+  - **干什么**：扇入时最关键的问题是：“N 个 Worker 节点同时写回数据，怎么保证全局 State 里的字段不被互相覆盖掉，而是能够**追加/累加**起来？”
+  - **解决方法**：在定义 State 时给字段绑定一个 `Annotated[list, operator.add]`。这样每个 Worker 返回 `{"results": [res]}` 时，LangGraph 会自动像 `append` 一样把所有结果追加收集到一个全局列表中。
+  
+  ```python
+  							 ┌───> Worker Node (处理任务 1) ───┐
+                 │                                │
+  [START] ──> Router (扇出/Map) ─┼───> Worker Node (处理任务 2) ───┼─> [Reducer/状态合并] ──> Summary Node (扇入/Reduce) ──>[END]
+   (1个)         │ ( Send() 裂变)                  │ (追加结果到 State)    (1个汇总)
+                 └───> Worker Node (处理任务 N) ───┘
+  ```
 
-本节实现一个经典的词频统计任务
+#### 词频统计任务
 
 ```python
 输入数据
@@ -2066,7 +2259,7 @@ def mapper_node(state: MaperInputState) -> OverAllState:
 
     for word in words:
         entries.append((word, 1))
-
+        # [("hello", 1), ("world", 1), ("hello", 1)]
     return {
         "entries": entries
     }
@@ -2116,6 +2309,18 @@ from IPython.display import display
 display(graph)
 ```
 
+假设 `entries` 是 `[("apple", 1), ("banana", 1), ("apple", 1)]`：
+
+1. **第一轮循环**：`k = "apple"`, `v = 1`
+   - `shuffle_dict` 里还没有 `"apple"`。
+   - 执行 `shuffle_dict["apple"] = [v]`  ->  此时 `shuffle_dict` 为 `{"apple": [1]}`。
+2. **第二轮循环**：`k = "banana"`, `v = 1`
+   - `shuffle_dict` 里还没有 `"banana"`。
+   - 执行 `shuffle_dict["banana"] = [v]`  ->  此时 `shuffle_dict` 为 `{"apple": [1], "banana": [1]}`。
+3. **第三轮循环**：`k = "apple"`, `v = 1`
+   - `shuffle_dict` 里已经有 `"apple"` 了。
+   - 走 `else` 分支，执行 `shuffle_dict["apple"].append(v)`  ->  把当前的 `1` 追加进去，变成 `{"apple": [1, 1], "banana": [1]}`。
+
 运行结果如下
 
 ```mermaid
@@ -2149,8 +2354,6 @@ graph TD;
     'word_counts': {'hello': 3, 'world': 1, 'atguigu': 1, 'llm': 1}
 }
 ```
-
-
 
 从结果可以看出，三个输入字符串分别被映射为了中间键值对：
 
@@ -2370,7 +2573,7 @@ rprint(res)
 
 ```
 
-![image-20260812210433904.png](https://i.postimg.cc/GpZZbrK8/image-20260812210433904.png)
+<img src="https://i.postimg.cc/GpZZbrK8/image-20260812210433904.png" alt="image-20260812210433904.png" style="zoom:50%;" />
 
 ```python
 #1. 声明状态
@@ -2808,8 +3011,6 @@ graph TD;
 	classDef last fill:#bfb6fc
 ```
 
-
-
 本例和**静态实现**的核心区别体现在 **`llm_node`** 中：
 
 ```python
@@ -2931,7 +3132,26 @@ display(graph)
 2026-05-29 19:40:07.573 | INFO     | __main__:node_c:20 - 3
 ```
 
-![image-20260529195252649](assets/image-20260529195252649.png)
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	node_a(node_a)
+	node_b(node_b)
+	node_c(node_c)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> node_a;
+	node_a --> node_b;
+	node_b --> node_c;
+	node_c --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
+```
 
 可以看到，**`node_a`**、**`node_b`**、**`node_c`** 是顺序执行的三个节点，因此分别处于第 **`1`**、**`2`**、**`3`** 个 **`SuperStep`**。
 
