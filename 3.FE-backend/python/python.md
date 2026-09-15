@@ -104,7 +104,38 @@ Python3 中有 6 种标准数据类型，以及 bool 布尔类型（bool 是 int
 
 加号 **+** 是字符串的连接符，星号 ***** 表示复制当前字符串，与之结合的数字为复制的次数。
 
-# 1. 数据类型转换
+| 用途                 | Python                      | JavaScript                                    | 主要区别                                                     |
+| -------------------- | --------------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| 有序可变序列         | `list`                      | `Array`                                       | 两者都可增删改、按索引访问                                   |
+| 不可变有序序列       | `tuple`                     | 无完全对应                                    | JS 通常用 `Object.freeze(array)`，但不是原生元组类型         |
+| 键值映射             | `dict`                      | `Object` / `Map`                              | Python `dict` 更接近 JS `Map`；JS `Object` 更偏“对象属性集合” |
+| 唯一值集合           | `set`                       | `Set`                                         | 都自动去重，保持插入顺序                                     |
+| 不可变集合           | `frozenset`                 | 无直接对应                                    | JS 可用约定或封装实现                                        |
+| 双端队列             | `collections.deque`         | 无原生对应                                    | JS 的 `Array` 可模拟，但 `shift/unshift` 在大数据量下不理想  |
+| 映射且不阻止垃圾回收 | `weakref.WeakKeyDictionary` | `WeakMap`                                     | JS 的 `WeakMap` 是原生能力；Python 通过 `weakref` 模块实现   |
+| 弱集合               | `weakref.WeakSet`           | `WeakSet`                                     | 成员对象可被垃圾回收                                         |
+| 优先队列 / 堆        | `heapq`                     | 无原生对应                                    | JS 通常自行实现，或使用第三方库                              |
+| 栈                   | `list`                      | `Array`                                       | Python 用 `append/pop`；JS 用 `push/pop`                     |
+| 队列                 | `deque` / `queue.Queue`     | `Array` / 第三方队列                          | Python 有更适合队列的标准库                                  |
+| 字符串               | `str`                       | `string`                                      | 两者都是不可变字符串                                         |
+| 二进制数据           | `bytes`、`bytearray`        | `Uint8Array`、`ArrayBuffer`、`Buffer`（Node） | JS 主要使用 TypedArray；Node 有 `Buffer`                     |
+| 日期时间             | `datetime`                  | `Date`                                        | Python `datetime` 对时区、日期运算更完整；JS 推荐逐步使用 `Temporal` 或第三方库 |
+
+| 类别   | Python          | JavaScript          | 说明                                                         |
+| ------ | --------------- | ------------------- | ------------------------------------------------------------ |
+| 整数   | `int`           | `number` / `bigint` | Python `int` 可自动支持超大整数；JS `number` 有安全整数上限  |
+| 小数   | `float`         | `number`            | Python 区分 `int`、`float`；JS 的 `number` 同时表示整数和小数 |
+| 布尔值 | `bool`          | `boolean`           | 都是 `True/False` 与 `true/false`                            |
+| 字符串 | `str`           | `string`            | 都是不可变                                                   |
+| 空值   | `None`          | `null`、`undefined` | JS 有两种“空”；Python 通常只用 `None`                        |
+| 大整数 | `int`           | `BigInt`            | Python 不需要额外类型；JS 需要 `123n`                        |
+| 复数   | `complex`       | 无原生类型          | Python 可写 `1 + 2j`                                         |
+| 符号   | 无直接对应      | `Symbol`            | JS 用于创建唯一属性 key                                      |
+| 非数字 | `float("nan")`  | `NaN`               | 都表示“不是一个有效数字”                                     |
+| 无穷大 | `float("inf")`  | `Infinity`          | 都可以表示无穷大                                             |
+| 函数   | `function` 对象 | `function` 对象     | 两者函数都可作为变量传递                                     |
+
+# 数据类型转换
 
 ## 隐式类型转换 - 自动完成
 
@@ -816,7 +847,7 @@ str
 
 它没有把字符串变成整数。
 
-# 2. 注释
+# 注释
 
 ## 单行注释
 
@@ -1191,7 +1222,7 @@ Since `is_admin` is `False`, then `not is_admin` is saying not `False` which is 
 
 Now that you understand truthy and falsy values, the `and`, `or`, and `not` operators, and how short-circuiting works, you can write more flexible and readable conditional logic.
 
-# 4. 数字(Number)
+# 4. Number
 
 Python3 支持 **int、float、bool、complex（复数）**。
 
@@ -1235,7 +1266,7 @@ print('Float Floor Division:', floor_div_floats) # Float Floor Division: 2.0
 
 ## `**`
 
-Exponentiation
+Exponentiation 幂运算 / 乘方运算
 
 ```python
 my_int_1 = 56
@@ -1251,9 +1282,13 @@ print('Integer Exponentiation:', exp_ints) # Integer Exponentiation: 95116601380
 print('Float Exponentiation:',  exp_floats) # Float Exponentiation: 614787626.1765089
 ```
 
+## float()
+
 The `float()` function returns a floating-point number constructed from the given number:
 
-- `round()`: Rounds a number to the specified number of decimal places. By default this function rounds to the nearest integer, and returns a whole number with no decimal places:
+## round()
+
+`round()`: Rounds a number to the specified number of decimal places. By default this function rounds to the nearest integer, and returns a whole number with no decimal places:
 
   ```py
   my_int_1 = 4.798
@@ -1265,12 +1300,17 @@ The `float()` function returns a floating-point number constructed from the give
   print(rounded_int_1) # 5
   print(rounded_int_2) # 4.3
   ```
+## abs()
 
-- `abs()`: returns the absolute value of a number,
+`abs()`: returns the absolute value of a number,
 
-- The `int()` function returns an integer constructed from the given number
+## int()
 
-- `pow()`: raises a number to the power of another or performs modular exponentiation
+The `int()` function returns an integer constructed from the given number
+
+## pow()
+
+`pow()`: raises a number to the power of another or performs modular exponentiation
 
   ```py
   result_1 = pow(2, 3)  # Equivalent to 2 ** 3
@@ -1279,15 +1319,16 @@ The `float()` function returns a floating-point number constructed from the give
   result_2 = pow(2, 3, 5)  # (2 ** 3) % 5
   print(result_2)  # 3
   ```
+## %=
 
-- The modulo assignment operator (`%=`) computes the remainder of the left variable divided by the right and stores it back in the left variable:
+The modulo assignment operator (`%=`) computes the remainder of the left variable divided by the right and stores it back in the left variable:
 
-  ```py
-  bits = 35
-  bits %= 2
-  
-  print(bits) # 1
-  ```
+```py
+bits = 35
+bits %= 2
+
+print(bits) # 1
+```
 
 ```py
 greet = 'Hello'
@@ -1295,6 +1336,8 @@ greet *= 3
 
 print(greet) # HelloHelloHello
 ```
+
+## x++
 
 Instead of `x++`, you can simply write `x += 1`, which makes it obvious that you're incrementing the value of `x` by `1`.
 
@@ -1319,7 +1362,7 @@ print(my_var) # 6
 | `++x`       | 两次正号   | ❌ 不改变     |
 | `x = x + 1` | x 加 1     | ✅ 是         |
 
-# 5. 字符串 String
+# 5. String
 
 String Immutability
 
@@ -2079,12 +2122,13 @@ print(keys_list[0])  # Output: 'apple'
 del del_dict[del_key.lower()]
 ```
 
-| **Method/Keyword**   | **Deletes What?** | **Returns Deleted Value?** | **Throws Error if Key Missing?**           |
-| -------------------- | ----------------- | -------------------------- | ------------------------------------------ |
-| **`del dict[key]`**  | Specific key      | No                         | **Yes** (`KeyError`)                       |
-| **`dict.pop(key)`**  | Specific key      | **Yes**                    | **Yes** (Unless default value is provided) |
-| **`dict.popitem()`** | Last added key    | **Yes** (as a tuple)       | **Yes** (If dict is empty)                 |
-| **`dict.clear()`**   | Everything        | No                         | No                                         |
+| **Method/Keyword**      | **Deletes What?** | **Returns Deleted Value?** | **Throws Error if Key Missing?**           |
+| ----------------------- | ----------------- | -------------------------- | ------------------------------------------ |
+| **`del dict[key]`**     | Specific key      | No                         | **Yes** (`KeyError`)                       |
+| **`dict.pop(key)`**     | Specific key      | **Yes**                    | **Yes** (Unless default value is provided) |
+| **`dict.popitem()`**    | Last added key    | **Yes** (as a tuple)       | **Yes** (If dict is empty)                 |
+| **`dict.clear()`**      | Everything        | No                         | No                                         |
+| `dict.fromkeys(cities)` |                   |                            | 用列表中的元素创建一个字典，并自动去重     |
 
 ```python
 #!/usr/bin/python3
@@ -2107,7 +2151,19 @@ print(tinydict.values())    # 输出所有值
 {'name': 'runoob', 'code': 1, 'site': 'www.runoob.com'}
 dict_keys(['name', 'code', 'site'])
 dict_values(['runoob', 1, 'www.runoob.com'])
+# --------
+cities = ["Beijing", "Shanghai", "Beijing"]
+
+unique = dict.fromkeys(cities)
+print(unique)
+
+# {
+#    "Beijing": None,
+#    "Shanghai": None
+#}
 ```
+
+
 
 ## Dictionary Unpacking
 
@@ -2346,7 +2402,7 @@ print(view_settings(test_settings))
 
 
 
-# range
+# range()
 
 不是严格意义上的“基础数据类型”，但 **`range` 是 Python 内置的一种对象类型（内置类）**。
 
@@ -2641,7 +2697,74 @@ result = [(num, 'Even') if num % 2 == 0 else (num, 'Odd') for num in numbers]
 print(result)
 ```
 
+## 三元表达式
 
+```py
+if not self.rate_limiter.allowed(
+    request.client.host if request.client else "unknown"
+):
+```
+
+作用是：根据客户端 IP 检查是否超过限流次数。
+
+里面这部分：
+
+```
+request.client.host if request.client else "unknown"
+```
+
+是 Python 的三元表达式，相当于：
+
+```
+if request.client:
+    client_ip = request.client.host
+else:
+    client_ip = "unknown"
+```
+
+也就是：
+
+- 能获取客户端信息：使用客户端 IP
+- 获取不到：使用 `"unknown"`
+
+完整逻辑相当于：
+
+```
+client_ip = (
+    request.client.host
+    if request.client
+    else "unknown"
+)
+
+allowed = self.rate_limiter.allowed(client_ip)
+
+if not allowed:
+    # 返回 429
+```
+
+其中：
+
+```
+not allowed
+```
+
+表示“不允许”。
+
+所以整体意思是：
+
+```
+如果当前客户端不允许继续请求，
+就返回 429 Too Many Requests。
+```
+
+这里的 `request.client.host` 通常类似：
+
+```
+127.0.0.1
+192.168.1.20
+```
+
+限流器会根据这个 IP 分别统计请求次数。
 
 # 11. 循环语句
 
@@ -2707,7 +2830,7 @@ print ("Good bye!")
 
 **注意：**以上的无限循环你可以使用 CTRL+C 来中断循环。
 
-## for 语句
+## for in 语句
 
 ```python
 for <variable> in <sequence>:
@@ -2753,14 +2876,21 @@ def sequence(n):
     return " ".join(str(num + 1) for num in range(n))
 ```
 
-` system_msgs = [m for m in messages if m.get("role") == "system"]`
+-----
 
 ```python
+system_msgs = [m for m in messages if m.get("role") == "system"]
+
 # 传统写法（效果与该单行代码完全等价）：
 system_msgs = []
 for m in messages:
     if m.get("role") == "system":
         system_msgs.append(m)
+
+
+# 从 response.json()["results"] 中遍历每个 item，取出它的 city，组成一个新列表。
+assert [item["city"] for item in response.json()["results"]] == ["Beijing", "Shanghai"]
+
 ```
 
 **`[ ... ]`（外层的方括号）**
@@ -2957,6 +3087,86 @@ for letter in 'Runoob':
  
 print ("Good bye!")
 ````
+
+## `* [...]`
+
+`*` 是解包，把列表中的多个任务作为独立参数传给 `asyncio.gather`。
+
+```python
+return BatchWeatherResponse(
+    results=await asyncio.gather(
+        *[weather_service.get_weather(city, query.unit) for city in query.cities]
+    )
+)
+```
+
+```python
+return BatchWeatherResponse(
+    results=await asyncio.gather(
+        *[
+            weather_service.get_weather(city, query.unit)
+            for city in query.cities
+        ]
+    )
+)
+```
+
+会生成多个异步任务：
+
+```
+[
+    coroutine_for_beijing,
+    coroutine_for_shanghai,
+    coroutine_for_chengdu,
+]
+```
+
+注意：这里调用的是异步函数，但暂时还没有真正等待结果。
+
+```
+* [...]
+```
+
+`*` 是解包，把列表中的多个任务作为独立参数传给 `asyncio.gather`。
+
+相当于：
+
+```
+await asyncio.gather(
+    weather_service.get_weather("Beijing", query.unit),
+    weather_service.get_weather("Shanghai", query.unit),
+    weather_service.get_weather("Chengdu", query.unit),
+)
+await asyncio.gather(...)
+```
+
+表示并发等待所有天气请求完成：
+
+```
+北京 ─────── 完成
+上海 ── 完成
+成都 ─────────── 完成
+等待全部完成后继续
+```
+
+最后：
+
+```
+BatchWeatherResponse(results=...)
+```
+
+把所有城市的天气结果放入响应模型，最终返回：
+
+```
+{
+  "results": [
+    {"city": "Beijing", "temperature": 25, "unit": "celsius"},
+    {"city": "Shanghai", "temperature": 28, "unit": "celsius"}
+  ]
+}
+```
+
+`gather` 返回结果的顺序与输入任务顺序一致，不一定是实际完成顺序。
 
 # Example
 
@@ -3430,6 +3640,70 @@ with open('example.txt', 'r') as file:
 - `exc_tb`：异常追踪信息
 
 如果 `__exit__()` 返回 `True`，则表示异常已被处理，不会继续传播；返回 `False` 或 `None`，异常会继续向外传播。
+
+## async with
+
+`async with` 是 Python 的“上下文管理器”语法， 它的用途是：在进入代码块前做准备，在退出代码块后自动清理资源
+
+```python
+async with httpx.AsyncClient(
+    base_url=self.base_url,
+    timeout=self.timeout_seconds,
+    transport=self._transport,
+) as client:
+    response = await client.post("/chat/completions", json=payload, headers=headers)
+```
+
+等价于：
+
+1. 创建一个 `AsyncClient`
+2. 进入这个上下文
+3. 发送 HTTP 请求
+4. 离开上下文时自动关闭连接、释放资源
+
+### 为什么要用 `with`
+
+因为 `AsyncClient` 是一个资源对象，像：
+- 网络连接
+- socket
+- 连接池
+
+它需要被关闭，不然可能：
+- 占用端口
+- 连接泄漏
+- 线程/任务资源没释放
+
+所以 `with` 语法保证：
+
+> 退出后自动调用 `close()` / 清理资源
+
+这类对象常见语法
+
+```python
+with open("file.txt", "r") as f:
+    data = f.read()
+```
+
+它的作用是：
+- 打开文件
+- 读取
+- 自动关闭文件
+
+`async with` 只是异步版本。
+
+这里具体到 `httpx.AsyncClient`
+
+它表示：
+
+- 创建一个异步 HTTP 客户端
+- 用它发请求
+- 请求结束后自动清理连接池和资源
+
+## 一句话总结
+
+`async with httpx.AsyncClient(...) as client:` 的意思是：
+
+> “创建一个异步 HTTP 客户端，用完后自动关闭，避免资源泄漏。”
 
 
 
@@ -6086,8 +6360,6 @@ except Exception as e:
     print(f"【未知错误】发生了其他意料之外的错误: {e}")
 ```
 
-
-
 ```py
 print("Hello, world!"
 # SyntaxError: unexpected EOF while parsing
@@ -6113,8 +6385,6 @@ BaseException
       └── ArithmeticError
            └── ZeroDivisionError  <-- 就是它
 ```
-
-
 
 ## 语法错误
 
@@ -6333,17 +6603,34 @@ raise 唯一的一个参数指定了要被抛出的异常。它必须是一个�
 如果你只想知道这是否抛出了一个异常，并不想去处理它，那么一个简单的 raise 语句就可以再次把它抛出。
 
 ```python
->>> try:
-        raise NameError('HiThere')  # 模拟一个异常。
-    except NameError:
-        print('An exception flew by!')
-        raise
+try:
+    raise NameError('HiThere')  # 模拟一个异常。
+except NameError:
+    print('An exception flew by!')
+    raise
    
 An exception flew by!
 Traceback (most recent call last):
   File "<stdin>", line 2, in ?
 NameError: HiThere
 ```
+
+1. 进入 `try`
+2. 执行 `raise NameError('HiThere')`
+3. 这个异常立刻被 `except NameError` 接住
+4. 进入 `except` 代码块
+5. 打印 `"An exception flew by!"`
+6. 这里又执行 `raise`
+7. 异常继续往上抛，给更外层的 `try/except` 或程序本身处理
+
+```python
+try:
+    raise ValueError("bad")
+except ValueError:
+    print("我吃掉异常了") # 这时异常被吞掉了，外层看不到它。
+```
+
+
 
 ```py
 def check_age(age):
@@ -6454,8 +6741,6 @@ def parse_config(filename):
 
 config = parse_config('config.txt')
 ```
-
-
 
 定义一个异常：
 
@@ -6672,6 +6957,45 @@ raise OrderNotFound("订单不存在")
 
 这样别人看到异常类型就知道发生了什么，而不用全部都抛 `Exception`。
 
+### 其他例子
+
+```python
+class ProviderError(Exception):
+    pass
+
+class ProviderTimeoutError(ProviderError):
+    pass
+
+class ProviderUnavailableError(ProviderError):
+    pass
+
+try:
+    raise ProviderTimeoutError("AI timed out")
+except ProviderError:
+    print("AI provider error happened")
+```
+
+```python
+try:
+    raise ProviderTimeoutError("AI timed out")
+except ProviderTimeoutError:
+    print("重试")
+except ProviderUnavailableError:
+    print("返回 502")
+except ProviderError:
+    print("其它 provider 错误")
+```
+
+```python
+Exception
+ └── ProviderError
+      ├── ProviderTimeoutError
+      ├── ProviderUnavailableError
+      └── ProviderInvalidOutputError
+```
+
+
+
 ------
 
 ####  那 `__init__` 和 `__str__` 到底有什么作用？
@@ -6781,6 +7105,70 @@ dog_2 = Dog("Thatcher", 5)
 dog_1.bark()  # JACK says woof woof! I'm 3 years old!
 dog_2.bark()  # THATCHER says woof woof! I'm 5 years old!
 ```
+
+```python
+from typing import Literal
+from pydantic import BaseModel, field_validator
+
+
+class WeatherQuery(BaseModel):
+    cities: list[str]
+    unit: Literal["celsius", "fahrenheit"] = "celsius"
+
+    @field_validator("cities")
+    @classmethod
+    def validate_cities(cls, cities: list[str]) -> list[str]:
+        cities = [city.strip() for city in cities]
+        if not cities:
+            raise ValueError("at least one city is required")
+        if len(cities) > 10:
+            raise ValueError("at most 10 cities are allowed")
+        if any(not city for city in cities):
+            raise ValueError("city names cannot be empty")
+        return list(dict.fromkeys(cities))
+
+```
+
+意思是：为 `cities` 字段添加自定义校验逻辑。
+
+例如：
+
+```python
+@field_validator("cities")
+@classmethod
+def validate_cities(cls, cities: list[str]) -> list[str]:
+    ...
+```
+
+当请求数据进入 `WeatherQuery` 时，Pydantic 会自动调用这个方法：
+
+```python
+{
+  "cities": [" Beijing ", "Shanghai", "Beijing"]
+}
+```
+
+然后执行：
+
+```python
+cities = [city.strip() for city in cities]
+```
+
+完成去空格、检查数量、检查空字符串和去重。
+
+简单理解：
+
+```
+请求 JSON
+  ↓
+Pydantic 基础类型校验
+  ↓
+@field_validator("cities") 自定义校验
+  ↓
+WeatherQuery 对象
+```
+
+`"cities"` 指定这个校验器只作用于 `cities` 字段。`@classmethod` 是 Pydantic v2 要求的写法之一。
 
 ## instance attributes and class attributes
 
@@ -11410,3 +11798,83 @@ For example, a popular search algorithm called Binary Search has `O(log n)` wors
 **`O(n²)`** is known as "Quadratic Time Complexity". The running time of these algorithms increases quadratically relative to the input size, which is generally not efficient for real-world problems.
 
 Pseudocode is not as formal as actual code, since it's only intended for humans to read. It should be easy to understand at a glance. Its main purpose is to give a clear idea of the sequence of steps that will be performed.
+
+# 数据类型校验内置方法
+
+Annotated / pydantic / 
+
+幂等性可以理解成：
+
+> **同一个请求，执行 1 次和执行 N 次，对服务器最终状态的影响相同。**
+
+**安全**：不修改服务器状态，例如 `GET`
+
+重点是“最终状态”，不是每次返回的响应一定完全一样。
+
+例如数据库初始状态：
+
+```
+用户 1 的昵称：Tom
+```
+
+执行一次：
+
+```
+PUT /users/1
+{ "name": "Alice" }
+```
+
+结果：
+
+```
+用户 1 的昵称：Alice
+```
+
+再执行 10 次完全相同的请求，结果仍然是：
+
+```
+用户 1 的昵称：Alice
+```
+
+所以 `PUT` 是幂等的。
+
+------
+
+相反，假设有一个余额接口：
+
+```
+POST /accounts/1/deposit
+{ "amount": 100 }
+```
+
+第一次调用：
+
+```
+余额：100 → 200
+```
+
+再调用一次：
+
+```
+余额：200 → 300
+```
+
+每多调用一次，状态都会继续变化，所以它**不是幂等的**。
+
+```
+# 修复包和测试导入路径
+app/__init__.py
+app/api/__init__.py
+app/core/__init__.py
+app/models/__init__.py
+app/services/__init__.py
+app/middleware/__init__.py
+```
+
+并添加：
+
+```
+tests/conftest.py
+```
+
+用于把项目根目录加入 `sys.path`。
