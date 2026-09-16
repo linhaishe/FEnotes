@@ -44,7 +44,31 @@ LLMs 的全称是 **Large Language Models**，中文翻译为**大语言模型**
 
 - **LLM（大语言模型）** 是 **“大脑”**。它拥有丰富的知识，能思考、能生成文字，但**没有手脚**，也没办法直接触碰现实世界（比如不能直接帮你在电脑上点按鼠标、查实时天气或发邮件）。  
 - **Agent（智能体）** 是 **“完整的人”**。它以 **LLM 为大脑**，配备了**眼睛和手脚（Tools/工具）**、**长期记忆（Memory）以及规划能力（Planning）**。它可以自主设定目标、思考步骤、调用工具去解决复杂的任务。  
-- **LangChain（开发框架）** 是 **“建材工具箱 / 脚手架”**。程序员如果要用 Python/JS 从零搭出这个 Agent，需要自己写大量的代码来连接 LLM、工具和内存，而 LangChain 提供了现成的组件和标准管道，**帮你快速把 LLM 和其他工具搭建组合成一个 Agent**。  
+- **LangChain（开发框架）** 是 **“建材工具箱 / 脚手架”**。程序员如果要用 Python/JS 从零搭出这个 Agent，需要自己写大量的代码来连接 LLM、工具和内存，而 LangChain 提供了现成的组件和标准管道，**帮你快速把 LLM 和其他工具搭建组合成一个 Agent**。
+
+LangChain 常说的“六大核心模块”是：
+
+1. **Model I/O（模型输入输出）**
+   管理 Prompt、模型调用和输出解析。
+   例：`PromptTemplate`、Chat Model、`OutputParser`
+2. **Retrieval（检索）**
+   从文档、数据库、向量库中找相关信息，常用于 RAG。
+   例：Document Loader、Text Splitter、Retriever、Vector Store
+3. **Chains（链）**
+   把多个步骤串起来，形成固定工作流。
+   例：先检索资料，再让模型总结。
+4. **Agents（智能代理）**
+   让模型自主决定调用哪些工具、按什么顺序完成任务。
+5. **Memory（记忆）**
+   保存对话历史或任务状态，让模型具备上下文记忆。
+6. **Callbacks（回调）**
+   监听和记录执行过程，用于日志、调试、追踪和流式输出。
+
+一句话记忆：
+
+> Model I/O 负责“怎么和模型说话”，Retrieval 负责“找资料”，Chains 负责“固定流程”，Agents 负责“自主决策”，Memory 负责“记住上下文”，Callbacks 负责“观察执行过程”。
+
+不同版本的 LangChain 文档可能会调整分类；现在复杂 Agent 工作流也常结合 LangGraph。  
 
 ### 1.4 LangChain 的应用场景 
 
