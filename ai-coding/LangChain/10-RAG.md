@@ -2190,7 +2190,9 @@ html_header_splits = html_splitter.split_text(html_string)
 html_header_splits
 ```
 
-> [Document(metadata={'标题1': '欢迎来到尚硅谷！'}, page_content='欢迎来到尚硅谷！'),Document(metadata={'标题1': '欢迎来到尚硅谷！'}, page_content='尚硅谷是专门培训IT技术方向'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介'},page_content='尚硅谷老师简介'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介'},page_content='尚硅谷老师拥有多年教学经验，都是从一线互联网下来'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介', '标题3': '尚硅谷北京校区'}, page_content='尚硅谷北京校区'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介', '标题3': '尚硅谷北京校区'}, page_content='北京校区位于宏福科技园区')]
+```
+[Document(metadata={'标题1': '欢迎来到尚硅谷！'}, page_content='欢迎来到尚硅谷！'),Document(metadata={'标题1': '欢迎来到尚硅谷！'}, page_content='尚硅谷是专门培训IT技术方向'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介'},page_content='尚硅谷老师简介'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介'},page_content='尚硅谷老师拥有多年教学经验，都是从一线互联网下来'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介', '标题3': '尚硅谷北京校区'}, page_content='尚硅谷北京校区'),Document(metadata={'标题1': '欢迎来到尚硅谷！', '标题2': '尚硅谷老师简介', '标题3': '尚硅谷北京校区'}, page_content='北京校区位于宏福科技园区')]
+```
 
 说明：
 
@@ -2247,7 +2249,9 @@ python_docs = python_splitter.create_documents(texts=[PYTHON_CODE])
 pprint(python_docs)
 ```
 
-> [Document(metadata={}, page_content='def hello_world():\n print("Hello, World!")'),Document(metadata={}, page_content='def hello_world1():\n print("Hello, World1!")')]
+```
+[Document(metadata={}, page_content='def hello_world():\n print("Hello, World!")'),Document(metadata={}, page_content='def hello_world1():\n print("Hello, World1!")')]
+```
 
 ##### ⑦ MarkdownTextSplitter(了解)
 
