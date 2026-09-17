@@ -2146,7 +2146,7 @@ SemanticChunker 的底层逻辑是先按照正则表达式切分为chunk 列表�
 
 **HTMLHeaderTextSplitter：Split by HTML header**
 
-HTMLHeaderTextSplitter是一种专门用于处理HTML文档的文本分割方法，它根据HTML的标题标签（如<h1>、<h2>等）将文档划分为逻辑分块，同时保留标题的层级结构信息。
+HTMLHeaderTextSplitter是一种专门用于处理HTML文档的文本分割方法，它根据HTML的标题标签（如`<h1>`、`<h2>`等）将文档划分为逻辑分块，同时保留标题的层级结构信息。
 
 举例：
 
