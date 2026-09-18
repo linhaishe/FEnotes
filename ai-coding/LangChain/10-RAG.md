@@ -3368,3 +3368,410 @@ generate_answer(q)
 答使用量超过月度额度的50%、升级部分订单不适用首购退款规则，或者已经开具专票但尚未完成
 红字发票流程。如果上下文不足以回答您的具体问题，请提供更多细节。
 ```
+
+## 3、Tools
+
+### RAG Part 1: 加载与分割
+
+Document = 一整篇文档 
+
+Node = 文档切分后的一个片段 
+
+Chunk = 通常就是 Node 的概念
+
+| 工具             | 主要定位                            |
+| ---------------- | ----------------------------------- |
+| Unstructured     | 通用文档解析和元素提取              |
+| MinerU           | 面向复杂文档、Agent 阅读和 PDF 解析 |
+| Docling          | 多格式文档转换和结构化表示          |
+| LlamaIndex       | RAG 数据组织、切分、索引和查询      |
+| FAISS / ChromaDB | 向量存储和相似度检索                |
+
+```python
+文档
+  ↓
+Docling / MinerU / Unstructured (三选一)
+  ↓
+提取标题、段落、表格、公式
+  ↓
+LlamaIndex NodeParser
+  ↓
+切分成 Node / Chunk，并保留 metadata
+  ↓
+Sentence Transformers
+  ↓
+为每个 Chunk 生成 Embedding
+  ↓
+ChromaDB / FAISS
+  ↓
+保存：向量 + 原文 + metadata
+```
+
+```python
+用户问题
+  ↓
+Sentence Transformers
+  ↓
+把问题转换成 Query Embedding
+  ↓
+ChromaDB / FAISS
+  ↓
+检索相似 Chunk
+  ↓
+可选：Reranker 精排
+  ↓
+拼接 Prompt
+  ↓
+LLM 回答
+```
+
+| 对比项                      | MinerU                      | Docling                  |
+| --------------------------- | --------------------------- | ------------------------ |
+| 核心定位                    | AI 文档阅读和解析           | 通用文档转换和结构化     |
+| 重点场景                    | PDF、扫描件、论文、复杂版面 | 多格式文档、企业文档转换 |
+| OCR                         | 支持                        | 支持                     |
+| 表格解析                    | 支持                        | 支持                     |
+| 公式解析                    | 支持                        | 支持                     |
+| 输出                        | Markdown、JSON 等           | Markdown、HTML、JSON 等  |
+| Agent 阅读能力              | 更突出                      | 可通过集成使用           |
+| LlamaIndex / LangChain 集成 | 可接入                      | 官方提供集成             |
+| 本地运行                    | 支持                        | 支持                     |
+| 学习难度                    | 安装和模型依赖稍复杂        | API 相对直观             |
+
+| 说法                        | 实际意思                                             | 典型文件                                         |
+| --------------------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| PDF、扫描件、论文、复杂版面 | 更关注一份文档内部的视觉布局和内容结构是否被正确识别 | 扫描 PDF、学术论文、双栏 PDF、带公式和表格的报告 |
+| 多格式文档、企业文档转换    | 更关注不同格式的文件都能统一转换成结构化结果         | PDF、Word、PPT、Excel、HTML、邮件、EPUB          |
+
+> MinerU 和 Docling 都是**文档解析工具**，主要用于把复杂的 PDF、Word、PPT、Excel、图片等文件转换成适合 LLM / RAG 使用的 Markdown、JSON 或结构化文档。
+
+[MinerU](https://github.com/opendatalab/MinerU)
+
+> MinerU 更像是一个**面向 AI 和 Agent 的文档阅读、解析工具**。
+>
+> 它比较关注：
+>
+> - PDF 版面解析
+> - 扫描件 OCR
+> - 表格提取
+> - 公式提取
+> - 图片和图表处理
+> - 文档转 Markdown / JSON
+> - 长文档按页、按区块继续读取
+> - 保留页码和区块定位，方便引用
+
+[Docling](https://github.com/DS4SD/docling)
+
+> Docling 是 IBM Research 发起的文档转换和解析工具，也用于把各种文档转换成适合生成式 AI 的结构化内容。
+>
+> 它支持：
+>
+> - PDF
+> - DOCX
+> - PPTX
+> - XLSX
+> - HTML
+> - EPUB
+> - 图片
+> - 音频
+> - LaTeX
+> - 邮件等
+>
+> 它尤其关注：
+>
+> - PDF 页面布局
+> - 阅读顺序
+> - 表格结构
+> - 代码
+> - 数学公式
+> - 图片分类
+> - OCR
+> - Markdown / HTML / JSON 等输出
+
+例子一：扫描版合同
+
+```
+图片 PDF
+→ OCR 识别文字
+→ 识别合同条款和表格
+→ 输出 Markdown / JSON
+```
+
+这种更关注 OCR 和版面解析，MinerU 这类工具会比较适合。
+
+例子二：企业知识库
+
+```
+PDF + Word + PPT + Excel + HTML
+→ 统一解析
+→ 统一切分
+→ 写入向量数据库
+```
+
+这种更关注格式兼容和统一处理，Docling 会比较合适。
+
+例子三：学术论文 RAG
+
+```
+双栏论文
+→ 识别标题、章节、公式、表格、引用
+→ 保持正确阅读顺序
+→ 切分后进入 RAG
+```
+
+这种更关注文档内部结构和版面，MinerU、Docling 都可以，但需要实际对比效果。
+
+[Unstructured](https://docs.unstructured.io/transform/first-request)
+
+> 把 PDF、Word、PPT、Excel、HTML、图片等非结构化文件，转换成适合 RAG 使用的结构化文本。
+>  [Unstructured First Request](https://docs.unstructured.io/transform/first-request)
+
+[LlamaIndex Loaders](https://developers.llamaindex.ai/python/framework/module_guides/loading/documents_and_nodes/)
+
+> **LlamaIndex 中的 `Document` 和 `Node` 两个核心数据结构**，用于构建 RAG 的文档处理流程。
+
+Unstructured 负责“读懂文件”，LlamaIndex 负责“组织和编排 RAG 数据流程”。
+
+```
+原始文件
+  ↓
+Document：完整文档
+  ↓
+Node：切分后的文本块
+  ↓
+Embedding
+  ↓
+向量数据库
+  ↓
+检索
+```
+
+```
+PDF
+ ↓
+Unstructured 解析 PDF 内容
+ ↓
+LlamaIndex Document
+ ↓
+LlamaIndex Node
+ ↓
+Embedding
+ ↓
+ChromaDB / FAISS
+ ↓
+LLM 回答
+```
+
+LlamaIndex 不是只能使用自己的向量库，它可以接入多种向量存储。
+
+最简单的写法：
+
+```python
+from llama_index.core import VectorStoreIndex
+
+index = VectorStoreIndex(nodes)
+```
+
+这一步会大致完成：
+
+```
+Node
+→ 生成 Embedding
+→ 建立向量索引
+→ 保存到 VectorStoreIndex
+```
+
+也可以接入 Chroma、FAISS、Milvus、pgvector 等后端。
+
+因此：
+
+```
+LlamaIndex = RAG 应用编排框架
+FAISS / ChromaDB = 向量存储和检索组件
+```
+
+#### 1. Document 是什么？
+
+`Document` 表示一份完整的数据来源，例如：
+
+- 一个 PDF 文件
+- 一篇 Markdown
+- 一个网页
+- 一段 API 返回结果
+- 数据库中的一条记录
+
+它通常包含：
+
+```python
+from llama_index.core import Document
+
+document = Document(
+    text="北京今天最高气温 30 度。",
+    metadata={
+        "city": "Beijing",
+        "source": "weather.md"
+    }
+)
+```
+
+官方文档中，`Document` 被定义为对任意数据源的通用容器，可以保存文本、metadata 和关系信息。
+
+#### 2. Node 是什么？
+
+`Node` 是从 `Document` 中切分出来的一个小片段，也就是 RAG 里的 **Chunk**。
+
+假设原文是：
+
+```
+北京今天最高气温 30 度。上海今天有小雨。成都空气质量良好。
+```
+
+切分后可能得到：
+
+```
+Node 1：北京今天最高气温 30 度。
+Node 2：上海今天有小雨。
+Node 3：成都空气质量良好。
+```
+
+每个 Node 通常包含：
+
+- 文本内容
+- 向量
+- metadata
+- 所属 Document 信息
+- 和其他 Node 的关系
+
+官方文档中，Node 被定义为源文档的一个文本块，也可以表示图片或其他内容。
+
+#### 3. 如何从 Document 生成 Node？
+
+LlamaIndex 提供 `NodeParser`，例如：
+
+```python
+from llama_index.core import Document
+from llama_index.core.node_parser import SentenceSplitter
+
+documents = [
+    Document(text="这是第一篇文档的内容。"),
+    Document(text="这是第二篇文档的内容。")
+]
+
+parser = SentenceSplitter(
+    chunk_size=512,
+    chunk_overlap=50
+)
+
+nodes = parser.get_nodes_from_documents(documents)
+```
+
+这里：
+
+- `chunk_size=512`：每个文本块的大致大小
+- `chunk_overlap=50`：相邻文本块重叠 50 个 token 或字符单位，具体取决于实现
+
+切分的目的是：
+
+> 不要把整篇长文直接塞给大模型，而是只检索和问题最相关的几个小片段。
+
+### RAG Part 2: 向量化与存储
+
+教程: [FAISS Intro](https://github.com/facebookresearch/faiss/wiki/Getting-started)
+
+教程: [Sentence Transformers](https://www.sbert.net/)
+
+理解 Embedding 原理，使用 FAISS/Chroma 构建本地向量索引
+
+这个网站是 **Sentence Transformers（也叫 SBERT）官方文档**，主要用于：
+
+> 把文本转换成向量，并计算文本之间的语义相似度。
+
+它是 RAG 中的 **Embedding 和 Reranker 模型工具库**，不是向量数据库，也不是大模型聊天框架。官方文档目前覆盖 Embedding、Reranker、Sparse Encoder 和 Multi-Vector Encoder 等模型。
+
+---
+
+>  Todo:
+>
+> 想解析论文、扫描 PDF、复杂表格和公式：优先试 **MinerU**
+>
+> 想构建一个多格式文档知识库：优先试 **Docling**
+>
+> 想快速做通用文档上传：可以先试 **Unstructured**
+>
+> 想学习 RAG 框架内部流程：配合 **LlamaIndex**
+>
+> 想学习向量检索底层：再使用 **FAISS**
+>
+> 教程: [RAG from Scratch](https://github.com/langchain-ai/rag-from-scratch)<br>概念: [LLM Powered Autonomous Agents](https://lilianweng.github.io/posts/2023-06-23-agent/)<br>教程: [动手学大模型应用开发](https://datawhalechina.github.io/llm-universe/#/)
+>
+> https://github.com/datawhalechina/llm-universe
+>
+> 参考: [面向开发者的LLM入门教程](https://github.com/datawhalechina/llm-cookbook)
+
+### 大模型开发的一般流程
+
+https://datawhalechina.github.io/llm-universe/#/C1/C1?id=_141-大模型开发的一般流程
+
+大模型开发大致可以拆成下面几步：
+
+1. **确定目标**。先想清楚应用场景、目标用户和核心价值。个人或小团队宜先定最小目标，从 MVP（最小可行性产品）做起，再迭代。
+2. **设计功能**。列出应用要提供的功能，以及每项功能的大致实现方法。业务边界越清楚，Prompt 越容易设计。个人或小团队可以先实现核心功能，再补充上下游流程。例如，个人知识库助手的核心是根据知识库回答问题；上传文档和纠正回答属于配套功能。
+3. **搭建整体架构**。按功能把用户输入、模型、外部数据和输出接起来；是否需要数据库、检索或工具，取决于具体任务。本课程使用 LangChain 的 Chain、Tool 等抽象来组织这条链路。
+4. **准备数据与索引**。如果应用需要私有知识，再收集和清洗数据。做向量检索时，可以使用 Chroma 这类向量库；常见流程是解析文档、分块、生成向量，并保存文本和元数据。不是所有大模型应用都需要向量数据库。
+5. **Prompt Engineering**。Prompt 用来说明任务、提供上下文并约束输出格式。可以先准备一小批真实业务样例，再编写和调整初版 Prompt。
+6. **验证迭代**。用真实业务样例测试边界情况，记录 Bad Case，再据此修改 Prompt、检索或工具链，直到效果基本稳定。
+7. **前后端搭建**。核心功能稳定后，再开发页面和接口。本课程不展开前后端技术；个人开发者可以用 Gradio 或 Streamlit 搭建 Demo。
+8. **体验优化**。上线后继续收集用户反馈和 Bad Case，据此调整系统。
+
+### 其他 Embedding 方式
+
+Sentence Transformers 是一个用于加载和运行 Embedding 模型的 Python 库，不是某一个具体的 Embedding 模型。
+
+| 方式             | 代表方案                                   | 特点                                  |
+| ---------------- | ------------------------------------------ | ------------------------------------- |
+| 本地 Python 模型 | Sentence Transformers + Hugging Face       | 本地运行，适合学习和隐私数据          |
+| 云端 API         | OpenAI、Cohere、Jina、Gemini 等            | 使用简单，效果稳定，但需要联网和付费  |
+| 本地模型服务     | Ollama                                     | 通过本地 HTTP API 提供 Embedding      |
+| 模型推理服务     | Hugging Face TEI、vLLM                     | 将 Embedding 模型部署成服务，适合生产 |
+| LlamaIndex 集成  | `HuggingFaceEmbedding`、OpenAI Embeddings  | 直接接入 LlamaIndex RAG               |
+| LangChain 集成   | `HuggingFaceEmbeddings`、OpenAI Embeddings | 直接接入 LangChain                    |
+| 稀疏向量         | BM25、SPLADE                               | 更擅长关键词匹配，可与向量检索混合    |
+
+文档和用户问题必须使用：
+
+- 同一个 Embedding 模型
+- 同样的向量维度
+- 一致的预处理方式
+
+例如文档使用：
+
+```
+BAAI/bge-small-zh-v1.5
+```
+
+查询也要使用同一个模型，不能文档用一个模型、问题用另一个模型后直接比较向量。
+
+对你当前学习 RAG，推荐顺序是：
+
+```
+Sentence Transformers
+→ ChromaDB
+→ 换成云端 Embedding API
+→ BM25 + 向量检索
+→ Reranker
+```
+
+这样能分别理解本地 Embedding、云端 Embedding、混合检索和精排。
+
+
+
+
+
+
+
+
+
+
+
+
+

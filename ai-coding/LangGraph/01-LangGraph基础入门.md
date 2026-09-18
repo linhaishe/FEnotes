@@ -150,7 +150,7 @@ LangGraph 的图运行过程基于 Superstep（超步） 来组织和推进。Su
 
 3. 状态更新/提交阶段（Update / Commit）：当本轮所有节点都执行完成后，LangGraph 会将它们的输出统一合并到 State 中，生成新的状态快照。这个新状态会作为下一轮 Superstep 的输入。
 
-![image-20260521160659113](assets/image-20260521160659113.png)
+![image-20260917135008669](https://picgocloud.com/m/5aeb0f4f-1a01-4a6b-8b7e-0b1d4a56539d.png)
 
 完整的运行流程查看 [index.html](langgraph-runtime-viz/index.html) ，双击在浏览器打开即可。
 
