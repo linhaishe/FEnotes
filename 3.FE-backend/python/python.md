@@ -5152,10 +5152,7 @@ import module1[, module2[,... moduleN]
 ```py
 import math as m 
 m.sqrt(36)
-
 ```
-
-
 
 搜索路径时一个解释器会先进行搜索的所有目录的列表。如想要导入模块 support，需要把命令放在脚本的顶端：
 
@@ -5249,6 +5246,12 @@ from module_name import name1 as alias1, name2 as alias2  # 将 sqrt 函数别�
 from math import radians, sin, cos
 ```
 
+### 从另一个文件夹里import
+
+```python
+from qa_chain.QA_chain_self import QA_chain_self
+```
+
 ------
 
 ## from … import * 语句
@@ -5270,7 +5273,9 @@ print(exp(1))    # 2.718281828459045
 
 ## 深入模块
 
-这段教程写得比较抽象，我用一个**真实项目例子**给你讲，你一下就能明白。
+### **==Python 导入模块的时候，会把模块里面的代码执行一遍==**
+
+**模块除了方法定义，还可以包括可执行的代码。**
 
 假设你的项目长这样：
 
@@ -5282,20 +5287,11 @@ project/
 └── string_util.py
 ```
 
-------
-
-### 第一句话
-
-> **模块除了方法定义，还可以包括可执行的代码。**
-
-什么意思？
-
-例如：
-
-#### math_util.py
+例如：`math_util.py`这个文件中有`add`方法，还有一个`print` func **可执行代码**
 
 ```python
-print("math_util 被加载了")
+# `math_util.py`
+print("math_util 被加载了") # 可执行代码
 
 PI = 3.14
 
@@ -5303,54 +5299,24 @@ def add(a, b):
     return a + b
 ```
 
-注意：
-
-这里不仅有
-
 ```python
-def add():
-```
-
-还有：
-
-```python
-print("math_util 被加载了")
-```
-
-这是**可执行代码**。
-
-------
-
-#### main.py
-
-```python
+# main.py
 import math_util
 
 print("main 开始")
 ```
 
-运行：
+运行`main.py`：
 
 ```python
+# output
 math_util 被加载了
 main 开始
 ```
 
-为什么？
-
-因为：
-
-Python 导入模块的时候，会把模块里面的代码执行一遍。
-
 ------
 
-### 第二句话
-
-> **这些代码只有第一次被导入时才会被执行。**
-
-什么意思？
-
-例如：
+### **==这些代码只有第一次被导入时才会被执行==**
 
 ```python
 import math_util
@@ -5366,68 +5332,24 @@ math_util 被加载了
 
 只有一次。
 
-因为：
+因为 Python 有模块缓存。
 
-Python 有模块缓存。
+第一次 `import` 后，流程会是 `读取文件 -> 执行整个文件 -> 放入缓存(sys.modules)`
 
-第一次：
+第二次`import math_util` 发现缓存里面已经有了，直接使用，不会再执行。
 
-```python
-import math_util
-```
-
-流程：
+**==每个模块有各自独立的符号表，是两个不同的命名空，不会把其他用户的全局变量搞混。==**
 
 ```python
-读取文件
-    │
-执行整个文件
-    │
-放入缓存(sys.modules)
-```
-
-第二次：
-
-```python
-import math_util
-```
-
-发现：
-
-```python
-缓存里面已经有了
-```
-
-直接使用。
-
-不会再执行。
-
-------
-
-### 第三句话
-
-> **每个模块有各自独立的符号表。**
-
-这个最容易理解。
-
-假设：
-
-------
-
-#### math_util.py
-
-```python
+# math_util.py
 a = 100
 
 def test():
     print(a)
 ```
 
-------
-
-#### main.py
-
 ```python
+# main.py
 a = 999
 
 import math_util
@@ -5444,73 +5366,20 @@ math_util.test()
 100
 ```
 
-为什么？
-
-因为：
-
-```python
-main.py
-```
-
-有自己的：
-
-```python
-a = 999
-math_util.py
-```
-
-也有自己的：
-
-```python
-a = 100
-```
-
-互不影响。
-
-可以画图：
-
-```python
-main.py
-
-a = 999
-```
-
-和
-
-```python
-math_util.py
-
-a = 100
-```
-
-是两个不同的命名空间。
-
-所以教程说：
-
-> 不会把其他用户的全局变量搞混。
-
-------
-
-### 第四句话
-
-> **你可以通过 modname.itemname 访问模块里的东西。**
+**==你可以通过 `modname.itemname` 访问模块里的东西==**
 
 例如：
 
-#### math_util.py
-
 ```python
+# math_util.py
 PI = 3.14
 
 def add(a, b):
     return a + b
 ```
 
-------
-
-#### main.py
-
 ```python
+# main.py
 import math_util
 
 print(math_util.PI)
@@ -5525,56 +5394,16 @@ print(math_util.add(3, 5))
 8
 ```
 
-这里：
+==**模块可以导入其他模块。**==
 
 ```python
-math_util.PI
-```
-
-就是：
-
-```python
-模块名.变量
-```
-
-而：
-
-```python
-math_util.add()
-```
-
-就是：
-
-```python
-模块名.函数
-```
-
-和 JavaScript 很像：
-
-```python
-Math.max()
-```
-
-------
-
-### 第五句话
-
-> **模块可以导入其他模块。**
-
-例如：
-
-#### string_util.py
-
-```python
+# string_util.py
 def upper(text):
     return text.upper()
 ```
 
-------
-
-#### math_util.py
-
 ```python
+# math_util.py
 import string_util
 
 print(string_util.upper("hello"))
@@ -5586,185 +5415,30 @@ print(string_util.upper("hello"))
 HELLO
 ```
 
-说明：
+==**还有一种导入的方法，可以使用 import 直接把模块内名称导入当前模块。**==
 
-模块里面还能继续 import。
-
-------
-
-### 第六句话
-
-> **还有一种导入的方法，可以使用 import 直接把模块内名称导入当前模块。**
-
-这里其实是在说：
-
-有两种 import。
-
-------
-
-#### 第一种
-
-```python
-import math_util
-```
-
-以后：
-
-```python
-math_util.add()
-```
-
-必须写：
-
-```python
-模块名.
-```
-
-例如：
-
-```python
-print(math_util.add(1,2))
-```
-
-------
-
-#### 第二种
-
-```python
-from math_util import add
-```
-
-以后：
-
-```python
-add(1,2)
-```
-
-直接调用。
-
-因为：
-
-Python 已经把：
-
-```python
-add
-```
-
-放到当前文件里了。
-
-------
-
-可以画个图。
-
-##### import
-
-```python
-main.py
-
-math_util
-      │
-      ├── add()
-      ├── PI
-      └── test()
-```
-
-所以：
-
-```python
-math_util.add()
-```
-
-------
-
-##### from import
-
-```python
-main.py
-
-add()
-PI
-```
-
-直接进入当前命名空间。
-
-所以：
-
-```python
-add()
-```
-
-就可以了。
-
-------
-
-#### 最后总结（也是面试最常问的）
-
-假设有：
-
-```python
-### math_util.py
-
-PI = 3.14
-
-def add(a,b):
-    return a+b
-```
-
-##### 写法①
+#### 第一种`import`
 
 ```python
 import math_util
 
-math_util.add(1,2)
-math_util.PI
+math_util.add()
+
+print(math_util.add(1,2)) # 模块名
 ```
 
-特点：
-
-- 导入整个模块。
-- 不容易和其他变量重名。
-- **项目开发最推荐。**
-
-------
-
-##### 写法②
+#### 第二种`import`
 
 ```python
 from math_util import add
 
-add(1,2)
+add(1,2) # 直接调用
 ```
-
-特点：
-
-- 直接导入某个函数。
-- 调用更方便。
-- 但是如果很多模块都有 `add()`，容易发生命名冲突。
-
-------
-
-所以在真实项目中，你会发现：
 
 - **导入整个模块（`import xxx`）** 用得更多，代码更清晰，看到 `math_util.add()` 就知道这个函数来自哪个模块。
-- **导入单个成员（`from xxx import add`）** 常用于特别常用、名字不容易冲突的函数或类，例如：
+  - **导入单个成员（`from xxx import add`）** 常用于特别常用、名字不容易冲突的函数或类。
 
-```python
-from pathlib import Path
-from datetime import datetime
-from collections import Counter
-```
-
-这样使用时可以直接写：
-
-```python
-Path("demo.txt")
-datetime.now()
-Counter([1, 2, 2, 3])
-```
-
-代码会更加简洁。
-
-## __name__ 属性
+## `__name__ `属性
 
 一个模块被另一个程序第一次引入时，其主程序将运行。
 
@@ -6071,6 +5745,7 @@ When a Python file is executed directly, Python sets the value of this variable 
 But if the Python file is imported as a module into another Python script, the value of the `__name__` variable is set to the name of that module (usually the filename without the `.py` extension).
 
 ```python
+# greet.py
 def greet():
     print("来自 example 模块的问候！")
 
@@ -6083,10 +5758,17 @@ else:
 
 ```python
 # another_script.py
-
 import example
 
-example.greet()
+example.greet() # 该脚本作为模块被导入。
+```
+
+```python
+# python greet.py 作为独立脚本运行时才会执行这些代码
+
+#output
+该脚本正在直接运行。
+来自 example 模块的问候！
 ```
 
 - `__name__` 是一个内置变量，表示当前模块的名称。
@@ -7098,7 +6780,7 @@ class Dog:
     def bark(self):
         print(f"{self.name.upper()} says woof woof! I'm {self.age} years old!")
 
-dog_1 = Dog("Jack", 3)
+dog_1 = Dog("Jack", 3) # 创建实例
 dog_2 = Dog("Thatcher", 5)
 
 # Call the bark method

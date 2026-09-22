@@ -1347,8 +1347,6 @@ list[str]:
      return self.split_documents(list(documents))
 ```
 
-
-
 #### 2.3.4 具体实现
 
 LangChain提供了许多不同类型的文档切分器
@@ -2303,6 +2301,16 @@ for i, doc in enumerate(docs):
 - 二级下列表项2
 ```
 
+##### 简单选择
+
+```
+普通文档 → RecursiveCharacterTextSplitter
+Markdown → MarkdownHeaderTextSplitter
+代码 → PythonCodeTextSplitter
+需要严格控制 token → TokenTextSplitter
+想按语义切分 → SemanticChunker
+```
+
 ### 2.4 文档嵌入模型 Text Embedding Models
 
 #### 2.4.1 嵌入模型概述
@@ -2429,7 +2437,6 @@ print(len(embedded_query))
 举例1：
 
 ```python
-
 # 待嵌入的文本列表
 texts = [
  "Hi there!",
@@ -3388,7 +3395,7 @@ Chunk = 通常就是 Node 的概念
 | FAISS / ChromaDB | 向量存储和相似度检索                |
 
 ```python
-文档
+文档 / loader
   ↓
 Docling / MinerU / Unstructured (三选一)
   ↓

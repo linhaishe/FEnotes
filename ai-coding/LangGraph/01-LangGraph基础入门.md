@@ -1812,3 +1812,112 @@ structured_response: NotRequired[Annotated[ResponseT, OmitFromInput]]
 总体来看，`AgentState` 是专门为 LangChain Agent 运行时设计的状态类型。
 
 因此，在普通自定义 `LangGraph` 项目中，一般不建议直接基于 `AgentState` 扩展图状态。
+
+# 该怎么判断什么时候用Langgraph呢
+
+最简单的判断标准是：
+
+> **流程固定，用 LangChain；流程会根据状态进行分支、循环、暂停或恢复，用 LangGraph。**
+
+### 用 LangChain 就够了
+
+如果流程基本是固定的：
+
+```text
+用户问题
+  ↓
+生成 Query Embedding
+  ↓
+向量检索
+  ↓
+拼接上下文
+  ↓
+调用 LLM
+  ↓
+返回答案
+```
+
+或者：
+
+```text
+查询改写 → 混合检索 → Rerank → 生成答案
+```
+
+这种属于普通 RAG Pipeline，不需要 LangGraph。
+
+### 考虑使用 LangGraph
+
+如果出现下面任意几种情况，就可以考虑 LangGraph：
+
+| 特征                  | 示例                               |
+| --------------------- | ---------------------------------- |
+| 有条件分支            | 技术问题查技术库，日记问题查日记库 |
+| 有循环                | 检索结果不好，就改写问题后重新检索 |
+| 需要保存状态          | 记住当前步骤、已检索内容和中间结果 |
+| 需要人工确认          | Agent 写入长期记忆前需要用户确认   |
+| 多个 Agent 或节点协作 | 分类 Agent、检索 Agent、总结 Agent |
+| 可以暂停后恢复        | 等待用户审批后继续执行             |
+| 流程较长且容易失败    | 中途失败后从上次节点继续           |
+
+例如你的个人知识库可以发展成：
+
+```text
+用户提问
+  ↓
+问题分类
+  ├─ 技术问题 → 技术知识库
+  ├─ 日记问题 → 日记库
+  └─ 混合问题 → 两个库都检索
+  ↓
+判断结果是否足够
+  ├─ 足够 → 生成答案
+  └─ 不足 → 改写问题并重新检索
+  ↓
+返回答案
+```
+
+这时 LangGraph 就比较合适，因为它需要管理：
+
+- 当前问题类型；
+- 检索结果；
+- 是否需要重试；
+- 当前执行节点；
+- 是否等待人工确认。
+
+LangGraph 官方定位就是用于有状态、长流程、可恢复的 Agent 和工作流编排；LangChain 则更适合模型、工具和普通 Agent 组件的组合。[LangGraph 官方文档](https://docs.langchain.com/oss/python/langgraph/overview)
+
+### 你的项目怎么判断
+
+你现在可以先问自己五个问题：
+
+1. 是否有多个步骤？
+2. 步骤之间是否有条件分支？
+3. 是否可能循环重试？
+4. 是否需要保存中间状态？
+5. 是否需要人工暂停或恢复？
+
+如果只是：
+
+```text
+加载文档 → 切分 → 向量化 → 检索 → 回答
+```
+
+不用 LangGraph。
+
+如果是：
+
+```text
+分类 → 选择知识库 → 检索 → 判断质量 → 重写查询 → 再检索 → 回答 → 用户确认后写入记忆
+```
+
+就适合 LangGraph。
+
+对你目前的个人知识库，我建议：
+
+```text
+第一阶段：LangChain
+第二阶段：LangChain + Reranker + Query Rewrite
+第三阶段：用 LangGraph 编排复杂问答流程
+```
+
+不要因为项目中出现了“Agent”三个字就立即使用 LangGraph。真正的判断点是：**你的流程是否需要状态管理和流程控制。** LangChain 的 Agent 本身也已经基于 LangGraph 构建，但你不一定需要直接操作 LangGraph 的底层图结构。[LangChain 官方文档](https://docs.langchain.com/oss/python/langchain/overview)
