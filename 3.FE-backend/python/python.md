@@ -1833,6 +1833,16 @@ print(result)
 
 无法修改
 
+tuple 的特点：
+
+- 不容易被意外修改；
+- 可以表示固定结构的数据；
+- 占用空间通常略少；
+- 可以作为字典键或放入 `set`；
+- 适合表示“问题和答案”这种固定二元关系。
+
+如果记录字段经常变化，使用字典或类会更合适。
+
 `my_tuple = ('abcd', 786, 2.23, 'runoob', 70.2) # 避免使用 tuple 作为变量名`
 
 ```python
@@ -2120,6 +2130,32 @@ keys_list = list(my_dict.keys())
 print(keys_list[0])  # Output: 'apple'
 
 del del_dict[del_key.lower()]
+```
+
+字典的 key 必须是“可哈希”的类型，通常就是不可变类型。
+
+`some_dic[("gemini-3.1-flash-lite", "m3e")]`
+
+`(["gemini"], ["m3e"])  # 报错`
+
+它里面的两个元素都是字符串，而字符串不可变、可哈希
+
+常见可作为 key 的类型：
+
+```
+str
+int
+float
+tuple  # 内部元素也必须可哈希
+frozenset
+```
+
+常见不能作为 key 的类型：
+
+```
+list
+dict
+set
 ```
 
 | **Method/Keyword**      | **Deletes What?** | **Returns Deleted Value?** | **Throws Error if Key Missing?**           |
@@ -2914,6 +2950,8 @@ assert [item["city"] for item in response.json()["results"]] == ["Beijing", "Sha
 
 ### 列表推导式（List Comprehension）
 
+#### 例子1 非列表推导式
+
 ```python
 def router(state: inputState) -> Sequence[Send]:
     router_prompt = "请生成关于{} 的 {}"
@@ -2941,6 +2979,8 @@ def router(state: inputState) -> Sequence[Send]:
     return send_list
 ```
 
+#### 例子2 列表推导式
+
 ```python
 # 列表推导式
 return [
@@ -2960,6 +3000,35 @@ return [
 **代码更直观**：列表推导式将“创建列表”、“迭代遍历”和“填充元素”压缩成一步完成，省去了显式定义 `send_list = []` 和逐个 `.append()` 的样板代码。
 
 **符合 LangGraph 路由规范**：条件路由函数（Router）需要**直接返回**一个包含多个 `Send` 对象的序列/列表。列表推导式能在一行 `return` 语句中一次性生成并直接返回。
+
+#### 例子3 列表推导式
+
+```python
+def file_loader(file, loaders): ...
+
+if not os.path.isfile(file):
+    # list 会循环调用 file_loader()
+    [file_loader(os.path.join(file, f), loaders) for f in  os.listdir(file)]
+    return
+ 
+# equals
+for f in os.listdir(file):
+    file_loader(os.path.join(file, f), loaders)
+```
+
+1. `os.listdir(file)` 获取目录中的所有文件名和子目录名，只返回名称，不返回完整路径。 / `['a.txt', 'sub']`
+2. `os.path.join(file, f)` 拼接出完整路径 `os.path.join("data", "a.txt")`
+
+#### extend() for in
+
+如果使用extend 就得使用 for in 而不是列表推导了
+
+```python
+docs = []
+for loader in loaders:
+    if loader is not None:
+        docs.extend(loader.load())
+```
 
 ## for...else
 
