@@ -1,15 +1,32 @@
 > Refs: 
 >
-> 1. https://github.com/punkpeye/awesome-mcp-servers/blob/main/README-zh.md
-> 2. https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
+> 1. https://modelcontextprotocol.io/specification/2026-07-28/architecture
+> 2. https://github.com/punkpeye/awesome-mcp-servers/blob/main/README-zh.md
+> 3. https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
 >
-> 1. https://glama.ai/
-> 2. https://smithery.ai/
-> 3. https://cursor.directory/
-> 4. https://mcp.so/
-> 5. https://bailian.console.aliyun.com/cn-beijing?utm_content=se_1021228063&gclid=EAIaIQobChMI4v23ybGVlgMVDcQ8Ah3DQy3HEAAYASAAEgIE8vD_BwE#/home
+> 4. https://glama.ai/
+> 5. https://smithery.ai/
+> 6. https://cursor.directory/
+> 7. https://mcp.so/
+> 8. https://bailian.console.aliyun.com/cn-beijing?utm_content=se_1021228063&gclid=EAIaIQobChMI4v23ybGVlgMVDcQ8Ah3DQy3HEAAYASAAEgIE8vD_BwE#/home
 
-## **大模型的局限与核心挑战**
+# MCP：解决工具连接的标准化协议
+
+## intro
+
+Modal context protocol 
+
+The Model Context Protocol (MCP) follows a client-host-server architecture where each host can run multiple client instances. MCP is a stateless protocol: every request is self-contained and carries its own protocol version and capabilities. This architecture enables users to integrate AI capabilities across applications while maintaining clear security boundaries and isolating concerns. Built on JSON-RPC, MCP provides a protocol focused on context exchange and sampling coordination between clients and servers.
+
+模型上下文协议 (MCP) 采用客户端-主机-服务器架构，其中每个主机可以运行多个客户端实例。MCP 是一种无状态协议：每个请求都是独立的，并携带其自身的协议版本和功能。这种架构使用户能够在应用程序之间集成 AI 功能，同时保持清晰的安全边界并隔离各个关注点。MCP 基于 JSON-RPC 构建，提供了一种专注于客户端和服务器之间上下文交换和采样协调的协议。
+
+![image-20260928180223790](https://picgocloud.com/m/fb5f3d2d-7c1c-4498-9804-495f3c61ec57.png)
+
+![image-20260810205930777](https://i.postimg.cc/mBqTXmX3/image-20260810205930777.png?dl=1)
+
+![image-20260810210053422](https://i.postimg.cc/pR9mLh37/image-20260810210053422.png?dl=1)
+
+## 大模型的局限与核心挑战
 
 大模型本质是文字生成器，缺乏记忆、视觉及操作外部世界的能力。要使其真正有用，需解决两个层面的问题：
 
@@ -18,15 +35,7 @@
 
 MCP旨在解决连接问题，Skills旨在解决方法论问题，二者处于不同层面。
 
-## **MCP：解决工具连接的标准化协议**
-
-Modal context protocol 
-
-![image-20260810205930777](https://i.postimg.cc/mBqTXmX3/image-20260810205930777.png?dl=1)
-
-![image-20260810210053422](https://i.postimg.cc/pR9mLh37/image-20260810210053422.png?dl=1)
-
-### **Function Calling的痛点**
+**Function Calling的痛点**
 
 definition
 
@@ -48,7 +57,7 @@ Function Calling 是大语言模型的一项能力。在调用 API 时，你可�
 - **上下文消耗巨大**：每次请求需携带全量工具定义，50个工具描述可能占用 **1-2万** token
 - **代码高度耦合**：工具定义与执行逻辑嵌入应用代码，导致N个工具对接M个应用时产生 **N×M** 份集成代码
 
-### **MCP的核心架构与价值**
+**MCP的核心架构与价值**
 
 MCP通过标准化协议将 **N×M** 的集成复杂度降为 **N+M**：
 
@@ -56,7 +65,7 @@ MCP通过标准化协议将 **N×M** 的集成复杂度降为 **N+M**：
 - **动态发现机制**：MCP Client可向Server查询可用工具清单，实现工具与应用的解耦
 - **面向AI的理解层**：区别于传统API供代码调用，MCP提供AI可自主理解、判断和构造参数的标准描述 
 
-### **技术实现细节**
+## Core Components 核心组件
 
 MCP架构包含三个角色：
 

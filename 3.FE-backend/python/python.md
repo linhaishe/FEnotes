@@ -2455,16 +2455,28 @@ range(start, stop, step)
 ```python
 for num in range(1, 5):
     print(num)
+# 1 2 3 4
 ```
 
 ```python
 for num in range(3):
     print(num)
+# 0 1 2
 ```
+
+```py
+for num in range(0, 10, 3):
+    print(num)
+# 0 → 3 → 6 → 9
+```
+
+
 
 ```py
 even_numbers = [num for num in range(21) if num % 2 == 0]
 print(even_numbers)
+
+# [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 ```
 
 # enumerate()
@@ -2802,6 +2814,30 @@ not allowed
 
 限流器会根据这个 IP 分别统计请求次数。
 
+---
+
+对应代码：
+
+```
+cost_key = (
+    "estimated_usd"
+    if baseline_usd is not None
+    and current_usd is not None
+    else "total_tokens"
+)
+```
+
+这是一个三元表达式。
+
+可以写成普通 `if`：
+
+```
+if baseline_usd is not None and current_usd is not None:
+    cost_key = "estimated_usd"
+else:
+    cost_key = "total_tokens"
+```
+
 # 11. 循环语句
 
 | 关键字 / 函数  | 说明                                 | 示例                               |
@@ -3018,6 +3054,31 @@ for f in os.listdir(file):
 
 1. `os.listdir(file)` 获取目录中的所有文件名和子目录名，只返回名称，不返回完整路径。 / `['a.txt', 'sub']`
 2. `os.path.join(file, f)` 拼接出完整路径 `os.path.join("data", "a.txt")`
+
+```python
+quality = {
+    name: round(
+        sum(sample["quality"][name] for sample in samples) / len(samples), 10
+    )
+    for name in quality_names
+}
+```
+
+```python
+quality = {}
+
+for name in quality_names:
+    total = 0
+
+    for sample in samples:
+        score = sample["quality"][name]
+        total += score
+
+    average = total / len(samples)
+    quality[name] = round(average, 10)
+```
+
+
 
 #### extend() for in
 
@@ -8604,6 +8665,35 @@ print (operator.mul(a, b))
 
 - **json.dumps():** 对数据进行编码。
 - **json.loads():** 对数据进行解码。
+
+```python
+import json
+
+json_text = """
+{
+    "name": "Gemini",
+    "score": 0.9,
+    "passed": true
+}
+"""
+
+data = json.loads(json_text)
+
+print(data)
+print(type(data))
+
+{
+    "name": "Gemini",
+    "score": 0.9,
+    "passed": True
+}
+
+<class 'dict'>
+```
+
+
+
+
 
 ### Python 编码为 JSON 类型转换对应表：
 

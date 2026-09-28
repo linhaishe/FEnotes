@@ -3696,7 +3696,951 @@ generate_answer(q)
 红字发票流程。如果上下文不足以回答您的具体问题，请提供更多细节。
 ```
 
-## 3、Tools
+## 3、RAG 策略
+
+| 排名 | RAG 策略                | 使用频率 | 简单说明                        |
+| ---- | ----------------------- | -------- | ------------------------------- |
+| 1    | Chunk Size              | 极高     | 调整每个文本块大小              |
+| 2    | Recursive / 结构化切分  | 极高     | 按标题、段落、句子递归切分      |
+| 3    | Embedding 模型选择      | 极高     | 直接影响向量检索质量            |
+| 4    | Chunk Overlap           | 极高     | 相邻 Chunk 保留部分重叠内容     |
+| 5    | Top-K 调整              | 极高     | 控制召回多少个 Chunk            |
+| 6    | Metadata Filtering      | 极高     | 按时间、用户、文档类型等过滤    |
+| 7    | BM25 关键词检索         | 高       | 适合专有名词、编号、关键词      |
+| 8    | Hybrid Search           | 高       | BM25 + 向量检索                 |
+| 9    | Re-ranking              | 高       | 对初步召回结果再次排序          |
+| 10   | Cache                   | 高       | 缓存 Embedding、检索或 LLM 结果 |
+| 11   | RRF 融合                | 中高     | 融合 BM25 和向量检索排名        |
+| 12   | Parent-Child Retrieval  | 中高     | 小块检索，大块作为上下文返回    |
+| 13   | Query Rewriting         | 中高     | 改写用户问题，提高检索效果      |
+| 14   | MMR                     | 中等     | 减少召回内容重复                |
+| 15   | Query Decomposition     | 中等     | 将复杂问题拆成多个子问题        |
+| 16   | Multi-Query             | 中等     | 用多个不同问法进行检索          |
+| 17   | Contextual Compression  | 中低     | 压缩或过滤无关上下文            |
+| 18   | Query Routing           | 中低     | 根据问题选择不同数据源或检索器  |
+| 19   | HyDE                    | 较低     | 先生成假设答案，再用它检索      |
+| 20   | Lost-in-the-Middle 处理 | 较低     | 调整长上下文中文档的位置        |
+
+### 1. HyDE
+
+教程: https://developers.llamaindex.ai/python/framework/optimizing/advanced_retrieval/query_transformations/#hyde-hypothetical-document-embeddings
+
+HyDE (Hypothetical Document Embeddings)（假设文档嵌入）
+
+HyDE 适合“用户问题”和“知识库文档表达方式”差异较大的场景。
+
+#### 适合使用 HyDE 的情况
+
+##### 1. 用户问题很短，但文档内容很长
+
+例如：
+
+```
+用户问题：什么是 RAG？
+```
+
+知识库可能写的是：
+
+```
+检索增强生成是一种结合外部知识库和大语言模型的技术……
+```
+
+直接用“什么是 RAG？”检索，可能匹配不够准确。HyDE 会先生成一段假设性解释，再用这段解释检索文档。
+
+##### 2. 用户使用口语，文档使用专业术语
+
+```
+用户问题：怎么让模型少胡说？
+```
+
+文档可能使用：
+
+```
+降低大语言模型幻觉的方法包括检索增强生成、事实核验和约束解码……
+```
+
+HyDE 可以把口语问题扩展成更接近文档风格的内容。
+
+##### 3. 复杂的概念型问题
+
+例如：
+
+```
+解释 Transformer 中自注意力机制的作用和计算过程
+```
+
+这类问题需要多个相关概念，HyDE 生成的假设答案通常比原始问题包含更多语义信息，有助于检索。
+
+##### 4. 知识库内容比较规范
+
+如果文档是论文、技术文档、规范、教程等结构化内容，假设答案更容易和文档语义对齐。
+
+#### 不太适合使用 HyDE 的情况
+
+##### 1. 精确关键词查询
+
+例如：
+
+```
+订单号 202609250001 的状态是什么？
+```
+
+这类问题应该直接使用关键词、SQL 或 metadata 过滤，HyDE 可能改写掉关键编号。
+
+##### 2. 需要精确数字或代码
+
+例如：
+
+```
+端口号是多少？
+函数 create_db_info 的第 3 个参数是什么？
+```
+
+HyDE 生成的是假设内容，可能产生错误信息，反而影响检索。
+
+##### 3. 对延迟和成本敏感
+
+普通 RAG：
+
+```
+用户问题 → 检索 → LLM 回答
+```
+
+HyDE：
+
+```
+用户问题
+→ LLM 生成假设答案
+→ 向量检索
+→ LLM 生成最终答案
+```
+
+通常会多调用一次 LLM，因此会增加：
+
+- 响应时间；
+- API 调用成本；
+- 生成错误的机会。
+
+#### 普通 RAG 和 HyDE 对比
+
+| 场景                 | 普通 RAG | HyDE         |
+| -------------------- | -------- | ------------ |
+| 简单关键词查询       | 更适合   | 可能过度处理 |
+| 用户问题简短         | 一般     | 通常更有帮助 |
+| 口语与文档术语差异大 | 一般     | 更适合       |
+| 精确 ID、数字、代码  | 更适合   | 不建议       |
+| 响应速度要求高       | 更适合   | 较慢         |
+| 概念解释和开放问答   | 可以     | 通常更强     |
+| API 成本敏感         | 更低     | 更高         |
+
+简单来说：
+
+> 当“问题的表达方式”和“文档的表达方式”差异较大时，可以考虑 HyDE；当问题要求精确匹配时，优先使用普通检索、关键词检索或混合检索。
+
+### 2. Multi-Query
+
+多步骤查询转换
+
+Multi-Query Retriever 会让 LLM 从不同角度改写用户问题，再分别检索并合并结果，减少单个查询表达方式带来的召回遗漏。
+
+Multi-step query transformations are a generalization on top of existing single-step query transformation approaches.
+
+![image-20260925153922405](https://picgocloud.com/m/451c2cdf-f8dc-41f0-8e0c-ced300fdeda3.png)
+
+### 3. 混合检索与重排 Hybrid Search and Rerank
+
+```
+用户问题
+├──→ BM25 关键词检索
+└──→ Embedding 向量检索
+        ↓
+     合并候选结果
+        ↓
+     Reranker 重排序
+        ↓
+     选择 Top-K 文档
+        ↓
+     交给 LLM 生成答案
+```
+
+教程: [LlamaIndex Cohere Rerank](https://developers.llamaindex.ai/python/examples/node_postprocessor/coherererank/)
+
+论文: [Modular RAG](https://arxiv.org/pdf/2407.21059)
+
+#### 1. 什么是混合检索
+
+混合检索（Hybrid Search）是同时使用多种检索方式，通常是：==关键词检索 + 向量检索==
+
+##### 关键词检索
+
+常见算法是 BM25，根据词语是否出现、出现频率等进行匹配。
+
+例如：`查询：create_db_info 的第三个参数`
+
+关键词检索很容易找到包含：
+
+`create_db_info`
+`第三个参数`
+
+的文档。
+
+##### 向量检索
+
+Embedding 模型把问题和文档转换成向量，根据语义相似度检索。
+
+例如：`查询：怎么让模型减少胡说？`
+
+可以检索到包含：`降低大模型幻觉的方法`的文档，即使关键词不完全相同。
+
+#### 2. 为什么要混合
+
+两种检索方式各有优缺点：
+
+| 检索方式   | 优点                             | 缺点                     |
+| ---------- | -------------------------------- | ------------------------ |
+| 关键词检索 | 擅长精确词、编号、代码、专有名词 | 不理解同义表达和语义     |
+| 向量检索   | 擅长语义理解和自然语言           | 可能忽略精确关键词       |
+| 混合检索   | 同时兼顾关键词和语义             | 实现更复杂，需要合并结果 |
+
+流程：
+
+```text
+用户问题
+├──→ BM25 关键词检索
+└──→ 向量相似度检索
+       ↓
+    合并结果
+```
+
+#### 3. 什么是 Rerank
+
+Rerank 是“重排序”。
+
+第一次检索通常追求召回率，会返回较多候选文档：
+
+```text
+查询 → 初步检索 → 20 个候选文档
+```
+
+然后使用更精确的模型重新判断问题和文档的相关性：
+
+```text
+20 个候选文档
+→ Reranker 重新打分
+→ 返回最相关的 5 个文档
+```
+
+完整流程：
+
+```text
+用户问题
+→ 混合检索
+→ 候选文档 Top 20
+→ Reranker 重排序
+→ Top 5
+→ LLM 生成答案
+```
+
+#### 4. Rerank 和 Embedding 的区别
+
+| 对比项   | Embedding 检索          | Rerank                      |
+| -------- | ----------------------- | --------------------------- |
+| 处理方式 | 分别生成问题和文档向量  | 同时输入问题和文档          |
+| 速度     | 快                      | 相对较慢                    |
+| 作用     | 快速找候选文档          | 精确判断相关性              |
+| 处理范围 | 通常面对整个向量库      | 只处理初步召回的少量文档    |
+| 常见模型 | `m3e`、OpenAI Embedding | BGE Reranker、Cross-Encoder |
+
+Embedding 更像：
+
+```text
+先快速筛选
+```
+
+Rerank 更像：
+
+```text
+再精确排序
+```
+
+#### 5. 为什么 Rerank 通常更准确
+
+向量检索一般是：
+
+```text
+问题向量 ↔ 文档向量
+```
+
+它们是分别编码的，速度快，但信息交互较少。
+
+Reranker 会同时读取：
+
+```text
+问题 + 文档
+```
+
+然后判断：
+
+```text
+这个文档是否真正回答了这个问题？
+```
+
+因此对于相似主题、多个候选文档之间的细粒度判断，Rerank 通常更好。
+
+#### 6. 适合使用的场景
+
+混合检索适合：
+
+- 企业知识库；
+- 代码搜索；
+- 产品文档问答；
+- 包含编号、名称和专业术语的文档；
+- 同时存在自然语言问题和精确关键词的场景。
+
+Rerank 适合：
+
+- 初步召回结果很多；
+- 文档主题相似；
+- 对答案准确率要求较高；
+- 不能把大量无关上下文交给 LLM 的场景。
+
+#### 7. 一个典型架构
+
+```text
+用户问题
+    ↓
+问题预处理
+    ↓
+关键词检索 ─┐
+           ├─→ 结果合并
+向量检索 ───┘
+    ↓
+候选文档 Top 20
+    ↓
+Reranker 重排序
+    ↓
+相关文档 Top 5
+    ↓
+Prompt
+    ↓
+LLM
+    ↓
+最终答案
+```
+
+简单总结：
+
+```text
+混合检索：扩大召回范围
+Rerank：提高排序准确率
+LLM：根据最终文档生成答案
+```
+
+在实际 RAG 中常见的组合是：
+
+```text
+BM25 + 向量检索 + Rerank + LLM
+```
+
+“Rerank”是一个统称，Cohere Rerank 是其中一种具体实现。
+
+#### 常见 Rerank 方式
+
+##### 1. 向量相似度排序
+
+直接按照 embedding 的 cosine similarity 排序：
+
+```text
+query embedding ↔ document embedding
+```
+
+优点是快，缺点是只比较两个向量，理解细节有限。
+
+严格来说，这通常叫“初步召回”或“粗排”，不是真正的深度 rerank。
+
+---
+
+##### 2. 规则重排
+
+人为设置规则：
+
+```text
+分数 =
+  语义相似度
+  + 标题匹配加分
+  + 新文档加分
+  + 权限过滤
+  - 过期文档扣分
+```
+
+适合：
+
+- 时间排序；
+- 权限控制；
+- 业务字段；
+- 精确关键词；
+- 特定结果置顶。
+
+优点是可控，缺点是需要自己设计规则，语义理解有限。
+
+---
+
+##### 3. Cross-Encoder Rerank
+
+把 query 和每个文档一起输入模型：
+
+```text
+[query, document] → relevance score
+```
+
+模型直接判断：
+
+> 这篇文档是否真正回答了这个问题？
+
+这通常比单独比较两个 embedding 更准确，但速度更慢。
+
+Cohere Rerank 本质上属于这一类：一个训练好的、通过 API 调用的语义重排序模型。
+
+---
+
+##### 4. LLM Rerank
+
+让通用大模型给候选文档打分或排序：
+
+```text
+请判断以下文档和问题的相关性，并排序。
+```
+
+优点：
+
+- 理解复杂语义；
+- 可处理多种排序标准；
+- 可以解释原因。
+
+缺点：
+
+- 成本高；
+- 延迟高；
+- 输出格式不稳定；
+- 不适合大量候选文档。
+
+---
+
+##### Cohere Rerank 的特点
+
+Cohere Rerank 不是一种完全不同的原理，而是：
+
+> 把 Cross-Encoder Rerank 做成了训练好、可直接调用的商业 API。
+
+你不需要自己：
+
+- 训练 reranker；
+- 下载模型；
+- 部署 GPU；
+- 设计打分逻辑；
+- 处理模型推理服务。
+
+调用方式大概是：
+
+```text
+候选文档 + 用户问题
+        ↓
+Cohere Rerank
+        ↓
+相关性分数和新排序
+```
+
+和你之前了解的 Rerank 的关系
+
+可以这样对应：
+
+```text
+Rerank
+├── 向量相似度重排
+├── 规则重排
+├── Cross-Encoder 重排
+├── LLM 重排
+└── Cohere Rerank
+      └── 商业化 Cross-Encoder/语义重排服务
+```
+
+最容易混淆的一点
+
+如果你之前看到的是：
+
+```python
+similarity(query_embedding, doc_embedding)
+```
+
+那是 embedding 相似度排序。
+
+如果是：
+
+```python
+reranker.predict([(query, document)])
+```
+
+或者：
+
+```python
+CrossEncoder("某个模型")
+```
+
+那和 Cohere Rerank 的原理更接近，只是：
+
+- 本地模型：自己部署、自己维护；
+- Cohere Rerank：调用 Cohere API；
+- Cohere 通常开箱即用，但有 API 成本和数据外发考虑。
+
+实际项目经常组合使用：
+
+```text
+向量检索 / BM25 召回 50 条
+→ Cohere Rerank 排序
+→ 取前 5 条
+→ LLM 回答
+```
+
+一句话：
+
+> 你之前了解的是“重排序这类方法”，Cohere Rerank 是其中一个已经训练好并提供 API 的具体产品。
+
+
+
+## 4、RAGAs / RAG 评估体系 / 检索增强生成评估框架
+
+文档:
+
+https://github.com/datawhalechina/llm-universe/blob/main/docs/C5/C5.md
+
+[RAGAs RAG elvals tutorial](https://docs.ragas.io/en/latest/tutorials/rag/)
+
+[RAGAs 评估框架](https://docs.ragas.io/en/latest/index.html)
+
+工具:
+
+[FlashRAG](https://github.com/RUC-NLPIR/FlashRAG), [DeepEval](https://github.com/confident-ai/deepeval), [Lighteval](https://github.com/huggingface/lighteval)，[ragas](https://github.com/vibrantlabsai/ragas)
+
+RAGAs 的全称通常写作：
+
+> Retrieval-Augmented Generation Assessment
+
+中文可以翻译为：
+
+> 检索增强生成评估框架
+
+它专门用于评估 RAG 系统的质量，例如：
+
+- `Faithfulness`：答案是否忠实于检索上下文；
+- `Answer Relevancy`：答案是否与问题相关；
+- `Context Precision`：检索结果是否准确；
+- `Context Recall`：是否召回了足够的相关内容。
+
+| 排名 | 框架      | GitHub Stars | 更适合                            |
+| ---- | --------- | ------------ | --------------------------------- |
+| 1    | DeepEval  | 约 18.4k     | LLM 应用测试、Agent、RAG 回归测试 |
+| 2    | RAGAs     | 约 15.9k     | 专门评估 RAG 的检索和生成质量     |
+| 3    | FlashRAG  | 约 3.6k      | RAG 论文复现、算法研究和基准实验  |
+| 4    | Lighteval | 约 2.5k      | LLM 通用能力、模型基准测试        |
+
+**RAG 评估样本的基本要求**，每条样本至少应包含：
+
+```python
+user_input          → 用户问题
+retrieved_contexts  → 实际检索到的上下文
+response            → 模型最终答案
+```
+
+建议至少覆盖：
+
+```
+事实查询
+概念解释
+文章总结
+多步骤问题
+不存在信息的问题
+代码或专有名词问题
+```
+
+例如：
+
+```
+questions = [
+    "文本转换主要解决什么问题？",
+    "文本转换有哪些常见方法？",
+    "请总结文本转换文章的主要观点和示例。",
+    "文本转换和文本扩展有什么区别？",
+    "文章中是否介绍了翻译任务？",
+    "知识库中没有提到的内容是什么？",
+]
+```
+
+
+
+构建基准集、难例集和回归集，并评估优化前后的质量、延迟与成本
+
+### What's Next?
+
+- **Learn the concepts**: Read the [Evaluate a Simple LLM Application](https://docs.ragas.io/en/latest/getstarted/evals/) guide for deeper understanding
+- **Custom metrics**: [Create your own metrics](https://docs.ragas.io/en/latest/concepts/metrics/overview/#output-types) using simple decorators
+- **Production integration**: [Integrate evaluations into your CI/CD pipeline](https://docs.ragas.io/en/latest/howtos/)
+- **RAG evaluation**: Evaluate [RAG systems](https://docs.ragas.io/en/latest/getstarted/rag_eval/) with specialized metrics
+- **Agent evaluation**: Explore [AI agent evaluation](https://docs.ragas.io/en/latest/howtos/applications/text2sql/)
+- **Test data generation**: [Generate synthetic test datasets](https://docs.ragas.io/en/latest/getstarted/rag_testset_generation/) for your evaluations
+
+### Ragas
+对，**Ragas 可以评估很多类型的 LLM 应用**，不只是 RAG。更准确地说，它是一个面向 LLM 应用的评估框架，支持从单个 Prompt 到完整 Agent 的不同层级评估。
+
+你列的四项可以理解成从小到大：
+
+| 层级     | 评估对象               | 关注点                              |
+| -------- | ---------------------- | ----------------------------------- |
+| Prompt   | 单个提示词             | Prompt 是否让模型稳定地产生正确输出 |
+| RAG      | 检索增强问答系统       | 检索结果和最终答案是否好            |
+| Workflow | 多步骤 AI 流程         | 每个步骤和整体流程是否正确          |
+| Agent    | 能自主调用工具的 Agent | 工具选择、参数、任务完成度等        |
+
+> Ragas 的评估范围可以从单个 Prompt 扩展到 RAG、Workflow 和 Agent；但它本质上是“评估工具箱”，具体评估什么，取决于你的测试数据、指标和评分标准。
+
+你可以把它理解成：
+
+```text
+Prompt 评估
+    ↓
+RAG 评估
+    ↓
+Workflow 评估
+    ↓
+Agent 评估
+```
+
+#### 1. Evaluate a prompt
+
+评估单个 Prompt 的输入输出。
+
+例如情感分类：
+
+```text
+输入：这部电影太精彩了
+期望：positive
+实际：positive
+```
+
+可以评估：
+
+- 分类是否正确；
+- 输出格式是否正确；
+- 是否符合指定标准；
+- Prompt 改动后效果是否变好。
+
+Ragas 官方示例就是给 Prompt 准备测试数据，然后比较模型输出和期望结果。
+
+#### 2. Evaluate a simple RAG system
+
+这是最常见的用法：
+
+```text
+问题
+ ↓
+Retriever
+ ↓
+上下文
+ ↓
+LLM
+ ↓
+最终答案
+```
+
+可以分别评估：
+
+- Context Precision：召回内容中有多少是真正相关的；
+- Context Recall：应该找到的信息是否被召回；
+- Faithfulness：答案是否忠实于上下文；
+- Response Relevancy：答案是否真正回答了问题；
+- Answer Correctness：答案本身是否正确。
+
+所以 Ragas 不只是看最终答案，也能帮助定位问题是在：
+
+```text
+检索错了？
+上下文不完整？
+LLM 胡编了？
+答案没有回答问题？
+```
+
+#### 3. Evaluate an AI Workflow
+
+Workflow 是多个步骤组成的流程，但不一定具备 Agent 的自主决策能力。
+
+例如：
+
+```text
+用户问题
+ ↓
+问题分类
+ ↓
+查询改写
+ ↓
+检索
+ ↓
+答案生成
+ ↓
+答案审核
+```
+
+Ragas 可以评估：
+
+- 每个步骤的输入输出；
+- 步骤之间的数据传递；
+- 最终任务是否完成；
+- 某个步骤改动后是否影响整体结果。
+
+简单说：
+
+```text
+Prompt：评估一个环节
+RAG：评估检索问答链
+Workflow：评估多个固定环节组成的流程
+```
+
+#### 4. Evaluate an AI Agent
+
+Agent 通常可以自主决定：
+
+```text
+要不要调用工具？
+调用哪个工具？
+调用参数是什么？
+是否继续下一步？
+什么时候结束？
+```
+
+例如天气 Agent：
+
+```text
+用户：明天上海天气怎么样？
+Agent：调用天气工具
+Agent：读取结果
+Agent：组织回答
+```
+
+可以评估：
+
+- 是否选择了正确工具；
+- 工具参数是否正确；
+- 调用顺序是否合理；
+- 是否完成用户目标；
+- 是否偏离任务；
+- 最终答案是否正确。
+
+Ragas 的指标列表中也包含 Tool Call Accuracy、Tool Call F1、Agent Goal Accuracy 等 Agent 相关指标。
+
+**但要注意**
+
+Ragas “可以评估很多内容”，不等于“自动知道一切是否正确”。
+
+它通常需要你提供：
+
+```text
+测试问题
+期望答案或评分标准
+实际输出
+必要时的上下文、工具调用记录
+```
+
+然后通过规则指标、字符串指标或 LLM-as-a-Judge 来评分。
+
+例如：
+
+```python
+{
+    "question": "Ragas 是什么？",
+    "answer": "Ragas 是一个 LLM 应用评估框架",
+    "reference": "Ragas 用于评估 LLM 应用，包括 RAG 和 Agent"
+}
+```
+
+范围越来越大，但底层仍然是：**准备测试集 → 运行系统 → 使用指标评分 → 对比优化**。  
+[Prompt 教程](https://docs.ragas.io/en/latest/tutorials/prompt/)、[RAG 教程](https://docs.ragas.io/en/latest/tutorials/rag/)、[Workflow 教程](https://docs.ragas.io/en/latest/tutorials/workflow/)、[Agent 教程](https://docs.ragas.io/en/latest/tutorials/agent/)。
+
+### RAGAs 不通过时
+
+RAGAs 不通过时，不是直接修改 RAGAs，而是根据具体指标定位问题。
+
+#### 1. Faithfulness 低
+
+说明答案中出现了上下文没有支持的内容，常见原因：
+
+- 检索到了错误文档；
+- `top_k` 太小，缺少必要上下文；
+- Prompt 约束不够；
+- 文档切片不合理；
+- LLM 产生幻觉。
+
+优先修改：
+
+```python
+prompt = PromptTemplate.from_template(
+    """
+    你只能根据下面的上下文回答问题。
+    不允许使用上下文之外的知识。
+    如果上下文无法回答，请明确回答“根据当前资料无法确定”。
+
+    上下文：
+    {context}
+
+    问题：
+    {question}
+    """
+)
+```
+
+然后检查：
+
+```python
+docs = retriever.invoke(question)
+
+for doc in docs:
+    print(doc.page_content)
+    print(doc.metadata)
+```
+
+确认实际检索到的内容是否相关。
+
+#### 2. Answer Relevancy 低
+
+说明答案没有直接回答用户问题，可能太啰嗦、跑题或只回答了一个细节。
+
+修改 Prompt：
+
+```python
+prompt = ChatPromptTemplate.from_template(
+    """
+    请直接回答问题。
+    只保留与问题相关的内容。
+    如果问题要求总结，请覆盖主要观点、方法和示例。
+    不要只描述上下文中的单个例子。
+
+    上下文：
+    {context}
+
+    问题：
+    {question}
+    """
+)
+```
+
+#### 3. 检索结果不相关
+
+可以优化：
+
+```python
+retriever = self.vectordb.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 6},
+)
+```
+
+或者使用：
+
+```text
+BM25 + 向量检索
+→ 合并去重
+→ Reranker 重排
+→ 交给 LLM
+```
+
+如果问题中包含代码、文件名、编号，混合检索通常比单独向量检索更稳。
+
+#### 4. 文档切片不合理
+
+当前：
+
+```python
+RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=150,
+)
+```
+
+可以根据文档调整：
+
+```python
+RecursiveCharacterTextSplitter(
+    chunk_size=800,
+    chunk_overlap=100,
+)
+```
+
+切片太小：
+
+```text
+上下文不完整
+```
+
+切片太大：
+
+```text
+无关内容太多
+```
+
+需要通过 RAGAs 结果和实际检索内容调整。
+
+#### 5. 评估数据有问题
+
+每条评估数据应该包含：
+
+```python
+{
+    "user_input": "问题",
+    "retrieved_contexts": ["检索到的上下文"],
+    "response": "系统生成的答案",
+}
+```
+
+如果想评估“答案是否正确”，还应加入：
+
+```python
+"reference": "人工确认的标准答案"
+```
+
+但 `Faithfulness` 和 `Answer Relevancy` 主要依赖上下文、问题和答案，不一定必须有 `reference`。
+
+#### 推荐排查顺序
+
+```text
+RAGAs 分数异常
+→ 查看 retrieved_contexts
+→ 检查检索是否相关
+→ 调整 chunk_size / top_k
+→ 优化 Prompt
+→ 必要时加入 BM25 和 Reranker
+→ 重新评估
+```
+
+简单判断：
+
+| 现象           | 优先修改                             |
+| -------------- | ------------------------------------ |
+| 答案编造内容   | Prompt、检索结果、Reranker           |
+| 答非所问       | Prompt、问题改写                     |
+| 找不到正确文档 | Embedding、chunk、top_k、混合检索    |
+| 只回答一个例子 | 增大 `top_k`，要求覆盖多个上下文片段 |
+| 结果不稳定     | 降低 temperature，增加评估样本       |
+
+生产代码通常不是一次修改就结束，而是：
+
+```text
+评估
+→ 查看失败样本
+→ 定位检索或生成问题
+→ 修改一个环节
+→ 重新评估
+```
+
+
+
+## 5、Tools
 
 教程: [RAG from Scratch](https://github.com/langchain-ai/rag-from-scratch)
 概念: [LLM Powered Autonomous Agents](https://lilianweng.github.io/posts/2023-06-23-agent/)
