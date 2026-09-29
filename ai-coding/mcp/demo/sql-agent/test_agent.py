@@ -3,7 +3,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from agent import answer
+from agent import OUTPUT_SCHEMA, TOOL_CALL_SCHEMA, answer
+from jsonschema import ValidationError, validate
 
 
 def test_agent_queries_orders():
@@ -15,6 +16,23 @@ def test_agent_queries_orders():
     ]
 
 
+def test_schemas_reject_extra_fields():
+    try:
+        validate({"tool": "query_database", "arguments": {"sql": "SELECT 1", "limit": 1}}, TOOL_CALL_SCHEMA)
+    except ValidationError:
+        pass
+    else:
+        raise AssertionError("extra tool arguments must be rejected")
+
+    try:
+        validate({"question": "x", "sql": "SELECT 1", "rows": [], "debug": True}, OUTPUT_SCHEMA)
+    except ValidationError:
+        pass
+    else:
+        raise AssertionError("extra output fields must be rejected")
+
+
 if __name__ == "__main__":
     test_agent_queries_orders()
+    test_schemas_reject_extra_fields()
     print("ok")

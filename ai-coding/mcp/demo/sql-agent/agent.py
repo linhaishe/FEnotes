@@ -7,6 +7,34 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from database import create_database, query_database
+from jsonschema import validate
+
+
+TOOL_CALL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "tool": {"const": "query_database"},
+        "arguments": {
+            "type": "object",
+            "properties": {"sql": {"type": "string", "minLength": 1}},
+            "required": ["sql"],
+            "additionalProperties": False,
+        },
+    },
+    "required": ["tool", "arguments"],
+    "additionalProperties": False,
+}
+
+OUTPUT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "question": {"type": "string", "minLength": 1},
+        "sql": {"type": "string", "minLength": 1},
+        "rows": {"type": "array", "maxItems": 100, "items": {"type": "object"}},
+    },
+    "required": ["question", "sql", "rows"],
+    "additionalProperties": False,
+}
 
 
 def to_sql(question: str) -> str:
@@ -24,7 +52,11 @@ def to_sql(question: str) -> str:
 def answer(question: str) -> dict:
     db = create_database()
     sql = to_sql(question)
-    return {"question": question, "sql": sql, "rows": query_database(db, sql)}
+    tool_call = {"tool": "query_database", "arguments": {"sql": sql}}
+    validate(tool_call, TOOL_CALL_SCHEMA)
+    result = {"question": question, "sql": sql, "rows": query_database(db, tool_call["arguments"]["sql"])}
+    validate(result, OUTPUT_SCHEMA)
+    return result
 
 
 if __name__ == "__main__":
