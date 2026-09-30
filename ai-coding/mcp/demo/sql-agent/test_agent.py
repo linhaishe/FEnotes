@@ -30,6 +30,12 @@ def test_agent_sums_orders_by_user():
     ]
 
 
+def test_agent_gets_schema():
+    result = answer("查看数据库结构")
+    assert [table["table"] for table in result["rows"]] == ["orders", "users"]
+    assert result["rows"][0]["columns"][0]["name"] == "id"
+
+
 def test_schemas_reject_extra_fields():
     try:
         validate({"tool": "query_database", "arguments": {"sql": "SELECT 1", "limit": 1}}, TOOL_CALL_SCHEMA)
@@ -50,5 +56,6 @@ if __name__ == "__main__":
     test_agent_queries_orders()
     test_agent_queries_users_by_city()
     test_agent_sums_orders_by_user()
+    test_agent_gets_schema()
     test_schemas_reject_extra_fields()
     print("ok")

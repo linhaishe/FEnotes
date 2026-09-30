@@ -54,3 +54,20 @@ def query_database(db: sqlite3.Connection, sql: str) -> list[dict]:
         raise ValueError("multiple SQL statements are not allowed")
     rows = db.execute(f"SELECT * FROM ({statement}) LIMIT 100").fetchall()
     return [dict(row) for row in rows]
+
+
+def get_schema(db: sqlite3.Connection) -> list[dict]:
+    """Return table and column metadata without reading business rows. 数据库结构"""
+    tables = db.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+    ).fetchall()
+    return [
+        {
+            "table": table["name"],
+            "columns": [
+                dict(column)
+                for column in db.execute(f"PRAGMA table_info({table['name']})").fetchall()
+            ],
+        }
+        for table in tables
+    ]

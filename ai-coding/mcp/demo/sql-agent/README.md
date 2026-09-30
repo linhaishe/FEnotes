@@ -1,6 +1,6 @@
 # SQL Agent Demo
 
-这个 Demo 展示“自然语言查询数据库”的最小链路，并使用严格 JSON Schema 约束工具选择、参数和输出：
+这个 Demo 展示“自然语言查询数据库”的最小链路，并使用严格 JSON Schema 约束工具选择、参数和输出。现在提供两个工具：`query_database` 和 `get_schema`。
 
 ```text
 自然语言 → Agent 生成 SQL → query_database Tool → SQLite → 结果
@@ -18,8 +18,9 @@ python demo/sql-agent/test_agent.py
 - 查询用户
 - 查询订单
 - 查询金额大于指定数值的订单
+- 查看数据库表和列结构
 
-真正接入 LLM 时，只需替换 `to_sql()`；工具调用仍必须通过 Schema 校验。
+真正接入 LLM 时，只需替换 `to_sql()`；工具调用仍必须通过 Schema 校验。Agent 遇到“查看数据库结构/表结构”时会先调用 `get_schema`，再根据结构生成查询。
 
 ## 严格 JSON Schema
 

@@ -6,23 +6,51 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from database import create_database, query_database
+from database import create_database, get_schema, query_database
 from jsonschema import validate
+
+"""
+oneOf：必须匹配且只能匹配一个
+anyOf：匹配一个或多个即可
+allOf：必须同时匹配所有
+"""
 
 TOOL_CALL_SCHEMA = {
     "type": "object",
-    "properties": {
-        "tool": {"const": "query_database"},
-        "arguments": {
+    "oneOf": [ # 输入数据必须严格符合其中一个 Schema，而且只能符合一个。
+        {
             "type": "object",
-            "properties": {"sql": {"type": "string", "minLength": 1}},
-            "required": ["sql"],
+            "properties": {
+                "tool": {"const": "query_database"},
+                "arguments": {
+                    "type": "object",
+                    "properties": {"sql": {"type": "string", "minLength": 1}},
+                    "required": ["sql"],
+                    "additionalProperties": False,
+                },
+            },
+            "required": ["tool", "arguments"],
             "additionalProperties": False,
         },
-    },
-    "required": ["tool", "arguments"],
-    "additionalProperties": False,
+        {
+            "type": "object",
+            "properties": {
+                "tool": {"const": "get_schema"}, # tool 字段必须等于 "get_schema"
+                "arguments": {"type": "object", "maxProperties": 0, "additionalProperties": False},
+            },
+            "required": ["tool", "arguments"], # 表示这个 JSON 对象必须包含两个字段
+            "additionalProperties": False,
+        },
+    ],
 }
+
+"""
+const 和 enum 的区别：
+{"const": "get_schema"}
+只允许一个值。
+{"enum": ["get_schema", "query_database"]}
+允许多个值。
+"""
 
 OUTPUT_SCHEMA = {
     "type": "object",
@@ -64,6 +92,14 @@ def to_sql(question: str) -> str:
 
 def answer(question: str) -> dict:
     db = create_database()
+    if "结构" in question or "schema" in question.lower(): # 查看数据库结构 belike 规则匹配，不是真正的 LLM 工具选择。真正接入模型后，可以让模型根据工具描述自动决定调用 get_schema 还是 query_database
+        tool_call = {"tool": "get_schema", "arguments": {}}
+        validate(tool_call, TOOL_CALL_SCHEMA)
+        rows = get_schema(db)
+        result = {"question": question, "sql": "get_schema", "rows": rows}
+        validate(result, OUTPUT_SCHEMA)
+        return result
+
     sql = to_sql(question)
     tool_call = {"tool": "query_database", "arguments": {"sql": sql}}
     validate(tool_call, TOOL_CALL_SCHEMA)
