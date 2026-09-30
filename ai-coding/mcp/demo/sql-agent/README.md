@@ -25,7 +25,7 @@ Demo 保留两种 SQL 生成方式：
 - 查询金额大于指定数值的订单
 - 查看数据库表和列结构
 
-两种模式都会经过工具调用 Schema、只读 SQL 和最终输出 Schema 校验。Agent 遇到“查看数据库结构/表结构”时会调用 `get_schema`。
+加 SQL 安全限制: 两种模式都会经过工具调用 Schema、只读 SQL 和最终输出 Schema 校验。数据库 Tool 会拒绝 `DELETE`、`UPDATE`、`DROP` 等写操作，只允许访问 `users` 和 `orders`，单次查询最多运行 1 秒并返回 100 行。Agent 遇到“查看数据库结构/表结构”时会调用 `get_schema`。
 
 ## 严格 JSON Schema
 
@@ -67,4 +67,4 @@ answer("查询上海的用户", mode="rules")
 answer("查询上海的用户", mode="gemini")
 ```
 
-校验失败会直接抛出 `jsonschema.ValidationError`，不会执行不符合协议的工具调用或返回不符合协议的结果。数据库工具仍只允许单条 `SELECT`，最多返回 100 行；生产环境还应增加表/列白名单、超时和权限控制。
+校验失败会直接抛出 `jsonschema.ValidationError`，不会执行不符合协议的工具调用或返回不符合协议的结果。这里的安全限制是 Demo 级别；生产环境仍应使用数据库只读账号和更严格的 SQL 解析/权限控制。

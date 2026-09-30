@@ -1,6 +1,8 @@
 """SQLite database and the read-only tool used by the demo agent."""
 
+import re
 import sqlite3
+import time
 
 """
 :memory: 表示数据库只存在于内存中
@@ -45,15 +47,39 @@ def create_database() -> sqlite3.Connection:
     return db
 
 
-def query_database(db: sqlite3.Connection, sql: str) -> list[dict]:
+ALLOWED_TABLES = {"users", "orders"}
+FORBIDDEN_SQL = re.compile(r"\b(delete|update|drop|insert|alter|create|replace|attach|detach)\b", re.I)
+
+
+def query_database(db: sqlite3.Connection, sql: str, timeout: float = 1.0) -> list[dict]:
     """Execute one bounded, read-only SELECT query."""
     statement = sql.strip().rstrip(";")  # 去掉 SQL 前后空格，并去掉末尾分号。
     if not statement.lower().startswith("select "):  # 只允许以 SELECT 开头的查询
         raise ValueError("only SELECT queries are allowed")
     if ";" in statement:  # 拒绝一条输入里包含多条 SQL
         raise ValueError("multiple SQL statements are not allowed")
-    rows = db.execute(f"SELECT * FROM ({statement}) LIMIT 100").fetchall()
-    return [dict(row) for row in rows]
+    if FORBIDDEN_SQL.search(statement):
+        raise ValueError("write operations are not allowed")
+    tables = set(re.findall(r"\b(?:from|join)\s+([a-z_]\w*)", statement, re.I))
+    unknown_tables = tables - ALLOWED_TABLES
+    if unknown_tables:
+        raise ValueError(f"table access is not allowed: {', '.join(sorted(unknown_tables))}")
+
+    started = time.monotonic()
+
+    def check_timeout() -> int:
+        return int(time.monotonic() - started > timeout)
+
+    db.set_progress_handler(check_timeout, 1000)
+    try:
+        rows = db.execute(f"SELECT * FROM ({statement}) LIMIT 100").fetchall()
+        return [dict(row) for row in rows]
+    except sqlite3.OperationalError as error:
+        if "interrupted" in str(error).lower():
+            raise TimeoutError(f"query exceeded {timeout} seconds") from error
+        raise
+    finally:
+        db.set_progress_handler(None, 0)
 
 
 def get_schema(db: sqlite3.Connection) -> list[dict]:

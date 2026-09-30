@@ -5,6 +5,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import agent
 from agent import OUTPUT_SCHEMA, TOOL_CALL_SCHEMA, answer
+from database import create_database, query_database
 from jsonschema import ValidationError, validate
 
 
@@ -82,6 +83,24 @@ def test_schemas_reject_extra_fields():
         raise AssertionError("extra output fields must be rejected")
 
 
+def test_sql_safety_limits():
+    db = create_database()
+    for sql in ("DELETE FROM users", "UPDATE users SET name = 'x'", "DROP TABLE users"):
+        try:
+            query_database(db, sql)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"unsafe SQL was accepted: {sql}")
+
+    try:
+        query_database(db, "SELECT * FROM secrets")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unknown table was accepted")
+
+
 if __name__ == "__main__":
     test_agent_queries_orders()
     test_gemini_mode_uses_structured_model()
@@ -90,4 +109,5 @@ if __name__ == "__main__":
     test_agent_sums_orders_by_user()
     test_agent_gets_schema()
     test_schemas_reject_extra_fields()
+    test_sql_safety_limits()
     print("ok")
