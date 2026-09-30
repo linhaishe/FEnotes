@@ -171,6 +171,74 @@ Function Calling 规定“模型如何生成工具调用”；MCP 规定“客�
 
 当前 demo 使用 Gemini，不是 OpenAI SDK；它演示的是通用的结构化工具调用方式。若改用 OpenAI，主要替换模型客户端，参数 Schema、工具函数和校验逻辑仍可复用。
 
+## LangChain 多工具链式 Agent
+
+[`demo/langchain_multi_tool_host.py`](demo/langchain_multi_tool_host.py) 将现有三个 MCP 工具一次性挂载到 LangChain Agent：
+
+```text
+用户问题
+  → LangChain Agent 选择 weather
+  → 继续选择 query_database
+  → 继续选择 call_api
+  → 汇总所有工具结果
+```
+
+运行：
+
+```bash
+export GEMINI_API_KEY="你的 Gemini API Key"
+# or env add GEMINI_API_KEY
+python demo/langchain_multi_tool_host.py
+```
+
+这个示例的关键是 `MCPAdapter` 返回的三个工具直接交给 `create_agent()`。Agent 可以根据上一轮工具结果继续发起下一次工具调用；每一次调用都由 MCP Client 转发给 stdio MCP Server 的 `tools/call`。
+
+### Agent 与 LCEL 的区别
+
+上面的 `langchain_multi_tool_host.py` 使用的是 LangChain Agent，不是 LCEL（LangChain Expression Language）链。
+
+Agent 的调用顺序由模型决定：
+
+```text
+问题 → 模型选择工具 → 工具结果 → 模型再次选择工具 → 最终回答
+```
+
+它适合工具选择和调用次数不确定的场景，例如模型可能先调用 `weather`，再调用 `query_database`，最后调用 `call_api`。
+
+LCEL 则使用 `|` 把固定步骤连接起来：
+
+```python
+chain = prompt | model | parser
+result = await chain.ainvoke(input)
+```
+
+LCEL 的调用顺序由代码决定，更适合确定性流程。MCP 只负责发现和调用工具，Agent 或 LCEL 负责组织工具调用：
+
+| 组件 | 负责内容 |
+| --- | --- |
+| MCP | 工具发现、通信和 `tools/call` |
+| Agent | 模型自主选择工具并循环调用 |
+| LCEL | 按代码定义的顺序组合 Runnable 步骤 |
+
+因此，本仓库当前展示的是 Agent 方式；如果要展示 LCEL，需要另写一个固定顺序的链式流程。
+
+demo/langchain_multi_tool_host.py 就是“可以连续调用多个工具的 Agent”示例。
+这里的“链式调用”指：
+```
+用户问题
+  → Agent 调用 weather
+  → 获取天气结果
+  → Agent 再调用 query_database
+  → 获取数据库结果
+  → Agent 再调用 call_api
+  → 汇总最终答案
+```
+关键点是：后一个工具调用可以基于前一个工具的结果继续进行。
+不过要区分两种“链式”：
+- Agent 链式调用：调用顺序由模型动态决定，当前 Demo 属于这种。
+- LCEL 链式调用：调用顺序由代码固定，例如 step1 | step2 | step3。
+当前 Demo 的设计目标是前者。`create_agent(model, tools)` 允许模型多轮决定是否继续调用工具，但实际调用哪些工具、调用顺序和次数仍由模型决定。
+
 天气业务在 `demo/shared/weather.py`，SQLite 查询复用 `demo/sql-agent/database.py`，三个工具由 MCP Server 暴露。Server 使用 MCP Python SDK 的 `FastMCP` API。
 
 三个自定义工具：
