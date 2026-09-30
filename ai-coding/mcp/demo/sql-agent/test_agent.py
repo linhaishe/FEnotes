@@ -16,6 +16,12 @@ def test_agent_queries_orders():
     ]
 
 
+def test_agent_queries_users_by_city():
+    result = answer("查询上海的用户")
+    assert result["sql"] == "SELECT id, name, city FROM users WHERE city = 'Shanghai'"
+    assert result["rows"] == [{"id": 1, "name": "Alice", "city": "Shanghai"}]
+
+
 def test_schemas_reject_extra_fields():
     try:
         validate({"tool": "query_database", "arguments": {"sql": "SELECT 1", "limit": 1}}, TOOL_CALL_SCHEMA)
@@ -34,5 +40,6 @@ def test_schemas_reject_extra_fields():
 
 if __name__ == "__main__":
     test_agent_queries_orders()
+    test_agent_queries_users_by_city()
     test_schemas_reject_extra_fields()
     print("ok")

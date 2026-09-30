@@ -43,6 +43,12 @@ def to_sql(question: str) -> str:
     )  # 从问题中提取“金额大于多少”的数字
     if match:
         return f"SELECT id, user_id, amount FROM orders WHERE amount > {match.group(1)}"
+    city = re.search(r"查询(.+?)的用户", question)
+    if city:
+        city_name = {"上海": "Shanghai", "北京": "Beijing"}.get(city.group(1).strip())
+        if city_name is None:
+            raise ValueError(f"暂不支持查询城市: {city.group(1).strip()}")
+        return f"SELECT id, name, city FROM users WHERE city = '{city_name}'"
     if "用户" in question or "user" in question:
         return "SELECT id, name, city FROM users"
     if "订单" in question or "order" in question:
