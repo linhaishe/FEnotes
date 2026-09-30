@@ -5,13 +5,14 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
+# urlencode 自动进行 URL 编码，避免中文、空格和特殊字符破坏 URL
 def _get_json(url: str, params: dict) -> dict:
     with urlopen(f"{url}?{urlencode(params)}", timeout=10) as response:
         return json.load(response)
 
 
 def get_weather(city: str) -> dict:
-    city = city.strip()
+    city = city.strip()  # 作用是去掉城市名称前后的空白字符
     if not city:
         raise ValueError("city must not be empty")
 
