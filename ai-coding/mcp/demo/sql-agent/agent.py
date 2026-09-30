@@ -49,6 +49,12 @@ def to_sql(question: str) -> str:
         if city_name is None:
             raise ValueError(f"暂不支持查询城市: {city.group(1).strip()}")
         return f"SELECT id, name, city FROM users WHERE city = '{city_name}'"
+    if "每个用户" in question and "总金额" in question:
+        return (
+            "SELECT users.id, users.name, SUM(orders.amount) AS total_amount "
+            "FROM users JOIN orders ON users.id = orders.user_id "
+            "GROUP BY users.id, users.name"
+        )
     if "用户" in question or "user" in question:
         return "SELECT id, name, city FROM users"
     if "订单" in question or "order" in question:

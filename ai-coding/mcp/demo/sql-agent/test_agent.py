@@ -22,6 +22,14 @@ def test_agent_queries_users_by_city():
     assert result["rows"] == [{"id": 1, "name": "Alice", "city": "Shanghai"}]
 
 
+def test_agent_sums_orders_by_user():
+    result = answer("查询每个用户的订单总金额")
+    assert result["rows"] == [
+        {"id": 1, "name": "Alice", "total_amount": 200.5},
+        {"id": 2, "name": "Bob", "total_amount": 200.0},
+    ]
+
+
 def test_schemas_reject_extra_fields():
     try:
         validate({"tool": "query_database", "arguments": {"sql": "SELECT 1", "limit": 1}}, TOOL_CALL_SCHEMA)
@@ -41,5 +49,6 @@ def test_schemas_reject_extra_fields():
 if __name__ == "__main__":
     test_agent_queries_orders()
     test_agent_queries_users_by_city()
+    test_agent_sums_orders_by_user()
     test_schemas_reject_extra_fields()
     print("ok")
