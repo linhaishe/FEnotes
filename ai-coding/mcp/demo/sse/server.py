@@ -5,10 +5,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from mcp.server import MCPServer
+from mcp.server.fastmcp import FastMCP
 from shared.weather import get_weather
 
-mcp = MCPServer("weather-sse")
+mcp = FastMCP("weather-sse")
 
 
 @mcp.tool()

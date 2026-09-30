@@ -1,4 +1,4 @@
-mcp>=2,<3
+mcp>=1,<2
 jsonschema>=4,<5
 langchain[mcp]==1.4.0
 langchain-google-genai>=4,<5

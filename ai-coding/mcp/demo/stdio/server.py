@@ -13,7 +13,7 @@ sys.path.insert(0, 新目录)
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from mcp.server import MCPServer
+from mcp.server.fastmcp import FastMCP
 from shared.weather import get_weather
 
 """
@@ -29,7 +29,7 @@ tools/call
 stdio / SSE 传输
 """
 
-mcp = MCPServer("weather-stdio")
+mcp = FastMCP("weather-stdio")
 
 """
 @mcp.tool() 会自动完成：

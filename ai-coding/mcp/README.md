@@ -113,6 +113,73 @@ python demo/stdio/server.py
 }
 ```
 
+## MCP Client 与契约测试
+
+契约测试验证 MCP Client 和 Server 之间的协议约定，而不是只测试工具函数内部逻辑。它检查：
+
+- Client 能否完成 `initialize`；
+- `tools/list` 是否返回 `weather`，以及参数 Schema 是否要求 `city: string`；
+- `tools/call` 使用合法参数时是否返回结果；
+- 缺少参数时是否返回 MCP 错误。
+
+本项目的最小契约测试位于 [`demo/stdio/test_contract.py`](demo/stdio/test_contract.py)，使用 MCP Python Client 通过 stdio 启动真实 Server，不使用 Mock：
+
+```bash
+python demo/stdio/test_contract.py
+```
+
+测试调用链：
+
+```text
+契约测试 → MCP Client → stdio Server → tools/list / tools/call → weather
+```
+
+### 使用 MCP Inspector 手工验证
+
+契约测试适合自动化回归；Inspector 适合查看工具清单、Schema 和原始响应。先确保已安装 Node.js，然后运行：
+
+```bash
+npx @modelcontextprotocol/inspector python demo/stdio/server.py
+```
+
+在 Inspector 页面连接后，确认 `weather` 工具的参数包含必填字符串 `city`，再分别调用：
+
+```json
+{"city": "北京"}
+```
+
+以及一个缺少 `city` 的参数对象，检查合法调用返回天气结果、非法调用返回错误。
+
+stdio 和 SSE 的工具实现相同，区别只在 Client 连接方式：stdio 由 Client 启动子进程，SSE 则连接已运行的 HTTP Server。因此契约断言可以复用，先用 stdio 做本地自动化测试，再用 Inspector 或 SSE Client 验证远程传输。
+
+FastMCP 是 MCP Python SDK 提供的高层 Server 封装；MCPServer 在当前安装的 SDK 中并不存在，所以原代码无法运行。
+
+FastMCP 自动处理：
+- MCP 初始化和能力协商
+- tools/list
+- tools/call
+- Python 函数到 JSON Schema 的转换
+- stdio、SSE 等传输启动
+使用方式基本不变：
+
+```
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("weather")
+
+@mcp.tool()
+def weather(city: str) -> dict:
+    return get_weather(city)
+
+mcp.run(transport="stdio")
+```
+```
+from mcp.server import MCPServer
+from shared.weather import get_weather
+
+mcp = MCPServer("weather-sse")
+```
+
 ## SSE
 
 适合独立运行、通过 HTTP 连接的 Server：
