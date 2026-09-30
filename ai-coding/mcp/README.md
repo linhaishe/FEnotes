@@ -230,3 +230,175 @@ Open-Meteo API
 - `initialize`：Client 和 Server 协商协议版本与能力
 - `tools/list`：Client 查询 Server 有哪些工具
 - `tools/call`：Client 请求执行某个工具
+
+## connect other mcp
+
+可以把“网上别人的 MCP”理解成一个已经运行好的工具服务。你不需要复制对方的函数代码，只需要连接它，发现它暴露的 Tools，然后交给 LangChain Agent。
+
+### 1. 远程 MCP Server
+
+例如对方提供：
+
+```text
+https://example.com/mcp
+```
+
+LangChain Host 可以这样连接：
+
+```python
+from langchain.agents import create_agent
+from langchain.mcp import MCPAdapter
+
+async with MCPAdapter("https://example.com/mcp") as adapter:
+    tools = await adapter.list_tools()
+
+    agent = create_agent(
+        model,
+        tools,
+    )
+
+    result = await agent.ainvoke({
+        "messages": [
+            {
+                "role": "user",
+                "content": "帮我查询相关信息",
+            }
+        ]
+    })
+```
+
+执行过程：
+
+```text
+MCPAdapter 连接远程 Server
+        ↓
+initialize
+        ↓
+tools/list
+        ↓
+获得别人提供的 Tools
+        ↓
+交给 LangChain Agent
+        ↓
+Agent 自动决定调用哪个 Tool
+```
+
+LangChain 官方的 `MCPAdapter` 支持直接使用 HTTP URL 连接远程 MCP Server，并通过 `list_tools()` 发现工具。
+
+### 2. 别人的本地 stdio MCP Server
+
+有些 MCP Server 不是 URL，而是别人提供的 Python、Node.js 或命令行程序。
+
+例如对方要求这样启动：
+
+```bash
+npx some-weather-mcp
+```
+
+你的 LangChain Host 可以通过 stdio 启动它：
+
+```python
+from pathlib import Path
+from langchain.mcp import MCPAdapter
+
+async with MCPAdapter(
+    {
+        "mcpServers": {
+            "weather": {
+                "command": "npx",
+                "args": ["-y", "some-weather-mcp"],
+            }
+        }
+    }
+) as adapter:
+    tools = await adapter.list_tools()
+```
+
+或者是本地 Python 文件：
+
+```python
+async with MCPAdapter(
+    Path("/absolute/path/to/third_party_server.py")
+) as adapter:
+    tools = await adapter.list_tools()
+```
+
+### 3. 多个 MCP Server
+
+一个 LangChain Agent 可以同时连接多个 MCP Server：
+
+```python
+async with MCPAdapter(
+    {
+        "mcpServers": {
+            "weather": {
+                "command": "python",
+                "args": ["demo/stdio/server.py"],
+            },
+            "docs": {
+                "url": "https://example.com/mcp",
+            },
+        }
+    }
+) as adapter:
+    tools = await adapter.list_tools()
+    agent = create_agent(model, tools)
+```
+
+Agent 看到的可能是：
+
+```text
+weather
+search_docs
+read_docs
+```
+
+当用户提问时，模型会根据每个 Tool 的名称、描述和参数 Schema 自动选择工具。
+
+### 4. 别人的“方法”怎么处理？
+
+你不需要直接调用别人的 Python 方法：
+
+```python
+# 不需要这样做
+from someone_else import search_docs
+```
+
+MCP 的方式是：
+
+```text
+连接 MCP Server
+→ 获取工具描述
+→ Agent 生成工具调用
+→ MCP Server 执行对方的方法
+→ 返回结果
+```
+
+你只需要关心：
+
+- MCP Server 的连接地址或启动命令
+- 支持的传输方式
+- 是否需要 API Key
+- Tool 的输入参数
+- 对方是否可信
+
+### 5. 如果对方没有 MCP
+
+如果对方只有普通 HTTP API，就不能直接用 `MCPAdapter`。你需要自己把 API 包装成 MCP Tool：
+
+```python
+@mcp.tool()
+def search_products(keyword: str) -> dict:
+    return requests.get(
+        "https://example.com/api/search",
+        params={"q": keyword},
+    ).json()
+```
+
+这样才会变成：
+
+```text
+普通 API → 你的 MCP Server → LangChain Agent
+```
+
+安全上，不要把未知 MCP Server 直接接入生产 Agent。远程 MCP 可能具有读写数据、发送消息或执行操作的权限，应该先查看它的 Tools 和参数 Schema。
