@@ -91,6 +91,86 @@ SQL Agent 不直接返回一段不确定格式的文本，而是要求输出符�
 
 Schema 会校验工具名称、必需参数、字段类型和额外字段；校验失败时拒绝执行或返回结果。这样调用方可以稳定地读取 `question`、`sql` 和 `rows`，而不是解析自然语言文本。
 
+## Function Calling：结构化工具调用
+
+Function Calling 让模型返回结构化的工具调用参数，而不是一段需要手动解析的文本。仓库中的示例位于 [`demo/function-calling/agent.py`](demo/function-calling/agent.py)，使用 Gemini + LangChain 演示：
+
+```text
+用户问题 → 模型选择工具 → 生成工具名和参数 → Pydantic 校验 → 执行 SQLite → 返回结果给模型
+```
+
+Function Calling 是让模型能够“选择并生成调用工具所需参数”的机制。
+
+它本身不负责真正执行工具。
+完整流程是：
+
+```
+1. 代码定义工具
+2. 将工具名称、描述、参数 Schema 提供给模型
+3. 模型决定是否调用工具
+4. 模型返回工具名和参数
+5. 应用代码执行真正的函数
+6. 将执行结果返回给模型
+7. 模型生成最终回答
+```
+
+### 1. 定义参数 Schema
+
+```python
+class QueryArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    sql: str = Field(description="A single read-only SELECT query")
+```
+
+这表示 `sql` 必须存在且为字符串，并且不能传入额外字段。LangChain 会根据它生成工具参数 JSON Schema。
+
+### 2. 注册工具
+
+```python
+query_tool = StructuredTool.from_function(
+    func=run_query,
+    name="query_database",
+    description="Execute one read-only SQL SELECT query against the demo database.",
+    args_schema=QueryArgs,
+)
+```
+
+`func` 是实际执行函数，`name` 和 `description` 提供给模型，`args_schema` 约束模型必须生成的参数格式。
+
+### 3. 创建 Agent 并调用
+
+```python
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+agent = create_agent(model, [query_tool])
+result = await agent.ainvoke({
+    "messages": [{"role": "user", "content": "查询金额大于100的订单"}]
+})
+```
+
+运行示例：
+
+```bash
+export GEMINI_API_KEY="你的 Gemini API Key"
+python demo/function-calling/agent.py
+python demo/function-calling/test_schema.py
+```
+
+`test_schema.py` 验证额外参数会被拒绝：
+
+```python
+QueryArgs(sql="SELECT 1", limit=10)  # ValidationError
+```
+
+### Function Calling 与 MCP 的区别
+
+Function Calling 规定“模型如何生成工具调用”；MCP 规定“客户端如何发现并调用外部工具服务”。两者可以串联：
+
+```text
+模型 Function Calling → MCP Client → MCP Server 的 tools/call → 工具结果
+```
+
+当前 demo 使用 Gemini，不是 OpenAI SDK；它演示的是通用的结构化工具调用方式。若改用 OpenAI，主要替换模型客户端，参数 Schema、工具函数和校验逻辑仍可复用。
+
 天气业务在 `demo/shared/weather.py`，SQLite 查询复用 `demo/sql-agent/database.py`，三个工具由 MCP Server 暴露。Server 使用 MCP Python SDK 的 `FastMCP` API。
 
 三个自定义工具：
