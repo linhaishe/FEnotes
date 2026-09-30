@@ -1,13 +1,73 @@
-# 天气 MCP Demo
+# MCP Demo 集合
+
+本项目用几个最小示例演示 MCP Server、工具调用和 SQL Agent：
+
+| Demo | 目录 | 内容 |
+| --- | --- | --- |
+| 天气 MCP | `demo/stdio/`、`demo/sse/` | 同一个天气工具分别使用 stdio 和 SSE 传输 |
+| SQL Agent | `demo/sql-agent/` | 根据自然语言选择查询工具，生成 SQL 并返回严格 JSON Schema 结构化结果 |
+
+## 环境准备（Miniconda3）
+
+请先安装 [Miniconda3](https://docs.anaconda.com/miniconda/)，然后在项目根目录执行：
+
+```bash
+conda create -n mcp-demo python=3.11 -y
+conda activate mcp-demo
+python -m pip install -r requirements.txt
+```
+
+后续命令都在 `mcp-demo` 环境中运行。
+
+## SQL Agent Demo
+
+SQL Agent 使用内存 SQLite 数据库，不依赖外部数据库或模型 API，适合先理解 Agent 的基本链路：
+
+```text
+自然语言问题 → Agent 生成 SQL → query_database Tool → SQLite → 结构化结果
+```
+
+运行：
+
+```bash
+conda activate mcp-demo
+python demo/sql-agent/agent.py
+python demo/sql-agent/test_agent.py
+```
+
+它演示了工具选择、只读 SQL 校验、结果行数限制，以及使用 JSON Schema 校验工具参数和最终输出。详细说明见 [`demo/sql-agent/README.md`](demo/sql-agent/README.md)。
+
+### JSON Schema 结构化输出
+
+SQL Agent 不直接返回一段不确定格式的文本，而是要求输出符合固定 Schema：
+
+```json
+{
+  "question": "查询金额大于100的订单",
+  "sql": "SELECT id, user_id, amount FROM orders WHERE amount > 100",
+  "rows": [
+    {"id": 1, "user_id": 1, "amount": 120.5}
+  ]
+}
+```
+
+工具调用也必须符合 Schema：
+
+```json
+{
+  "tool": "query_database",
+  "arguments": {"sql": "SELECT id, name FROM users"}
+}
+```
+
+Schema 会校验工具名称、必需参数、字段类型和额外字段；校验失败时拒绝执行或返回结果。这样调用方可以稳定地读取 `question`、`sql` 和 `rows`，而不是解析自然语言文本。
 
 天气业务在 `demo/shared/weather.py`，分别由两个 MCP Server 通过不同传输方式暴露。
 
 ## stdio
 
 ```bash
-conda create -n mcp-demo python=3.11 -y
 conda activate mcp-demo
-python -m pip install -r requirements.txt
 python demo/stdio/server.py
 ```
 
@@ -30,7 +90,6 @@ python demo/stdio/server.py
 
 ```bash
 conda activate mcp-demo
-python -m pip install -r requirements.txt
 python demo/sse/server.py
 ```
 
