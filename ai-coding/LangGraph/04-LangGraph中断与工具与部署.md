@@ -4334,3 +4334,87 @@ Name: get_weather
 杭州今天天气不错！☀️ 看起来是一个适合出行或者户外活动的好日子。如果你有出门的计划，可以放心安排哦～不过如果需要更具体的温度、风力等信息，建议可以再查一下实时的天气预报。😊
 ```
 
+# 11. Agent 生产可靠性与安全控制
+
+Agent 进入生产环境后，需要明确失败后的重试、超时、降级，以及工具的权限和审批边界。
+教程: [Error Handling in Agents](https://python.langchain.com/docs/how_to/tools_error/)
+参考: [MCP Authorization](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization)
+
+## 11.1. 可重试与不可重试错误
+
+原则是：**只重试暂时性错误，并限制次数和等待时间**。
+
+| 错误类型 | 是否重试 | 处理方式 |
+| --- | --- | --- |
+| 网络断开、连接重置、服务暂时不可用 | 是 | 指数退避，限制最大次数 |
+| HTTP 429 限流、部分 HTTP 5xx | 通常是 | 按 `Retry-After` 或退避等待 |
+| 参数校验失败、JSON 格式错误 | 通常否 | 将错误反馈给模型修正参数 |
+| 权限不足、认证失败 | 否 | 停止调用，重新授权或审批 |
+| 资源不存在、业务规则不允许 | 否 | 返回明确错误 |
+| 写入、扣款、删除等非幂等操作超时 | 谨慎 | 先确认远端是否已执行 |
+| 未知异常 | 否 | 记录日志并交给开发者排查 |
+
+LangChain 的错误处理思路也是将暂时性错误交给系统重试，将工具或解析错误反馈给模型，将需要用户补充的信息交给人工处理，并让未知错误继续抛出。[Error Handling in Agents](https://python.langchain.com/docs/how_to/tools_error/)
+
+```python
+import time
+
+RETRYABLE_ERRORS = (ConnectionError, TimeoutError)
+
+def wrap_tool_call(request, execute):
+    max_attempts = min(request.runtime.context.max_attempts, 3)
+    for attempt in range(max_attempts):
+        try:
+            return execute(request)
+        except RETRYABLE_ERRORS:
+            if attempt == max_attempts - 1:
+                raise
+            time.sleep(2**attempt)
+```
+
+## 11.2. 超时与降级
+
+至少设置三层超时：模型调用、工具调用、整条图执行。超时后不要默认重试写入操作，应先确认执行状态。
+
+```python
+model = ChatOpenAI(model="gpt-4o-mini", timeout=30, max_retries=2)
+```
+
+降级应返回可识别的最小结果，例如使用带时间戳的缓存、切换备用模型、返回基础列表。审批服务不可用时应默认拒绝，不能自动放行。
+
+## 11.3. 最小权限与敏感工具审批
+
+- 查询和修改拆成不同工具，查询使用只读凭证；
+- 限制可访问的资源、目录、表和 API 范围；
+- 在服务端重新校验工具参数和权限；
+- 不把长期密钥放进提示词、消息或日志；
+- 发送邮件、转账、删除数据、修改权限等操作先调用 `interrupt()`；
+- 审批内容至少包含工具名、完整参数、用户、目标资源、风险说明和审批人；
+- 恢复执行前再次校验权限和参数，并记录审计信息。
+
+```text
+模型提出工具调用
+  → 参数校验与权限检查
+  → 敏感操作？→ 否：执行
+                 是：interrupt()
+  → 人工批准/拒绝/修改
+  → 恢复图并再次校验后执行
+```
+
+## 11.4. MCP Authorization 教程总结
+
+MCP 授权解决“客户端能否访问受保护 MCP Server”，人工审批解决“这一次具体操作是否允许”。对于 HTTP 传输，MCP 授权基于 OAuth 2.1；STDIO 通常从环境中获取凭证。[MCP Authorization](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization)
+
+基本流程：MCP Client 访问 Server；Server 以 `401` 和 `WWW-Authenticate` 指示授权发现地址；Client 完成授权并获取针对该 Server 的令牌；每次请求携带令牌；Server 校验签发者、有效期、权限范围和目标受众。
+
+```http
+GET /mcp HTTP/1.1
+Host: mcp.example.com
+Authorization: Bearer <access-token>
+```
+
+令牌不能放在 URL 查询参数中；Client 应为目标 Server 请求令牌并携带 `resource`；Server 不应接受发给其他资源的令牌或透传令牌。`401` 表示需要授权或令牌无效，`403` 表示权限范围不足。生产环境还应使用 HTTPS、精确回调地址、PKCE、安全存储和脱敏日志。
+
+## 11.5. 本章小结
+
+可靠的 Agent 应做到：暂时性错误有限重试、永久性错误不重试；模型、工具和图都有超时；失败时可识别地降级；工具遵循最小权限；敏感操作通过人工审批；MCP 使用资源绑定的 OAuth 令牌；所有调用、授权、审批和失败都可审计。
