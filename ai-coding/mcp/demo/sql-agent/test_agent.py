@@ -3,8 +3,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+import agent
 from agent import OUTPUT_SCHEMA, TOOL_CALL_SCHEMA, answer
 from jsonschema import ValidationError, validate
+
+
+class FakeSQLModel:
+    def invoke(self, prompt):
+        if "上海" in prompt:
+            return agent.SQLPlan(sql="SELECT id, name, city FROM users WHERE city = 'Shanghai'")
+        if "每个用户" in prompt:
+            return agent.SQLPlan(
+                sql="SELECT users.id, users.name, SUM(orders.amount) AS total_amount "
+                "FROM users JOIN orders ON users.id = orders.user_id "
+                "GROUP BY users.id, users.name"
+            )
+        return agent.SQLPlan(sql="SELECT id, user_id, amount FROM orders WHERE amount > 100")
+
+
+agent.sql_model = FakeSQLModel()
 
 
 def test_agent_queries_orders():
@@ -14,6 +31,19 @@ def test_agent_queries_orders():
         {"id": 1, "user_id": 1, "amount": 120.5},
         {"id": 3, "user_id": 2, "amount": 200.0},
     ]
+
+
+def test_gemini_mode_uses_structured_model():
+    result = answer("查询金额大于100的订单", mode="gemini")
+    assert result["rows"][0]["amount"] == 120.5
+
+
+def test_unknown_mode_is_rejected():
+    try:
+        answer("查询用户", mode="unknown")
+    except ValueError:
+        return
+    raise AssertionError("unknown SQL mode must be rejected")
 
 
 def test_agent_queries_users_by_city():
@@ -54,6 +84,8 @@ def test_schemas_reject_extra_fields():
 
 if __name__ == "__main__":
     test_agent_queries_orders()
+    test_gemini_mode_uses_structured_model()
+    test_unknown_mode_is_rejected()
     test_agent_queries_users_by_city()
     test_agent_sums_orders_by_user()
     test_agent_gets_schema()

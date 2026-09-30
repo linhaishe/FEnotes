@@ -13,14 +13,19 @@ python demo/sql-agent/agent.py
 python demo/sql-agent/test_agent.py
 ```
 
-当前 `to_sql()` 用固定规则模拟 LLM 的 SQL 生成，支持：
+Demo 保留两种 SQL 生成方式：
+
+- `rules`：规则版，不调用模型，适合学习基础流程和离线测试
+- `gemini`：Gemini 结构化输出版，`SQLPlan` Schema 要求模型返回非空 SQL 字符串
+
+测试用 mock 模型避免调用真实 API。支持：
 
 - 查询用户
 - 查询订单
 - 查询金额大于指定数值的订单
 - 查看数据库表和列结构
 
-真正接入 LLM 时，只需替换 `to_sql()`；工具调用仍必须通过 Schema 校验。Agent 遇到“查看数据库结构/表结构”时会先调用 `get_schema`，再根据结构生成查询。
+两种模式都会经过工具调用 Schema、只读 SQL 和最终输出 Schema 校验。Agent 遇到“查看数据库结构/表结构”时会调用 `get_schema`。
 
 ## 严格 JSON Schema
 
@@ -49,8 +54,17 @@ Agent 先生成工具调用对象：
 
 ```bash
 python -m pip install -r requirements.txt
+export GEMINI_API_KEY="你的 Gemini API Key"
 python demo/sql-agent/agent.py
+SQL_AGENT_MODE=gemini python demo/sql-agent/agent.py
 python demo/sql-agent/test_agent.py
+```
+
+代码中也可以直接选择：
+
+```python
+answer("查询上海的用户", mode="rules")
+answer("查询上海的用户", mode="gemini")
 ```
 
 校验失败会直接抛出 `jsonschema.ValidationError`，不会执行不符合协议的工具调用或返回不符合协议的结果。数据库工具仍只允许单条 `SELECT`，最多返回 100 行；生产环境还应增加表/列白名单、超时和权限控制。

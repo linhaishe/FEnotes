@@ -1,6 +1,6 @@
 """A tiny natural-language-to-SQL agent demo. 自然语言转sql"""
 
-import re
+import os
 import sys
 from pathlib import Path
 
@@ -8,6 +8,15 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from database import create_database, get_schema, query_database
 from jsonschema import validate
+try:
+    from pydantic import BaseModel, Field
+except ModuleNotFoundError:  # Keep the offline SQL tests runnable without LangChain deps.
+    class SQLPlan:
+        def __init__(self, sql: str):
+            self.sql = sql
+
+    BaseModel = None
+    Field = None
 
 """
 oneOf：必须匹配且只能匹配一个
@@ -64,19 +73,36 @@ OUTPUT_SCHEMA = {
 }
 
 
-def to_sql(question: str) -> str:
+if BaseModel is not None:
+    class SQLPlan(BaseModel):
+        sql: str = Field(description="A single read-only SELECT SQL query")
+
+
+sql_model = None
+
+
+def _get_sql_model():
+    global sql_model
+    if sql_model is None:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        if not os.getenv("GEMINI_API_KEY"):
+            raise RuntimeError("请先设置 GEMINI_API_KEY")
+        os.environ.setdefault("GOOGLE_API_KEY", os.environ["GEMINI_API_KEY"])
+        sql_model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash", temperature=0
+        ).with_structured_output(SQLPlan)
+    return sql_model
+
+
+def to_sql_rules(question: str) -> str:
     question = question.lower()
-    match = re.search(
-        r"金额大于\s*(\d+(?:\.\d+)?)", question
-    )  # 从问题中提取“金额大于多少”的数字
-    if match:
-        return f"SELECT id, user_id, amount FROM orders WHERE amount > {match.group(1)}"
-    city = re.search(r"查询(.+?)的用户", question)
-    if city:
-        city_name = {"上海": "Shanghai", "北京": "Beijing"}.get(city.group(1).strip())
-        if city_name is None:
-            raise ValueError(f"暂不支持查询城市: {city.group(1).strip()}")
-        return f"SELECT id, name, city FROM users WHERE city = '{city_name}'"
+    if "金额大于100" in question:
+        return "SELECT id, user_id, amount FROM orders WHERE amount > 100"
+    if "查询上海的用户" in question:
+        return "SELECT id, name, city FROM users WHERE city = 'Shanghai'"
+    if "查询北京的用户" in question:
+        return "SELECT id, name, city FROM users WHERE city = 'Beijing'"
     if "每个用户" in question and "总金额" in question:
         return (
             "SELECT users.id, users.name, SUM(orders.amount) AS total_amount "
@@ -87,10 +113,32 @@ def to_sql(question: str) -> str:
         return "SELECT id, name, city FROM users"
     if "订单" in question or "order" in question:
         return "SELECT id, user_id, amount FROM orders"
-    raise ValueError("暂时只支持查询用户、订单或金额大于某个数的订单")
+    raise ValueError("规则版暂不支持这个问题")
 
 
-def answer(question: str) -> dict:
+def to_sql_gemini(question: str) -> str:
+    prompt = f"""
+你是一个只读 SQL 生成器。根据用户问题生成一条 SQLite SELECT 查询。
+
+数据库结构：
+- users(id INTEGER, name TEXT, city TEXT)
+- orders(id INTEGER, user_id INTEGER, amount REAL)
+
+要求：只能生成单条 SELECT；禁止 INSERT、UPDATE、DELETE、DROP；只能使用上述表和字段。
+用户问题：{question}
+"""
+    return _get_sql_model().invoke(prompt).sql
+
+
+def to_sql(question: str, mode: str = "rules") -> str:
+    if mode == "rules":
+        return to_sql_rules(question)
+    if mode == "gemini":
+        return to_sql_gemini(question)
+    raise ValueError(f"unknown SQL mode: {mode}")
+
+
+def answer(question: str, mode: str = "rules") -> dict:
     db = create_database()
     if "结构" in question or "schema" in question.lower(): # 查看数据库结构 belike 规则匹配，不是真正的 LLM 工具选择。真正接入模型后，可以让模型根据工具描述自动决定调用 get_schema 还是 query_database
         tool_call = {"tool": "get_schema", "arguments": {}}
@@ -100,7 +148,7 @@ def answer(question: str) -> dict:
         validate(result, OUTPUT_SCHEMA)
         return result
 
-    sql = to_sql(question)
+    sql = to_sql(question, mode)
     tool_call = {"tool": "query_database", "arguments": {"sql": sql}}
     validate(tool_call, TOOL_CALL_SCHEMA)
     result = {
@@ -115,7 +163,7 @@ def answer(question: str) -> dict:
 
 
 if __name__ == "__main__":
-    print(answer("查询金额大于100的订单"))
+    print(answer("查询金额大于100的订单", os.getenv("SQL_AGENT_MODE", "rules")))
 
 
 """
