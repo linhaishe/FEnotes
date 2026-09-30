@@ -1,4 +1,4 @@
-"""Contract tests for the stdio weather MCP server."""
+"""Contract tests for the three stdio MCP tools."""
 
 import asyncio
 import sys
@@ -18,9 +18,23 @@ async def run_contract() -> None:
             await session.initialize()
 
             tools = await session.list_tools()
+            assert {tool.name for tool in tools.tools} == {
+                "weather",
+                "query_database",
+                "call_api",
+            }
+
             weather = next(tool for tool in tools.tools if tool.name == "weather")
             assert weather.inputSchema["required"] == ["city"]
             assert weather.inputSchema["properties"]["city"]["type"] == "string"
+
+            query = next(tool for tool in tools.tools if tool.name == "query_database")
+            assert query.inputSchema["required"] == ["sql"]
+            assert query.inputSchema["properties"]["sql"]["type"] == "string"
+
+            api = next(tool for tool in tools.tools if tool.name == "call_api")
+            assert api.inputSchema["required"] == ["url"]
+            assert api.inputSchema["properties"]["url"]["type"] == "string"
 
             result = await session.call_tool("weather", {"city": "北京"})
             assert not result.isError
@@ -28,6 +42,21 @@ async def run_contract() -> None:
 
             invalid = await session.call_tool("weather", {})
             assert invalid.isError
+
+            rows = await session.call_tool(
+                "query_database", {"sql": "SELECT id, name FROM users"}
+            )
+            assert not rows.isError
+            assert rows.content
+
+            response = await session.call_tool(
+                "call_api",
+                {
+                    "url": "https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=116.4&current=temperature_2m"
+                },
+            )
+            assert not response.isError
+            assert response.content
 
 
 if __name__ == "__main__":

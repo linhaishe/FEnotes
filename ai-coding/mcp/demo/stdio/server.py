@@ -1,7 +1,10 @@
 """MCP weather server over stdio."""
 
 import sys
+import json
 from pathlib import Path
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 """
 sys.path 不是一个固定目录，而是 Python 查找模块时使用的目录列表
@@ -12,9 +15,11 @@ sys.path.insert(0, 新目录)
 """
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
+sys.path.insert(0, str(Path(__file__).parents[1] / "sql-agent"))
 
 from mcp.server.fastmcp import FastMCP
 from shared.weather import get_weather
+from database import create_database, query_database
 
 """
 MCPServer 是 MCP Python SDK v2 提供的高层封装，用来快速创建 MCP Server。
@@ -44,6 +49,32 @@ mcp = FastMCP("weather-stdio")
 def weather(city: str) -> dict:
     """查询城市当前天气。"""
     return get_weather(city)
+
+
+@mcp.tool(name="query_database")
+def query_database_tool(sql: str) -> list[dict]:
+    """执行只读 SQLite SELECT 查询。"""
+    with create_database() as db:
+        return query_database(db, sql)
+
+
+@mcp.tool(name="call_api")
+def call_api(url: str) -> dict | str:
+    """调用一个 HTTP GET API，并返回 JSON 或文本响应。"""
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("url must be an absolute http or https URL")
+
+    request = Request(
+        url,
+        headers={"Accept": "application/json", "User-Agent": "mcp-demo"},
+    )
+    with urlopen(request, timeout=10) as response:
+        body = response.read().decode("utf-8")
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError:
+        return body
 
 
 if __name__ == "__main__":

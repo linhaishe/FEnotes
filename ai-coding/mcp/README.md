@@ -4,7 +4,7 @@
 
 | Demo | 目录 | 内容 |
 | --- | --- | --- |
-| 天气 MCP | `demo/stdio/`、`demo/sse/` | 同一个天气工具分别使用 stdio 和 SSE 传输 |
+| 天气 MCP | `demo/stdio/`、`demo/sse/` | 天气、SQLite 查询和 HTTP API 工具，分别使用 stdio 和 SSE 传输 |
 | LangChain Host | `demo/langchain_host.py` | 使用 LangChain Agent 连接 stdio MCP Server 并自动调用天气工具 |
 | Gemini Function Calling | `demo/function-calling/` | 使用 Gemini/LangChain 按严格参数 Schema 选择并调用数据库函数 |
 | SQL Agent | `demo/sql-agent/` | 根据自然语言选择查询工具，生成 SQL 并返回严格 JSON Schema 结构化结果 |
@@ -91,7 +91,13 @@ SQL Agent 不直接返回一段不确定格式的文本，而是要求输出符�
 
 Schema 会校验工具名称、必需参数、字段类型和额外字段；校验失败时拒绝执行或返回结果。这样调用方可以稳定地读取 `question`、`sql` 和 `rows`，而不是解析自然语言文本。
 
-天气业务在 `demo/shared/weather.py`，分别由两个 MCP Server 通过不同传输方式暴露。Server 使用 MCP Python SDK v2 的 `MCPServer` API。
+天气业务在 `demo/shared/weather.py`，SQLite 查询复用 `demo/sql-agent/database.py`，三个工具由 MCP Server 暴露。Server 使用 MCP Python SDK 的 `FastMCP` API。
+
+三个自定义工具：
+
+- `weather(city)`：查询城市当前天气；
+- `query_database(sql)`：执行受限的只读 SQLite `SELECT` 查询；
+- `call_api(url)`：调用 HTTP/HTTPS GET API，返回 JSON 或文本响应。
 
 ## stdio
 
