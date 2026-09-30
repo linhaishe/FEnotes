@@ -222,6 +222,12 @@ LCEL 的调用顺序由代码决定，更适合确定性流程。MCP 只负责�
 
 因此，本仓库当前展示的是 Agent 方式；如果要展示 LCEL，需要另写一个固定顺序的链式流程。
 
+## ReAct Agent 官方示例
+
+[`demo/react_agent/`](demo/react_agent/) 是一个基于 LangChain 官方 custom tool 示例的最小 Agent。它用 `create_agent()` 注册本地 `get_weather(city)` 工具，展示 ReAct 的基本循环：模型判断是否行动、调用工具、观察工具结果，再生成最终回答。
+
+详细说明和运行方式见 [`demo/react_agent/README.md`](demo/react_agent/README.md)。
+
 demo/langchain_multi_tool_host.py 就是“可以连续调用多个工具的 Agent”示例。
 这里的“链式调用”指：
 ```
