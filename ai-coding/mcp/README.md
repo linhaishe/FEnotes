@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | 天气 MCP | `demo/stdio/`、`demo/sse/` | 同一个天气工具分别使用 stdio 和 SSE 传输 |
 | LangChain Host | `demo/langchain_host.py` | 使用 LangChain Agent 连接 stdio MCP Server 并自动调用天气工具 |
+| Gemini Function Calling | `demo/function-calling/` | 使用 Gemini/LangChain 按严格参数 Schema 选择并调用数据库函数 |
 | SQL Agent | `demo/sql-agent/` | 根据自然语言选择查询工具，生成 SQL 并返回严格 JSON Schema 结构化结果 |
 
 ## 环境准备（Miniconda3）
@@ -402,3 +403,221 @@ def search_products(keyword: str) -> dict:
 ```
 
 安全上，不要把未知 MCP Server 直接接入生产 Agent。远程 MCP 可能具有读写数据、发送消息或执行操作的权限，应该先查看它的 Tools 和参数 Schema。
+
+# 严格 JSON Schema 实现工具选择、参数校验和结构化输出
+OpenAI 这篇文档的核心是：让模型输出符合预先定义的 JSON Schema，而不是依赖模型“自觉返回正确 JSON”。
+
+文档: [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling),
+
+[Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
+
+## 1. Structured Outputs 解决什么问题
+
+普通 JSON Mode 只能保证输出是合法 JSON：
+
+```json
+{"name": "Alice"}
+```
+
+但不一定保证：
+
+- 字段存在
+- 字段名称正确
+- 字段类型正确
+- 没有多余字段
+- 嵌套结构符合要求
+
+Structured Outputs 通过 JSON Schema 约束模型输出，使结果更适合程序直接解析。
+
+## 2. 两种主要使用场景
+
+### 场景一：约束模型最终回答
+
+适用于：
+
+```text
+用户问题 → 模型 → 结构化结果
+```
+
+例如要求模型返回天气结果：
+
+```json
+{
+  "city": "北京",
+  "temperature": 20,
+  "unit": "celsius"
+}
+```
+
+这时使用 Response API 或 Chat Completions 的 `json_schema` 配置。
+
+### 场景二：约束工具调用参数
+
+适用于：
+
+```text
+用户问题 → 模型选择工具 → 生成工具参数
+```
+
+例如：
+
+```json
+{
+  "name": "query_database",
+  "arguments": {
+    "sql": "SELECT id, name FROM users"
+  }
+}
+```
+
+这时使用 Function Calling，并设置：
+
+```json
+{
+  "strict": true
+}
+```
+
+你仓库里的 SQL Agent 更接近第二种，因为它需要让模型生成合法的工具调用。
+
+## 3. `strict: true` 的作用
+
+严格模式会要求工具参数符合 Schema：
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "sql": {
+      "type": "string"
+    }
+  },
+  "required": ["sql"],
+  "additionalProperties": false
+}
+```
+
+这样模型不能随意返回：
+
+```json
+{
+  "query": "...",
+  "limit": 10
+}
+```
+
+因为 `limit` 不在定义中，且 Schema 设置了：
+
+```json
+"additionalProperties": false
+```
+
+## 4. Structured Outputs 和 JSON Mode 的区别
+
+```text
+JSON Mode
+= 保证结果是 JSON
+
+Structured Outputs
+= 保证结果是符合 JSON Schema 的 JSON
+```
+
+JSON Mode 仍然可能返回错误字段或错误类型；Structured Outputs 更适合：
+
+- 工具调用
+- 数据提取
+- 分类
+- 结构化 Agent 状态
+- 数据库查询参数
+- 自动化工作流
+
+## 5. Schema 编写限制
+
+文档强调，Schema 不是任意 JSON Schema 都能使用，通常要注意：
+
+- 根节点通常使用 `object`
+- 明确声明 `required`
+- 使用 `additionalProperties: false`
+- 字段类型要明确
+- 不要依赖模型返回缺失字段
+- 可选字段可以使用 nullable，例如：
+  
+  ```json
+  {
+    "type": ["string", "null"]
+  }
+  ```
+
+换句话说，结构化输出更偏向“固定协议”，而不是随意变化的 JSON。
+
+## 6. 仍然要处理异常情况
+
+即使使用 Structured Outputs，代码仍然需要处理：
+
+- 模型拒绝回答
+- 输出被截断
+- 请求失败
+- API 超时
+- 工具执行失败
+- Schema 之外的业务错误
+
+Schema 只能约束格式，不能保证：
+
+```text
+SQL 一定正确
+查询结果一定存在
+业务逻辑一定合理
+```
+
+例如：
+
+```json
+{
+  "sql": "SELECT * FROM nonexistent_table"
+}
+```
+
+格式可能完全合法，但数据库仍然会执行失败。
+
+## 7. 对当前 SQL Agent 的对应关系
+
+当前 Demo 的流程：
+
+```text
+自然语言
+  ↓
+生成工具调用
+  ↓
+TOOL_CALL_SCHEMA 校验
+  ↓
+query_database()
+  ↓
+OUTPUT_SCHEMA 校验
+  ↓
+结构化结果
+```
+
+如果接入 OpenAI，可以让模型直接负责生成：
+
+```json
+{
+  "tool": "query_database",
+  "arguments": {
+    "sql": "SELECT id, name, city FROM users"
+  }
+}
+```
+
+然后由程序负责：
+
+1. 校验 Schema
+2. 校验 SQL 是否只读
+3. 执行数据库查询
+4. 返回结构化结果
+
+最重要的边界是：
+
+```text
+Structured Outputs 负责格式可靠
+代码负责安全和业务正确性
+```

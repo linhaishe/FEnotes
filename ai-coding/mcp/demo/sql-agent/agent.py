@@ -1,4 +1,4 @@
-"""A tiny natural-language-to-SQL agent demo."""
+"""A tiny natural-language-to-SQL agent demo. 自然语言转sql"""
 
 import re
 import sys
@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from database import create_database, query_database
 from jsonschema import validate
-
 
 TOOL_CALL_SCHEMA = {
     "type": "object",
@@ -39,7 +38,9 @@ OUTPUT_SCHEMA = {
 
 def to_sql(question: str) -> str:
     question = question.lower()
-    match = re.search(r"金额大于\s*(\d+(?:\.\d+)?)", question)
+    match = re.search(
+        r"金额大于\s*(\d+(?:\.\d+)?)", question
+    )  # 从问题中提取“金额大于多少”的数字
     if match:
         return f"SELECT id, user_id, amount FROM orders WHERE amount > {match.group(1)}"
     if "用户" in question or "user" in question:
@@ -54,10 +55,43 @@ def answer(question: str) -> dict:
     sql = to_sql(question)
     tool_call = {"tool": "query_database", "arguments": {"sql": sql}}
     validate(tool_call, TOOL_CALL_SCHEMA)
-    result = {"question": question, "sql": sql, "rows": query_database(db, tool_call["arguments"]["sql"])}
+    result = {
+        "question": question,
+        "sql": sql,
+        "rows": query_database(
+            db, tool_call["arguments"]["sql"]
+        ),  # 普通的 Python 函数调用
+    }
     validate(result, OUTPUT_SCHEMA)
     return result
 
 
 if __name__ == "__main__":
     print(answer("查询金额大于100的订单"))
+
+
+"""
+自然语言问题
+  ↓
+to_sql()
+  ↓
+生成工具调用
+  ↓
+JSON Schema 校验
+  ↓
+query_database()
+  ↓
+结构化结果
+
+
+```
+sql = to_sql(question)
+tool_call = {
+    "tool": "query_database",
+    "arguments": {"sql": sql},
+}
+validate(tool_call, TOOL_CALL_SCHEMA)
+result = query_database(db, sql)
+validate(result, OUTPUT_SCHEMA)
+```
+"""
