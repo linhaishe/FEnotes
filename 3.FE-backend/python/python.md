@@ -5874,6 +5874,23 @@ When a Python file is executed directly, Python sets the value of this variable 
 
 But if the Python file is imported as a module into another Python script, the value of the `__name__` variable is set to the name of that module (usually the filename without the `.py` extension).
 
+`main()` 的作用主要是整理入口逻辑：
+
+```
+def main():
+    print("程序启动")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+它的价值在于：被其他文件导入时，不会自动执行启动代码。
+
+小脚本：可以不写 `main()`
+
+需要被导入、测试或作为服务启动的程序：建议使用 `main()` + `if __name__ == "__main__":`
+
 ```python
 # greet.py
 def greet():
@@ -5905,6 +5922,90 @@ example.greet() # 该脚本作为模块被导入。
 - 当模块作为主程序运行时，`__name__` 的值是 `"__main__"`。
 - 当模块被导入时，`__name__` 的值是模块的文件名。
 - 使用 `if __name__ == "__main__":` 可以控制模块在被导入时不会执行某些代码，而只有在作为独立脚本运行时才会执行这些代码。
+
+## 和`__init__`的区别
+
+`if __name__ == "__main__":` 和 `__init__.py` 完全不是一类东西。
+
+#### `if __name__ == "__main__":`
+
+用于判断当前 Python 文件是否被直接运行。
+
+```
+def main():
+    print("启动程序")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+直接运行：
+
+```
+python app.py
+```
+
+会执行 `main()`。
+
+如果被导入：
+
+```
+import app
+```
+
+不会执行 `main()`。
+
+用途：防止模块被导入时自动执行启动逻辑。
+
+------
+
+#### `__init__.py`
+
+用于标记和初始化 Python 包目录。
+
+目录结构：
+
+```
+demo/
+├── __init__.py
+└── weather.py
+```
+
+这样可以把 `demo` 当作一个包导入：
+
+```
+from demo.weather import get_weather
+```
+
+`__init__.py` 中的代码会在包第一次被导入时执行，也可以用于导出公共对象：
+
+```
+## demo/__init__.py
+from .weather import get_weather
+```
+
+然后可以写：
+
+```
+from demo import get_weather
+```
+
+------
+
+#### 对比
+
+| 项目                 | `if __name__ == "__main__":` | `__init__.py`                       |
+| -------------------- | ---------------------------- | ----------------------------------- |
+| 类型                 | 条件判断                     | 包初始化文件                        |
+| 作用                 | 判断文件是否被直接运行       | 定义/初始化 Python 包               |
+| 触发时机             | `python file.py`             | `import package`                    |
+| 防止导入时执行主程序 | 是                           | 否                                  |
+| 是否必须存在         | 否                           | Python 3 中通常也可省略，但建议保留 |
+
+一句话：
+
+> `if __name__ == "__main__":` 管“这个文件是否作为程序启动”；`__init__.py` 管“这个目录如何作为 Python 包被导入”。
 
 # 输入和输出
 
