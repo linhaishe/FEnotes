@@ -7083,6 +7083,101 @@ WeatherQuery 对象
 
 `"cities"` 指定这个校验器只作用于 `cities` 字段。`@classmethod` 是 Pydantic v2 要求的写法之一。
 
+### @dataclass
+
+`@dataclass` 会自动生成 `__init__()`
+
+```python
+import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class ResearchConfig:
+    vector_db_path: str = "./vector_db/chroma"
+    embedding_model: str = "m3e"
+    web_search_api_key: str | None = None
+    llm_model: str = "gemini-3.1-flash-lite"
+
+    @classmethod
+    def from_env(cls: type["ResearchConfig"]) -> "ResearchConfig":
+        """从环境变量读取配置，未设置时使用默认值。"""
+        return cls(
+            vector_db_path=os.getenv("VECTOR_DB_PATH", cls.vector_db_path),
+            embedding_model=os.getenv("EMBEDDING_MODEL", cls.embedding_model),
+            web_search_api_key=os.getenv("TAVILY_API_KEY"),
+            llm_model=os.getenv("LLM_MODEL", cls.llm_model),
+        )
+```
+
+```python
+def __init__(
+    self,
+    vector_db_path="./vector_db/chroma",
+    embedding_model="m3e",
+    web_search_api_key=None,
+    llm_model="gemini-3.1-flash-lite",
+):
+    self.vector_db_path = vector_db_path
+    self.embedding_model = embedding_model
+    self.web_search_api_key = web_search_api_key
+    self.llm_model = llm_model
+```
+
+### `__post_init__`
+
+`__post_init__` 是 `dataclass` 在自动生成 `__init__` 之后，自动调用的方法。
+
+适合放：
+
+- 初始化后的校验
+- 根据字段计算其他属性
+- 做简单的初始化处理
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class Researcher:
+    local_retriever: object
+    web_searcher: object = None
+    llm: object = None
+
+    def __post_init__(self):
+        if self.local_retriever is None:
+            raise ValueError("local_retriever 不能为空")
+```
+
+执行：
+
+```
+Researcher(None)
+```
+
+会先自动执行生成的 `__init__`，再执行：
+
+```
+self.__post_init__()
+```
+
+如果需要根据参数生成字段：
+
+```python
+@dataclass
+class User:
+    name: str
+    display_name: str = ""
+
+    def __post_init__(self):
+        if not self.display_name:
+            self.display_name = self.name.upper()
+user = User("alice")
+print(user.display_name)  # ALICE
+```
+
+简单说：`__init__` 负责接收和保存参数，`__post_init__` 负责保存之后的额外处理。
+
 ## instance attributes and class attributes
 
 ```py
