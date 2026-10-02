@@ -4197,6 +4197,25 @@ printinfo(1, a=2,b=3)
 {'a': 2, 'b': 3}
 ```
 
+把字典里的键值对拆开，作为关键字参数传给函数
+
+`tool(**call.arguments)`
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+arguments = {"a": 2, "b": 3}
+
+result = add(**arguments)
+# 等价于 add(a=2, b=3)
+# result == 5
+```
+
+
+
+
+
 ### 星号 * 单独
 
 声明函数时，参数中星号 * 可以单独出现，例如:
@@ -7178,6 +7197,145 @@ print(user.display_name)  # ALICE
 
 简单说：`__init__` 负责接收和保存参数，`__post_init__` 负责保存之后的额外处理。
 
+### 隐式继承
+
+```python
+class Model(Protocol):
+    def complete(self, messages: list[dict[str, Any]]) -> ModelResponse:
+        """
+        根据消息列表生成一次模型响应。
+
+        Args:
+            messages: 对话消息列表，每条消息包含消息角色和内容。
+
+        Returns:
+            模型响应，可能包含文本、工具调用和调用成本。
+        """
+        ...
+```
+
+```python
+class ScriptedModel:
+    """Deterministic model double used by the demo and self-check."""
+
+    def __init__(self, responses: list[ModelResponse]):
+        """
+        初始化一个按顺序返回预设响应的模型。
+
+        Args:
+            responses: 需要按调用顺序返回的模型响应列表。
+        """
+        self._responses = iter(responses) # 表示把 responses 列表转换成一个迭代器，并保存到对象中。
+
+    def complete(self, messages: list[dict[str, Any]]) -> ModelResponse:
+        """
+        返回下一个预设响应。
+
+        Args:
+            messages: 当前对话消息列表；脚本模型不会使用它。
+
+        Returns:
+            预设响应列表中的下一个模型响应。
+        """
+        return next(self._responses)
+```
+
+运行时确实没有直接关联，这是 `Protocol` 的特点。
+
+```
+class Model(Protocol):
+    def complete(...):
+        ...
+```
+
+它主要用于静态类型检查，而不是运行时继承。
+
+关联发生在这里：
+
+```
+def run_agent(model: Model, ...):
+```
+
+这表示 `run_agent()` 期望收到一个符合 `Model` 接口的对象。
+
+而 `ScriptedModel` 虽然没有写：
+
+```
+class ScriptedModel(Model):
+```
+
+但它有同名方法：
+
+```
+class ScriptedModel:
+    def complete(
+        self,
+        messages: list[dict[str, Any]],
+    ) -> ModelResponse:
+        ...
+```
+
+所以它“结构上符合” `Model`，这叫结构化类型或鸭子类型。
+
+如果你希望看到显式关联，可以写：
+
+```
+class ScriptedModel(Model):
+    def complete(
+        self,
+        messages: list[dict[str, Any]],
+    ) -> ModelResponse:
+        return next(self._responses)
+```
+
+不过对于 `Protocol`，通常不需要显式继承。它们的关联关系可以理解为：
+
+```
+Model：规定接口
+ScriptedModel：提供实现
+run_agent：依赖接口
+```
+
+如果不使用静态类型检查器，`Model` 甚至可以删掉，程序仍然能运行；但类型检查和代码阅读会失去接口约束。
+
+对，这是隐式关联。
+
+只要 `ScriptedModel` 提供了符合 `Model` 的方法：
+
+```
+class ScriptedModel:
+    def complete(
+        self,
+        messages: list[dict[str, Any]],
+    ) -> ModelResponse:
+        ...
+```
+
+它就可以作为 `Model` 传入：
+
+```
+run_agent(ScriptedModel(...), "你好")
+```
+
+不需要显式继承：
+
+```
+class ScriptedModel(Model):
+    ...
+```
+
+这种方式叫：
+
+- 结构化类型
+- 鸭子类型
+- 隐式接口实现
+
+核心思想是：
+
+> 不看对象属于哪个类，只看它有没有所需的方法。
+
+
+
 ## instance attributes and class attributes
 
 ```py
@@ -8569,7 +8727,7 @@ def find_student(name: str) -> Optional[str]:
     """根据名字查找学生，可能找到也可能返回None"""
     students = {"Alice": "A001", "Bob": "B002"}
     return students.get(name)  # 可能返回字符串或None
-
+# "A001"
 # 等价于 Union[str, None]
 ```
 
