@@ -364,3 +364,41 @@ print(add.__annotations__)
 ```
 
 所以它延迟的是“类型注解的解析”，不是函数执行，也不是把整个程序异步化。
+
+## agent
+
+**LangChain 不是 LLM**，它是一个开发框架。
+
+关系可以理解为：
+
+```text
+LLM：负责理解和生成文本
+LangChain：负责组织 LLM、Prompt、工具和流程
+Agent：基于这些组件完成任务的应用
+```
+
+例如：
+
+```python
+from langchain_openai import ChatOpenAI
+
+model = ChatOpenAI(model="gpt-4o-mini")
+```
+
+这里的 `ChatOpenAI` 才是模型调用接口，背后真正运行的是 OpenAI 的 LLM。
+
+LangChain 可以接入很多 LLM：
+
+- OpenAI
+- Anthropic Claude
+- Google Gemini
+- 本地 Ollama
+- LiteLLM 支持的模型
+
+简单类比：
+
+```text
+LLM = 发动机
+LangChain = 组织发动机、方向盘和路线的框架
+Agent = 开着车完成任务的程序
+```
