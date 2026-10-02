@@ -81,3 +81,21 @@ python day24_state_resume/demo.py
 ```
 
 Demo 运行时会生成 `day24_state_resume/.demo-data/`，其中保存 checkpoint 和幂等账本；再次运行前会清理这两个 Demo 文件。
+
+## LangChain + Gemini Demo
+
+`demo_langchain_gemini.py` 使用 LangGraph（LangChain 生态的状态图与 checkpoint 组件）实现同一个流程：
+
+- `State`：Run State，保存 `run_id`、商品和模型计划；
+- `MemorySaver`：按 `thread_id` 保存图执行 checkpoint；
+- `ChatGoogleGenerativeAI`：接入 Gemini，执行 Agent 的计划节点；
+- `IdempotentOrderTool`：用 `run_id:create_order` 防止恢复时重复创建订单。
+
+安装并运行：
+
+```bash
+pip install -U langchain langchain-google-genai langgraph
+GEMINI_API_KEY=你的_key python day24_state_resume/demo_langchain_gemini.py
+```
+
+Demo 会故意在订单创建成功后抛出一次异常，然后用相同的 `thread_id` resume。`create_order` 节点会重跑，但幂等账本会返回已有的 `order-1`，不会再次创建订单。
