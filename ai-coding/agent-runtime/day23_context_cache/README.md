@@ -10,6 +10,30 @@
                          └─ 未命中：执行请求 → 写入 Redis（TTL）→ 返回
 ```
 
+```
+用户提问
+  ↓
+应用收到 messages
+  ↓
+POST /context
+  ↓
+redis_client() 注入 Redis
+  ↓
+根据 messages 生成缓存 key
+  ↓
+Redis 查询
+  ├─ 命中 → 直接返回缓存上下文
+  └─ 未命中
+       ↓
+     trim_context()
+       ↓
+     compress_context()
+       ↓
+     写入 Redis，TTL 300 秒
+       ↓
+     返回处理后的 messages
+```
+
 这里的缓存是“响应缓存”，不是模型本身的 prompt caching。它缓存的是应用或 LiteLLM 已经得到的结果。
 
 ## 参考资料
@@ -114,7 +138,14 @@ Redis SDK 将常用缓存操作拆成三类：
 
 ### 观察命中情况
 
-缓存不能只“接入后祈祷”。至少应能区分 MISS 和 HIT，并记录延迟、TTL、缓存大小以及失效事件。官方 SDK 会通过 `X-Redis-Cache: HIT/MISS` 响应头帮助验证缓存是否生效；需要更完整指标时可以启用 OpenTelemetry。
+缓存接入后，不能只假设它会生效。至少应能区分 MISS 和 HIT，并记录延迟、TTL、缓存大小以及失效事件。官方 SDK 会通过 `X-Redis-Cache: HIT/MISS` 响应头帮助验证缓存是否生效；需要更完整指标时可以启用 OpenTelemetry。
+
+- MISS：缓存里没有数据，需要执行原本的计算或调用 LLM，然后写入缓存。
+- HIT：缓存里已有数据，直接返回缓存结果，没有重新计算或调用 LLM。
+
+HIT 全称是 Cache Hit，中文叫“缓存命中”。
+- Cache Hit：缓存命中，直接拿到缓存数据
+- Cache Miss：缓存未命中，需要重新计算或请求 LLM
 
 ## 二、LiteLLM Caching
 
@@ -259,3 +290,77 @@ uvicorn day23_context_cache.demo_dependencies:app --reload
 ```
 
 这个依赖版是接入示例，不包含完整的鉴权、生产级 key 规范化、并发 single-flight 或缓存失效策略；需要上线时再补。
+
+# QA
+
+## `from __future__ import annotations`
+
+```python
+from __future__ import annotations
+```
+
+表示：让当前文件使用“延迟类型注解”。
+
+例如：
+
+```python
+def trim_context(
+    messages: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    ...
+```
+
+这些类型不会在函数定义时立即求值，而是延迟处理。
+
+主要作用：
+
+- 支持较新的类型写法，例如 `list[str]`
+- 支持函数返回自身类型、前向引用等写法
+- 避免类型注解中某些名称尚未定义的问题
+- 不影响程序的实际运行逻辑
+
+它只影响类型注解，不是导入某个库，也不会执行缓存或 FastAPI 相关功能。
+
+“延迟”指的是：函数定义时不立刻计算类型表达式，而是先保存成字符串。
+
+没有它：
+
+```python
+class User:
+    pass
+
+def get_user() -> User:
+    ...
+```
+
+Python 定义 `get_user` 时就要找到 `User`。
+
+有它：
+
+```python
+from __future__ import annotations
+
+def get_user() -> User:
+    ...
+```
+
+定义函数时，`User` 可以暂时还不存在；类型注解会先以类似字符串的形式保存，之后类型检查器或 `typing.get_type_hints()` 需要时再解析。
+
+可以观察：
+
+```python
+from __future__ import annotations
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+print(add.__annotations__)
+```
+
+结果类似：
+
+```python
+{'a': 'int', 'b': 'int', 'return': 'int'}
+```
+
+所以它延迟的是“类型注解的解析”，不是函数执行，也不是把整个程序异步化。
