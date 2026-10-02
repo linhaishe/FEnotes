@@ -11,7 +11,19 @@
 3. 调度工具并把结果追加到消息历史。
 4. 再次调用模型，直到模型返回最终文本。
 5. 通过轮数、时间和成本预算停止运行。
-   
+
+
+展示 Agent 的最小闭环
+
+- Model：model.complete(messages) 生成下一步决策
+- Harness：run_agent() 决定何时调用 Model、何时执行 Tool、何时停止
+- Tool：tool(**call.arguments) 执行动作
+- Messages：messages 列表保存上下文
+- Budget：budget 控制超时、轮数和成本
+
+所以，Harness 不是某个单独的类，而是 run_agent() 这段编排和控制逻辑。
+
+
 “不依赖 Agent 框架”意思是：这个最小运行时不绑定 LangChain、AutoGen、CrewAI 之类的现成 Agent 框架。
 它只依赖基础能力，例如：
 - 调用模型 API

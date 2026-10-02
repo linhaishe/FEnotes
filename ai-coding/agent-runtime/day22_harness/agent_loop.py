@@ -67,7 +67,16 @@ tools = {
 }
 """
 
-
+"""
+Messages → Model
+              ↓
+        Tool calls
+              ↓
+           Tools
+              ↓
+Messages ← tool results
+"""
+# Harness 不负责做具体决策或动作，而是把各部分串起来
 def run_agent(
     model: Model,
     user_input: str,
