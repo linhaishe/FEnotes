@@ -70,7 +70,57 @@ result = run_agent(
 
 ## 与 Agents SDK 的边界
 
-Agents SDK 已经提供 Runner、工具调用、`max_turns`、sessions、guardrails 和 tracing 等运行时能力。本练习刻意只保留最小机制，用来理解 Harness 如何管理模型、工具和运行状态；生产系统不应重复实现 SDK 已经覆盖的能力。
+Agents SDK 是一个 Python-first、轻量的 Agent 运行时，核心原语包括：
+
+- `Agent`：带有 instructions 和 tools 的模型。
+- `Runner`：负责运行 Agent，管理多轮调用和工具执行。
+- `Handoffs` / agents as tools：让 Agent 把任务委托给其他 Agent。
+- `Guardrails`：在输入、输出或运行过程中做校验和安全检查。
+- `Sessions`：跨轮次保存工作上下文。
+- `Tracing`：记录、可视化和调试 Agent 工作流。
+
+SDK 默认使用 Responses API，但在模型调用之上增加了工具执行、循环、handoff、guardrail、session 和 tracing 等运行时能力。
+
+可以这样选择：
+
+- 直接使用 Responses API：希望自己管理循环、工具分发和状态，或者流程很短。
+- 使用 Agents SDK：希望运行时管理多轮任务、工具、guardrails、handoffs、sessions，或需要工作区和可恢复执行。
+
+本练习刻意只实现 SDK 中最小的核心机制，用来理解 Harness 如何管理模型、工具、消息历史和停止条件；生产系统应优先复用 SDK 已提供的能力。
+
+## Harness Engineering 的启发
+
+Harness 不是让模型“更努力”，而是为 Agent 建立一个可理解、可执行、可验证的工作环境。参考文章中的关键原则是：
+
+1. **人负责设定目标，Agent 负责执行**：工程师的重点从手写每一行代码，转向设计环境、明确意图和建立反馈循环。
+2. **让应用对 Agent 可理解**：代码、文档、计划、日志、指标、trace 和可运行的 UI 都应能被 Agent 直接访问和验证。
+3. **仓库是知识的事实来源**：`AGENTS.md` 应像目录一样简短，指向结构化的架构文档、设计文档、产品规格、执行计划和技术债记录，而不是堆积成一份百科全书。
+4. **渐进式披露上下文**：先给 Agent 一张地图，再让它按任务需要查找细节，避免过大的上下文淹没真正的约束。
+5. **把规则写成可执行约束**：重要的架构边界、依赖方向、数据边界、日志规范和质量要求，应通过 lint、结构化测试和 CI 强制，而不只写在文档里。
+6. **反馈循环比一次性生成更重要**：运行、测试、审查、修复、再次验证构成闭环；错误暴露的是 Harness 缺少的能力或约束。
+7. **吞吐量提高后要管理熵**：Agent 产出越快，越需要文档维护、架构检查、技术债跟踪和定期清理，防止代码库逐渐失去一致性。
+
+映射到本练习：`Model` 是能力提供者，`run_agent` 是 Harness。它通过消息历史、工具注册表、预算和停止原因，把“模型能做什么”变成“模型能在边界内可靠完成什么”。
+
+## 最小 Harness 的运行流程
+
+```text
+用户输入
+   ↓
+调用 Model.complete(messages)
+   ↓
+有工具调用？ ── 否 ──→ 返回最终文本
+   │
+  是
+   ↓
+查找工具 → 执行工具 → 将结果写回消息历史
+   ↓
+检查轮数 / 时间 / 成本预算
+   ↓
+继续调用模型
+```
+
+这个循环对应 Agents SDK 的基本运行思想，但省略了 sessions、handoffs、guardrails、tracing、流式输出和真实模型适配等生产能力，便于先掌握最小闭环。
 
 ## 下一步
 
