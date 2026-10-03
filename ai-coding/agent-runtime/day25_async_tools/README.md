@@ -627,6 +627,38 @@ uvicorn module:app --reload
 
 ---
 
+## 阶段五 Demo：取消传播
+
+Demo：`phase5_cancellation.ipynb`
+
+这个 Demo 使用同一个可取消工具，分别展示原生 Python、LangChain Async 和 FastAPI 入口。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `cancellable_tool(name, delay, cleaned)` | 模拟可取消工具；参数是名称、等待时间和清理记录列表 |
+| `run_cancellable_batch(names, delay)` | 并发运行一批工具；参数是名称列表和等待时间，并传播父任务取消 |
+| `native_cancel_example()` | 使用原生 `Task.cancel()` 取消批次 |
+| `langchain_async_example()` | 使用 LangChain Runnable 的 `ainvoke()`，再取消其任务 |
+| `run_phase5_cancel()` | FastAPI 路由示例，运行并取消一个异步批次 |
+| `main()` | 验证原生 Python 和 LangChain Async 的取消传播 |
+
+### 关键知识
+
+- `task.cancel()` 会向任务注入 `asyncio.CancelledError`。
+- 捕获 `CancelledError` 后通常必须重新抛出，不能吞掉取消信号。
+- `finally` 无论成功、失败还是取消都会执行，适合释放连接、锁和 Semaphore。
+- 查询任务通常可以取消；扣款、发邮件、删除等副作用操作需要幂等键和远端状态确认。
+- FastAPI 路由只是异步入口；真实客户端断开时，ASGI 服务器负责取消请求任务。
+
+### 验收标准
+
+- 父任务取消后，子工具收到取消信号。
+- 原生 Python、LangChain Async 和 FastAPI 示例都保留清理逻辑。
+- 不吞掉 `CancelledError`。
+- notebook 执行结束后没有遗留批次任务。
+
 ## 阶段六：Backpressure
 
 ### 项目目标
