@@ -714,6 +714,37 @@ Demo：`phase5_cancellation.ipynb`
 
 ---
 
+## 阶段六 Demo：Backpressure
+
+Demo：`phase6_backpressure.ipynb`
+
+这个 Demo 用原生 Python 的有界 `asyncio.Queue` 和固定消费者限制资源，再用 LangChain 的 `abatch(..., config={"max_concurrency": ...})` 和 FastAPI 路由展示上层接入方式。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `bounded_tool(name, active, peak)` | 模拟异步工具；参数是名称、当前活动数记录和最大并发记录 |
+| `run_bounded(names, queue_size, concurrency)` | 使用有界队列和消费者处理任务；参数是名称列表、队列容量和并发上限 |
+| `langchain_async_example()` | 使用 LangChain `abatch` 的 `max_concurrency` 限制并发 |
+| `run_phase6_tools()` | FastAPI 路由示例，调用有界调度器 |
+| `main()` | 验证原生 Python 和 LangChain 的并发上限 |
+
+### 关键知识
+
+- `asyncio.Queue(maxsize=...)` 防止生产者无限堆积任务；队列满时 `put()` 会等待。
+- 多个消费者限制处理速度，`concurrency` 决定同时运行的任务数。
+- LangChain Runnable 可以通过 `config["max_concurrency"]` 限制 `abatch` 的并发数。
+- FastAPI 只负责 HTTP 入口，队列和并发限制仍应由调度器统一处理。
+- 队列满时也可以改成拒绝、丢弃低优先级任务或返回降级结果，但必须明确策略。
+
+### 验收标准
+
+- 原生调度器的最大并发数不超过 3。
+- 队列容量固定为 2，不无限增长。
+- LangChain Async 示例的最大并发数不超过配置值 2。
+- FastAPI 路由复用同一个有界调度器。
+
 ## 阶段七：失败、重试和幂等
 
 ### 项目目标
