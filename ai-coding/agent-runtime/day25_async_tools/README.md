@@ -532,6 +532,55 @@ flaky_tool：有时成功，有时超时
 
 ---
 
+## 阶段四 Demo：超时边界
+
+Demo：`phase4_timeouts.ipynb`
+
+使用 `asyncio.timeout()` 演示三层超时中的前两层：单个工具超时和整批工具超时；整次请求超时可以在 Agent 入口继续包住整个批次。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `fake_tool(name, delay)` | 模拟外部 I/O；参数是工具名称和等待秒数，并在 `finally` 中清理 |
+| `run_with_timeout(name, delay, timeout)` | 执行单个工具；参数包含名称、运行时间和超时时间，超时返回 `timeout` |
+| `run_batch(timeout)` | 并发执行快、慢两个工具，并给每个工具设置独立超时 |
+| `run_request(tool_timeout, batch_timeout)` | 给整个批次增加总超时；参数分别是单工具和整批超时时间 |
+| `main()` | 验证单工具超时、整批超时和清理行为 |
+
+### 关键知识
+
+- 单个工具超时后，其他工具仍可以继续完成。
+- 整批超时会取消尚未完成的工具，并等待取消清理结束。
+- `finally` 中的清理逻辑会在成功、失败和超时后执行。
+- 对扣款、发邮件等副作用操作，超时后不能直接重试，应先确认远端状态。
+
+### 验收标准
+
+- 慢工具不会让请求永久阻塞。
+- 单工具超时返回 `slow_tool: timeout`。
+- 整批超时返回空列表，并取消未完成任务。
+- 输出清理信息，且 notebook 执行结束后没有遗留任务。
+
+### LangChain Async 对照
+
+4 个阶段的 notebook 都额外包含一个 LangChain Async 小例子：
+
+- `phase1`：`RunnableLambda.abatch()` 并发执行异步 I/O。
+- `phase2`：`RunnableLambda.ainvoke()` 调用统一工具入口。
+- `phase3`：把 LangChain Runnable 放进 `asyncio.TaskGroup`。
+- `phase4`：给 Runnable 的 `ainvoke()` 增加 `asyncio.timeout()`。
+
+LangChain Runnable 的异步入口主要是 `ainvoke()`；批量异步调用使用 `abatch()`。详见[官方 LangChain Async 文档](https://python.langchain.com/docs/how_to/async/)。
+
+### FastAPI 对照
+
+4 个阶段的 notebook 也各自包含一个 FastAPI 路由示例。路由只负责接收 HTTP 请求并 `await` 已有的异步函数，不把调度、并发和超时逻辑重复写在 Web 层。Demo 只注册路由，不启动端口；实际运行时可使用：
+
+```bash
+uvicorn module:app --reload
+```
+
 ## 阶段五：取消传播
 
 ### 项目目标
