@@ -831,6 +831,40 @@ unknown
 
 ## 阶段八：接入真实 I/O
 
+Demo：`phase8_real_io.ipynb`
+
+这个 Demo 把前面可控的模拟工具替换成异步 HTTP 客户端。为了让实验可重复，使用 `httpx.MockTransport` 模拟远端服务，不依赖外网；实际项目只需把 transport 替换成默认传输层。
+
+### 项目目标
+
+实现一个可复用的异步 HTTP 工具：复用客户端、设置 timeout、正确关闭连接，并让取消信号传到底层 I/O。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `mock_handler(request)` | 模拟 HTTP 服务；参数是 `httpx.Request`，返回 `httpx.Response` |
+| `fetch_json(client, path, timeout)` | 使用已有客户端请求 JSON；参数是客户端、路径和请求超时秒数 |
+| `run_http_tools(paths)` | 在一个异步客户端生命周期内并发请求多个路径；参数是路径列表，负责统一关闭客户端 |
+| `cancel_http_request()` | 启动并取消一个 HTTP 工具任务，验证取消信号能够传播到请求层 |
+| `main()` | 验证真实异步客户端、并发请求和取消后的资源清理 |
+
+### 关键知识
+
+- 使用 `httpx.AsyncClient` 进行异步 HTTP I/O，不要在事件循环里调用同步客户端。
+- 一个批次复用同一个客户端和连接池，不要为每次工具调用重复创建客户端。
+- 用 `async with` 保证客户端在成功、异常和取消后都能关闭。
+- timeout 必须设置在真实 I/O 边界；上层批次超时不能替代客户端自身的连接和读取超时。
+- 请求取消时保留 `asyncio.CancelledError`，让取消继续向上传播；资源释放放在上下文管理器或 `finally` 中。
+- 生产环境应继续沿用前面阶段的并发上限、重试规则和幂等策略。
+
+### 验收标准
+
+- 多个 HTTP 工具请求共享一个 `AsyncClient`。
+- 每个请求都设置 timeout，并能返回 JSON 结果。
+- 任务取消后没有遗留后台任务，客户端会被关闭。
+- notebook 不依赖外网即可运行。
+
 前面都稳定后，再替换模拟工具：
 
 ```text
@@ -847,6 +881,14 @@ unknown
 - timeout 参数生效
 - 取消能够传到底层
 - 不把同步阻塞库放进事件循环
+
+```
+用户请求
+  → Agent/LLM 判断需要调用工具
+  → Tool 调用 httpx.AsyncClient / 数据库客户端 / MCP 客户端
+  → 返回结果给 Agent
+  → Agent 生成最终回答
+```
 
 ---
 
