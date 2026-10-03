@@ -405,6 +405,55 @@ missing -> ToolResult(status='failed', ...)
 
 ## 阶段三：结构化并发
 
+Demo：`phase3_structured_concurrency.ipynb`
+
+在 Jupyter 中打开后运行全部单元格。
+
+### 项目目标
+
+使用标准库 `asyncio.TaskGroup` 管理一批工具任务：
+
+```text
+一次批次
+├── search
+├── weather
+└── database
+```
+
+`TaskGroup` 是一个结构化并发作用域。进入作用域时创建子任务，离开作用域前等待它们结束；如果一个任务失败，仍在运行的同批任务会被取消，异常会在作用域退出时统一传播。
+
+### 学习内容
+
+- `asyncio.TaskGroup` 的创建和退出。
+- 父任务与子任务的生命周期关系。
+- 一个子任务失败时，其他子任务如何被取消。
+- 使用 `asyncio.CancelledError` 做清理并重新抛出取消信号。
+- `TaskGroup` 和 `asyncio.gather()` 的区别：前者明确表达任务层级和生命周期。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `fake_tool(name, delay, should_fail)` | 模拟一个可成功、失败或被取消的异步工具；参数分别是名称、等待时间和是否失败 |
+| `run_batch(task_refs)` | 在一个 `TaskGroup` 中创建并管理工具任务；`task_refs` 记录本批次的子任务以便检查生命周期 |
+| `main()` | 捕获批次异常并验证没有遗留后台任务 |
+
+### 验收标准
+
+- 一个工具失败后，仍在运行的同批工具会收到取消信号。
+- `TaskGroup` 退出后没有遗留后台任务。
+- 失败以异常组传播，而不是被静默吞掉。
+
+运行后可以看到类似输出：
+
+```text
+weather: cancelled
+batch failed with 1 exception(s)
+batch finished without background tasks
+```
+
+本阶段只演示结构化并发；单工具超时、整批超时、队列和 Semaphore 在后续阶段加入。
+
 ### 项目目标
 
 用 `asyncio.TaskGroup` 管理一批工具任务。
