@@ -338,6 +338,10 @@ async def query_database(...)
 
 ## 阶段二：统一工具接口
 
+Demo：`phase2_scheduler.ipynb`
+
+在 Jupyter 中打开后运行全部单元格。这个 Demo 对应最终项目结构中的 `scheduler.py`，同时提前演示 `models.py` 中的 `ToolCall` 和 `ToolResult`。
+
 ### 项目目标
 
 不要让调度器认识每个工具的内部实现，只认识统一的工具任务。
@@ -367,10 +371,35 @@ ToolResult(
 - 工具输入和输出
 - 工具错误分类
 - 查询工具和副作用工具的区别
+- 用 `ToolCall` 描述“调用哪个工具以及传什么参数”
+- 用 `ToolResult` 统一表示成功和失败
+- 用一个 `execute_tool()` 入口执行不同工具
+- 用 `dict[str, Tool]` 解耦调度器和工具实现
+- 用关键字参数把 `ToolCall.arguments` 传给具体工具
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `search(query)` | 模拟搜索工具，参数是搜索关键词 |
+| `fetch_weather(city)` | 模拟天气工具，参数是城市名 |
+| `register_tool(registry, name, tool)` | 把工具加入注册表 |
+| `execute_tool(registry, call)` | 根据统一的 `ToolCall` 找到并执行工具，返回 `ToolResult` |
+| `main()` | 注册工具、构造调用并执行验收 |
 
 ### 验收标准
 
 调度器可以执行任意注册工具，不需要为每个工具写一套特殊逻辑。
+
+运行 Demo 后应能看到两个成功结果和一个未知工具错误：
+
+```text
+search -> ToolResult(status='success', ...)
+fetch_weather -> ToolResult(status='success', ...)
+missing -> ToolResult(status='failed', ...)
+```
+
+本阶段刻意不加入并发、超时、取消、Semaphore 和 Queue；这些机制会在后续阶段围绕同一个统一工具接口继续添加。
 
 ---
 
@@ -662,4 +691,3 @@ day25_async_tools/
 每个阶段只加一个新问题。这样你学到的不是 API，而是：
 
 > 当 Agent 同时调用很多外部工具时，如何让它不会卡死、失控、泄漏资源或重复执行危险操作。
-
