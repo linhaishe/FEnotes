@@ -747,6 +747,39 @@ Demo：`phase6_backpressure.ipynb`
 
 ## 阶段七：失败、重试和幂等
 
+Demo：`phase7_retry_idempotency.ipynb`
+
+这个 Demo 用一个“前两次临时失败、第三次成功”的模拟工具，区分可重试错误和不可重试错误，并用幂等键保护有副作用的写操作。
+
+### Demo 中的方法
+
+| 方法 | 作用 |
+| --- | --- |
+| `TransientError` / `PermanentError` | 分别表示可以暂时恢复的错误和不应自动重试的错误 |
+| `run_with_retry(operation, retries, base_delay)` | 对可重试操作做有限次指数退避；参数是异步操作、最大重试次数和基础等待秒数 |
+| `query_tool(name, attempts)` | 模拟查询工具；参数是工具名和当前调用次数，前两次临时失败 |
+| `idempotent_write(key, store, attempts)` | 模拟带幂等键的写操作；参数是幂等键、结果存储和调用次数，重复执行返回已有结果 |
+| `langchain_retry_example()` | 使用 LangChain Runnable 的 `with_retry` 执行可重试查询 |
+| `run_phase7_tools()` | FastAPI 路由示例，复用原生重试和幂等逻辑 |
+| `main()` | 验证临时错误会成功重试，永久错误不会重试，写操作不会重复执行 |
+
+### 关键知识
+
+- 只对明确可重试的临时错误重试；参数错误、权限错误和未知副作用状态不能盲目重试。
+- 指数退避使用 `base_delay * 2**attempt`，并且重试次数必须有限。
+- 重试任务仍然要经过原有的并发限制，不能因为重试额外突破资源上限。
+- 查询通常可以有限重试；邮件、扣款、删除等副作用操作需要幂等键和远端状态确认。
+- 超时后如果不知道远端是否已执行，最终状态应标记为 `unknown`，不能直接再次执行危险操作。
+- LangChain 的 `with_retry` 只负责 Runnable 层的重试配置；FastAPI 只负责 HTTP 入口，策略仍由工具调度层统一管理。
+
+### 验收标准
+
+- 临时失败最多重试指定次数，并最终得到成功或明确失败。
+- 永久失败不会被错误地重试。
+- 重试等待时间按指数退避增加。
+- 相同幂等键的写操作只产生一次副作用。
+- 原生 Python、LangChain Async 和 FastAPI 三个入口都复用同一套规则。
+
 ### 项目目标
 
 给工具增加不同类型的失败：
