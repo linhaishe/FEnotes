@@ -32,8 +32,15 @@ class SecurityTests(unittest.TestCase):
         self.assertRaises(ValueError, command_for, "rm -rf /")
 
     def test_network_rejects_wrong_host_and_private_ip(self) -> None:
-        self.assertRaises(ValueError, validate_model_url, "http://169.254.169.254/v1", "169.254.169.254")
-        self.assertRaises(ValueError, validate_model_url, "http://127.0.0.1/v1", "api.example.org")
+        self.assertRaises(
+            ValueError,
+            validate_model_url,
+            "http://169.254.169.254/v1",
+            "169.254.169.254",
+        )
+        self.assertRaises(
+            ValueError, validate_model_url, "http://127.0.0.1/v1", "api.example.org"
+        )
         validate_model_url("http://127.0.0.1:8000/v1", "127.0.0.1", allow_loopback=True)
 
     def test_credential_is_required_and_never_sent_in_prompt(self) -> None:
@@ -43,10 +50,19 @@ class SecurityTests(unittest.TestCase):
             def handler(request: httpx.Request) -> httpx.Response:
                 captured["body"] = request.content.decode()
                 captured["header"] = request.headers["authorization"]
-                return httpx.Response(200, json={"choices": [{"message": {"content": "report"}}]})
+                return httpx.Response(
+                    200, json={"choices": [{"message": {"content": "report"}}]}
+                )
 
             with patch.dict(os.environ, {"DAY27_MODEL_TOKEN": "test-secret"}):
-                client = ModelClient("http://127.0.0.1:8000/v1", "demo", "127.0.0.1", CredentialBroker(), allow_loopback=True, transport=httpx.MockTransport(handler))
+                client = ModelClient(
+                    "http://127.0.0.1:8000/v1",
+                    "demo",
+                    "127.0.0.1",
+                    CredentialBroker(),
+                    allow_loopback=True,
+                    transport=httpx.MockTransport(handler),
+                )
                 try:
                     self.assertEqual(await client.analyze("print(1)"), "report")
                 finally:
@@ -69,7 +85,9 @@ class SecurityTests(unittest.TestCase):
                 workspace.add("main.py", b"print(1)\n")
                 audit = Path(logs) / "audit.jsonl"
                 with patch("worker.run_check", return_value="syntax ok"):
-                    result = await analyze_project(workspace, "main.py", StubModel(), audit)
+                    result = await analyze_project(
+                        workspace, "main.py", StubModel(), audit
+                    )
                 self.assertEqual(result["report"], "rm -rf /")
                 self.assertEqual(result["status"], "ok")
 
@@ -78,7 +96,9 @@ class SecurityTests(unittest.TestCase):
                         raise ModelUnavailable("offline")
 
                 with patch("worker.run_check", return_value="syntax ok"):
-                    degraded = await analyze_project(workspace, "main.py", OfflineModel(), audit)
+                    degraded = await analyze_project(
+                        workspace, "main.py", OfflineModel(), audit
+                    )
                 self.assertEqual(degraded["status"], "degraded")
                 self.assertNotIn("print(1)", audit.read_text())
                 self.assertNotIn("rm -rf", audit.read_text())

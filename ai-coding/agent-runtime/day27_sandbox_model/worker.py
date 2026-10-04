@@ -17,7 +17,9 @@ def record_audit(path: Path, status: str) -> None:
         stream.write(json.dumps({"event": "analysis", "status": status}) + "\n")
 
 
-async def analyze_project(workspace: Workspace, relative_file: str, model: ModelClient, audit_path: Path) -> dict[str, str]:
+async def analyze_project(
+    workspace: Workspace, relative_file: str, model: ModelClient, audit_path: Path
+) -> dict[str, str]:
     """分析工作区内一个文件，返回静态检查与模型报告。
 
     参数:
@@ -48,8 +50,11 @@ async def demo() -> None:
     url = os.environ.get("DAY27_MODEL_URL", "http://127.0.0.1:8000/v1")
     allowed_host = os.environ.get("DAY27_MODEL_HOST", "127.0.0.1")
     model = ModelClient(
-        url, os.environ.get("DAY27_MODEL_NAME", "local-model"), allowed_host,
-        CredentialBroker(), allow_loopback=allowed_host in ("127.0.0.1", "localhost"),
+        url,
+        os.environ.get("DAY27_MODEL_NAME", "local-model"),
+        allowed_host,
+        CredentialBroker(),
+        allow_loopback=allowed_host in ("127.0.0.1", "localhost"),
     )
     try:
         with Workspace() as workspace:

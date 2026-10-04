@@ -10,6 +10,14 @@ def validate_model_url(url: str, allowed_host: str, *, allow_loopback: bool = Fa
 
     这只是客户端入口检查。生产环境仍需容器/网络层 egress 策略，
     否则 DNS 重新解析和进程内其他 HTTP 库可能绕过本函数。
+
+    Args:
+        url: 待验证的模型服务 URL。
+        allowed_host: 允许访问的主机名。
+        allow_loopback: 是否允许解析到本机回环地址，例如 127.0.0.1。
+
+    Raises:
+        ValueError: URL 格式不正确、主机不匹配或解析到不允许的地址时抛出。
     """
     parsed = urlsplit(url)
     if parsed.scheme not in ("http", "https") or parsed.hostname != allowed_host:
