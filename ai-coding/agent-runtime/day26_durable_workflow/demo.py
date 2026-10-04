@@ -1,4 +1,4 @@
-"""Minimal LangGraph durable execution demo."""
+"""LangGraph 持久化执行的最小 Demo。"""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from langgraph.types import Command, interrupt
 
 
 class RefundState(TypedDict, total=False):
-    """The serializable state persisted for one refund workflow."""
+    """一次退款工作流中持久化的可序列化状态。"""
 
     order_id: str
     amount: int
@@ -19,25 +19,25 @@ class RefundState(TypedDict, total=False):
 
 
 def prepare_refund(state: RefundState) -> dict[str, str]:
-    """Prepare a refund request.
+    """准备退款请求。
 
     Parameters:
-        state: Current workflow state containing ``order_id`` and ``amount``.
+        state: 当前工作流状态，包含 ``order_id`` 和 ``amount``。
 
     Returns:
-        A state update marking the request as waiting for approval.
+        将请求标记为等待审批的状态更新。
     """
     return {"status": f"waiting_for_approval:{state['order_id']}"}
 
 
 def request_approval(state: RefundState) -> dict[str, bool | str]:
-    """Pause for human approval and persist the response in graph state.
+    """暂停等待人工审批，并将响应持久化到图状态中。
 
     Parameters:
-        state: Current refund request and its approval status.
+        state: 当前退款请求及其审批状态。
 
     Returns:
-        A state update containing the approval decision and next status.
+        包含审批决定和下一状态的状态更新。
     """
     decision = interrupt(
         {
@@ -51,25 +51,25 @@ def request_approval(state: RefundState) -> dict[str, bool | str]:
 
 
 def complete_refund(state: RefundState) -> dict[str, str]:
-    """Complete an approved refund.
+    """完成已审批的退款。
 
     Parameters:
-        state: State containing the approval decision and order ID.
+        state: 包含审批决定和订单 ID 的状态。
 
     Returns:
-        A state update marking the refund as completed.
+        将退款标记为已完成的状态更新。
     """
     if not state["approved"]:
         return {"status": "rejected"}
-    # Real payment calls belong here and must use a stable idempotency key.
+    # 真实的支付调用应放在这里，并且必须使用稳定的幂等键。
     return {"status": f"refunded:{state['order_id']}"}
 
 
 def build_workflow() -> tuple[object, InMemorySaver]:
-    """Build and compile the graph with a checkpoint store.
+    """使用检查点存储构建并编译工作流图。
 
     Returns:
-        The compiled graph and the checkpointer used by this demo.
+        编译后的工作流图，以及本 Demo 使用的检查点存储。
     """
     checkpointer = InMemorySaver()
     builder = StateGraph(RefundState)
@@ -84,12 +84,17 @@ def build_workflow() -> tuple[object, InMemorySaver]:
 
 
 def demo() -> None:
-    """Pause once, then resume the same workflow using its thread ID."""
+    """暂停一次，然后使用相同的 thread ID 恢复工作流。"""
     app, _ = build_workflow()
     config = {"configurable": {"thread_id": "refund-order-42"}}
     paused = app.invoke({"order_id": "order-42", "amount": 100}, config)
-    assert paused["status"] == "waiting_for_approval:order-42"
-
+    assert paused["status"] == "waiting_for_approval:order-42" # 验证工作流是否成功暂停在“等待审批”状态
+    """
+    读取 paused 状态中的 status
+    期望它等于 "waiting_for_approval:order-42"
+    如果相等，程序继续执行
+    如果不相等，抛出 AssertionError，说明工作流状态不符合预期
+    """
     resumed = app.invoke(Command(resume={"approved": True}), config)
     assert resumed["status"] == "refunded:order-42"
     print("durable workflow resumed:", resumed["status"])
