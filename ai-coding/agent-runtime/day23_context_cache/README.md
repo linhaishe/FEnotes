@@ -36,6 +36,53 @@ Redis 查询
 
 这里的缓存是“响应缓存”，不是模型本身的 prompt caching。它缓存的是应用或 LiteLLM 已经得到的结果。
 
+## RAG + Redis 检索缓存 Demo
+
+`rag_redis_demo.py` 补充了一个最小但完整的 RAG 链路：
+
+```text
+用户问题 → Redis 查询检索结果 → 未命中时执行检索 → Redis 写入 TTL → 生成回答
+```
+
+它分别测量不使用缓存和使用 Redis 缓存时的总耗时、平均延迟和命中率。检索函数用 `asyncio.sleep(0.01)` 模拟向量检索或数据库查询的成本，真实项目中可替换为向量数据库查询；缓存的内容是检索出的文档列表，而不是最终答案。
+
+运行：
+
+```bash
+redis-server
+python agent-runtime/day23_context_cache/rag_redis_demo.py --rounds 20
+```
+
+输出中的 `without_cache` 是优化前基线，`with_redis_cache` 是优化后结果。默认 3 个查询、20 轮时，第一次访问每个查询仍然是 MISS，缓存版本的命中率约为 `57/60`；应重点比较 `avg_latency_ms` 和 `hit_rate`。Redis 不可用时，程序会在启动时通过 `ping()` 直接报错，而不会悄悄把 Redis 实验降级成进程内字典。
+
+`benchmark` 的意思是“基准测试”或“性能测试”。
+
+在这个项目里，它指的是：
+
+> 用一组固定任务和参数，测量系统在不同条件下的表现。
+
+例如 RAG Demo 会比较：
+
+- 不使用 Redis 缓存时的平均延迟
+- 使用 Redis 缓存后的平均延迟
+- 缓存命中率
+- 总执行时间
+
+例如：
+
+```text
+无缓存：平均延迟 10ms
+Redis 缓存：平均延迟 1ms
+```
+
+这样就能知道 Redis 是否真的带来了性能提升。
+
+简单理解：
+
+- `test`：功能对不对
+- `benchmark`：性能好不好
+- `benchmark report`：性能对比报告
+
 ## 参考资料
 
 - [Redis with FastAPI](https://redis.io/docs/latest/integrate/fastapi/)
