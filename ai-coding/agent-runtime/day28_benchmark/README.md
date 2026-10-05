@@ -459,6 +459,121 @@ agent-runtime/day28_benchmark/
 
 核心思想是：不要只测 Agent “能不能回答”，而要测它在外部世界不可靠时，能否稳定完成任务，并且知道什么时候重试、降级或停止。
 
+## 8. 最后连接 AI Agent
+
+当前的 `run_scenario()` 直接返回模拟结果。接入真实 Agent 时，可以保留同一份结果格式，只把“执行一次任务”的部分替换为 Agent 适配器。这样现有的 `calculate_metrics()` 不需要修改。
+
+下面是一个不依赖具体 Agent SDK 的最小实现。真实 Agent 只需要提供 `run(task)` 方法，并返回包含 `completed` 属性的结果对象；如果 SDK 有自己的异常类型，将示例中的异常类替换成 SDK 类型即可。
+
+```python
+# agent_runner.py
+from contextlib import contextmanager
+import time
+
+
+class RateLimitError(Exception):
+    pass
+
+
+class ToolError(Exception):
+    pass
+
+
+@contextmanager
+def fault_injection(scenario):
+    """把故障注入点包在 Agent 调用外；生产环境可替换为真实代理层。"""
+    if scenario == "timeout":
+        raise TimeoutError("simulated timeout")
+    if scenario == "rate_limit":
+        raise RateLimitError("simulated rate limit")
+    if scenario == "tool_failure":
+        raise ToolError("simulated tool failure")
+    yield
+
+
+def run_agent_task(agent, task, scenario, cost=0.0):
+    started = time.perf_counter()
+
+    try:
+        with fault_injection(scenario):
+            result = agent.run(task)
+        success = bool(result.completed)
+        error = None if success else "agent_incomplete"
+    except TimeoutError:
+        success, error = False, "timeout"
+    except RateLimitError:
+        success, error = False, "rate_limit"
+    except ToolError:
+        success, error = False, "tool_failure"
+
+    return {
+        "success": success,
+        "latency_ms": round((time.perf_counter() - started) * 1000, 3),
+        "cost": cost,
+        "error": error,
+    }
+```
+
+使用方式如下：
+
+```python
+result = run_agent_task(
+    agent=my_agent,
+    task="查询订单并总结当前状态",
+    scenario="tool_failure",
+    cost=0.012,
+)
+metrics = calculate_metrics([result], elapsed_seconds=0.1)
+```
+
+真实压测时，把 `load_test.py` 中的 `run_scenario(...)` 替换为 `run_agent_task(agent, task, scenario)`，并为每个任务提供独立的 `task`。故障注入应包住 Agent 的完整执行过程，而不是只包住最终输出，这样 P99 才包含规划、模型调用、工具调用和恢复过程的总耗时。
+
+Agent 接入后的数据流为：
+
+```text
+用户任务
+  ↓
+Agent 规划
+  ↓
+调用模型和工具
+  ↓
+fault_injection 注入超时 / 限流 / 工具失败
+  ↓
+Agent 重试、降级或停止
+  ↓
+run_agent_task 统一记录结果
+  ↓
+calculate_metrics 统计成功率、P99、QPS、成本
+```
+
+此时 benchmark 的核心问题就变成：Agent 是否最终完成任务、恢复是否增加了多少延迟和成本，以及它是否在不可恢复的错误上及时停止，而不是无意义地重复调用。
+
+### 运行真实 Agent
+
+仓库新增 `agent_runner.py`，使用已有的 LangChain Gemini Agent 示例。先设置密钥：
+
+```bash
+cd agent-runtime/day28_benchmark
+export GEMINI_API_KEY="你的 Gemini API key"
+```
+
+运行一次真实 Agent：
+
+```bash
+python agent_runner.py --task "查询北京天气并用一句话回答"
+```
+
+注入故障并观察统一结果格式：
+
+```bash
+python agent_runner.py --scenario timeout
+python agent_runner.py --scenario rate_limit
+python agent_runner.py --scenario process_restart
+python agent_runner.py --scenario tool_failure
+```
+
+`agent_runner.py` 的正常路径会真实调用 Gemini Agent，并从返回消息的 `usage_metadata` 读取 token 数；通过 `--cost-per-token` 传入实际价格后，`cost` 就是本次模型调用成本。故障场景目前在 Agent 调用边界注入，便于先验证 benchmark 的记录和指标链路；下一步可把注入点下沉到具体模型请求或工具函数，以测试 Agent 自己的重试和降级决策。
+
 
 
 # QA
