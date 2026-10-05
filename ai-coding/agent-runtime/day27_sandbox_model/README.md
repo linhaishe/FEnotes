@@ -18,6 +18,43 @@ python -m unittest discover -s agent-runtime/day27_sandbox_model -p 'test_*.py'
 
 本地模型服务可按 [vLLM Quickstart](https://docs.vllm.ai/en/latest/getting_started/quickstart.html) 启动；也可换成支持相同 Chat Completions API 的 [SGLang](https://github.com/sgl-project/sglang) 或 [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM)。部署命令随模型、GPU 和框架版本变化，因此由实际环境决定，不在这里硬编码模型权重或 GPU 参数。无模型服务时，Worker 返回 `degraded`；无 Docker daemon 时，Shell 检查失败并停止。
 
+### vLLM 实际部署与 API 验证
+
+本目录现在提供了可配置的 Docker Compose 部署和验证脚本。默认使用 `Qwen/Qwen2.5-1.5B-Instruct`，需要 NVIDIA GPU、Docker Compose 和 NVIDIA Container Toolkit；也可以通过 `VLLM_MODEL` 替换模型。
+
+```bash
+cd agent-runtime/day27_sandbox_model
+export VLLM_MODEL=Qwen/Qwen2.5-1.5B-Instruct
+export VLLM_API_KEY=day27-local-token
+export HF_TOKEN=你的_huggingface_token  # 仅私有模型需要
+./start_vllm.sh
+```
+
+`start_vllm.sh` 会启动 `docker-compose.vllm.yml`，然后检查 `/health` 和 OpenAI-compatible 的 `/v1/models`。验证单次推理：
+
+```bash
+curl http://127.0.0.1:8000/v1/chat/completions \
+  -H "Authorization: Bearer ${VLLM_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"'"${VLLM_MODEL}"'","messages":[{"role":"user","content":"用一句话说明什么是缓存"}],"max_tokens":64}'
+```
+
+验证现有受控 Worker：
+
+```bash
+export DAY27_MODEL_URL=http://127.0.0.1:8000/v1
+export DAY27_MODEL_HOST=127.0.0.1
+export DAY27_MODEL_NAME="$VLLM_MODEL"
+export DAY27_MODEL_TOKEN="$VLLM_API_KEY"
+python worker.py
+```
+
+停止服务：
+
+```bash
+docker compose -f docker-compose.vllm.yml down
+```
+
 ## 安全边界与限制
 
 - `Workspace` 每次运行创建临时目录，限制路径与文件大小；容器只读挂载该目录。Python 路径检查只保护工具入口；遇到不可信并发写入和链接替换时，需要更强的文件系统隔离。
