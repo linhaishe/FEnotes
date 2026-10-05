@@ -9,6 +9,16 @@ Agent
   └── 最终回答
 ```
 
+## LangSmith、OpenTelemetry 与 Langfuse 的区别
+
+| 工具 | 定位 | 接入方式 | 收费模式 | 优势 | 适合场景 |
+| --- | --- | --- | --- | --- | --- |
+| [LangSmith](https://docs.smith.langchain.com/) | 面向 LangChain/LangGraph 的 Agent 可观测平台 | 环境变量、LangChain 集成、`@traceable` | 有免费开发者使用范围；付费方案和额度、保留期等以[官方定价](https://www.langchain.com/pricing)为准 | 自动展示 Agent、模型、工具和图节点的嵌套 Trace，并支持评估、反馈和监控 | 主要使用 LangChain/LangGraph，希望快速查看 Agent 链路 |
+| [OpenTelemetry](https://opentelemetry.io/docs/languages/python/) | 厂商中立的 traces、metrics、logs 标准与 SDK | SDK、自动埋点、Exporter | OpenTelemetry 本身是开源标准和 SDK，通常免费；实际费用来自你选择的采集器、存储和观测后端 | 不绑定单一观测平台，能统一应用和基础设施指标 | 已有 Prometheus、Jaeger、Grafana 或云观测体系 |
+| [Langfuse](https://langfuse.com/) | 面向 LLM/Agent 的开源或托管可观测平台 | Langfuse SDK、OpenTelemetry 或框架集成 | 可免费自托管 OSS；Cloud 有 Hobby 免费额度，付费按方案和用量计费，具体以[官方定价](https://langfuse.com/pricing)为准 | 支持自托管、Prompt 管理、Token/成本分析和评估 | 需要开源、自托管或希望控制 LLM 数据存储 |
+
+三者不一定只能选一个：可以用 OpenTelemetry 采集通用基础设施指标，同时用 LangSmith 或 Langfuse 查看更丰富的 LLM/Agent 语义链路。
+
 ## 配置
 
 ```bash
