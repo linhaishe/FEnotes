@@ -4,6 +4,7 @@ import unittest
 
 from metrics import calculate_metrics
 from failure_scenarios import run_scenario
+from load_test import run_with_recovery
 
 
 class BenchmarkTests(unittest.TestCase):
@@ -33,6 +34,21 @@ class BenchmarkTests(unittest.TestCase):
             self.assertIn("latency_ms", result)
             self.assertIn("cost", result)
             self.assertIn("error", result)
+
+    def test_tool_failure_degrades_to_success(self):
+        result = run_with_recovery("tool_failure", seed=7)
+        self.assertTrue(result["success"])
+        self.assertIsNone(result["error"])
+
+    def test_process_restart_does_not_retry_non_idempotent_task(self):
+        result = run_with_recovery("process_restart", seed=7, idempotent=False)
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "process_restarted_status_unknown")
+
+    def test_retry_cost_and_latency_are_included(self):
+        result = run_with_recovery("timeout", seed=7)
+        self.assertEqual(result["latency_ms"], 500)
+        self.assertEqual(result["cost"], 0.04)
 
 
 if __name__ == "__main__":

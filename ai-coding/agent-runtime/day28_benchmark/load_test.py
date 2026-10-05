@@ -9,6 +9,38 @@ from failure_scenarios import SCENARIOS, run_scenario
 from metrics import calculate_metrics
 
 
+def run_with_recovery(scenario, seed, idempotent=True):
+    """执行一次任务，并应用场景对应的最小恢复策略。
+
+    压测不真实 sleep；rate_limit 的退避时间只计入结果延迟，避免实验变慢。
+    """
+    result = run_scenario(scenario, seed)
+
+    if result["success"]:
+        return result
+
+    if scenario == "process_restart" and not idempotent:
+        result["error"] = "process_restarted_status_unknown"
+        return result
+
+    if scenario in {"timeout", "rate_limit", "process_restart"}:
+        retry = run_scenario(scenario, seed + 1000)
+        if scenario == "rate_limit":
+            retry["latency_ms"] += 100
+        result["latency_ms"] += retry["latency_ms"]
+        result["cost"] += retry["cost"]
+        return retry | {
+            "latency_ms": result["latency_ms"],
+            "cost": result["cost"],
+        }
+
+    if scenario == "tool_failure":
+        # 非核心工具降级为空结果，主流程视为成功。
+        result.update(success=True, latency_ms=0, cost=result["cost"], error=None)
+
+    return result
+
+
 def run_load_test(scenario, tasks, workers, seed):
     """并发执行多个任务，并返回聚合指标。
 
@@ -22,7 +54,9 @@ def run_load_test(scenario, tasks, workers, seed):
     with ThreadPoolExecutor(max_workers=workers) as executor:
         # executor.map 会按任务提交顺序返回结果，便于和 seed 对应。
         results = list(
-            executor.map(lambda i: run_scenario(scenario, seed + i), range(tasks))
+            executor.map(
+                lambda i: run_with_recovery(scenario, seed + i), range(tasks)
+            )
         )
     elapsed_seconds = time.perf_counter() - started
     # 用整段压测耗时计算 QPS，而不是用单个任务的模拟延迟。
