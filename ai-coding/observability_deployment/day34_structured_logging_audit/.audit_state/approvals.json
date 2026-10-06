@@ -1,0 +1,16 @@
+{
+  "4b77540b-7cfb-4d86-b80f-89ae4fdfef9d": {
+    "request_id": "4b77540b-7cfb-4d86-b80f-89ae4fdfef9d",
+    "user_id": "demo-user",
+    "tool": "delete_data",
+    "args": { "resource_id": "secret-resource-1" },
+    "status": "rejected"
+  },
+  "872c6683-297c-4fcb-8262-949b33af92bf": {
+    "request_id": "872c6683-297c-4fcb-8262-949b33af92bf",
+    "user_id": "demo-user",
+    "tool": "delete_data",
+    "args": { "resource_id": "secret-resource-2" },
+    "status": "approved"
+  }
+}

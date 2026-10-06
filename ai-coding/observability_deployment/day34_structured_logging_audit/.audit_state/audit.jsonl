@@ -1,0 +1,5 @@
+{"timestamp": "2026-10-06T13:16:47.323891+00:00", "event": "approval_requested", "request_id": "4b77540b-7cfb-4d86-b80f-89ae4fdfef9d", "tool": "delete_data"}
+{"timestamp": "2026-10-06T13:16:47.324343+00:00", "event": "approval_rejected", "request_id": "4b77540b-7cfb-4d86-b80f-89ae4fdfef9d", "status": "rejected"}
+{"timestamp": "2026-10-06T13:16:47.324542+00:00", "event": "approval_requested", "request_id": "872c6683-297c-4fcb-8262-949b33af92bf", "tool": "delete_data"}
+{"timestamp": "2026-10-06T13:16:47.324692+00:00", "event": "approval_approved", "request_id": "872c6683-297c-4fcb-8262-949b33af92bf", "status": "approved"}
+{"timestamp": "2026-10-06T13:16:47.324775+00:00", "event": "tool_executed", "request_id": "872c6683-297c-4fcb-8262-949b33af92bf", "tool": "delete_data"}

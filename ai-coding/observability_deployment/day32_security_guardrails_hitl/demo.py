@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -59,7 +60,10 @@ class AuditLog:
         """
         with self.path.open("a", encoding="utf-8") as file:
             file.write(
-                json.dumps({"event": event, **details}, ensure_ascii=False) + "\n"
+                json.dumps(
+                    {"timestamp": datetime.now(timezone.utc).isoformat(), "event": event, **details},
+                    ensure_ascii=False,
+                ) + "\n"
             )
 
 
@@ -170,7 +174,9 @@ class ApprovalStore:
         approval["status"] = "approved" if approved else "rejected"
         self._write_all(approvals)
         self.audit.write(
-            "approval_decided", request_id=request_id, status=approval["status"]
+            "approval_approved" if approved else "approval_rejected",
+            request_id=request_id,
+            status=approval["status"],
         )
         return Approval(**approval)
 

@@ -95,7 +95,7 @@ log.info("task_finished", task_id="task-456", status="success", duration_ms=42)
 1. 给一个 FastAPI Agent 请求增加 `request_id`，输出一行 JSON 运行日志。
 2. 在模型调用和工具调用处记录开始、结束、耗时与错误分类。
 3. 将同一请求的日志与 `trace_id` 关联。
-4. 为 Day 32 的审批请求、批准、拒绝和工具执行写独立审计事件。
+4. 复用 Day 32 的审批请求、批准、拒绝和工具执行写独立审计事件。
 5. 构造包含 API Key、邮箱、手机号和完整 Prompt 的输入，验证日志与审计事件均不会泄露。
 6. 模拟模型超时、工具失败、审批拒绝，按 `request_id` 还原处理过程。
 7. 在 Day 33 容器中从标准输出读取 JSON 日志；重启服务后确认审计事件仍可查询。
@@ -178,3 +178,48 @@ AGENT_BACKEND=deepseek uvicorn demo:app --port 8000 --no-access-log
 - `--no-access-log`：关闭 Uvicorn 自带的请求访问日志，保留 Demo 输出的结构化日志。
 
 它不会设置 API Key。运行前仍需配置 `DEEPSEEK_API_KEY`；如果还想在 LangSmith 查看 Trace，也要配置 `LANGSMITH_TRACING` 和 `LANGSMITH_API_KEY`。
+
+## 审批审计 Demo：复用 Day 32
+
+> 审计事件:
+>
+> 审计事件是用来回答：**谁在什么时候，对什么操作做了什么决定，以及操作最终有没有执行。**
+>
+> 以刚做的删除审批为例：
+>
+> ```
+> approval_requested → approval_approved → tool_executed
+> ```
+>
+> 这表示有人提出删除请求、审批通过、工具随后实际执行。若是拒绝，记录会是 `approval_requested → approval_rejected`，不应出现 `tool_executed`。因此审计记录能区分“批准了”和“真的执行了”，用于事后核查和追责。
+>
+> 它与普通运行日志的侧重点不同：运行日志帮助排查超时、报错和耗时；审计事件帮助还原权限与操作决策。当前 Demo 已记录事件、时间和审批请求 ID，但还没有记录经过可信身份验证的申请人、审批人，也没有防篡改保障，所以它是学习示例，不是完整的生产审计系统。
+
+==从仓库的 `ai-coding` 目录运行（无需调用 DeepSeek）：==
+
+```python
+python -m observability_deployment.day34_structured_logging_audit.audit_demo \
+  --state-dir observability_deployment/day34_structured_logging_audit/.audit_state
+```
+
+在仓库的 `ai-coding` 目录执行这两行即可。末尾的 `\` 表示命令换行；也可以写成一行：
+
+```
+python -m observability_deployment.day34_structured_logging_audit.audit_demo --state-dir /tmp/day34-audit-demo
+```
+
+它会模拟“一次删除请求被拒绝、另一次获批并执行”，然后把审计事件写入 `/tmp/day34-audit-demo/audit.jsonl`。查看结果：
+
+```
+cat /tmp/day34-audit-demo/audit.jsonl
+```
+
+这个演示不调用 DeepSeek，也不会删除真实资源。
+
+查看 `/tmp/day34-audit-demo/audit.jsonl`。演示先请求删除并拒绝，再请求另一项删除、批准并执行。审计文件依次出现 `approval_requested`、`approval_rejected`、`approval_requested`、`approval_approved`、`tool_executed`；被拒绝的请求没有执行事件。Day 32 的审批存储和工具执行层写入这些事件，每条含 UTC `timestamp`，不写资源 ID、Prompt 或工具参数；审批状态另存于 `approvals.json`。
+
+`audit.jsonl` 是独立的持久化审计文件，不受运行日志 `LOG_FORMAT` 影响。这里的 `request_id` 是 Day 32 的审批请求 ID，不是 FastAPI `/agent` 的 HTTP 请求 ID；当前演示尚未关联两者，也没有实现审批人身份或生产级防篡改存储。
+
+```bash
+python -m unittest observability_deployment.day34_structured_logging_audit.test_audit_demo -v
+```
