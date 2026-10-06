@@ -40,10 +40,13 @@
 | 34       | 结构化日志与审计         | 教程: [Python Logging](https://docs.python.org/3/howto/logging.html)<br>工具: [structlog](https://www.structlog.org/) | 输出 JSON 日志和审计事件，避免记录凭据、PII 与敏感上下文     |
 | 35       | 对抗测试与生产环境模拟   |                                                              | 模拟 Prompt Injection、越权工具调用、超时和服务故障，使用 Trace 与指标定位问题 |
 
-# Day 29：监控、可观测性与部署
+# Day 29-31：监控、可观测性与部署
 
 本目录用于学习 AI Agent Runtime 的监控、可观测性与部署。
 
 ## Demo
 
 - [day29_langsmith_tracing](./day29_langsmith_tracing/)：使用 LangChain Agent 调用工具，并在 LangSmith 中查看完整调用链路。
+- [day30_metrics_dashboard](./day30_metrics_dashboard/)：使用 Prometheus 和 Grafana 监控 Agent Runtime 指标。
+- [day30_metrics_dashboard_langchain](./day30_metrics_dashboard_langchain/)：使用 LangChain 调用 DeepSeek Agent 并采集 Token、延迟和成本指标。
+- [day31_agent_evals_testing](./day31_agent_evals_testing/)：使用 Mock Tool 回归测试最终结果、工具选择、参数和执行轨迹。
