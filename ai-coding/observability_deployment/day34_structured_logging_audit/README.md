@@ -367,4 +367,26 @@ docker compose -f observability_deployment/day34_structured_logging_audit/compos
 
 结果应为 `['approval_requested', 'approval_rejected']`，不包含 `tool_executed`。容器 API 监听本机 `127.0.0.1:8034`；`docker compose ... down` 不删除审计 Volume，**不要使用 `down -v`**，除非明确要删除保存的审计数据。重复运行 `audit_demo` 会追加新事件。
 
+核心思路是：**审计记录不能只放在容器内部；要放在容器重启后仍存在的存储里。**
 
+要放在容器重启后仍存在的存储里，指的是在这个 Demo 里，可以理解为“存放在宿主机上”，但不是直接放在仓库目录里。
+
+`/data/audit.jsonl` 是容器看到的路径；Docker 把 `/data` 映射到一个由 Docker 管理的**命名 Volume**。实际数据保存在运行 Docker 的主机上，容器重启后 Volume 仍在，所以文件还能读到。
+
+它与两种常见存放方式的区别是：
+
+- 写在容器内部、没有挂载：容器被删除或重建后，数据可能丢失。
+- 写进 Docker 命名 Volume：数据在 Docker 主机上，由 Docker 管理；重启或重建容器通常仍可使用。
+- 挂载仓库目录：数据会直接出现在你指定的本地文件夹里。
+
+所以“本地”在这里指 **Docker 所在主机的持久化存储**，不等于 `ai-coding` 仓库里的文件。`docker compose down -v` 会删除这个 Volume，需要避免。
+
+Day 34 的做法是把容器内的 `/data` 挂载到 Docker 命名 Volume。`audit_demo.py` 将审计事件写到 `/data/audit.jsonl`；容器重启会重启服务进程，但不会清空这个 Volume。因此新进程仍能读取同一份文件。
+
+验证分三步：
+
+1. 重启前运行审批演示，生成 `approval_requested`、`approval_rejected` 等事件，并记下审计文件的 SHA-256。
+2. 执行 `docker compose ... restart api`。
+3. 重启后再次计算 SHA-256，并按审批 `request_id` 查询事件。哈希一致说明文件未变；还能查到“请求 → 拒绝”，说明审计过程仍可还原。
+
+这里有个边界：**这验证的是持久化与可读取性，不是审计记录防篡改**。另外，`docker compose down` 默认保留 Volume，而 `down -v` 会删除它。完整命令在 [Day 34 README](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day34_structured_logging_audit/README.md)。
