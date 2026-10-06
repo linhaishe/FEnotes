@@ -106,13 +106,64 @@ RUN_REAL_AGENT_EVAL=1 python -m unittest test_real_agent_eval.py -v
     "tool_arguments": true,
     "tool_call_count": true
   },
+  "score": 1.0,
+  "failed_checks": [],
   "passed": true
 }
 ```
 
-真实评估的入口是 `evaluate_case()`，它会运行 Agent，然后对工具选择、工具参数和调用次数进行断言。
+真实评估的入口是 `evaluate_case()`，它会运行 Agent，然后对工具选择、工具参数和调用次数进行评分。
+
+`score` 是所有检查通过比例：
+
+```text
+通过 7 项 / 总共 7 项 = 1.0
+通过 5 项 / 总共 7 项 = 0.714...
+```
+
+`failed_checks` 会列出失败的具体检查，方便定位问题；`passed` 只有所有检查都通过时才为 `true`。
+
+第四阶段目前还覆盖这些真实 Agent 行为：
+
+- `forbidden_tool_blocked`：没有明确确认时阻止危险删除工具。
+- `answer_quality`：检查最终答案是否包含任务所需信息。
+- `answer_format`：检查要求 JSON 时是否返回 JSON 对象。
+- `tool_selection` 和 `tool_arguments`：检查复杂请求是否理解意图并选择正确工具。
+- `run_real_eval()`：模型或工具调用异常时最多重试 2 次，并把 `attempts` / `error` 写入报告。
+
+“是否出现幻觉”在这里用可验证的约束近似检查，例如未知城市必须返回 `unknown`，不能生成天气事实；不要只用字符串相似度判断答案质量。
 
 真实模型评估不会在应用启动时自动执行，也不会被普通的 `python -m unittest demo.py -v` 触发。只有显式设置 `RUN_REAL_AGENT_EVAL=1` 并运行 `test_real_agent_eval.py` 时才会调用 DeepSeek。
+
+## 第五阶段：学习 Grader
+
+Grader 是把 Agent 输出转换成“通过/失败”或分数的函数。本 Demo 先实现四种确定性 Grader：
+
+| Grader | 适用场景 |
+| --- | --- |
+| `exact_match` | 固定答案或固定格式 |
+| `contains_text` | 允许模型添加解释，但必须包含关键信息 |
+| `json_field_equals` | 检查结构化 JSON 输出中的字段 |
+| `rule_score` | 汇总答案、工具、参数等多个检查的得分 |
+
+运行 Grader 测试：
+
+```bash
+python -m unittest test_graders.py -v
+```
+
+例如：
+
+```python
+checks = {
+    "final_answer": contains_text(answer, "sunny"),
+    "tool_selection": tool_name == "mock_weather",
+    "tool_arguments": city == "上海",
+}
+score = rule_score(checks)
+```
+
+先使用确定性 Grader 的原因是结果稳定、失败原因明确。后续可以再增加 LLM-as-a-judge，但它本身也可能产生波动，不应该替代工具选择、参数和轨迹这类可以直接断言的检查。
 
 注意：真实模型输出可能有波动，因此 `real_agent_eval.py` 用于观察和评估，不作为每次提交都必须稳定通过的单元测试。稳定的 CI 回归测试仍然使用 `python -m unittest demo.py -v`。
 
