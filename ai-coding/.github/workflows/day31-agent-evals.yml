@@ -1,0 +1,31 @@
+name: Day 31 Agent Evals
+
+on:
+  push:
+    paths:
+      - "observability_deployment/day31_agent_evals_testing/**"
+      - ".github/workflows/day31-agent-evals.yml"
+  pull_request:
+    paths:
+      - "observability_deployment/day31_agent_evals_testing/**"
+      - ".github/workflows/day31-agent-evals.yml"
+
+jobs:
+  deterministic-regression:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: observability_deployment/day31_agent_evals_testing
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: observability_deployment/day31_agent_evals_testing/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run deterministic Agent regression tests
+        run: python -m unittest demo.py test_graders.py test_real_agent_eval.py -v

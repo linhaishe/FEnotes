@@ -167,6 +167,29 @@ score = rule_score(checks)
 
 注意：真实模型输出可能有波动，因此 `real_agent_eval.py` 用于观察和评估，不作为每次提交都必须稳定通过的单元测试。稳定的 CI 回归测试仍然使用 `python -m unittest demo.py -v`。
 
+## 接入 CI，防止 Prompt/代码回归
+
+CI 配置位于：
+
+```text
+.github/workflows/day31-agent-evals.yml
+```
+
+当这个 Demo 的代码、测试或 CI 配置发生 Push/PR 变更时，GitHub Actions 会自动：
+
+1. 安装 Demo 依赖。
+2. 运行 Mock Agent 回归测试。
+3. 运行 Grader 测试。
+4. 验证真实模型测试默认被跳过。
+
+CI 不设置 `RUN_REAL_AGENT_EVAL=1`，因此不会调用 DeepSeek，不产生 API 费用，也不会因为网络或模型随机性导致构建不稳定。真实模型评估需要手动触发：
+
+```bash
+RUN_REAL_AGENT_EVAL=1 python -m unittest test_real_agent_eval.py -v
+```
+
+如果修改了 Agent 判断逻辑、工具参数、轨迹处理或 Prompt，已有测试失败时，CI 会阻止这次变更合并。
+
 本 Demo 的轨迹示例：
 
 ```python
