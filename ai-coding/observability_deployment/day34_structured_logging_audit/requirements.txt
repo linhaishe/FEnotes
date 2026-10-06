@@ -1,4 +1,7 @@
 fastapi
 uvicorn
 httpx
+langsmith
+langchain>=1.0
+langchain-deepseek>=1.0
 rich

@@ -94,7 +94,7 @@ log.info("task_finished", task_id="task-456", status="success", duration_ms=42)
 
 1. 给一个 FastAPI Agent 请求增加 `request_id`，输出一行 JSON 运行日志。
 2. 在模型调用和工具调用处记录开始、结束、耗时与错误分类。
-3. 将同一请求的日志与 Day 29 `trace_id` 关联。
+3. 将同一请求的日志与 `trace_id` 关联。
 4. 为 Day 32 的审批请求、批准、拒绝和工具执行写独立审计事件。
 5. 构造包含 API Key、邮箱、手机号和完整 Prompt 的输入，验证日志与审计事件均不会泄露。
 6. 模拟模型超时、工具失败、审批拒绝，按 `request_id` 还原处理过程。
@@ -109,9 +109,9 @@ log.info("task_finished", task_id="task-456", status="success", duration_ms=42)
 - 正常、失败、重试和拒绝路径都有测试；日志内容可用于定位问题而不泄露敏感上下文。
 - 容器重启后，按设计持久化的审计事件仍可查询。
 
-## 第一个 Demo：请求 ID 与 JSON 日志
+## Demo
 
-`demo.py` 提供一个 FastAPI Mock Agent。中间件给每次请求生成 `request_id`，把它同时放入响应体与 `X-Request-ID` 响应头。模型和工具调用分别记录开始、成功结束或失败事件，最后记录请求完成事件；每个事件占一行 JSON。日志不记录 Prompt、工具参数或异常原文。
+`demo.py` 默认运行 FastAPI Mock Agent，也可选用 DeepSeek LangChain Agent。中间件给每次请求生成 `request_id`，并创建一个 LangSmith 根 Trace。两个 ID 都写入日志和响应；Mock 模型和工具调用分别记录开始、成功结束或失败事件，最后记录请求完成事件。每个事件占一行 JSON，不记录 Prompt、工具参数或异常原文。
 
 ```bash
 cd observability_deployment/day34_structured_logging_audit
@@ -135,12 +135,46 @@ curl -i -X POST http://127.0.0.1:8000/agent \
   -d '{"prompt":"查询上海天气"}'
 ```
 
-响应中的 `X-Request-ID`、`request_id` 与服务终端 JSON 日志中的 `request_id` 应一致。天气请求会依次产生 `model_call_started`、`model_call_finished`、`tool_call_started`、`tool_call_finished` 和 `agent_request_finished`。结束事件包含 `duration_ms`；失败事件另外包含 `error_type`，值为 `timeout` 或 `error`。
+响应中的 `X-Request-ID`、`request_id` 与日志中的 `request_id` 应一致；`X-Trace-ID`、响应体与日志中的 `trace_id` 也应一致。天气请求会依次产生 `model_call_started`、`model_call_finished`、`tool_call_started`、`tool_call_finished` 和 `agent_request_finished`。结束事件包含 `duration_ms`；失败事件另外包含 `error_type`，值为 `timeout` 或 `error`。
 
 运行验证：
 
-```bash
+```
 python -m unittest test_demo.py -v
 ```
 
-本 Demo 已覆盖练习 1 和 2。模型和工具目前为 Mock，实现可重复的成功与失败测试；后续可接入真实模型、工具和审计事件。
+将同一请求的日志与 Day 29 `trace_id` 关联：
+
+若要像 Day 29 一样将根 Trace 发送到 LangSmith，启动前设置：
+
+```bash
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY="你的 LangSmith API key"
+export LANGSMITH_PROJECT=day29-langsmith-demo
+uvicorn demo:app --port 8000 --no-access-log
+```
+
+在 LangSmith 的同一项目中按响应头 `X-Trace-ID` 查找该请求的根 Trace，再用日志的 `trace_id` 关联事件。未开启 tracing 时仍会生成本地 Trace ID，但不会上传到 LangSmith。
+
+默认 Mock 路径只输出模型、工具 JSON 日志，不产生对应 LangSmith 子 Trace。要观察真实 Agent 的子调用，另起服务并设置：
+
+```bash
+export DEEPSEEK_API_KEY="你的 DeepSeek API key"
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY="你的 LangSmith API key"
+export LANGSMITH_PROJECT=day29-langsmith-demo
+AGENT_BACKEND=deepseek uvicorn demo:app --port 8000 --no-access-log
+```
+
+用上面的 `curl` 请求天气后，Day 34 的请求根 Trace 下应展开 LangChain Agent、DeepSeek 模型和 `get_weather` 工具调用；`get_weather` 返回固定天气数据，不依赖天气服务。FastAPI 的中间件与路由可能跨异步任务，因此代码在 Agent 入口显式把根 Trace 设为父上下文。JSON 日志仍通过 `request_id` 和 `trace_id` 关联，但真实路径当前只记录 Agent 整体开始/结束，不逐个输出模型、工具 JSON 事件。LangSmith 子 Trace 可能包含完整 Prompt 和模型/工具内容，请只用非敏感测试数据，并按项目策略限制访问与保留时间。
+
+`AGENT_BACKEND=deepseek`
+
+这行是在**启动服务时，临时选择真实 Agent**：
+
+- `AGENT_BACKEND=deepseek`：只对这次启动生效，让 Demo 使用 DeepSeek LangChain Agent；不设置时使用默认的 Mock Agent。
+- `uvicorn demo:app`：启动 `demo.py` 里的 FastAPI `app`。
+- `--port 8000`：监听 8000 端口。
+- `--no-access-log`：关闭 Uvicorn 自带的请求访问日志，保留 Demo 输出的结构化日志。
+
+它不会设置 API Key。运行前仍需配置 `DEEPSEEK_API_KEY`；如果还想在 LangSmith 查看 Trace，也要配置 `LANGSMITH_TRACING` 和 `LANGSMITH_API_KEY`。
