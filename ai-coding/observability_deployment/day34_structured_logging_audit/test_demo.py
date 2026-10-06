@@ -90,6 +90,50 @@ class RequestLoggingTests(unittest.TestCase):
         self.assertEqual(records[3]["error_type"], "error")
         self.assertNotIn("private result", json.dumps(records))
 
+    def test_sensitive_prompt_and_tool_result_stay_out_of_success_logs(self) -> None:
+        """正常工具路径的运行日志不包含输入或敏感工具结果。"""
+        secrets = ("sk-test-do-not-log", "alice@example.test", "13800138000")
+        prompt = "查询天气: 上海；测试凭据 sk-test-do-not-log，联系人 alice@example.test 13800138000"
+        with patch("demo.mock_weather", return_value="工具结果: " + " ".join(secrets)):
+            response, records = self.capture_request(prompt)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(records), 5)
+        raw_logs = "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
+        for sensitive in (*secrets, prompt, "工具结果:"):
+            self.assertNotIn(sensitive, raw_logs)
+
+    def test_sensitive_exception_stays_out_of_failure_logs(self) -> None:
+        """工具异常即使包含敏感数据，失败日志也只保留错误分类。"""
+        prompt = "查询天气: 上海；联系 alice@example.test，电话 13800138000"
+        error = "sk-test-do-not-log alice@example.test 13800138000 私密工具结果"
+        with patch("demo.mock_weather", side_effect=ValueError(error)):
+            response, records = self.capture_request(prompt)
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(records[3]["event"], "tool_call_failed")
+        raw_logs = "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
+        for sensitive in ("sk-test-do-not-log", "alice@example.test", "13800138000", prompt, "私密工具结果"):
+            self.assertNotIn(sensitive, raw_logs)
+
+    def test_real_agent_boundary_does_not_log_sensitive_content(self) -> None:
+        """真实 Agent 入口只记关联 ID，不记 Prompt 或模型答案。"""
+        prompt = "请处理 sk-test-do-not-log alice@example.test 13800138000"
+
+        class FakeAgent:
+            async def ainvoke(self, inputs):
+                """返回含测试敏感内容的模型答案，不调用外部 API。"""
+                return {"messages": [SimpleNamespace(content=prompt)]}
+
+        with patch("demo.build_real_agent", return_value=FakeAgent()):
+            response, records = self.capture_request(prompt, backend="deepseek")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["answer"], prompt)
+        raw_logs = "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
+        for sensitive in ("sk-test-do-not-log", "alice@example.test", "13800138000", prompt):
+            self.assertNotIn(sensitive, raw_logs)
+
     def test_real_agent_children_share_request_trace(self) -> None:
         """真实 Agent 入口内的模型和工具子 Trace 继承 HTTP 根 Trace。"""
         observed = {}

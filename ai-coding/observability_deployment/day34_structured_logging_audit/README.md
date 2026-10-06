@@ -223,3 +223,87 @@ cat /tmp/day34-audit-demo/audit.jsonl
 ```bash
 python -m unittest observability_deployment.day34_structured_logging_audit.test_audit_demo -v
 ```
+
+## 敏感输入验证
+
+在 `ai-coding` 目录运行 Day 34 测试：
+
+```bash
+python -m unittest discover -s observability_deployment/day34_structured_logging_audit -p 'test_*.py' -v
+```
+
+测试只使用假的 API Key、邮箱和手机号，并构造完整 Prompt 及含敏感内容的工具结果/异常。它们分别经过 Mock Agent 的正常与失败路径、模拟真实 Agent 的入口、Day 32 的审批拒绝与批准执行路径；断言运行日志和 `audit.jsonl` 均不包含这些原文。此处验证的是**日志与审计事件**，不是对响应体、LangSmith Trace 或 `approvals.json` 的脱敏保证；不要在真实请求中放入凭据。
+
+### LangSmith 的脱敏配置 VS 现在的字段白名单
+
+方便脱敏的主要是 **LangSmith 的 Trace API**，不是让 LangChain 自动替你处理所有日志。
+
+| 方法                 | 保护的对象                                   | Day 34 中的作用                                              |
+| -------------------- | -------------------------------------------- | ------------------------------------------------------------ |
+| 现在的字段白名单     | 应用自己写出的 JSON 运行日志、审计事件       | 只写事件名、时间、关联 ID、耗时等字段，根本不把 Prompt 和工具结果交给日志 |
+| LangSmith 的脱敏配置 | 发送到 LangSmith 的 Trace 输入、输出、元数据 | 防止模型和工具子 Trace 上传完整 Prompt 或敏感结果            |
+
+LangSmith 提供最直接的全隐藏配置：
+
+```
+LANGSMITH_HIDE_INPUTS=true
+LANGSMITH_HIDE_OUTPUTS=true
+```
+
+如果还需要保留部分内容用于排查，可以用 `Client(anonymizer=...)` 按规则遮盖邮箱等字段；也可以用 `hide_inputs`、`hide_outputs`、`hide_metadata` 分别控制。[LangSmith 官方文档](https://docs.langchain.com/langsmith/mask-inputs-outputs)
+
+两种方法应当**叠加，而不是二选一**：LangSmith 的设置不会清理我们写入的 `audit.jsonl` 或控制台日志；Day 34 现有的日志测试也没有证明 LangSmith Trace 已脱敏。另一个区别是，全隐藏更稳妥但会失去 Trace 中的输入输出排障信息；规则脱敏保留信息更多，却可能漏掉没覆盖到的敏感格式。
+
+验证 LangSmith 脱敏，最直接的方法是用**假的敏感数据发一次真实 Agent 请求，然后检查上传后的子 Trace**。Day 34 现有单元测试只验证 JSON 日志和审计文件，不验证 LangSmith 收到的内容。
+
+在 Day 34 目录的 `.env` 中加入：
+
+```
+LANGSMITH_TRACING=true
+LANGSMITH_HIDE_INPUTS=true
+LANGSMITH_HIDE_OUTPUTS=true
+```
+
+确认原有的 `LANGSMITH_API_KEY`、`DEEPSEEK_API_KEY` 已配置，然后重启服务：
+
+```
+AGENT_BACKEND=deepseek uvicorn demo:app --port 8000 --no-access-log
+```
+
+另开终端发请求，只使用虚构数据：
+
+```
+curl -i -X POST http://127.0.0.1:8000/agent \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"查询天气: 上海。测试标记 sk-test-not-real、alice@example.test、13800138000"}'
+```
+
+从响应头复制 `X-Trace-ID`，在 LangSmith 对应项目中找到这条 Trace，**展开 DeepSeek 模型和工具的子调用**。通过标准是：能看到调用结构和关联 ID，但各级 Trace 的输入、输出中看不到测试 Prompt、假 Key、邮箱和手机号。只看根 Trace 不够，因为敏感内容可能在模型子 Trace 中。[LangSmith 官方说明](https://docs.langchain.com/langsmith/mask-inputs-outputs)
+
+同时检查控制台 JSON 日志；它们由 Day 34 自己控制，不受上述两个 LangSmith 开关保护。注意这两个开关只是防止输入输出写入 LangSmith，**不会阻止 Prompt 发给 DeepSeek，也不会清理 `approvals.json`**。
+
+`LANGSMITH_HIDE_INPUTS=true
+LANGSMITH_HIDE_OUTPUTS=true`
+
+这两个开关控制的是：**上传到 LangSmith 的 Trace 要不要包含调用内容**。
+
+- `LANGSMITH_HIDE_INPUTS=true`：隐藏 Trace 的输入，比如用户 Prompt、模型收到的消息、工具调用参数。
+- `LANGSMITH_HIDE_OUTPUTS=true`：隐藏 Trace 的输出，比如模型回答、工具返回结果。
+
+开启后，你仍可在 LangSmith 看调用链、耗时和错误，但看不到这些输入输出内容。它们**不会修改发给 DeepSeek 的内容**，也不会替你脱敏 Day 34 的控制台日志或审计文件。
+
+### 按我的理解就是 通过这些参数进行隐藏了？那我写的脱敏方法是做什么的？
+
+你写的那套方法保护的是**另一份数据**——Day 34 自己输出的 JSON 运行日志和审计事件。它采用“只记录允许的字段”的方式：记录事件名、时间、`request_id`、`trace_id`、耗时等，不把 Prompt、工具结果或异常原文写进去。
+
+可以把它理解为两个出口：
+
+```
+Agent 调用
+  ├─→ LangSmith Trace：由 LANGSMITH_HIDE_INPUTS/OUTPUTS 控制
+  └─→ 控制台日志、audit.jsonl：由你写的日志/审计代码控制
+```
+
+所以你的方法没有白写。即使关闭 LangSmith tracing，应用仍会产生日志和审计记录；反过来，即使开启那两个隐藏参数，如果代码写了 `logger.info(prompt)`，Prompt 还是会出现在控制台日志里。
+
+另外，Day 34 目前主要是**避免记录敏感字段**，严格说比“写进去后再脱敏”更准确、更稳妥。

@@ -7,6 +7,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from observability_deployment.day32_security_guardrails_hitl.demo import (  # noqa: E402
+    ApprovalStore,
+    AuditLog,
+    SecureAgentService,
+    execute_delete,
+)
+
 
 class AuditDemoTests(unittest.TestCase):
     """从命令行运行真实审批流程，检查审计文件而非 Mock 调用。"""
@@ -45,6 +53,42 @@ class AuditDemoTests(unittest.TestCase):
             self.assertEqual(events[2]["request_id"], events[4]["request_id"])
             self.assertNotEqual(events[0]["request_id"], events[2]["request_id"])
             self.assertNotIn("secret-resource", audit_path.read_text())
+
+    def test_sensitive_approval_input_stays_out_of_audit_events(self) -> None:
+        """真实审批状态变更写审计时不带凭据、PII 或完整请求。"""
+        sensitive = "sk-test-do-not-log alice@example.test 13800138000"
+        prompt = f"删除资源: {sensitive}"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            audit_path = root / "audit.jsonl"
+            store = ApprovalStore(root / "approvals.json", AuditLog(audit_path))
+            service = SecureAgentService(store)
+
+            rejected_id = service.handle_request("demo-user", prompt).split(":", 1)[1]
+            store.decide(rejected_id, approved=False)
+            approved_id = service.handle_request("demo-user", prompt).split(":", 1)[1]
+            store.decide(approved_id, approved=True)
+            execute_delete(store.get(approved_id), store)
+
+            raw_events = audit_path.read_text(encoding="utf-8")
+            events = [json.loads(line) for line in raw_events.splitlines()]
+            self.assertEqual(
+                [event["event"] for event in events],
+                [
+                    "approval_requested",
+                    "approval_rejected",
+                    "approval_requested",
+                    "approval_approved",
+                    "tool_executed",
+                ],
+            )
+            for value in (
+                "sk-test-do-not-log",
+                "alice@example.test",
+                "13800138000",
+                prompt,
+            ):
+                self.assertNotIn(value, raw_events)
 
 
 if __name__ == "__main__":
