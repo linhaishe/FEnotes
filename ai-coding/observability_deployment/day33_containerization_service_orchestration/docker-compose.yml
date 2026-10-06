@@ -1,0 +1,68 @@
+services:
+  api:
+    build: .
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DEEPSEEK_API_KEY_FILE: /run/secrets/deepseek_api_key
+      AGENT_STATE_PATH: /data/approvals.json
+    secrets:
+      - deepseek_api_key
+    volumes:
+      - agent_state:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app_net
+      - monitoring_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring_net
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring_net
+
+secrets:
+  deepseek_api_key:
+    file: ./secrets/deepseek_api_key.txt
+
+volumes:
+  agent_state:
+  redis_data:
+
+networks:
+  app_net:
+    internal: true
+  monitoring_net:
+    internal: true
