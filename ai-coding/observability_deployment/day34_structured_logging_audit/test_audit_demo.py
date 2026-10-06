@@ -90,6 +90,32 @@ class AuditDemoTests(unittest.TestCase):
             ):
                 self.assertNotIn(value, raw_events)
 
+    def test_request_id_reconstructs_rejected_approval_without_execution(self) -> None:
+        """混合审计事件按审批 ID 分组后，拒绝链不会误含执行事件。"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            audit_path = root / "audit.jsonl"
+            store = ApprovalStore(root / "approvals.json", AuditLog(audit_path))
+            service = SecureAgentService(store)
+            rejected_id = service.handle_request("demo-user", "删除资源: r1").split(":", 1)[1]
+            approved_id = service.handle_request("demo-user", "删除资源: r2").split(":", 1)[1]
+            store.decide(rejected_id, approved=False)
+            store.decide(approved_id, approved=True)
+            execute_delete(store.get(approved_id), store)
+
+            events = [json.loads(line) for line in audit_path.read_text().splitlines()]
+            rejected_events = [event for event in events if event["request_id"] == rejected_id]
+            approved_events = [event for event in events if event["request_id"] == approved_id]
+            self.assertEqual(
+                [event["event"] for event in rejected_events],
+                ["approval_requested", "approval_rejected"],
+            )
+            self.assertEqual(store.get(rejected_id).status, "rejected")
+            self.assertEqual(
+                [event["event"] for event in approved_events],
+                ["approval_requested", "approval_approved", "tool_executed"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -90,6 +90,42 @@ class RequestLoggingTests(unittest.TestCase):
         self.assertEqual(records[3]["error_type"], "error")
         self.assertNotIn("private result", json.dumps(records))
 
+    def test_request_id_reconstructs_model_timeout_and_tool_failure(self) -> None:
+        """混合日志按 HTTP 请求 ID 分组后能独立还原两条失败链。"""
+        with patch("demo.mock_model", side_effect=TimeoutError("private model error")):
+            model_response, model_records = self.capture_request("任意请求")
+        with patch("demo.mock_weather", side_effect=ValueError("private tool error")):
+            tool_response, tool_records = self.capture_request("查询天气: 上海")
+
+        model_id = model_response.headers["X-Request-ID"]
+        tool_id = tool_response.headers["X-Request-ID"]
+        self.assertNotEqual(model_id, tool_id)
+        self.assertEqual((model_response.status_code, tool_response.status_code), (503, 503))
+        all_records = model_records + tool_records
+        grouped = {
+            request_id: [record for record in all_records if record["request_id"] == request_id]
+            for request_id in (model_id, tool_id)
+        }
+        self.assertEqual(
+            [record["event"] for record in grouped[model_id]],
+            ["model_call_started", "model_call_failed", "agent_request_finished"],
+        )
+        self.assertEqual(grouped[model_id][1]["error_type"], "timeout")
+        self.assertEqual(grouped[model_id][-1]["status_code"], 503)
+        self.assertEqual(
+            [record["event"] for record in grouped[tool_id]],
+            [
+                "model_call_started", "model_call_finished", "tool_call_started",
+                "tool_call_failed", "agent_request_finished",
+            ],
+        )
+        self.assertEqual(grouped[tool_id][3]["error_type"], "error")
+        self.assertEqual(grouped[tool_id][-1]["status_code"], 503)
+        for response, records in ((model_response, grouped[model_id]), (tool_response, grouped[tool_id])):
+            self.assertTrue(all(record["trace_id"] == response.headers["X-Trace-ID"] for record in records))
+        self.assertNotIn("private model error", json.dumps(all_records))
+        self.assertNotIn("private tool error", json.dumps(all_records))
+
     def test_sensitive_prompt_and_tool_result_stay_out_of_success_logs(self) -> None:
         """正常工具路径的运行日志不包含输入或敏感工具结果。"""
         secrets = ("sk-test-do-not-log", "alice@example.test", "13800138000")

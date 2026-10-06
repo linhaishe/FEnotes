@@ -234,6 +234,21 @@ python -m unittest discover -s observability_deployment/day34_structured_logging
 
 测试只使用假的 API Key、邮箱和手机号，并构造完整 Prompt 及含敏感内容的工具结果/异常。它们分别经过 Mock Agent 的正常与失败路径、模拟真实 Agent 的入口、Day 32 的审批拒绝与批准执行路径；断言运行日志和 `audit.jsonl` 均不包含这些原文。此处验证的是**日志与审计事件**，不是对响应体、LangSmith Trace 或 `approvals.json` 的脱敏保证；不要在真实请求中放入凭据。
 
+## 按 request_id 还原失败过程
+
+`test_request_id_reconstructs_model_timeout_and_tool_failure` 注入 Mock 模型超时与工具异常，混合两次请求的日志，再分别按响应头 `X-Request-ID` 分组：模型路径应为 `model_call_started → model_call_failed(timeout) → agent_request_finished(503)`；工具路径应为 `model_call_started → model_call_finished → tool_call_started → tool_call_failed(error) → agent_request_finished(503)`。测试同时核对 `trace_id`，不调用外部模型。
+
+`test_request_id_reconstructs_rejected_approval_without_execution` 混合两笔审批的审计事件，再按审批 `request_id` 分组：拒绝路径只能是 `approval_requested → approval_rejected`，不能出现 `tool_executed`；另一笔批准路径应出现执行事件。审批 ID 与 HTTP 请求 ID 是两个不同命名空间，当前 Demo 不将它们关联。
+
+若已将默认 JSON 运行日志保存为 `runtime.jsonl`，或使用上面的审计演示生成了 `audit.jsonl`，可用同一方式筛选单笔事件（将 ID 换成实际值）：
+
+```bash
+jq -c --arg id '实际的request_id' 'select(.request_id == $id)' runtime.jsonl
+jq -c --arg id '实际的审批request_id' 'select(.request_id == $id)' /tmp/day34-audit-demo/audit.jsonl
+```
+
+运行日志来自 HTTP 响应头；审批 ID 来自 `pending_approval:<id>`。上面的故障注入只在测试中进行，不会改变正常服务的模型或工具行为。
+
 ### LangSmith 的脱敏配置 VS 现在的字段白名单
 
 方便脱敏的主要是 **LangSmith 的 Trace API**，不是让 LangChain 自动替你处理所有日志。
@@ -307,3 +322,26 @@ Agent 调用
 所以你的方法没有白写。即使关闭 LangSmith tracing，应用仍会产生日志和审计记录；反过来，即使开启那两个隐藏参数，如果代码写了 `logger.info(prompt)`，Prompt 还是会出现在控制台日志里。
 
 另外，Day 34 目前主要是**避免记录敏感字段**，严格说比“写进去后再脱敏”更准确、更稳妥。
+
+## 模拟模型超时、工具失败、审批拒绝，按 `request_id` 还原处理过程
+
+**模型超时和工具失败是测试里注入的**：测试让 `mock_model` 抛出超时异常、让 `mock_weather` 抛出工具异常，再检查 Day 34 实际写出的日志能否按 `request_id` 还原过程。正常启动服务不会自动触发这些故障。
+
+**审批拒绝稍有不同**：测试没有伪造审计记录，而是调用 Day 32 真实的审批存储执行“请求 → 拒绝”，再读取实际写入的 `audit.jsonl`，确认该审批 ID 下没有工具执行事件。
+
+所以测试模拟的是**触发条件**；被验证的日志、状态变化和审计事件由现有代码真实产生。
+
+目前主要体现在**测试中**，不是启动服务后会自动出现的演示场景：
+
+| 场景     | 模拟与还原位置                                               | 预期事件                                                     |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 模型超时 | [test_demo.py (line 93)](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day34_structured_logging_audit/test_demo.py:93) | `model_call_started → model_call_failed(timeout) → agent_request_finished(503)` |
+| 工具失败 | 同一测试中的工具异常分支                                     | 模型成功 → `tool_call_failed(error)` → 请求结束              |
+| 审批拒绝 | [test_audit_demo.py (line 93)](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day34_structured_logging_audit/test_audit_demo.py:93) | `approval_requested → approval_rejected`，没有 `tool_executed` |
+
+测试先触发故障，再把实际产生的记录按 `request_id` 筛选并断言顺序。运行日志由 [demo.py (line 77)](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day34_structured_logging_audit/demo.py:77) 记录；审批事件由 Day 32 的审批代码写入。
+
+所以如果你在普通启动的控制台里找“模拟超时”的菜单或接口，会找不到——**目前这是自动化回归测试**。执行 `python -m unittest discover -s observability_deployment/day34_structured_logging_audit -p 'test_*.py' -v` 可以看到对应测试运行。审批场景的 `request_id` 是审批 ID，与前两个场景的 HTTP 请求 ID 不同。
+
+
+
