@@ -15,7 +15,13 @@ INJECTION_PATTERNS = (
     "泄露系统提示词",
     "导出所有用户数据",
 )
-SECRET_PATTERN = re.compile(r"(?:sk-[A-Za-z0-9_-]+|api[_ -]?key\s*[:=]\s*\S+)", re.I)
+SENSITIVE_PATTERN = re.compile(
+    r"(?:sk-[A-Za-z0-9_-]+|api[_ -]?key\s*[:=]\s*\S+|"
+    r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|"
+    r"(?<!\d)1[3-9]\d{9}(?!\d)|"
+    r"internal system prompt\s*[:=]\s*.*|内部系统提示词\s*[:：]\s*.*)",
+    re.I,
+)
 
 
 class GuardrailBlocked(Exception):
@@ -93,10 +99,15 @@ def validate_tool_call(user_id: str, tool: str, args: dict[str, Any]) -> None:
     Raises:
         GuardrailBlocked: 工具不存在、参数非法或用户无权访问时抛出。
     """
-    if tool not in {"read_profile", "delete_data"}:
+    if tool not in {"read_profile", "weather", "transfer_money", "delete_data"}:
         raise GuardrailBlocked("tool is not allowlisted")
     if tool == "read_profile" and args.get("user_id") != user_id:
         raise GuardrailBlocked("cross-user access blocked")
+    if tool == "transfer_money":
+        if args.get("amount", 0) <= 0:
+            raise GuardrailBlocked("amount must be greater than zero")
+        if args.get("target_user_id") != user_id:
+            raise GuardrailBlocked("target user does not belong to current user")
     if tool == "delete_data" and not args.get("resource_id"):
         raise GuardrailBlocked("resource_id is required")
 
@@ -110,7 +121,7 @@ def check_output(text: str) -> str:
     Returns:
         脱敏后的安全文本。
     """
-    return SECRET_PATTERN.sub("[REDACTED]", text)
+    return SENSITIVE_PATTERN.sub("[REDACTED]", text)
 
 
 class ApprovalStore:
@@ -210,3 +221,55 @@ def execute_delete(approval: Approval, store: ApprovalStore) -> str:
         "tool_executed", request_id=approval.request_id, tool=approval.tool
     )
     return "deleted"
+
+
+class SecureAgentService:
+    """生产请求入口：串联 Agent、工具和安全边界。"""
+
+    def __init__(self, approval_store: ApprovalStore) -> None:
+        """初始化安全 Agent 服务。
+
+        Args:
+            approval_store: 保存高风险操作审批状态的存储。
+        """
+        self.approval_store = approval_store
+
+    def handle_request(
+        self,
+        user_id: str,
+        prompt: str,
+        external_content: str | None = None,
+    ) -> str:
+        """处理用户请求，并在工具执行前后应用安全策略。
+
+        Args:
+            user_id: 当前用户标识。
+            prompt: 用户输入。
+            external_content: 可选的网页或文档内容。
+
+        Returns:
+            安全处理后的响应，或待审批请求 ID。
+
+        Raises:
+            GuardrailBlocked: 输入或外部内容违反安全策略时抛出。
+        """
+        check_input(prompt)
+        if external_content is not None:
+            check_external_content(external_content)
+
+        if prompt.startswith("查询天气:"):
+            city = prompt.split(":", 1)[1].strip()
+            validate_tool_call(user_id, "weather", {"city": city})
+            return check_output({"上海": "sunny", "北京": "cloudy"}.get(city, "unknown"))
+
+        if prompt.startswith("删除资源:"):
+            resource_id = prompt.split(":", 1)[1].strip()
+            validate_tool_call(user_id, "delete_data", {"resource_id": resource_id})
+            approval = self.approval_store.create(
+                user_id,
+                "delete_data",
+                {"resource_id": resource_id},
+            )
+            return f"pending_approval:{approval.request_id}"
+
+        return check_output("request accepted without a tool")

@@ -218,15 +218,61 @@ Agent 轨迹
 
 - `demo.py`：实现输入/外部内容检查、最小权限、参数校验、输出脱敏、审批状态持久化和审批后恢复。
 - `test_demo.py`：覆盖直接/间接注入、权限越界、非法参数、敏感输出、审批拒绝、审批恢复和服务重启恢复。
+- `test_langchain_secure_agent.py`：在 LangChain Agent 入口层验证直接和间接 Prompt Injection 会在 Agent 执行前被拒绝。
 
 运行：
 
 ```bash
 cd observability_deployment/day32_security_guardrails_hitl
-python -m unittest test_demo.py -v
+python -m unittest test_demo.py test_langchain_secure_agent.py -v
 ```
 
-预期结果：5 个测试全部通过。
+预期结果：12 个测试全部通过。
+
+`SecureAgentService.handle_request()` 是生产请求入口；测试不是安全逻辑的实现，而是验证这个入口确实会在模型/工具执行前拦截攻击、校验参数，并把删除请求转为 `pending_approval`。
+
+## LangChain Agent 集成
+
+`langchain_secure_agent.py` 展示如何把本目录的安全策略接入真实 LangChain Agent：
+
+```text
+run_secure_agent
+  ├── check_input(prompt)
+  ├── agent.invoke(...)
+  │     ├── secure_weather → 权限/参数校验 → Mock 天气结果
+  │     └── secure_delete_data → 创建 pending_approval，不执行删除
+  └── check_output(answer)
+```
+
+安装依赖：
+
+```bash
+pip install langchain langchain-deepseek python-dotenv
+```
+
+配置 `.env`：
+
+```bash
+DEEPSEEK_API_KEY=your-api-key
+```
+
+应用接入时：
+
+```python
+from langchain_secure_agent import create_demo_agent, run_secure_agent
+
+agent, approvals = create_demo_agent()
+answer = run_secure_agent(agent, "u1", "查询上海天气")
+```
+
+删除请求不会直接执行，而是返回审批请求 ID：
+
+```python
+approval = approvals.decide(request_id, approved=True)
+# 生产环境此处还应重新校验用户权限和资源状态，然后执行删除
+```
+
+注意：`secure_delete_data` 是工具包装器，真正的删除动作应放在审批通过后的独立执行函数中；不能让 Agent 直接持有不可逆的副作用权限。
 
 对应关系：
 
@@ -239,6 +285,52 @@ python -m unittest test_demo.py -v
 | 暂停、拒绝、批准、恢复 | `ApprovalStore`、`execute_delete` |
 | 审计日志 | `AuditLog` |
 
+
+
+## `langchain_secure_agent.py`
+
+LangChain Tool Wrapper：
+
+- `secure_weather`
+  - 工具白名单校验
+  - 用户权限校验
+  - 参数校验
+
+- `secure_transfer_money`
+  - 金额必须大于 0
+  - 目标用户必须是当前用户
+
+- `secure_delete_data`
+  - 必须提供 `resource_id`
+  - 不直接执行删除
+  - 创建 `pending approval`
+
+- `run_secure_agent`
+  - 输入前拦截直接 Prompt Injection
+  - 外部内容进入 Agent 前检查间接 Prompt Injection
+  - Agent 输出返回前脱敏
+
+现在 LangChain Agent 的结构是：
+
+```text
+run_secure_agent()
+  ├── check_input()
+  ├── check_external_content()
+  ├── LangChain Agent
+  │     ├── secure_weather
+  │     ├── secure_transfer_money
+  │     └── secure_delete_data
+  └── check_output()
+```
+
+已验证：
+
+```text
+Ran 12 tests
+OK
+```
+
 ## 官方文档中的关键概念
 
 官方文档将 Guardrail 分为输入、输出和工具 Guardrail，并通过 tripwire 中断违规执行；Human-in-the-loop 则围绕需要审批的工具调用实现暂停、批准、拒绝和恢复。
+
