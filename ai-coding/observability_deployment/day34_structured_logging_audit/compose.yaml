@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: observability_deployment/day34_structured_logging_audit/Dockerfile
+    environment:
+      AGENT_BACKEND: mock
+      LANGSMITH_TRACING: "false"
+      LOG_FORMAT: json
+    volumes:
+      - audit_state:/data
+    ports:
+      - "127.0.0.1:8034:8000"
+
+volumes:
+  audit_state:

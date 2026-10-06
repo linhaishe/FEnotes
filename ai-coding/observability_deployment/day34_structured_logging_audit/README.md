@@ -343,5 +343,28 @@ Agent 调用
 
 所以如果你在普通启动的控制台里找“模拟超时”的菜单或接口，会找不到——**目前这是自动化回归测试**。执行 `python -m unittest discover -s observability_deployment/day34_structured_logging_audit -p 'test_*.py' -v` 可以看到对应测试运行。审批场景的 `request_id` 是审批 ID，与前两个场景的 HTTP 请求 ID 不同。
 
+## 容器重启后查询审计事件
+
+Day 34 的 `compose.yaml` 启动 Mock API（不调用 DeepSeek），将容器内 `/data` 挂载到 Docker 命名 Volume。镜像只复制运行必需的源码，不包含 `.env`、本地 `.audit_state` 或密钥。从 `ai-coding` 仓库目录运行：
+
+```bash
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml up -d --build
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml exec -T api \
+  python -m observability_deployment.day34_structured_logging_audit.audit_demo --state-dir /data
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml exec -T api \
+  sha256sum /data/audit.jsonl
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml restart api
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml exec -T api \
+  sha256sum /data/audit.jsonl
+```
+
+两次 SHA-256 应一致。重启后还可按第一笔被拒绝审批的 `request_id` 查询：
+
+```bash
+docker compose -f observability_deployment/day34_structured_logging_audit/compose.yaml exec -T api \
+  python -c 'import json,pathlib; events=[json.loads(line) for line in pathlib.Path("/data/audit.jsonl").read_text().splitlines()]; request_id=events[0]["request_id"]; print(request_id, [event["event"] for event in events if event["request_id"]==request_id])'
+```
+
+结果应为 `['approval_requested', 'approval_rejected']`，不包含 `tool_executed`。容器 API 监听本机 `127.0.0.1:8034`；`docker compose ... down` 不删除审计 Volume，**不要使用 `down -v`**，除非明确要删除保存的审计数据。重复运行 `audit_demo` 会追加新事件。
 
 

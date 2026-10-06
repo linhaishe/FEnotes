@@ -1,0 +1,8 @@
+**
+!observability_deployment/
+!observability_deployment/day32_security_guardrails_hitl/
+!observability_deployment/day32_security_guardrails_hitl/demo.py
+!observability_deployment/day34_structured_logging_audit/
+!observability_deployment/day34_structured_logging_audit/requirements-container.txt
+!observability_deployment/day34_structured_logging_audit/demo.py
+!observability_deployment/day34_structured_logging_audit/audit_demo.py
