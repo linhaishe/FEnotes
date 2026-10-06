@@ -1,0 +1,45 @@
+{
+  "title": "Agent Runtime Metrics",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "QPS",
+      "targets": [{"expr": "agent_qps"}],
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "type": "stat",
+      "title": "Success Rate",
+      "targets": [{"expr": "agent_task_success_rate"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit", "min": 0, "max": 1}},
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Task Latency P95",
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(agent_task_latency_seconds_bucket[1m])) by (le))"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5}
+    },
+    {
+      "type": "timeseries",
+      "title": "Token Usage",
+      "targets": [{"expr": "rate(agent_tokens_total[1m])"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5}
+    },
+    {
+      "type": "timeseries",
+      "title": "Tool Failures",
+      "targets": [{"expr": "rate(agent_tool_failures_total[1m])"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13}
+    },
+    {
+      "type": "timeseries",
+      "title": "Estimated Cost",
+      "targets": [{"expr": "rate(agent_cost_usd_total[1m])"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 13}
+    }
+  ]
+}
