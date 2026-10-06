@@ -1,4 +1,4 @@
-"""第一阶段 Demo：使用 Mock Tool 和 unittest 测试 Agent 流程。"""
+"""第二阶段 Demo：使用 Mock Tool 和 unittest 测试 Agent 执行轨迹。"""
 
 from __future__ import annotations
 
@@ -9,9 +9,10 @@ from typing import Any
 
 @dataclass
 class Trace:
-    """记录一次 Agent 运行中的工具调用轨迹。"""
+    """记录一次 Agent 运行中的工具调用、结果和错误。"""
 
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
+    events: list[str] = field(default_factory=list)
 
 
 class MockWeatherTool:
@@ -34,8 +35,14 @@ class MockWeatherTool:
         Returns:
             固定的天气结果。
         """
+        self.trace.events.append("tool:weather:start")
         self.trace.tool_calls.append({"tool": "weather", "args": {"city": city}})
-        return {"上海": "sunny", "北京": "cloudy"}.get(city, "unknown")
+        if city == "ERROR":
+            self.trace.events.append("tool:weather:error")
+            raise RuntimeError("weather service unavailable")
+        result = {"上海": "sunny", "北京": "cloudy"}.get(city, "unknown")
+        self.trace.events.append(f"tool:weather:result:{result}")
+        return result
 
 
 class DemoAgent:
@@ -60,7 +67,10 @@ class DemoAgent:
         """
         if prompt.startswith("查询天气:"):
             city = prompt.split(":", 1)[1].strip()
-            weather = self.weather_tool.invoke(city)
+            try:
+                weather = self.weather_tool.invoke(city)
+            except RuntimeError:
+                return f"{city} weather unavailable"
             return f"{city} weather: {weather}"
         return "I can answer without using a tool."
 
@@ -90,7 +100,7 @@ def run_case(case: EvalCase) -> tuple[str, Trace]:
 
 
 class AgentEvalTests(unittest.TestCase):
-    """第一阶段的四类基本断言。"""
+    """第二阶段的轨迹、调用次数和失败处理断言。"""
 
     def test_final_answer(self) -> None:
         """验证 Agent 的最终答案。"""
@@ -131,6 +141,47 @@ class AgentEvalTests(unittest.TestCase):
         )
         self.assertEqual(answer, "I can answer without using a tool.")
         self.assertEqual(trace.tool_calls, [])
+        self.assertEqual(trace.events, [])
+
+    def test_trajectory_order(self) -> None:
+        """验证工具调用顺序：开始、返回结果。"""
+        _, trace = run_case(
+            EvalCase(
+                "查询天气: 上海",
+                "上海 weather: sunny",
+                "weather",
+                {"city": "上海"},
+            )
+        )
+        self.assertEqual(
+            trace.events,
+            ["tool:weather:start", "tool:weather:result:sunny"],
+        )
+
+    def test_tool_call_count(self) -> None:
+        """验证一次请求只调用一次工具，避免不必要的重复调用。"""
+        _, trace = run_case(
+            EvalCase(
+                "查询天气: 上海",
+                "上海 weather: sunny",
+                "weather",
+                {"city": "上海"},
+            )
+        )
+        self.assertEqual(len(trace.tool_calls), 1)
+
+    def test_tool_failure_is_recorded_in_trajectory(self) -> None:
+        """验证工具失败后返回可控结果，并记录错误轨迹。"""
+        answer, trace = run_case(
+            EvalCase(
+                "查询天气: ERROR",
+                "ERROR weather unavailable",
+                "weather",
+                {"city": "ERROR"},
+            )
+        )
+        self.assertEqual(answer, "ERROR weather unavailable")
+        self.assertEqual(trace.events, ["tool:weather:start", "tool:weather:error"])
 
 
 if __name__ == "__main__":

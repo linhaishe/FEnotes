@@ -1,6 +1,6 @@
 # Day 31：Agent Evals 与测试
 
-这个 Demo 只实现学习路线的第一阶段：使用 `Mock Tool + unittest` 测试 Agent 流程。
+这个 Demo 实现学习路线的第二阶段：使用 `Mock Tool + unittest` 测试 Agent 的执行轨迹。
 
 暂时不接真实模型，也不使用 LLM-as-a-judge。先把确定性的流程断言学会，再进入真实模型评估。
 
@@ -44,9 +44,37 @@ python demo.py
 python -m unittest demo.py -v
 ```
 
-预期结果：4 个测试全部通过。
+预期结果：7 个测试全部通过。
 
-## 第一阶段的学习目标
+## 第二阶段的学习目标
+
+第一阶段只判断“答案对不对”，第二阶段进一步检查 Agent 中间做了什么：
+
+- 工具调用顺序是否正确
+- 工具调用次数是否合理
+- 工具失败是否出现在轨迹中
+- 失败后是否返回可控结果
+- 不需要工具时是否保持空轨迹
+
+本 Demo 的轨迹示例：
+
+```python
+[
+    "tool:weather:start",
+    "tool:weather:result:sunny",
+]
+```
+
+工具失败时：
+
+```python
+[
+    "tool:weather:start",
+    "tool:weather:error",
+]
+```
+
+## 第一阶段的基础
 
 一个测试用例经过以下流程：
 
@@ -168,6 +196,73 @@ python -m unittest demo.py -v
   ↓
 逐项断言
 ```
+
+### `EvalCase` 测试用例
+
+这段是在创建一个 `EvalCase` 测试用例：
+
+```
+EvalCase(
+    "查询天气: 上海",
+    "上海 weather: sunny",
+    "weather",
+    {"city": "上海"},
+)
+```
+
+对应 `EvalCase` 的定义：
+
+```
+@dataclass(frozen=True)
+class EvalCase:
+    prompt: str
+    expected_answer: str
+    expected_tool: str | None
+    expected_args: dict[str, Any]
+```
+
+四个参数分别是：
+
+| 参数              | 值                      | 含义                      |
+| ----------------- | ----------------------- | ------------------------- |
+| `prompt`          | `"查询天气: 上海"`      | 传给 Agent 的用户输入     |
+| `expected_answer` | `"上海 weather: sunny"` | 期望 Agent 返回的最终答案 |
+| `expected_tool`   | `"weather"`             | 期望调用的工具名称        |
+| `expected_args`   | `{"city": "上海"}`      | 期望传给工具的参数        |
+
+等价于写成具名参数：
+
+```
+EvalCase(
+    prompt="查询天气: 上海",
+    expected_answer="上海 weather: sunny",
+    expected_tool="weather",
+    expected_args={"city": "上海"},
+)
+```
+
+测试时会验证：
+
+```
+用户输入是否触发 weather 工具
+工具参数是否为 city=上海
+工具返回 sunny 后
+Agent 最终答案是否为 上海 weather: sunny
+```
+
+其中：
+
+```
+"weather"
+```
+
+是工具名，而：
+
+```
+{"city": "上海"}
+```
+
+是传给工具的参数字典。
 
 ## 第二阶段：学习轨迹测试
 
