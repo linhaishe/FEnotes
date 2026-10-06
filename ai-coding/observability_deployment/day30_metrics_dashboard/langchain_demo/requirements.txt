@@ -1,0 +1,4 @@
+langchain>=1.0
+langchain-deepseek>=1.0
+prometheus-client
+python-dotenv

@@ -1,4 +1,4 @@
-services:
+observability_deployment/day30_metrics_dashboard/.envservices:
   prometheus:
     image: prom/prometheus:latest
     ports:

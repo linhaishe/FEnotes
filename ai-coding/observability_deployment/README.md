@@ -32,8 +32,8 @@
 
 | **天数** | **学习主题**             | **资源链接**                                                 | **目标**                                                     |
 | -------- | ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 29       | 链路追踪 (LangSmith)     | 文档: [LangSmith](https://docs.smith.langchain.com/)<br>替代: [OpenTelemetry](https://opentelemetry.io/docs/languages/python/), [LangFuse](https://langfuse.com/) | 将 LangSmith 集成到现有 Agent 应用中，分析调用链路           |
-| 30       | 指标与大盘               | 教程: [Prometheus Python Client](https://github.com/prometheus/client_python), [Grafana Dashboard](https://grafana.com/docs/grafana/latest/getting-started/) | 监控 QPS、延迟、错误率、任务成功率、Token、成本和工具失败率  |
+| 29       | 链路追踪 (LangSmith)     | 文档: [LangSmith](https://docs.smith.langchain.com/)<br>替代: [OpenTelemetry](https://opentelemetry.io/docs/languages/python/), [LangFuse](https://langfuse.com/) | 将 LangSmith 集成到现有 Agent 应用中，分析调用链路 ✅         |
+| 30       | 指标与大盘               | 教程: [Prometheus Python Client](https://github.com/prometheus/client_python), [Grafana Dashboard](https://grafana.com/docs/grafana/latest/getting-started/) | 监控 QPS、延迟、错误率、任务成功率、Token、成本和工具失败率 ✅ |
 | 31       | Agent Evals 与测试       | 文档: [OpenAI Evals](https://platform.openai.com/docs/guides/evals)<br>参考: [OpenAI Agents SDK Testing](https://openai.github.io/openai-agents-python/testing/) | 评估最终结果、工具选择、参数和轨迹，建立 Mock Tool 回归测试  |
 | 32       | 安全、Guardrails 与 HITL | 参考: [OpenAI Guardrails](https://openai.github.io/openai-agents-python/guardrails/), [Human-in-the-loop](https://openai.github.io/openai-agents-python/human_in_the_loop/) | 防御直接/间接 Prompt Injection，为高风险工具配置最小权限和人工审批 |
 | 33       | 容器化与服务编排         | 教程: [Docker for FastAPI](https://fastapi.tiangolo.com/deployment/docker/), [Docker Compose](https://docs.docker.com/compose/) | 使用 Docker Compose 启动应用栈，并隔离运行时、网络与 Secrets |
