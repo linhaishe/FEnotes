@@ -111,13 +111,21 @@ log.info("task_finished", task_id="task-456", status="success", duration_ms=42)
 
 ## 第一个 Demo：请求 ID 与 JSON 日志
 
-`demo.py` 提供一个固定响应的 FastAPI Mock Agent。中间件给每次请求生成 `request_id`，把它同时放入响应体与 `X-Request-ID` 响应头；请求结束时向标准输出写一行 JSON 日志。日志只包含时间、事件、请求 ID、状态码和耗时，不记录 Prompt。
+`demo.py` 提供一个 FastAPI Mock Agent。中间件给每次请求生成 `request_id`，把它同时放入响应体与 `X-Request-ID` 响应头。模型和工具调用分别记录开始、成功结束或失败事件，最后记录请求完成事件；每个事件占一行 JSON。日志不记录 Prompt、工具参数或异常原文。
 
 ```bash
 cd observability_deployment/day34_structured_logging_audit
 pip install -r requirements.txt
 uvicorn demo:app --port 8000 --no-access-log
 ```
+
+本地需要更易读的彩色输出时，用 Rich 模式启动：
+
+```bash
+LOG_FORMAT=console uvicorn demo:app --port 8000 --no-access-log
+```
+
+Rich 模式显示事件、请求 ID 前 8 位、耗时和错误分类。默认 `LOG_FORMAT=json`，继续输出供日志系统采集的单行 JSON。两种模式都不输出 Prompt、工具参数或异常原文。
 
 另开终端发起请求：
 
@@ -127,10 +135,12 @@ curl -i -X POST http://127.0.0.1:8000/agent \
   -d '{"prompt":"查询上海天气"}'
 ```
 
-响应中的 `X-Request-ID`、`request_id` 与服务终端 JSON 日志中的 `request_id` 应一致。运行验证：
+响应中的 `X-Request-ID`、`request_id` 与服务终端 JSON 日志中的 `request_id` 应一致。天气请求会依次产生 `model_call_started`、`model_call_finished`、`tool_call_started`、`tool_call_finished` 和 `agent_request_finished`。结束事件包含 `duration_ms`；失败事件另外包含 `error_type`，值为 `timeout` 或 `error`。
+
+运行验证：
 
 ```bash
 python -m unittest test_demo.py -v
 ```
 
-这个练习只覆盖第 1 步。后续再增加模型、工具和审计事件的日志。
+本 Demo 已覆盖练习 1 和 2。模型和工具目前为 Mock，实现可重复的成功与失败测试；后续可接入真实模型、工具和审计事件。
