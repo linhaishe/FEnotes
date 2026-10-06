@@ -44,7 +44,7 @@ python demo.py
 python -m unittest demo.py -v
 ```
 
-预期结果：10 个测试全部通过。
+预期结果：10 个确定性测试全部通过。
 
 ## 第二阶段的学习目标
 
@@ -68,6 +68,53 @@ python -m unittest demo.py -v
 | Prompt Injection | 不因为输入中的伪指令调用工具 |
 
 这一阶段的重点不是让 Agent “什么都能处理”，而是明确规定异常输入下允许发生什么。每个边界 case 都应该有可观察的答案和轨迹，避免测试只检查是否抛异常。
+
+## 第四阶段：接入真实 Agent
+
+第四阶段新增 `real_agent_eval.py`，使用真实的 DeepSeek + LangChain Agent，但天气工具仍然是 Mock Tool：
+
+```text
+真实 DeepSeek Agent
+  ↓ 决定是否调用工具
+Mock Weather Tool
+  ↓ 返回固定结果
+最终答案 + 实际工具调用轨迹
+```
+
+这样可以观察真实模型是否：
+
+- 正确理解用户请求
+- 在需要时选择 `mock_weather`
+- 传入正确的 `city` 参数
+- 在普通问题中不调用天气工具
+
+安装依赖并配置 Key：
+
+```bash
+cd observability_deployment/day31_agent_evals_testing
+pip install -r requirements.txt
+cp ../day30_metrics_dashboard/.env .env
+RUN_REAL_AGENT_EVAL=1 python -m unittest test_real_agent_eval.py -v
+```
+
+输出中的 `answer` 是真实模型结果，`tool_calls` 是本次运行实际产生的工具轨迹，`checks` 和 `passed` 才是评估结果：
+
+```json
+{
+  "checks": {
+    "tool_selection": true,
+    "tool_arguments": true,
+    "tool_call_count": true
+  },
+  "passed": true
+}
+```
+
+真实评估的入口是 `evaluate_case()`，它会运行 Agent，然后对工具选择、工具参数和调用次数进行断言。
+
+真实模型评估不会在应用启动时自动执行，也不会被普通的 `python -m unittest demo.py -v` 触发。只有显式设置 `RUN_REAL_AGENT_EVAL=1` 并运行 `test_real_agent_eval.py` 时才会调用 DeepSeek。
+
+注意：真实模型输出可能有波动，因此 `real_agent_eval.py` 用于观察和评估，不作为每次提交都必须稳定通过的单元测试。稳定的 CI 回归测试仍然使用 `python -m unittest demo.py -v`。
 
 本 Demo 的轨迹示例：
 
