@@ -37,7 +37,7 @@
 | 31       | Agent Evals 与测试       | 文档: [OpenAI Evals](https://platform.openai.com/docs/guides/evals)<br>参考: [OpenAI Agents SDK Testing](https://openai.github.io/openai-agents-python/testing/) | 评估最终结果、工具选择、参数和轨迹，建立 Mock Tool 回归测试 ✅ |
 | 32       | 安全、Guardrails 与 HITL | 参考: [OpenAI Guardrails](https://openai.github.io/openai-agents-python/guardrails/), [Human-in-the-loop](https://openai.github.io/openai-agents-python/human_in_the_loop/) | 防御直接/间接 Prompt Injection，为高风险工具配置最小权限和人工审批  ✅ |
 | 33       | 容器化与服务编排         | 教程: [Docker for FastAPI](https://fastapi.tiangolo.com/deployment/docker/), [Docker Compose](https://docs.docker.com/compose/) | 使用 Docker Compose 启动应用栈，并隔离运行时、网络与 Secrets ✅ |
-| 34       | 结构化日志与审计         | 教程: [Python Logging](https://docs.python.org/3/howto/logging.html)<br>工具: [structlog](https://www.structlog.org/) | 输出 JSON 日志和审计事件，避免记录凭据、PII 与敏感上下文     |
+| 34       | 结构化日志与审计         | 教程: [Python Logging](https://docs.python.org/3/howto/logging.html)<br>工具: [structlog](https://www.structlog.org/) | 输出 JSON 日志和审计事件，避免记录凭据、PII 与敏感上下文 ✅   |
 | 35       | 对抗测试与生产环境模拟   |                                                              | 模拟 Prompt Injection、越权工具调用、超时和服务故障，使用 Trace 与指标定位问题 |
 
 # Day 29-31：监控、可观测性与部署
