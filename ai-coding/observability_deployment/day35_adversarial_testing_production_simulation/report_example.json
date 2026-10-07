@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "weather_ok",
+      "passed": true,
+      "http_status": 200,
+      "status": "success",
+      "request_id": "0c6ea11aa0bf4e0a8272b47c77f60737",
+      "trace_id": "01a11521-268d-7d32-8e70-08d10531bd77",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-268d-7d32-8e70-08d10531bd77",
+          "trace_id": "01a11521-268d-7d32-8e70-08d10531bd77",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-268d-77c3-a02a-46e941a21e0d",
+          "trace_id": "01a11521-268d-7d32-8e70-08d10531bd77",
+          "parent_run_id": "01a11521-268d-7d32-8e70-08d10531bd77"
+        },
+        {
+          "name": "tool",
+          "id": "01a11521-268e-76b3-961d-813de96b42ec",
+          "trace_id": "01a11521-268d-7d32-8e70-08d10531bd77",
+          "parent_run_id": "01a11521-268d-7d32-8e70-08d10531bd77"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_call_started",
+        "tool_call_finished",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_call_started",
+        "tool_call_finished",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.18,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "metrics_delta": {
+        "tasks": {
+          "success": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "direct_injection",
+      "passed": true,
+      "http_status": 403,
+      "status": "blocked",
+      "request_id": "c33e71fa876b40798a4715f5adfed832",
+      "trace_id": "01a11521-2691-7412-af29-e1592d7ebadd",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-2691-7412-af29-e1592d7ebadd",
+          "trace_id": "01a11521-2691-7412-af29-e1592d7ebadd",
+          "parent_run_id": null
+        }
+      ],
+      "expected_events": [
+        "input_blocked",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "input_blocked",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.24,
+      "model_calls": 0,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "blocked": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "external_blocked",
+      "passed": true,
+      "http_status": 403,
+      "status": "blocked",
+      "request_id": "5532dab61cd047be81c03caf2a27bd23",
+      "trace_id": "01a11521-2695-7393-af78-aaec016773b9",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-2695-7393-af78-aaec016773b9",
+          "trace_id": "01a11521-2695-7393-af78-aaec016773b9",
+          "parent_run_id": null
+        }
+      ],
+      "expected_events": [
+        "external_content_blocked",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "external_content_blocked",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.02,
+      "model_calls": 0,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "blocked": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "mixed_fact",
+      "passed": true,
+      "http_status": 200,
+      "status": "success",
+      "request_id": "36252711fa444a53a09026a910619059",
+      "trace_id": "01a11521-2698-72b3-a6f5-df7d23fc7bdc",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-2698-72b3-a6f5-df7d23fc7bdc",
+          "trace_id": "01a11521-2698-72b3-a6f5-df7d23fc7bdc",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-2698-7a13-9abe-3d0af48be041",
+          "trace_id": "01a11521-2698-72b3-a6f5-df7d23fc7bdc",
+          "parent_run_id": "01a11521-2698-72b3-a6f5-df7d23fc7bdc"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.09,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "success": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "cross_user",
+      "passed": true,
+      "http_status": 403,
+      "status": "blocked",
+      "request_id": "adbf3ce8e5b44716a678c2fee3b68622",
+      "trace_id": "01a11521-269b-7332-b159-326a7da905b5",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-269b-7332-b159-326a7da905b5",
+          "trace_id": "01a11521-269b-7332-b159-326a7da905b5",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-269b-7e02-83a4-46bd09179bc8",
+          "trace_id": "01a11521-269b-7332-b159-326a7da905b5",
+          "parent_run_id": "01a11521-269b-7332-b159-326a7da905b5"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.08,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "blocked": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "invalid_amount",
+      "passed": true,
+      "http_status": 403,
+      "status": "blocked",
+      "request_id": "7ed7eb1798e2483b99248f5a3e82b7a1",
+      "trace_id": "01a11521-269e-7751-a48a-e082f3d7d374",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-269e-7751-a48a-e082f3d7d374",
+          "trace_id": "01a11521-269e-7751-a48a-e082f3d7d374",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-269e-7452-b81d-3ce53f8251f2",
+          "trace_id": "01a11521-269e-7751-a48a-e082f3d7d374",
+          "parent_run_id": "01a11521-269e-7751-a48a-e082f3d7d374"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.07,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "blocked": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "invalid_delete",
+      "passed": true,
+      "http_status": 403,
+      "status": "blocked",
+      "request_id": "b10768a5d5204cccbff1be9e0b74699a",
+      "trace_id": "01a11521-26a1-7073-a404-c42f3a10bb22",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-26a1-7073-a404-c42f3a10bb22",
+          "trace_id": "01a11521-26a1-7073-a404-c42f3a10bb22",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-26a1-7d01-b751-4db03e7156c9",
+          "trace_id": "01a11521-26a1-7073-a404-c42f3a10bb22",
+          "parent_run_id": "01a11521-26a1-7073-a404-c42f3a10bb22"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_blocked",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.08,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "blocked": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null
+    },
+    {
+      "case_id": "approval_rejected",
+      "passed": true,
+      "http_status": 202,
+      "status": "pending_approval",
+      "request_id": "0e15bc0bdb2040bf8bdb258ca55d5889",
+      "trace_id": "01a11521-26a4-7ac0-95ce-d52463a78505",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-26a4-7ac0-95ce-d52463a78505",
+          "trace_id": "01a11521-26a4-7ac0-95ce-d52463a78505",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-26a4-74f0-bcc6-7d63d3d11a7d",
+          "trace_id": "01a11521-26a4-7ac0-95ce-d52463a78505",
+          "parent_run_id": "01a11521-26a4-7ac0-95ce-d52463a78505"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.47,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "pending_approval": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null,
+      "approval_id": "ab663cab-ec85-4801-bc73-14f7663e991f",
+      "approval_events": [
+        "approval_requested",
+        "approval_rejected"
+      ]
+    },
+    {
+      "case_id": "approval_approved",
+      "passed": true,
+      "http_status": 202,
+      "status": "pending_approval",
+      "request_id": "16803ebb8b904d56a44485e441ac66c7",
+      "trace_id": "01a11521-26a8-7a73-9c34-eb0e1486c777",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-26a8-7a73-9c34-eb0e1486c777",
+          "trace_id": "01a11521-26a8-7a73-9c34-eb0e1486c777",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-26a8-7d43-9fbc-e1dc2b2dea83",
+          "trace_id": "01a11521-26a8-7a73-9c34-eb0e1486c777",
+          "parent_run_id": "01a11521-26a8-7a73-9c34-eb0e1486c777"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.33,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "pending_approval": 1.0
+        },
+        "failures": {},
+        "tool_failures": {}
+      },
+      "error_type": null,
+      "approval_id": "23009ecd-0e88-4715-8e1f-a938a13898cc",
+      "approval_events": [
+        "approval_requested",
+        "approval_approved",
+        "tool_executed"
+      ]
+    },
+    {
+      "case_id": "model_timeout",
+      "passed": true,
+      "http_status": 503,
+      "status": "error",
+      "request_id": "9c811af92a9841ff84f954ba5fef10d0",
+      "trace_id": "01a11521-26ab-7a91-ba40-2dc2ff670d63",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-26ab-7a91-ba40-2dc2ff670d63",
+          "trace_id": "01a11521-26ab-7a91-ba40-2dc2ff670d63",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-26ab-7381-aa78-a166b757bb01",
+          "trace_id": "01a11521-26ab-7a91-ba40-2dc2ff670d63",
+          "parent_run_id": "01a11521-26ab-7a91-ba40-2dc2ff670d63"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_failed",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_failed",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.08,
+      "model_calls": 1,
+      "tool_calls": 0,
+      "metrics_delta": {
+        "tasks": {
+          "error": 1.0
+        },
+        "failures": {
+          "model": 1.0
+        },
+        "tool_failures": {}
+      },
+      "error_type": "timeout"
+    },
+    {
+      "case_id": "tool_failure",
+      "passed": true,
+      "http_status": 503,
+      "status": "error",
+      "request_id": "9b768205b0b1444f910e25a4ba353d54",
+      "trace_id": "01a11521-26ae-7291-b70b-177a8d3cbd49",
+      "trace_spans": [
+        {
+          "name": "request",
+          "id": "01a11521-26ae-7291-b70b-177a8d3cbd49",
+          "trace_id": "01a11521-26ae-7291-b70b-177a8d3cbd49",
+          "parent_run_id": null
+        },
+        {
+          "name": "model",
+          "id": "01a11521-26ae-71a2-a795-66a6075cc549",
+          "trace_id": "01a11521-26ae-7291-b70b-177a8d3cbd49",
+          "parent_run_id": "01a11521-26ae-7291-b70b-177a8d3cbd49"
+        },
+        {
+          "name": "tool",
+          "id": "01a11521-26ae-7103-9943-4aab7b67e44d",
+          "trace_id": "01a11521-26ae-7291-b70b-177a8d3cbd49",
+          "parent_run_id": "01a11521-26ae-7291-b70b-177a8d3cbd49"
+        }
+      ],
+      "expected_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_call_started",
+        "tool_call_failed",
+        "agent_request_finished"
+      ],
+      "actual_events": [
+        "model_call_started",
+        "model_call_finished",
+        "tool_call_started",
+        "tool_call_failed",
+        "agent_request_finished"
+      ],
+      "duration_ms": 0.12,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "metrics_delta": {
+        "tasks": {
+          "error": 1.0
+        },
+        "failures": {
+          "tool": 1.0
+        },
+        "tool_failures": {
+          "weather:error": 1.0
+        }
+      },
+      "error_type": "error"
+    }
+  ]
+}

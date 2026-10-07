@@ -1,0 +1,4 @@
+fastapi
+httpx
+langsmith
+prometheus-client

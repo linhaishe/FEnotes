@@ -1,6 +1,26 @@
 # Day 35：对抗测试与生产环境模拟
 
-本阶段用可重复的攻击样本和故障注入，验证 Agent 在接近生产的条件下是否守住权限边界、正确处理依赖故障，并能通过 Trace、指标和日志定位原因。这里是学习大纲；本目录暂不包含可运行 Demo。
+本阶段用可重复的攻击样本和故障注入，验证 Agent 在接近生产的条件下是否守住权限边界、正确处理依赖故障，并能通过 Trace、指标和日志定位原因。本目录现有离线 Mock 演练；真实 DeepSeek 和远端 LangSmith 不参与默认回归。
+
+## 运行 Demo
+
+在仓库根目录运行：
+
+```bash
+python -m pip install -r observability_deployment/day35_adversarial_testing_production_simulation/requirements.txt
+python -m unittest discover -s observability_deployment/day35_adversarial_testing_production_simulation -p 'test_*.py' -v
+python -m observability_deployment.day35_adversarial_testing_production_simulation.rehearsal --report /tmp/day35-report.json
+```
+
+第二条命令对 11 个固定场景发起进程内 HTTP 请求，输出单行 JSON 运行日志，并把脱敏观测证据写入指定路径；任一场景不通过时退出码为非零。仓库中的 [report_example.json](./report_example.json) 是使用纯 Mock、假用户生成的样本。**本 Demo 特例不为报告添加 `.gitignore` 规则**：普通运行应指定仓库外的路径，只有检查确认不含真实 Prompt、Key、PII 后才更新仓库样本。
+
+容器故障演练单独显式启动：
+
+```bash
+DAY35_RUN_DOCKER=1 python -m unittest observability_deployment.day35_adversarial_testing_production_simulation.test_service_failure -v
+```
+
+该测试创建独立 Compose 项目，分别验证 Day 33 Redis 不可用/恢复和 Day 34 审计 Volume 在 API 重启后仍可读取；默认测试不会启动 Docker。Day 35 的本地 LangSmith `RunTree` 只用于验证同请求父子关系，不上传远端。混合文档的 `事实:`/`指令:` 提取仅支持固定教学样本，不代表通用的 Prompt Injection 防护。
 
 ## 学习目标
 
