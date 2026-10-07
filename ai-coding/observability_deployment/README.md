@@ -40,6 +40,18 @@
 | 34       | 结构化日志与审计         | 教程: [Python Logging](https://docs.python.org/3/howto/logging.html)<br>工具: [structlog](https://www.structlog.org/) | 输出 JSON 日志和审计事件，避免记录凭据、PII 与敏感上下文 ✅   |
 | 35       | 对抗测试与生产环境模拟   |                                                              | 模拟 Prompt Injection、越权工具调用、超时和服务故障，使用 Trace 与指标定位问题 |
 
+按 `observability_deployment` 当前代码与配置核对，**五项都已有相关 Demo，但还没有作为同一套系统全部完成**。本次是静态核对，未重新运行线上 CI 或一键部署。
+
+| 目标 | 判断 | 已有证据与缺口 |
+| --- | --- | --- |
+| LangSmith 追踪 Agent 每一步及延迟 | 部分完成 | [Day 29](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day29_langsmith_tracing/demo.py:27) 有真实 LangChain Agent 与 LangSmith Trace；[Day 34](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day34_structured_logging_audit/demo.py:223) 可将真实 Agent 子调用接到请求根 Trace。但需启用真实模型和 LangSmith；尚未接入 Day 33 的容器应用。 |
+| 正常、边界、攻击回归集并接入 CI | 部分完成 | [Day 31](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day31_agent_evals_testing/demo.py:104) 有这些样本，[CI 工作流](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/.github/workflows/day31-agent-evals.yml:3) 会运行 Day 31 测试。但工作流的路径过滤和命令都只覆盖 Day 31；Day 32、Day 35 的安全与故障回归尚未纳入该 CI。真实模型评估默认跳过。 |
+| 写操作审批与间接注入防越权 | 部分完成 | [Day 32 删除工具](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day32_security_guardrails_hitl/langchain_secure_agent.py:98) 会先创建审批，[Day 35 测试](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day35_adversarial_testing_production_simulation/test_adversarial.py:52) 覆盖固定间接注入样本。但 [转账工具](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day32_security_guardrails_hitl/langchain_secure_agent.py:75) 参数合法时可直接返回 `transfer accepted`，没有审批；也不能把固定样本测试视为通用注入防护。 |
+| Prometheus 自定义指标，包括 Token、缓存命中率 | 部分完成 | [Day 30 LangChain Demo](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day30_metrics_dashboard/langchain_demo/demo.py:17) 暴露任务、延迟、Token、成本等指标；[Day 33 API](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day33_containerization_service_orchestration/app/main.py:17) 只有任务数和 Redis 重试等指标。当前目录未找到缓存命中率指标，也未把 Day 30 的 Token 指标接进 Day 33 容器服务。 |
+| Compose 一键部署 FastAPI + Milvus + Redis | 未完成 | [Day 33 Compose](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day33_containerization_service_orchestration/docker-compose.yml:1) 有 FastAPI、Redis、Prometheus、Grafana，**没有 Milvus**；其 [FastAPI 任务接口](/Users/chenruo/Documents/GitHub/FEnotes/ai-coding/observability_deployment/day33_containerization_service_orchestration/app/main.py:107) 主要把任务写入 Redis，并非把前几天的真实 Agent 组合部署。 |
+
+最关键的差距不是缺少单项示例，而是**Day 29–35 仍是分开的 Demo**。若完成这五条作为一个整体目标，需要选定一个 FastAPI Agent 应用作为主线，把追踪、安全审批、评估、指标和 Milvus/Redis 部署接到同一条实际请求链上。
+
 # Day 29-31：监控、可观测性与部署
 
 本目录用于学习 AI Agent Runtime 的监控、可观测性与部署。
