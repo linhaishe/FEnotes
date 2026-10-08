@@ -28,6 +28,8 @@
 | 40–41 | SFT 与 LoRA/QLoRA | [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)、[Unsloth](https://github.com/unslothai/unsloth)、[PEFT](https://huggingface.co/docs/peft/) | 微调小模型的结构化输出或工具调用能力；监控过拟合并在保留集上对比基线。 |
 | 42 | 偏好/强化微调与部署 | [TRL](https://huggingface.co/docs/trl/)、[OpenAI Fine-tuning API](https://platform.openai.com/docs/api-reference/fine-tuning) | 理解 DPO、RFT/GRPO、Grader 与 Reward Hacking；设计模型版本、灰度发布和回滚。 |
 
+有一处资料变化已写进 README：[OpenAI 原 Fine-tuning 链接现跳转至 Model optimization](https://developers.openai.com/api/docs/guides/model-optimization)，该页说明其托管微调平台正在收尾、不再向新用户开放。因此大纲不以开通 OpenAI 微调任务为前提；数据处理部分参考了 [Hugging Face Datasets](https://huggingface.co/docs/datasets/process)。
+
 ## 完成标准
 
 - 能解释为什么某个任务用固定 Workflow、Single-Agent 或 Multi-Agent，并用同一评估集支持结论。
