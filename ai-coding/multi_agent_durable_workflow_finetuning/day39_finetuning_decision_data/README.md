@@ -7,6 +7,11 @@
 - Day 42：理解 DPO、RFT/GRPO 等进一步训练方法，重点设计评估、灰度发布和回滚。
 核心顺序是：先证明有能力缺口 → 再训练 → 用保留集证明收益 → 决定是否发布。如果 Day 39 的评估表明 Prompt、RAG 或工具流程已能解决问题，后面可以得出“不微调”的结论。
 
+微调的内容是不是可以让算法组去处理？
+
+可以，而且通常更合理。训练实现——数据处理流水线、SFT/LoRA/QLoRA、超参数、显存优化——可以由算法组负责；但你作为 Agent 应用方，最好不要把微调需求整个“扔过去”。
+你需要提供并共同确认的是：具体要解决哪些失败样本、未微调基线、训练/验证/测试集的隔离规则，以及最终答案、工具选择和安全性的验收指标。算法组交付模型或 Adapter 后，你再负责接入、同题评估、灰度和回滚。
+
 ## 一、阅读资料
 
 1. [OpenAI Model optimization](https://developers.openai.com/api/docs/guides/model-optimization)：重点看先建 Eval 基线、再优化 Prompt、必要时微调、最后复评的闭环。原计划中的 [OpenAI Fine-tuning 链接](https://platform.openai.com/docs/guides/fine-tuning) 目前跳转到此页。**平台状态提醒**：文档称 OpenAI 托管微调平台正在收尾，且不再对新用户开放；本日不要把调用其微调 API 当成必做项。后续训练以所选本地/开放模型及其工具链为准，开始前再次核对可用性。
