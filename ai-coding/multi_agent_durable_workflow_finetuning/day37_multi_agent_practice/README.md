@@ -1,10 +1,18 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**；Task 2–6 尚未实现，也没有真实模型实测结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**，完成 **Task 2 模式选型与控制权设计**；Task 3–6 尚未实现，也没有真实模型对照结果。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
 ## 一、先区分协作模式
+
+先把三个术语拆开理解：
+
+- **Manager（管理者）**：负责接收任务、决定分给谁、检查子任务结果，并组织最终答案的主 Agent。它描述的是**职责**，不是某个特定类名。
+- **Agent-as-Tool（Agent 作为工具）**：把一个子 Agent 包装成主 Agent 可调用的工具。主 Agent 发起调用，子 Agent 返回结果后，**控制权回到主 Agent**；例如主 Agent 调用“规则核对 Agent”，取得规则摘要后继续判断退款资格。
+- **Handoff（交接）**：当前 Agent 把后续处理的**控制权转给另一个 Agent**。接手的 Agent 可以继续处理任务或与用户对话；不是“调用一次子 Agent 并拿回结果”。例如客服 Agent 遇到专门的退款申诉，把会话交给申诉 Agent。
+
+记忆方式：**Agent-as-Tool 是“请同事查一下，再由我回复”；Handoff 是“这件事交给同事继续处理”。** Manager 常用 Agent-as-Tool 委派任务，但这两个词不是同义词。
 
 | 模式 | 谁控制下一步 | 子 Agent 如何参与 | 适用线索 |
 | --- | --- | --- | --- |
@@ -60,6 +68,33 @@ python demo.py
 - 动手：阅读上方两份文档，比较 Manager / Agent-as-Tool 与 Handoff。针对退款任务只选一种：建议由主 Agent 委派“事实提取”“规则核对”，自己汇总结论；若选择 Handoff，则写明何时转交、谁负责最终回答。
 - 产物：一张简短的控制权与数据流图，标明每个 Agent 可见的上下文和可用工具。
 - 验收：能回答“谁决定下一步”“谁生成最终答案”“子 Agent 是否能调用写工具”；说不清时先不要编码。
+
+**选定模式：Manager + Agent-as-Tool。** Manager 是唯一面向用户、决定是否委派及如何汇总的 Agent；事实提取与规则核对各由一个窄任务子 Agent 执行，再将结果返回 Manager。不采用 Handoff：这里没有需要另一个 Agent 接管后续用户对话的阶段，转交控制权反而会增加最终答案和上下文归属的复杂度。[LangChain 的 Subagents/Handoffs 区分](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 的编排说明](https://openai.github.io/openai-agents-python/multi_agent/)可作为模式参考。
+
+这是一项**待验证的拆分假设**：子 Agent 的窄上下文或许能减少事实与规则混淆，但会增加模型调用。Task 1 的单 Agent 已能同时使用两个只读工具；目前没有实测证据表明拆分更好，因此 Task 3 的实现只用于对照实验，是否保留由 Task 6 决定。
+
+```text
+用户请求（order_id、rule_id）
+          │
+          ▼
+Manager：决定委派顺序；收集结果；做最终判断并回复用户
+    ├── 调用事实提取子 Agent（作为工具）
+    │       输入：order_id；可调用 mock_order（只读）
+    │       输出：订单事实、缺失字段、事实来源 ───────┐
+    └── 调用规则核对子 Agent（作为工具）            │
+            输入：rule_id；可调用 mock_refund_rules（只读）
+            输出：退款期限、例外条件、规则来源 ─────┤
+                                                   ▼
+                              Manager：核对两份结果 → 最终答案
+```
+
+| 角色 | 可见上下文 | 可用工具与权限 | 控制权及输出 |
+| --- | --- | --- | --- |
+| Manager | 用户请求、两个子 Agent 返回的结构化摘要；不把完整工具记录无差别传给所有子 Agent | 两个子 Agent 工具；无退款写工具 | 唯一决定委派、处理缺字段/规则冲突并生成最终答案 |
+| 事实提取子 Agent | `order_id` 与最小任务说明；不接收规则文档 | 仅 `mock_order`，只读 | 只返回订单事实和缺失项，不直接回答用户 |
+| 规则核对子 Agent | `rule_id` 与最小任务说明；不接收订单或用户完整对话 | 仅 `mock_refund_rules`，只读 | 只返回规则和例外条件，不直接回答用户 |
+
+边界：两个子 Agent 都不能再次委派，也没有写工具；规则中的 `external_note` 属于不可信数据，不能改变工具清单或 Manager 的指令。若事实缺失或例外条件无法从订单确认，Manager 应返回“无法判断/需人工核对”，不能自行补全事实。Task 4 再为实际实现加上深度、并发、预算与超时的硬限制；上图目前是**设计图，不代表已存在多 Agent 运行链路**。
 
 ### Task 3：实现最小协作链路
 
