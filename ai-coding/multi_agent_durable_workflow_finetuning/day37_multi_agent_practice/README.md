@@ -1,6 +1,6 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**及 **Task 3 最小多 Agent 链路**；Task 4–6 尚未实现，也没有完整的单/多 Agent 对照结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**、**Task 3 最小多 Agent 链路**及 **Task 4 运行限制**；Task 5–6 尚未实现，也没有完整的单/多 Agent 对照结果。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
@@ -94,7 +94,7 @@ Manager：决定委派顺序；收集结果；做最终判断并回复用户
 | 事实提取子 Agent | `order_id` 与最小任务说明；不接收规则文档 | 仅 `mock_order`，只读 | 只返回订单事实和缺失项，不直接回答用户 |
 | 规则核对子 Agent | `rule_id` 与最小任务说明；不接收订单或用户完整对话 | 仅 `mock_refund_rules`，只读 | 只返回规则和例外条件，不直接回答用户 |
 
-边界：两个子 Agent 都不能再次委派，也没有写工具；规则中的 `external_note` 属于不可信数据，不能改变工具清单或 Manager 的指令。若事实缺失或例外条件无法从订单确认，Manager 应返回“无法判断/需人工核对”，不能自行补全事实。Task 4 再为实际实现加上深度、并发、预算与超时的硬限制；上图已由 Task 3 的最小链路体现，但硬限制尚未实现。
+边界：两个子 Agent 都不能再次委派，也没有写工具；规则中的 `external_note` 属于不可信数据，不能改变工具清单或 Manager 的指令。若事实缺失或例外条件无法从订单确认，Manager 应返回“无法判断/需人工核对”，不能自行补全事实。上图已由 Task 3 的最小链路体现；Task 4 的共享限制见下文。
 
 ### Task 3：实现最小协作链路
 
@@ -116,7 +116,7 @@ python -m unittest test_demo.py test_multi_agent_demo.py -v
 python multi_agent_demo.py --case eligible
 ```
 
-不传 `--case` 也只运行 `eligible`，避免误触发全部样本；可换成 Task 1 中的其他样本编号。真实运行会产生多次模型调用和费用。Manager 可能在一轮中发起两个委派，轨迹开始/结束顺序不保证一致；Task 3 只实现最小委派与只读权限隔离，深度、并发、预算、超时及故障恢复属于后续 Task，不应把当前 Demo 当作生产级安全控制。
+不传 `--case` 也只运行 `eligible`，避免误触发全部样本；可换成 Task 1 中的其他样本编号。真实运行会产生多次模型调用和费用。Manager 可能在一轮中发起两个委派，轨迹开始/结束顺序不保证一致；Task 3 只实现最小委派与只读权限隔离，Task 4 的运行限制见下文。
 
 可以把它理解成一个“主管派两位专员查资料”的过程：
 
@@ -137,6 +137,20 @@ python multi_agent_demo.py --case eligible
 - 动手：设定并执行最大委派深度、同时运行的子任务数、整条任务的 Token/美元预算及超时。统计必须覆盖主 Agent 和全部子 Agent；达到上限就停止新的委派，并返回明确状态。
 - 产物：约束配置、用量记录和触发上限的测试样本。
 - 验收：重复委派不会无限递归；并发峰值不超限；预算耗尽后不再发起模型调用；超时能够终止任务。
+
+已实现于 `runtime_limits.py`，并接入 `multi_agent_demo.py`：每个样本新建一个 `RequestBudget`，Manager 和两个子 Agent 的每次模型调用共用一个 LangChain middleware。`inspect_order` / `inspect_rules` 在进入子 Agent 前检查委派深度、总委派次数和并发位；只读工具执行前也检查截止时间及预算。子 Agent 没有委派工具，所以结构上无法再嵌套委派。报告增加 `limits`、`usage`、`status`；触限时记录 `limit_reached` 和 `stop_reason`，不给出伪造的最终答案。
+
+默认限制：最大委派深度 1、最多委派 2 次、同时运行的子任务最多 1 个、总用量 8000 Token、估算费用 0.1 美元、任务截止时间 30 秒。可通过 CLI 覆盖，例如：
+
+```bash
+python -m unittest test_demo.py test_multi_agent_demo.py test_runtime_limits.py -v
+python multi_agent_demo.py --case eligible --max-concurrency 1 --max-tokens 8000 --max-cost-usd 0.1 --timeout-seconds 30
+python multi_agent_demo.py --case eligible --max-tokens 1
+```
+
+第三条命令**仍会产生一次模型调用费用**，用于观察 `status: limit_exceeded`、`stop_reason: token_budget`，不适合当作免费测试。也可设置 `--max-depth`、`--max-delegations`；估算费用使用本目录 `.env` 中的两个 Token 单价，默认值只用于演示，实际计费以供应商账单为准。[LangChain 自定义模型调用中间件](https://docs.langchain.com/oss/python/langchain/middleware/custom)用于在每次调用前后统一检查和累计用量。
+
+**限制的精度**：实际 Token/费用只在响应后获得，单次调用可能超过上限；一旦观测到耗尽，后续模型调用会被拒绝。截止时间在调用前后检查，并设置 DeepSeek 单次请求超时；同步执行不能保证在截止瞬间强行中断已发出的网络请求。`max_concurrency` 限制的是运行中的**子任务**数，不是所有模型 HTTP 请求数。本 Demo 不应作为生产级计费或强制超时系统。
 
 ### Task 5：注入故障并检查权限
 

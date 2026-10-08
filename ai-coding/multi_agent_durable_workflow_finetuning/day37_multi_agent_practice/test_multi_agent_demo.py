@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from demo import CASES
 from multi_agent_demo import build_multi_agent, run_case
+from runtime_limits import RuntimeLimits
 
 
 class FakeChild:
@@ -38,7 +39,7 @@ class MultiAgentTests(unittest.TestCase):
     def test_manager_delegates_to_isolated_read_only_agents(self):
         children = []
 
-        def fake_create_agent(*, model, tools, system_prompt):
+        def fake_create_agent(*, model, tools, system_prompt, middleware):
             if len(children) < 2:
                 child = FakeChild(tools[0])
                 children.append(child)
@@ -77,7 +78,7 @@ class MultiAgentTests(unittest.TestCase):
         self.assertEqual(rules["source"], "mock_refund_rules:standard")
 
     def test_other_case_cannot_pass_with_wrong_delegation_ids(self):
-        def fake_create_agent(*, model, tools, system_prompt):
+        def fake_create_agent(*, model, tools, system_prompt, middleware):
             return FakeChild(tools[0]) if len(tools) == 1 else FakeManager(tools)
 
         with patch("multi_agent_demo.create_agent", side_effect=fake_create_agent):
@@ -86,7 +87,7 @@ class MultiAgentTests(unittest.TestCase):
         self.assertFalse(report["passed"])
 
     def test_equivalent_positive_wording_passes(self):
-        def fake_create_agent(*, model, tools, system_prompt):
+        def fake_create_agent(*, model, tools, system_prompt, middleware):
             return (
                 FakeChild(tools[0])
                 if len(tools) == 1
@@ -107,13 +108,26 @@ class MultiAgentTests(unittest.TestCase):
 
         agents = iter([SkippingChild(), SkippingChild()])
 
-        def fake_create_agent(*, model, tools, system_prompt):
+        def fake_create_agent(*, model, tools, system_prompt, middleware):
             return next(agents) if len(tools) == 1 else FakeManager(tools)
 
         with patch("multi_agent_demo.create_agent", side_effect=fake_create_agent):
             manager, _ = build_multi_agent(model=object())
             with self.assertRaises(ValueError):
                 manager.tools["inspect_order"].invoke({"order_id": "A100"})
+
+    def test_delegation_limit_stops_case_before_second_subagent(self):
+        def fake_create_agent(*, model, tools, system_prompt, middleware):
+            return FakeChild(tools[0]) if len(tools) == 1 else FakeManager(tools)
+
+        with patch("multi_agent_demo.create_agent", side_effect=fake_create_agent):
+            report = run_case(CASES[0], model=object(),
+                              limits=RuntimeLimits(max_delegations=1))
+
+        self.assertEqual(report["status"], "limit_exceeded")
+        self.assertEqual(report["usage"]["stop_reason"], "delegation_limit")
+        self.assertEqual([event["agent"] for event in report["trace"]
+                          if event["event"] == "subagent_result"], ["order"])
 
 
 if __name__ == "__main__":
