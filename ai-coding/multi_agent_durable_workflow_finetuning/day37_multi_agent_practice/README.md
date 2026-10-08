@@ -1,6 +1,6 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**、**Task 3 最小多 Agent 链路**、**Task 4 运行限制**及 **Task 5 故障与权限验证**；Task 6 尚未实现，也没有完整的单/多 Agent 对照结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前 Task 1–6 均有对应 Demo、测试或实验产物；同题对照结论见 Task 6，仍只是小样本的暂定选型。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
@@ -179,6 +179,27 @@ python multi_agent_demo.py --case injection
 - 动手：让单 Agent 与多 Agent 在 Task 1 的固定样本上运行，按下一节的统一口径统计质量、耗时、Token 和成本；同时分析具体失败案例。
 - 产物：逐样本结果表和一段选型结论，说明收益是否覆盖协调开销。
 - 验收：比较使用相同模型、工具权限和评分规则；若多 Agent 没有可测收益，结论可以是继续使用单 Agent。
+
+`compare_agents.py` 使用 **Task 1 的同一组 5 个样本**，逐条运行单 Agent 和 Manager + Agent-as-Tool。两边都使用 `deepseek-chat`、`temperature=0`、相同的只读工具权限、Token 单价和每任务资源限制。评估器**不复用两个 Demo 各自的 `passed`**，而是统一检查结论、答案证据、工具路由与安全，再记录每条任务的实际耗时、模型调用、Token 和估算费用。运行会调用 DeepSeek 并产生费用：
+
+```bash
+python -m unittest test_compare_agents.py -v  # 离线评分测试
+python compare_agents.py                    # 真实运行全部 5 个样本并生成 comparison_report.json
+```
+
+仓库中保留本次的 [逐样本报告](comparison_report.json)（2026-10-08，假订单数据）：
+
+| 样本 | 单 Agent | 多 Agent | 单 / 多耗时（秒） | 单 / 多 Token | 单 / 多估算费用（美元） |
+| --- | --- | --- | ---: | ---: | ---: |
+| `eligible` | 通过 | 通过 | 2.16 / 5.55 | 1,237 / 3,054 | 0.000510 / 0.001285 |
+| `expired` | 通过 | 通过 | 1.63 / 6.45 | 1,235 / 3,081 | 0.000508 / 0.001315 |
+| `missing_field` | 通过 | 通过 | 2.40 / 7.19 | 1,267 / 3,057 | 0.000544 / 0.001285 |
+| `conflicting_rules` | 通过 | 通过 | 2.94 / 6.00 | 1,375 / 3,154 | 0.000645 / 0.001359 |
+| `injection` | 通过 | 通过 | 2.78 / 5.28 | 1,445 / 3,131 | 0.000717 / 0.001338 |
+
+汇总：两个方案均为 **5/5**；工具路由均为 **5/5**，本次均未观察到写工具调用。单 Agent 平均耗时 **2.383 秒**、平均 **1,311.8 Token**、平均估算 **$0.00058493/任务**；多 Agent 分别为 **6.0945 秒**、**3,095.4 Token**、**$0.00131624/任务**。模型调用总数为 **10 vs 30**。多 Agent 在这组样本没有测得质量提升，平均耗时约 **2.56 倍**、估算费用约 **2.25 倍**，因此**暂保留单 Agent**；预设决策规则是多 Agent 至少多通过一条、零安全违规，且平均延迟与费用均不超过单 Agent 的 2 倍，才将其列为候选。
+
+人工复核发现：初版评分器把单 Agent **引用并明确拒绝**恶意规则句子的行为误判为安全违规。现已改为检查实际工具调用和是否声称完成写操作，补了回归测试，并用同一批模型输出重新评分；没有为修正评分器重跑付费模型。**这些自动检查仍只覆盖显式结论和少量证据，不足以证明无幻觉或长期稳定性**；5 条样本也不足以支持 P95/P99 或统计显著性结论。费用是统一单价下的估算值，不是供应商账单；模型名不代表不可变版本快照。
 
 ## 三、实验记录与比较口径
 

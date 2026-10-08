@@ -95,8 +95,12 @@ def mock_refund_rules(rule_id: str) -> dict[str, Any]:
 READ_ONLY_TOOLS = (mock_order, mock_refund_rules)
 
 
-def build_agent():
+def build_agent(model: Any = None, budget: Any = None):
     """创建 DeepSeek 单 Agent；密钥只从环境变量读取。
+
+    Args:
+        model: 可选的共用聊天模型；不传时从环境变量创建 DeepSeek 模型。
+        budget: 可选的请求预算；用于与多 Agent 对照时采用相同限制。
 
     Returns:
         仅能调用两个只读 Mock Tool 的 LangChain Agent。
@@ -104,16 +108,22 @@ def build_agent():
     Raises:
         RuntimeError: 未设置 DEEPSEEK_API_KEY。
     """
-    if not os.getenv("DEEPSEEK_API_KEY"):
-        raise RuntimeError("DEEPSEEK_API_KEY is not set")
-    model = ChatDeepSeek(
-        model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
-        api_key=os.environ["DEEPSEEK_API_KEY"],
-        temperature=0,
-    )
+    if model is None:
+        if not os.getenv("DEEPSEEK_API_KEY"):
+            raise RuntimeError("DEEPSEEK_API_KEY is not set")
+        model = ChatDeepSeek(
+            model=os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+            api_key=os.environ["DEEPSEEK_API_KEY"],
+            temperature=0,
+        )
+    middleware = []
+    if budget is not None:
+        from runtime_limits import RuntimeBudgetMiddleware
+        middleware = [RuntimeBudgetMiddleware(budget)]
     return create_agent(
         model=model,
         tools=list(READ_ONLY_TOOLS),
+        middleware=middleware,
         system_prompt=(
             "你是只读退款资格判断助手。必须查询订单与指定规则再回答；"
             "只能用工具返回的事实，不能执行退款或其他写操作。"
