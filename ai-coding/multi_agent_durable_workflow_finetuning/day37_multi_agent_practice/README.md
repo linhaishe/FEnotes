@@ -1,6 +1,6 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**，完成 **Task 2 模式选型与控制权设计**；Task 3–6 尚未实现，也没有真实模型对照结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**及 **Task 3 最小多 Agent 链路**；Task 4–6 尚未实现，也没有完整的单/多 Agent 对照结果。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
@@ -94,13 +94,43 @@ Manager：决定委派顺序；收集结果；做最终判断并回复用户
 | 事实提取子 Agent | `order_id` 与最小任务说明；不接收规则文档 | 仅 `mock_order`，只读 | 只返回订单事实和缺失项，不直接回答用户 |
 | 规则核对子 Agent | `rule_id` 与最小任务说明；不接收订单或用户完整对话 | 仅 `mock_refund_rules`，只读 | 只返回规则和例外条件，不直接回答用户 |
 
-边界：两个子 Agent 都不能再次委派，也没有写工具；规则中的 `external_note` 属于不可信数据，不能改变工具清单或 Manager 的指令。若事实缺失或例外条件无法从订单确认，Manager 应返回“无法判断/需人工核对”，不能自行补全事实。Task 4 再为实际实现加上深度、并发、预算与超时的硬限制；上图目前是**设计图，不代表已存在多 Agent 运行链路**。
+边界：两个子 Agent 都不能再次委派，也没有写工具；规则中的 `external_note` 属于不可信数据，不能改变工具清单或 Manager 的指令。若事实缺失或例外条件无法从订单确认，Manager 应返回“无法判断/需人工核对”，不能自行补全事实。Task 4 再为实际实现加上深度、并发、预算与超时的硬限制；上图已由 Task 3 的最小链路体现，但硬限制尚未实现。
 
 ### Task 3：实现最小协作链路
 
 - 动手：让两个窄任务各自返回可核查的结构化结果，例如订单事实及证据、适用规则及理由，再由主 Agent 合并。子 Agent 只接收完成任务所需的数据，所有 Agent 都不持有退款写权限。
 - 产物：能在正常样本上运行的多 Agent 最小 Demo 和可查看的委派记录。
 - 验收：从一条请求能追到“主 Agent → 子任务 → 结果 → 最终答案”；没有为了演示而混用多种模式。
+
+已实现于 `multi_agent_demo.py`：Manager 只有 `inspect_order` 和 `inspect_rules` 两个委派工具；它们分别调用只拥有 `mock_order`、`mock_refund_rules` 的 LangChain 子 Agent。包装工具只向子 Agent 传 `order_id` 或 `rule_id`，并把**实际只读工具结果**整理为带 `source` 的结构化事实/规则；规则文档的 `external_note` 不转交给 Manager。报告的 `trace` 按顺序记录 Manager 开始、委派开始、子任务结果和最终答案。`passed` 只做关键片段与证据来源检查，不是完整答案质量评估。参考实现方式：[LangChain Subagents 文档](https://docs.langchain.com/oss/python/langchain/multi-agent/subagents)。
+
+在本目录先运行离线测试（不调用模型）：
+
+```bash
+python -m unittest test_demo.py test_multi_agent_demo.py -v
+```
+
+确认本目录 `.env` 已配置 `DEEPSEEK_API_KEY` 后，显式运行真实多 Agent 样本：
+
+```bash
+python multi_agent_demo.py --case eligible
+```
+
+不传 `--case` 也只运行 `eligible`，避免误触发全部样本；可换成 Task 1 中的其他样本编号。真实运行会产生多次模型调用和费用。Manager 可能在一轮中发起两个委派，轨迹开始/结束顺序不保证一致；Task 3 只实现最小委派与只读权限隔离，深度、并发、预算、超时及故障恢复属于后续 Task，不应把当前 Demo 当作生产级安全控制。
+
+可以把它理解成一个“主管派两位专员查资料”的过程：
+
+1. 用户问：“A100 能退款吗？按 standard 规则判断。”
+2. **Manager** 不直接查订单或规则；它手里只有 `inspect_order` 和 `inspect_rules` 两个“委派入口”。
+3. `inspect_order` 把 `A100` 交给订单子 Agent。这个子 Agent 只能调用只读的 `mock_order`，查到“购买后 2 天”等事实。
+4. `inspect_rules` 把 `standard` 交给规则子 Agent。它只能调用只读的 `mock_refund_rules`，查到“退款期限 7 天”等条件。
+5. 两个委派入口把查到的数据整理好，标上 `source`（例如 `mock_order:A100`），交回 Manager。Manager 对照事实与规则，给用户最终答案。
+
+`external_note` 是规则里模拟的恶意文档文字。规则子 Agent 读到它时也不能把它当指令；包装工具返回给 Manager 的结果中还会去掉这个字段，避免它继续影响最终判断。
+
+报告里的 `trace` 是这条处理路径的记录：谁开始委派、哪个子 Agent 返回了什么、Manager 最后回答了什么。**它不是严格固定的先后顺序**：两个子任务可能同时开始，谁先返回就先出现在记录里。
+
+最后，`passed: true` 只表示答案包含预期关键词、且两个正确来源都出现了；它不能证明整段解释完全准确，还需要人工或更严格的评分器复核。
 
 ### Task 4：给委派加硬约束
 
