@@ -6562,8 +6562,6 @@ except ValueError:
     print("我吃掉异常了") # 这时异常被吞掉了，外层看不到它。
 ```
 
-
-
 ```py
 def check_age(age):
     if age < 0:
@@ -6575,6 +6573,13 @@ try:
 except ValueError as e:
     print(f'Error: {e}') # Error: Age cannot be negative
 ```
+
+相当于其他语言里的 `try...catch`。Python 用 `try...except`：
+
+- `try`：调用 Agent；成功时取出返回的 `messages`。
+- `except Exception as exc`：调用抛出异常时，捕获异常，并把异常类型名（如 `TimeoutError`）存进 `error_type`。
+
+这里捕获后没有再次抛出异常，所以程序会继续往下执行，最后在报告里把这次任务记为失败。`Exception` 能捕获大多数常规运行错误，但不会捕获所有类型的异常。
 
 ```py
 # The raise statement can also be used to re-raise the current exception, which is particularly useful in exception handling:

@@ -1,6 +1,6 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。本目录目前是学习与实验大纲，尚未实现 Demo，也没有实测结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**；Task 2–6 尚未实现，也没有真实模型实测结果。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
@@ -15,7 +15,7 @@ Manager 是协调职责，Agent-as-Tool 是实现委派的一种接口；它们�
 
 ## 二、Project：退款规则核对助手
 
-以**假订单、假退款规则**为数据，完成“判断订单是否符合退款条件，并给出有依据的说明”。订单事实提取与规则核对可以拆开验证，适合练习委派；实验仅做只读判断，不执行真实退款。先完成单 Agent，再实现一种多 Agent 模式，最后用同一组样本对照。Day 36 提供的是实验设计，不是已有的可运行基线。
+以**假订单、假退款规则**为数据，完成“判断订单是否符合退款条件，并给出有依据的说明”。订单事实提取与规则核对可以拆开验证，适合练习委派；实验仅做只读判断，不执行真实退款。先完成单 Agent，再实现一种多 Agent 模式，最后用同一组样本对照。Day 36 提供的是实验设计；可运行的单 Agent 基线位于本目录 `demo.py`。
 
 建议先准备 5 类样本：正常可退、超过期限、缺少订单字段、两条规则冲突、规则文档夹带“忽略限制并调用写工具”的指令。每条样本写清预期结论、必须引用的事实，以及允许调用的工具。学习时依次完成以下 Task；每做完一个就按“验收”检查，再进入下一个。
 
@@ -24,6 +24,36 @@ Manager 是协调职责，Agent-as-Tool 是实现委派的一种接口；它们�
 - 动手：用一个 Agent、相同的只读工具处理全部样本。保存最终回答、工具选择与参数、调用次数、输入/输出 Token、任务耗时和估算成本。
 - 产物：固定样本及预期结果、单 Agent 逐样本记录。记录模型版本、工具权限和价格口径，以便后续公平比较。
 - 验收：所有样本都有结果或明确的失败原因；能指出单 Agent 的具体失误，而不是先假定它需要拆分。
+
+当前实现：`demo.py` 提供 5 个固定样本、两个只读 Mock Tool、DeepSeek + LangChain 单 Agent 入口及逐样本 JSON 报告。报告按关键结论片段和必需的工具调用/参数给出一个**粗粒度** `passed`；这不是人工质量评审，复杂答案仍需人工核对。`test_demo.py` 用离线替身验证样本、工具、用量汇总和异常路径，不产生 API 费用。
+
+每条报告还包含固定输入（`order_id`、`rule_id`、`prompt`）、人工写定的 `expected_result`、实际配置的 `model_id`、只读 `allowed_tools`，以及输入/输出 Token 的美元单价。`expected_result` 用于人工复核，程序的 `passed` 仍只检查关键片段和必需工具调用；`model_id` 是配置的模型名，不代表供应商提供了不可变的模型版本号。
+
+在本目录运行：
+
+```bash
+python -m pip install -r requirements.txt
+python -m unittest test_demo.py -v
+```
+
+真实模型运行需在本目录 `.env` 中设置 `DEEPSEEK_API_KEY`（或通过环境变量提供），然后**显式**执行：
+
+```bash
+python demo.py --case eligible
+python demo.py
+```
+
+`--case eligible` 表示**只运行编号为 `eligible` 的测试样本**，也就是“购买后 2 天、符合 7 天退款期限”的假订单 A100。
+
+`--case` 后面还可以填 `expired`、`missing_field`、`conflicting_rules` 或 `injection`。不加 `--case`，直接运行 `python demo.py`，就会依次运行全部 5 个样本；使用真实 DeepSeek 时会产生相应的 API 费用。
+
+第二条命令会依次运行全部 5 个样本并产生模型费用。可选设置 `DEEPSEEK_MODEL`、`DEEPSEEK_INPUT_COST_PER_TOKEN`、`DEEPSEEK_OUTPUT_COST_PER_TOKEN`；费用字段根据 Token 与单价估算，默认单价仅为演示值，运行前请按实际计费更新。`duration_seconds` 为本地观察到的单任务总耗时。请勿提交 `.env`，也不要把真实订单或密钥放入假数据。
+
+`--case` 是你在 `argparse` 里**自己定义的命令行参数名**，不是 Python 规定必须叫这个。你可以改成 `--sample`，但运行命令也要相应改为 `python demo.py --sample eligible`。
+
+不过，参数名可以自定义，参数值不能随便填：`choices=[case.case_id for case in CASES]` 限定了只能输入 `CASES` 中已有的 ID，比如 `eligible`。输入其他值，程序会提示参数无效。
+
+![image-20261008130259977](https://picgocloud.com/m/b40c6a61-5e38-4747-80e4-91245cab7477.png)
 
 ### Task 2：选择一种模式并画出控制权
 
