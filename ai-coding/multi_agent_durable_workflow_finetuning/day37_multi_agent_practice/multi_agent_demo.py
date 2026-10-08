@@ -45,7 +45,14 @@ def build_multi_agent(
             order_id: 要读取的假订单编号。
         """
         budget.check()
-        result = mock_order.invoke({"order_id": order_id})
+        try:
+            result = mock_order.invoke({"order_id": order_id})
+        except LimitExceeded:
+            raise
+        except Exception as exc:
+            trace.append({"event": "tool_failed", "agent": "order", "tool": "mock_order",
+                          "error_type": type(exc).__name__})
+            raise
         order_reads.append(result)
         return result
 
@@ -57,7 +64,14 @@ def build_multi_agent(
             rule_id: 要读取的假规则编号。
         """
         budget.check()
-        result = mock_refund_rules.invoke({"rule_id": rule_id})
+        try:
+            result = mock_refund_rules.invoke({"rule_id": rule_id})
+        except LimitExceeded:
+            raise
+        except Exception as exc:
+            trace.append({"event": "tool_failed", "agent": "rules", "tool": "mock_refund_rules",
+                          "error_type": type(exc).__name__})
+            raise
         rule_reads.append(result)
         return result
 
@@ -88,20 +102,27 @@ def build_multi_agent(
         trace.append(
             {"event": "delegation_started", "agent": "order", "order_id": order_id}
         )
-        with budget.delegation(depth=1):
-            order_reads.clear()
-            order_agent.invoke(
-                {
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": f"读取订单 {order_id}，并只依据工具结果提取事实。",
-                        }
-                    ]
-                }
-            )
-        if not order_reads or order_reads[-1].get("order_id") != order_id:
-            raise ValueError("订单子 Agent 未读取指定订单")
+        try:
+            with budget.delegation(depth=1):
+                order_reads.clear()
+                order_agent.invoke(
+                    {
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": f"读取订单 {order_id}，并只依据工具结果提取事实。",
+                            }
+                        ]
+                    }
+                )
+            if not order_reads or order_reads[-1].get("order_id") != order_id:
+                raise ValueError("订单子 Agent 未读取指定订单")
+        except LimitExceeded:
+            raise
+        except Exception as exc:
+            trace.append({"event": "subagent_failed", "agent": "order",
+                          "error_type": type(exc).__name__})
+            raise
         facts = order_reads[-1]
         result = {
             "facts": {
@@ -128,20 +149,27 @@ def build_multi_agent(
         trace.append(
             {"event": "delegation_started", "agent": "rules", "rule_id": rule_id}
         )
-        with budget.delegation(depth=1):
-            rule_reads.clear()
-            rules_agent.invoke(
-                {
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": f"读取规则 {rule_id}，并只依据工具结果提取条件。",
-                        }
-                    ]
-                }
-            )
-        if not rule_reads or rule_reads[-1].get("rule_id") != rule_id:
-            raise ValueError("规则子 Agent 未读取指定规则")
+        try:
+            with budget.delegation(depth=1):
+                rule_reads.clear()
+                rules_agent.invoke(
+                    {
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": f"读取规则 {rule_id}，并只依据工具结果提取条件。",
+                            }
+                        ]
+                    }
+                )
+            if not rule_reads or rule_reads[-1].get("rule_id") != rule_id:
+                raise ValueError("规则子 Agent 未读取指定规则")
+        except LimitExceeded:
+            raise
+        except Exception as exc:
+            trace.append({"event": "subagent_failed", "agent": "rules",
+                          "error_type": type(exc).__name__})
+            raise
         rules = rule_reads[-1]
         result = {
             "rules": {key: rules[key] for key in ("rule_id", "refund_days")}
@@ -188,16 +216,41 @@ def run_case(
     try:
         response = manager.invoke({"messages": [{"role": "user", "content": prompt}]})
         budget.check()
-        answer = str(response["messages"][-1].content)
-        trace.append({"event": "final_answer", "answer": answer})
+        raw_answer = str(response["messages"][-1].content)
+        error_type = None
     except LimitExceeded as exc:
-        answer = ""
+        raw_answer = ""
+        error_type = None
         trace.append({"event": "limit_reached", "reason": exc.code})
+    except Exception as exc:
+        raw_answer = ""
+        error_type = type(exc).__name__
+        trace.append({"event": "request_failed", "error_type": error_type})
     sources = {
         event["result"]["source"]
         for event in trace
         if event["event"] == "subagent_result"
     }
+    missing_agents = [
+        agent for agent, source in (
+            ("order", f"mock_order:{case.order_id}"),
+            ("rules", f"mock_refund_rules:{case.rule_id}"),
+        ) if source not in sources
+    ]
+    failures = [event for event in trace if event["event"] in ("tool_failed", "subagent_failed")]
+    failure_source = (
+        "tool" if any(event["event"] == "tool_failed" for event in failures)
+        else "subagent" if failures else "manager" if error_type else None
+    )
+    if budget.stop_reason:
+        status, answer = "limit_exceeded", ""
+    elif error_type or missing_agents or failures:
+        status = "incomplete"
+        answer = "无法完成退款资格判断：缺少" + "、".join(missing_agents or ["可靠核对结果"]) + "。"
+        trace.append({"event": "incomplete", "missing_agents": missing_agents})
+    else:
+        status, answer = "completed", raw_answer
+        trace.append({"event": "final_answer", "answer": answer})
     normalized_answer = answer.replace("可以退款", "可退款")
     conclusion_ok = case.expected_fragment in normalized_answer
     if case.expected_fragment == "可退款" and "不可退款" in normalized_answer:
@@ -205,12 +258,15 @@ def run_case(
     return {
         "case_id": case.case_id,
         "answer": answer,
-        "status": "limit_exceeded" if budget.stop_reason else "completed",
+        "status": status,
         "passed": conclusion_ok
         and {
             f"mock_order:{case.order_id}",
             f"mock_refund_rules:{case.rule_id}",
-        }.issubset(sources) and budget.stop_reason is None,
+        }.issubset(sources) and status == "completed",
+        "missing_agents": missing_agents,
+        "failure_source": failure_source,
+        "error_type": error_type or (failures[-1]["error_type"] if failures else None),
         "limits": asdict(limits),
         "usage": budget.snapshot(),
         "trace": trace,

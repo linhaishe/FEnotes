@@ -1,6 +1,6 @@
 # Day 37：Multi-Agent 实战
 
-本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**、**Task 3 最小多 Agent 链路**及 **Task 4 运行限制**；Task 5–6 尚未实现，也没有完整的单/多 Agent 对照结果。
+本日目标：在 Day 36 的单 Agent 基线上，只选择 **Manager / Agent-as-Tool 或 Handoff 中一种模式**实现多 Agent 协作，限制委派深度、并发和预算，并在同一任务集上比较质量、延迟与成本。目前已实现 **Task 1 单 Agent 基线 Demo**、**Task 2 模式选型与控制权设计**、**Task 3 最小多 Agent 链路**、**Task 4 运行限制**及 **Task 5 故障与权限验证**；Task 6 尚未实现，也没有完整的单/多 Agent 对照结果。
 
 主要阅读：[LangChain 多 Agent 模式](https://docs.langchain.com/oss/python/langchain/multi-agent)、[OpenAI Agents SDK 多 Agent 编排](https://openai.github.io/openai-agents-python/multi_agent/)。学习计划中旧的 LangGraph Multi-agent 链接会跳转，阅读时以上述当前文档为准。
 
@@ -157,6 +157,22 @@ python multi_agent_demo.py --case eligible --max-tokens 1
 - 动手：模拟子 Agent 超时或失败、工具异常、规则文档中的恶意指令；检查主 Agent 如何报告未完成的部分。若将来接入退款写工具，仍必须在工具边界校验权限并审批，不能因为 Agent 分工绕过。
 - 产物：覆盖正常、异常和攻击输入的测试及失败记录。
 - 验收：外部文档只影响事实输入，不改变工具权限；失败不伪装成成功；没有未经审批的外部副作用。
+
+已在 `multi_agent_demo.py` 的实际执行边界接入失败记录：只读工具异常记录 `tool_failed`，子 Agent 异常记录 `subagent_failed`，都只保留异常**类型**，不输出可能含密钥或内部地址的原始错误文本。若 Manager 抛错、吞掉子任务错误，或没有拿到当前样本所需的两个来源，外层报告都返回 `status: incomplete`、`passed: false`、`missing_agents`、`failure_source` 和不假装已判断的回答。预算/截止时间触限仍使用 Task 4 的 `limit_exceeded`。
+
+用离线测试注入故障，不消耗 API 费用：
+
+```bash
+python -m unittest test_multi_agent_demo.py -v
+```
+
+其中 `test_child_timeout_reports_missing_evidence_without_false_success` 模拟子 Agent 超时，`test_read_only_tool_failure_is_classified_and_not_reported_as_success` 模拟工具异常，`test_manager_cannot_hide_failed_child_with_confident_answer` 验证 Manager 即使生成肯定答案也不能掩盖缺失证据；`test_injected_rule_note_does_not_reach_manager_or_grant_write_tool` 注入恶意规则文本并检查工具清单与数据未被修改。真实模型的攻击样本需显式运行，**会产生 API 费用**：
+
+```bash
+python multi_agent_demo.py --case injection
+```
+
+当前链路根本没有退款写工具：Manager 只有两个委派工具，两个子 Agent 各只有一个只读工具；`external_note` 可被规则子 Agent 读到，但不会出现在返回给 Manager 的结构化规则或报告轨迹中。这能验证本 Demo 的权限隔离，**不能证明任意 Prompt Injection 都被识别**。若未来新增退款写工具，必须另行在工具执行边界校验资源所有权与参数，并要求人工审批；不能只靠系统提示词或这个只读测试代替审批。
 
 ### Task 6：同题对照并决定是否保留拆分
 
