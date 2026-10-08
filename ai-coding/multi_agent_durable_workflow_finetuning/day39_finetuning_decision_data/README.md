@@ -2,6 +2,11 @@
 
 本日目标：先用评估证明模型存在**可训练的能力缺口**，再准备去重、隔离、可追溯的训练/验证/测试集，以及可验证的工具调用轨迹。今天不训练模型；Day 40–41 才做 SFT 与 LoRA/QLoRA 实验。
 
+- Day 39：先评估是否需要微调，准备和隔离数据。
+- Day 40–41：在条件具备时做 SFT + LoRA/QLoRA，并与基线比较。
+- Day 42：理解 DPO、RFT/GRPO 等进一步训练方法，重点设计评估、灰度发布和回滚。
+核心顺序是：先证明有能力缺口 → 再训练 → 用保留集证明收益 → 决定是否发布。如果 Day 39 的评估表明 Prompt、RAG 或工具流程已能解决问题，后面可以得出“不微调”的结论。
+
 ## 一、阅读资料
 
 1. [OpenAI Model optimization](https://developers.openai.com/api/docs/guides/model-optimization)：重点看先建 Eval 基线、再优化 Prompt、必要时微调、最后复评的闭环。原计划中的 [OpenAI Fine-tuning 链接](https://platform.openai.com/docs/guides/fine-tuning) 目前跳转到此页。**平台状态提醒**：文档称 OpenAI 托管微调平台正在收尾，且不再对新用户开放；本日不要把调用其微调 API 当成必做项。后续训练以所选本地/开放模型及其工具链为准，开始前再次核对可用性。
