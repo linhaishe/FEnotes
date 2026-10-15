@@ -4240,6 +4240,29 @@ TypeError: f() takes 2 positional arguments but 3 were given
 >>>
 ```
 
+```python
+def import_document_for_user(
+    *,
+    user,
+    file_bytes: bytes | None = None,
+    file_obj: File | None = None,
+    filename: str,
+    title: str,
+    description: str,
+    custom_meta: dict | None = None,
+    make_public: bool = False,
+    add_to_corpus_id: Any = None,
+    add_to_folder_id: Any = None,
+    add_to_folder_path: str | None = None,
+    slug: str | None = None,
+    lineage_kwargs: dict | None = None,
+    access_token: CorpusAccessToken | None = None,
+) -> ImportResult:
+  ...
+```
+
+
+
 ----
 
 所以最通用的写法就是：

@@ -433,6 +433,47 @@ Sentence Transformers 是一个用于加载和运行 Embedding 模型的 Python 
 
 Sentence Transformers 是 RAG 中用于加载和运行的 **Embedding 和 Reranker 模型Python工具库**，不是向量数据库，也不是大模型聊天框架，不是某一个具体的 Embedding 模型。官方文档目前覆盖 Embedding、Reranker、Sparse Encoder 和 Multi-Vector Encoder 等模型。
 
+##### 常用Embedding模型
+
+下面列的是目前 RAG 中比较常见的 Embedding 模型。性能没有绝对排名，最好用自己的问题集测试 `Recall@K`、MRR 和最终答案正确率。
+
+| 模型                                                       | 类型 / 特点                             | 优点                                                         | 缺点                                                         |
+| ---------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **OpenAI `text-embedding-3-small`**                        | API；默认 1536 维                       | 成本低、接入简单、综合表现稳定，适合一般 RAG                 | 依赖外部 API；数据需要发给第三方；不可本地部署               |
+| **OpenAI `text-embedding-3-large`**                        | API；默认 3072 维，可缩短维度           | OpenAI 官方称其在英文和非英文任务上能力更强；适合对准确率要求较高的场景 | 成本和向量存储开销更高；仍依赖外部 API                       |
+| **Voyage `voyage-4-large` / `voyage-4` / `voyage-4-lite`** | API；通用、多语言                       | `voyage-4-large` 偏效果，`voyage-4-lite` 偏成本和延迟；支持 query/document 区分和多种输出维度 | 商业 API；不同模型和维度需要重新建索引；国内网络和合规需评估 |
+| **Cohere `embed-v4.0`**                                    | API；文本、图片、混合模态               | 支持多语言、文本和图片统一 Embedding；适合 PDF、表格、图文混合检索；上下文长度 128K | 对纯文本 RAG 可能偏重；商业 API；多模态能力会增加系统复杂度  |
+| **BAAI `bge-m3`**                                          | 开源；多语言；1024 维；最长 8192 tokens | 可本地部署；支持 100 多种语言；同时支持 dense、sparse 和 multi-vector 检索；适合中文和混合语言 RAG | 模型较大、推理资源要求高；单一语言场景不一定胜过专门的单语模型 |
+| **`multilingual-e5-large`**                                | 开源；多语言；1024 维；94 种语言        | 本地部署方便；多语言检索成熟；适合中英文混合文档             | 官方模型卡提示长文本最多约 512 tokens；需要正确区分 query 和 passage 前缀；模型约 0.6B 参数 |
+| **BGE-small/base/large 系列**                              | 开源；常用于英文或轻量部署              | 可根据效果和资源选择 small、base、large；部署生态成熟        | 多数是英文向，中文或多语言场景通常优先考虑 `bge-m3`；模型版本较多，容易选错 |
+| M3E (`moka-ai/m3e-base`)                                   |                                         | 中文效果较好；开源，可本地部署；模型相对轻量；支持中英文     | 上下文长度约 512 tokens；整体较老；多语言和长文本能力不如 BGE-M3 等新模型 |
+
+其中：
+
+- OpenAI 的 `text-embedding-3-large` 默认输出 3072 维，`text-embedding-3-small` 默认输出 1536 维，并支持通过 `dimensions` 缩短向量维度。[OpenAI 官方文档](https://developers.openai.com/api/docs/guides/embeddings)
+- Voyage 当前文档推荐 `voyage-4` 系列；其模型支持 32K 上下文，输出维度可选 256、512、1024、2048。[Voyage 官方文档](https://docs.voyageai.com/docs/embeddings)
+- Cohere Embed v4 支持文本、图片和混合输入，支持 256、512、1024、1536 维以及 128K 上下文。[Cohere 官方说明](https://docs.cohere.com/changelog/embed-multimodal-v4)
+- BGE-M3 支持 100 多种语言、最长 8192 tokens，并支持 dense、sparse、multi-vector 检索。[BGE-M3 模型卡](https://huggingface.co/BAAI/bge-m3)
+- multilingual-E5-large 支持 94 种语言，向量维度为 1024；模型卡说明长文本会截断到最多 512 tokens。[模型卡](https://huggingface.co/intfloat/multilingual-e5-large)
+
+实际选型可以简单这样：
+
+- 想快速上线：`text-embedding-3-small`
+- 更看重 API 检索质量：`text-embedding-3-large` 或 `voyage-4-large`
+- 中文、多语言、想本地部署：`bge-m3`
+- 资源有限、需要轻量本地部署：BGE-small/base 或 E5 系列
+- PDF 中有图片、图表、扫描页：`Cohere embed-v4.0` 或专门的多模态 Embedding
+
+对你前面这种中文文档 RAG，我会优先拿这三个做小规模 A/B 测试：
+
+```
+BAAI/bge-m3
+multilingual-e5-large
+text-embedding-3-small
+```
+
+另外，换 Embedding 模型后必须重新生成所有文档向量并重建索引，不能把不同模型生成的向量直接混在同一个向量索引里。
+
 #####  Embedding API 与本地向量模型对比
 
 在搭建 RAG 系统时，Embedding 的主要作用是把文本转换为向量，供向量数据库进行相似度检索。常见方案有两类：调用云厂商的 Embedding API，或在本地部署向量模型。
