@@ -45,9 +45,10 @@ Function Calling（函数调用）指：大语言模型在生成回复时，**�
 5. **流式**：流式响应里 `tool_calls` 可能分片到达，需要增量拼接 `arguments`。
 
 **面试 Q1：OpenAI 的 Function Calling 大致流程是什么？**  
-**标准答案（A）**：客户端把工具定义（名称、描述、参数 JSON Schema）随对话发给 API；模型在需要时返回 `tool_calls`；宿主解析并执行真实函数；将结果以 `tool` 角色消息写回并再次调用 API；直到模型不再请求工具或达到轮次上限。核心是「模型只负责决策与参数，执行在应用侧」。
+**标准答案（A）**：客户端把工具定义（名称、描述、参数 JSON Schema）随对话发给 API；模型在需要时返回 `tool_calls`；宿主解析并执行真实函数；将结果以 `tool` 角色消息写回并再次调用 API；直到模型不再请求工具或达到轮次上限。核心是「模型只负责决策与参数，执行在应用侧」。s
 
 **追问应对**  
+
 - **问**：`tool_choice` 有什么用？  
   **答**：`auto` 由模型决定；`none` 禁止工具；`required` 强制至少调用一次；也可指定某个 `function` 强制调用。用于调试、合规场景（必须走某工具）或 A/B。  
 - **问**：和 RAG 的关系？  
@@ -88,6 +89,139 @@ Function Calling（函数调用）指：大语言模型在生成回复时，**�
 **面试 Q3：模型选错工具怎么办？**  
 **A**：工程上（1）优化 `description` 与示例边界；（2）工具路由缩小候选集；（3）执行前做规则校验或二次确认；（4）对高风险操作要求人类确认；（5）记录 bad case 做 prompt 迭代。不能假设模型 100% 正确。
 
+可以把它们理解成两道“安全门”。
+
+#### 1. 工具路由：先缩小工具候选集
+
+假设系统有 50 个工具：
+
+```
+get_weather
+search_flights
+create_order
+cancel_order
+refund_payment
+delete_account
+...
+```
+
+用户说：
+
+```
+北京今天天气怎么样？
+```
+
+没必要把 50 个工具全部传给模型。可以先根据用户问题判断属于“天气类”，只把相关工具传给模型：
+
+```
+if "天气" in user_input:
+    available_tools = [get_weather]
+elif "退款" in user_input:
+    available_tools = [query_order, refund_payment]
+```
+
+然后：
+
+```
+model_with_tools = model.bind_tools(available_tools)
+```
+
+这就是“工具路由”。
+
+好处是：
+
+- 减少 Token 消耗
+- 降低模型选错工具的概率
+- 工具数量很多时，响应更稳定
+
+完整流程：
+
+```
+用户问题
+  ↓
+路由器判断：这是天气问题
+  ↓
+只提供 get_weather
+  ↓
+模型调用 get_weather
+```
+
+路由器可以是简单的关键词、分类模型，也可以是另一个小模型。
+
+------
+
+#### 2. 执行前规则校验或二次确认
+
+JSON Schema 只能检查参数“格式对不对”，不能完全判断操作“是否应该执行”。
+
+例如：
+
+```
+{
+    "user_id": "u123",
+    "amount": 10000
+}
+```
+
+格式可能完全正确，但退款 10000 元可能是危险操作。
+
+所以真正执行工具前，再加一层业务规则：
+
+```
+def can_refund(user_id: str, amount: int) -> bool:
+    if amount > 1000:
+        return False
+    return True
+```
+
+执行工具：
+
+```
+arguments = {
+    "user_id": "u123",
+    "amount": 10000
+}
+
+if not can_refund(
+    arguments["user_id"],
+    arguments["amount"]
+):
+    print("退款金额超过自动处理上限，需要人工确认")
+else:
+    result = refund_payment(**arguments)
+```
+
+对于危险操作，还可以要求用户二次确认：
+
+```
+if amount > 1000:
+    print(f"即将退款 {amount} 元，请确认")
+    confirmed = input("输入 yes 确认：")
+
+    if confirmed != "yes":
+        print("操作已取消")
+    else:
+        refund_payment(user_id, amount)
+```
+
+实际 Agent 中通常是：
+
+```
+模型生成工具调用
+  ↓
+JSON Schema 校验格式
+  ↓
+业务规则校验
+  ↓
+必要时请求用户确认
+  ↓
+真正执行工具
+```
+
+面试时可以这样回答：
+
+> 工具路由是先根据用户意图筛选工具，只把相关工具提供给模型，减少 Token 和误调用。执行前的规则校验则是在 Schema 校验之外检查业务和安全条件，例如退款金额上限；高风险操作还要让用户二次确认后才能执行。
+
 ---
 
 ### 1.5 参数提取与验证
@@ -102,6 +236,129 @@ Function Calling（函数调用）指：大语言模型在生成回复时，**�
 
 **面试 Q4：如何做参数校验？**  
 **A**：分层——语法层 `json.loads`；结构层 `jsonschema.validate`；语义层业务函数（如用户 ID 是否存在）；安全层鉴权与输入清洗（见第 6 节）。
+
+可以把参数校验理解成四层筛子：
+
+```
+模型输出
+  ↓
+语法层：是不是合法 JSON？
+  ↓
+结构层：字段和类型是否符合 Schema？
+  ↓
+语义层：业务上是否存在、是否合理？
+  ↓
+安全层：当前用户是否有权限执行？
+  ↓
+调用工具
+```
+
+示例：
+
+```python
+import json
+from jsonschema import validate, ValidationError
+
+
+# 结构层 Schema
+refund_schema = {
+    "type": "object",
+    "properties": {
+        "user_id": {"type": "string"},
+        "order_id": {"type": "string"},
+        "amount": {"type": "number", "minimum": 0}
+    },
+    "required": ["user_id", "order_id", "amount"],
+    "additionalProperties": False
+}
+
+
+def refund_order(raw_arguments: str, current_user_id: str):
+    # 1. 语法层：检查是不是合法 JSON
+    try:
+        arguments = json.loads(raw_arguments)
+    except json.JSONDecodeError:
+        return "参数不是合法 JSON"
+
+    # 2. 结构层：检查字段、类型、必填项
+    try:
+        validate(instance=arguments, schema=refund_schema)
+    except ValidationError as error:
+        return f"参数结构不合法：{error.message}"
+
+    user_id = arguments["user_id"]
+    order_id = arguments["order_id"]
+    amount = arguments["amount"]
+
+    # 3. 语义层：检查业务是否成立
+    order = find_order(order_id)
+
+    if order is None:
+        return "订单不存在"
+
+    if order["user_id"] != user_id:
+        return "订单不属于该用户"
+
+    if amount > order["amount"]:
+        return "退款金额不能超过订单金额"
+
+    # 4. 安全层：检查权限
+    if user_id != current_user_id:
+        return "没有权限操作该用户的订单"
+
+    # 5. 所有检查通过，才真正执行
+    return do_refund(order_id, amount)
+```
+
+辅助函数可以是：
+
+```
+def find_order(order_id: str):
+    fake_database = {
+        "order_001": {
+            "user_id": "user_123",
+            "amount": 100
+        }
+    }
+    return fake_database.get(order_id)
+
+
+def do_refund(order_id: str, amount: float):
+    return f"订单 {order_id} 已退款 {amount} 元"
+```
+
+调用：
+
+```
+raw_arguments = """
+{
+    "user_id": "user_123",
+    "order_id": "order_001",
+    "amount": 80
+}
+"""
+
+print(refund_order(raw_arguments, current_user_id="user_123"))
+```
+
+结果：
+
+```
+订单 order_001 已退款 80 元
+```
+
+四层分别解决不同问题：
+
+| 层次   | 检查内容             | 示例                       |
+| ------ | -------------------- | -------------------------- |
+| 语法层 | 能不能被解析         | JSON 有没有缺括号          |
+| 结构层 | 格式是否符合约定     | `amount` 是否为数字        |
+| 语义层 | 业务上是否合理       | 订单是否存在、金额是否超限 |
+| 安全层 | 是否允许当前用户执行 | 用户是否有退款权限         |
+
+面试时可以这样回答：
+
+> 参数校验不是只做 JSON Schema。首先通过 `json.loads` 保证内容是合法 JSON；然后用 `jsonschema.validate` 校验字段结构、类型和必填项；接着在业务层检查资源是否存在、参数是否符合业务规则；最后在安全层做鉴权、权限校验和必要的输入清洗，全部通过后才执行工具。
 
 ---
 
@@ -212,6 +469,63 @@ if __name__ == "__main__":
 **面试 Q5：Tool 与业务里的普通 Python 函数有何不同？**  
 **A**：Tool 多了**面向模型的元数据**（描述、Schema）和**统一执行接口**（记录日志、超时、权限）。业务函数关注领域逻辑；Tool 是 Agent 可调度的「外壳」。
 
+Tool 不是简单给函数换个名字，而是给业务函数增加了面向模型的描述和参数 Schema，并提供统一的执行生命周期，例如参数校验、权限检查、日志、超时和错误处理。业务函数专注领域逻辑，Tool 则是 Agent 可以发现、理解和调度的适配层。
+
+例如，原始业务函数：
+
+```
+def refund_order(order_id: str, amount: float) -> str:
+    # 领域逻辑
+    return f"订单 {order_id} 退款 {amount} 元"
+```
+
+它只适合给 Python 代码直接调用。模型并不知道：
+
+- 这个函数叫什么
+- 它什么时候应该被调用
+- 参数是什么
+- 哪些参数必填
+- 是否需要权限
+- 是否需要日志和超时控制
+
+包装成 Tool：
+
+```
+from langchain_core.tools import tool
+
+@tool
+def refund_order_tool(order_id: str, amount: float) -> str:
+    """给指定订单退款。高风险操作，执行前需要确认。"""
+    print("记录日志：开始退款")
+    print("权限检查：通过")
+
+    result = refund_order(order_id, amount) # 调用上面的函数
+
+    print("记录日志：退款完成")
+    return result
+```
+
+`@tool` 这个包装器会为模型提供元数据：
+
+```
+工具名称：refund_order_tool
+工具描述：给指定订单退款。高风险操作，执行前需要确认。
+参数：
+  order_id: string
+  amount: number
+```
+
+同时提供统一的执行入口：
+
+```
+refund_order_tool.invoke({
+    "order_id": "order_001",
+    "amount": 100
+})
+```
+
+Agent 不需要知道内部业务函数叫什么，也不需要了解数据库实现。
+
 ---
 
 ### 2.2 工具描述的最佳实践
@@ -247,11 +561,132 @@ if __name__ == "__main__":
 工具返回值会作为 `tool` 消息内容进入上下文。应**稳定、可解析**：优先 JSON 字符串；错误用统一结构 `{ "error": "..." }`，便于模型纠错。
 
 **原理详解**  
+
 - 超大结果需**摘要**或**分页**（再提供 `fetch_more` 工具），避免撑爆上下文。  
 - 二进制内容应转为文本描述或 URL，不要直接塞原始字节。
 
+工具返回值会作为 `tool` 消息进入上下文。返回结果应稳定、结构化、可预测，便于模型理解、纠错和后续工具调用。
+
+| 场景         | 推荐做法                                              | 示例                                                         |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------ |
+| 成功返回     | 使用统一结构，区分 `ok`、`data` 和 `meta`             | `{"ok": true, "data": {...}, "meta": {}}`                    |
+| 业务失败     | 不要直接抛出无结构异常，返回统一错误对象              | `{"ok": false, "error": {"code": "ORDER_NOT_FOUND", "message": "订单不存在"}}` |
+| 参数错误     | 返回机器可识别的错误码，并指出具体字段                | `{"code": "INVALID_ARGUMENT", "field": "city"}`              |
+| 权限失败     | 不暴露敏感内部信息，只返回必要提示                    | `{"code": "PERMISSION_DENIED", "message": "无权访问该资源"}` |
+| 可重试错误   | 标记是否建议重试，避免模型盲目重复调用                | `"retryable": true`                                          |
+| 超大结果     | 摘要、限制条数或分页，不要一次性返回全部内容          | `"has_more": true, "next_cursor": "abc123"`                  |
+| 分页查询     | 返回 `items`、`has_more` 和 `next_cursor`             | `{"items": [...], "has_more": true}`                         |
+| 需要详细内容 | 提供单独的查询工具，例如 `fetch_more` 或 `get_detail` | 先返回摘要，再按 ID 查询详情                                 |
+| 二进制内容   | 返回 URL、文件 ID 或文本摘要，不直接返回原始字节      | `{"file_id": "f_123", "url": "...", "summary": "..."}`       |
+| 敏感信息     | 脱敏后再返回，避免密码、Token、完整银行卡号进入上下文 | `"phone": "138****1234"`                                     |
+| 空结果       | 返回明确的空集合，而不是 `null` 或模糊文本            | `{"items": [], "total": 0}`                                  |
+| 日期和金额   | 使用统一格式，避免模型误解                            | `"created_at": "2026-10-16T10:30:00Z"`                       |
+| 日志信息     | 详细日志写入服务端，返回值只保留模型需要的信息        | 返回 `"request_id": "req_123"`                               |
+| 幂等操作     | 返回操作 ID 或状态，避免模型重复执行                  | `{"operation_id": "op_123", "status": "processing"}`         |
+
+不是自动读取。
+
+分页格式：这个分页的格式，llm会自己去读分页的内容是吗
+
+模型只能看到工具返回给它的当前内容：
+
+```
+{
+  "ok": true,
+  "data": {
+    "items": [
+      {"id": "1", "title": "订单一"},
+      {"id": "2", "title": "订单二"}
+    ],
+    "has_more": true,
+    "next_cursor": "cursor_abc"
+  }
+}
+```
+
+模型看到 `has_more: true` 后，只有在以下条件满足时，才会继续获取下一页：
+
+1. 你定义了分页工具，例如 `fetch_more`
+2. 工具描述告诉模型什么时候使用它
+3. Agent 允许继续调用工具
+
+例如：
+
+```
+@tool
+def fetch_more(cursor: str) -> str:
+    """获取下一页数据。只有当上一个结果中的 has_more 为 true 时调用。"""
+    return get_next_page(cursor)
+```
+
+流程是：
+
+```
+查询工具返回第一页
+  ↓
+模型看到 has_more = true
+  ↓
+模型决定调用 fetch_more(cursor)
+  ↓
+程序执行 fetch_more
+  ↓
+下一页结果再次进入上下文
+  ↓
+模型继续处理
+```
+
+模型不会因为看到：
+
+```
+"next_cursor": "cursor_abc"
+```
+
+就自动读取下一页。它只是知道“还有数据”，是否继续取数据由模型和 Agent 流程决定。
+
+也可以由程序自动分页：
+
+```
+all_items = []
+
+cursor = None
+
+while True:
+    result = query_orders(cursor)
+    all_items.extend(result["items"])
+
+    if not result["has_more"]:
+        break
+
+    cursor = result["next_cursor"]
+```
+
+两种方式的区别：
+
+| 方式     | 谁决定获取下一页              | 适合场景                         |
+| -------- | ----------------------------- | -------------------------------- |
+| 模型驱动 | LLM 决定是否调用 `fetch_more` | 需要根据用户意图灵活获取         |
+| 程序驱动 | 你的代码自动循环分页          | 必须获取完整数据，例如导出、统计 |
+
+实际 Agent 中通常这样设计：
+
+- 用户问“前 3 条订单” → 只取第一页
+- 用户问“所有订单” → Agent 继续调用分页工具，或程序自动分页
+- 用户问“有没有某个订单” → 分页查询到找到目标就停止
+
+所以更准确的说法是：
+
+> 分页结果不会被 LLM 自动读取；它只能根据 `has_more` 和 `next_cursor` 判断是否需要再次调用分页工具。若要求完整获取数据，应由 Agent 循环或业务代码显式处理。
+
 **面试 Q6：工具返回 10MB 日志怎么办？**  
 **A**：不应直接返回。应（1）截断 + 摘要；（2）写入对象存储返回链接；（3）提供 `grep_in_log` 等缩小工具；（4）向量索引仅检索相关片段。
+
+| 方案         | 含义                                      | 示例                             |
+| ------------ | ----------------------------------------- | -------------------------------- |
+| 截断         | 只返回开头、结尾或最近一部分              | 最近 200 行                      |
+| 摘要         | 先提取错误、警告和关键时间点              | 发现 3 个错误，主要是数据库超时  |
+| 对象存储     | 完整日志保存到 S3、OSS 等，只返回安全链接 | `https://storage/.../log.txt`    |
+| 精确检索工具 | 让模型只查询相关内容                      | `grep_in_log(keyword="timeout")` |
+| 向量检索     | 按语义搜索和问题最相关的日志片段          | 查找“支付失败相关日志”           |
 
 ---
 
@@ -306,9 +741,10 @@ def search_product(
 ### 3.1 MCP 是什么
 
 **概念解释**  
-MCP（Model Context Protocol）是由 **Anthropic 推动**的开放标准，用于在 **AI 应用（Host）** 与 **外部数据源/工具（MCP Server）** 之间建立**统一、可插拔**的通信方式。可理解为「AI 侧的 USB-C」：一次实现 Server，多个客户端（Claude Desktop、IDE、自研 Agent）可复用。
+MCP 是一种标准化的连接协议。它把数据库、GitHub、文件系统等外部能力包装成 MCP Server，再由 Agent 通过 MCP Client 连接。AI 应用不需要为每个外部系统单独实现一套集成逻辑，只需要支持 MCP，就可以发现和调用不同 Server 提供的工具与数据。
 
 **原理详解**  
+
 - 协议定义了能力发现、资源读取、工具调用、提示模板等消息格式与生命周期。  
 - 目标：把「每个产品各写一套插件」变成「标准协议 + 多实现」。
 
@@ -408,7 +844,48 @@ if FastMCP:
 
 **原理详解**  
 - 典型阈值：几十到上百个工具就要开始考虑路由（视模型与描述长度而定）。  
+
 - 方法：**向量检索**、**分类/意图模型**、**层级目录**（先选类再选工具）、**规则前缀**（用户以 `/db` 开头走数据库类）。
+
+  - 不把所有工具都交给 LLM，而是先把用户问题和工具描述转换成向量，找出语义最相关的几个工具，再把这几个工具交给 LLM。
+
+    工具名称 + 描述 + 参数说明
+            ↓
+    生成工具向量，保存到向量数据库
+
+    用户问题
+            ↓
+    生成问题向量
+            ↓
+    向量相似度检索
+            ↓
+    选出 Top-K 工具
+            ↓
+    只把这些工具交给 LLM
+
+  | 方法          | 谁决定类别         | 优点                   | 缺点                       | 适合场景           |
+  | ------------- | ------------------ | ---------------------- | -------------------------- | ------------------ |
+  | 分类/意图模型 | 模型或分类器       | 体验自然，理解能力强   | 可能分类错误，需要额外调用 | 普通自然语言对话   |
+  | 层级目录      | 系统按类别逐层筛选 | 工具很多时清晰、可扩展 | 需要维护工具分类           | 大型 Agent         |
+  | 规则前缀      | 用户明确指定       | 稳定、可控、低成本     | 用户需要记命令             | 管理员、开发者工具 |
+
+```python
+有前缀？
+  ├── 是：按规则路由
+  └── 否：使用意图分类
+
+确定类别后
+  ↓
+进入对应工具目录
+
+类别内工具仍然很多
+  ↓
+再做向量检索
+
+得到少量候选工具
+  ↓
+交给 LLM 最终选择
+```
 
 ---
 
@@ -418,6 +895,7 @@ if FastMCP:
 离线：把每个工具的 `name + description + 关键词` 做成 embedding，存向量库。在线：用户问题 embedding，**Top-K 相似工具**作为本轮唯一候选，再交给 LLM。
 
 **原理详解**  
+
 - 优点：实现快、可跨语种模糊匹配。  
 - 缺点：极依赖描述质量；边界 case 需加规则或混合检索（关键词 + 向量）。
 
@@ -487,7 +965,33 @@ def route_tools(
 ```
 
 **面试 Q9：向量路由选出来的工具不对怎么兜底？**  
-**A**：Top-K 调大、混合关键词打分、加一层 LLM「是否适用」二分类、允许用户澄清、保留「通用搜索」工具作后备。
+**A**：我不会盲信向量检索的 Top-1 结果。首先设置相似度阈值，低于阈值就认为路由不确定；然后使用关键词和向量的混合检索，必要时扩大候选集或退回业务目录。对于退款、删除、转账等高风险工具使用规则和二次确认。如果仍然无法确定，就让模型返回 unknown 或向用户澄清，而不是直接执行。
+
+```python
+向量检索
+  ↓
+相似度阈值检查 / 低于阈值就认为路由不确定
+  ↓
+混合检索（向量检索擅长理解语义，但可能忽略关键字。可以结合关键词检索）
+  ↓
+意图分类或规则判断
+  ↓
+必要时候扩大候选集 / 让 LLM 在更大候选集中重新选择
+  ↓
+仍不确定：向用户澄清
+```
+
+当多个工具都很接近时，应该询问用户：
+
+```
+你是想：
+
+1. 查询订单当前状态
+2. 查询物流进度
+3. 申请退款
+```
+
+这通常比“猜一个工具然后执行”更安全。
 
 ---
 

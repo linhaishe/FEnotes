@@ -2199,6 +2199,25 @@ print(unique)
 #}
 ```
 
+这里不是把 `Future` 的结果作为 key，而是把 `Future` 对象本身作为 key。Python 对象默认可以按对象身份进行哈希，只要它没有被设计成不可哈希类型，就可以作为字典 key。
+
+```py
+future_to_index = {}
+for chunk_index, chunk_bytes, page_offset in chunk_data:
+  # future 通常是 concurrent.futures.Future 类的实例，它代表一个“已经提交给线程池、未来会完成的任务”
+    future = executor.submit(
+        self._parse_chunk_with_retry,
+        user_id=user_id,
+        doc_id=doc_id,
+        chunk_pdf_bytes=chunk_bytes,
+        chunk_index=chunk_index,
+        total_chunks=total_chunks,
+        page_offset=page_offset,
+        **all_kwargs,
+    )
+    future_to_index[future] = chunk_index
+```
+
 
 
 ## Dictionary Unpacking
@@ -6493,6 +6512,12 @@ for arg in sys.argv[1:]:
 Handling run-time error: int division or modulo by zero
 ```
 
+```python
+except (ModuleNotFoundError, AttributeError, ValueError) as e:
+    logger.warning(f"Error loading file converter '{class_path}': {e}")
+    return None
+```
+
 ### try-finally 语句
 
 try-finally 语句无论是否发生异常都将执行最后的代码。
@@ -7383,6 +7408,140 @@ dog2 = Dog("Tom")
 print(dog2.name)    # Tom
 print(dog2.species) # French Bulldog
 ```
+
+## cls and self
+
+`cls` 是“类本身”，`self` 是“类创建出来的对象”。
+
+例如：
+
+```python
+class PipelineSettings:
+    @classmethod
+    def get_instance(cls):
+        print(cls)
+
+    def get_default_file_converter(self):
+        print(self)
+```
+
+调用：
+
+```python
+PipelineSettings.get_instance()
+```
+
+此时：
+
+```python
+cls == PipelineSettings
+```
+
+因为 `get_instance` 被 `@classmethod` 修饰，它接收的是类本身。
+
+而调用：
+
+```python
+settings = PipelineSettings()
+settings.get_default_file_converter()
+```
+
+此时：
+
+```python
+self == settings
+```
+
+因为普通实例方法接收的是具体对象。
+
+可以这样记：
+
+```text
+cls  → class，类本身
+self → instance，类的实例对象
+```
+
+在你的代码中：
+
+```python
+@classmethod
+def get_instance(cls, use_cache=True):
+```
+
+`cls` 实际就是：
+
+```python
+PipelineSettings
+```
+
+所以：
+
+```python
+cls.objects.get_or_create(...)
+```
+
+等价于：
+
+```python
+PipelineSettings.objects.get_or_create(...)
+```
+
+这样写的好处是：如果以后子类继承 `PipelineSettings` 并调用这个方法，`cls` 会自动指向子类，而不是写死父类名称。
+
+严格来说，`objects.get_or_create(...)` 不是 `cls` 自己的方法。
+
+这句：
+
+```
+cls.objects.get_or_create(...)
+```
+
+可以拆成：
+
+```
+manager = cls.objects
+instance, created = manager.get_or_create(...)
+```
+
+关系是：
+
+```
+cls
+  ↓
+PipelineSettings 类
+  ↓
+objects
+  ↓
+Django 的数据库管理器 Manager
+  ↓
+get_or_create()
+```
+
+`objects` 是 Django 为模型自动提供的管理器：
+
+```
+PipelineSettings.objects
+```
+
+`get_or_create()` 是这个管理器的方法，不是 `PipelineSettings` 类本身的方法。
+
+所以：
+
+```
+cls.objects.get_or_create(...)
+```
+
+等价于：
+
+```
+PipelineSettings.objects.get_or_create(...)
+```
+
+它的意思是：
+
+> 去数据库中查找 `PipelineSettings` 记录；如果找不到，就创建一条，然后返回对象。
+
+
 
 ## Special Methods 
 
@@ -8340,6 +8499,8 @@ But if you're working with a class that will be inherited, you should use a doub
 
 ## Abstraction
 
+抽象类通常只定义共同规则，但不提供完整实现。
+
 Abstraction is the process of hiding complex implementation details and showing only the essential features of an object or system. Think of it as focusing on what something does rather than how it does it.
 
 Abstraction is not limited to Python. It's a programming concept that can be implemented in many languages that support object-oriented programming.
@@ -8349,6 +8510,57 @@ This module provides the `ABC` class (standing for “abstract base class”) an
 `ABC` is the class that is meant to be inherited from, but you cannot create direct objects from it. It is what defines a common interface of methods and properties that its subclasses must implement.
 
 On the other hand, an abstract method is a method declared in an Abstract Base Class (ABC) using the `@abstractmethod` decorator. It may have no implementation or a basic default one. However, any subclass must override it to be considered concrete and instantiable, even if a default implementation is provided.
+
+```python
+from abc import ABC, abstractmethod
+
+class Animal(ABC):
+
+    @abstractmethod # 表示所有子类必须实现 `make_sound()`。
+    def make_sound(self):
+        pass
+```
+
+这里：`class Animal(ABC):` 表示 `Animal` 是一个抽象类。
+
+因此不能直接创建：`animal = Animal()` 会报错，因为 `Animal` 还没有具体的声音实现。
+
+子类必须实现抽象方法
+
+```py
+class Dog(Animal):
+
+    def make_sound(self):
+        print("汪")
+```
+
+现在可以创建：
+
+```
+dog = Dog()
+dog.make_sound()
+```
+
+因为 `Dog` 实现了父类要求的：
+
+```
+make_sound()
+```
+
+如果子类不实现：
+
+```
+class Cat(Animal):
+    pass
+```
+
+那么：
+
+```
+cat = Cat()
+```
+
+仍然会报错，因为 `Cat` 还是不完整的。
 
 ```py
 from abc import ABC, abstractmethod

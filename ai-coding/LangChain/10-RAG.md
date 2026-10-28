@@ -438,7 +438,7 @@ Sentence Transformers 是 RAG 中用于加载和运行的 **Embedding 和 Rerank
 下面列的是目前 RAG 中比较常见的 Embedding 模型。性能没有绝对排名，最好用自己的问题集测试 `Recall@K`、MRR 和最终答案正确率。
 
 | 模型                                                       | 类型 / 特点                             | 优点                                                         | 缺点                                                         |
-| ---------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| :--------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | **OpenAI `text-embedding-3-small`**                        | API；默认 1536 维                       | 成本低、接入简单、综合表现稳定，适合一般 RAG                 | 依赖外部 API；数据需要发给第三方；不可本地部署               |
 | **OpenAI `text-embedding-3-large`**                        | API；默认 3072 维，可缩短维度           | OpenAI 官方称其在英文和非英文任务上能力更强；适合对准确率要求较高的场景 | 成本和向量存储开销更高；仍依赖外部 API                       |
 | **Voyage `voyage-4-large` / `voyage-4` / `voyage-4-lite`** | API；通用、多语言                       | `voyage-4-large` 偏效果，`voyage-4-lite` 偏成本和延迟；支持 query/document 区分和多种输出维度 | 商业 API；不同模型和维度需要重新建索引；国内网络和合规需评估 |
@@ -4711,15 +4711,15 @@ RAGAs 分数异常
 
 Sentence Transformers 是一个用于加载和运行 Embedding 模型的 Python 库，不是某一个具体的 Embedding 模型。
 
-| 方式             | 代表方案                                   | 特点                                  |
-| ---------------- | ------------------------------------------ | ------------------------------------- |
-| 本地 Python 模型 | Sentence Transformers + Hugging Face       | 本地运行，适合学习和隐私数据          |
-| 云端 API         | OpenAI、Cohere、Jina、Gemini 等            | 使用简单，效果稳定，但需要联网和付费  |
-| 本地模型服务     | Ollama                                     | 通过本地 HTTP API 提供 Embedding      |
-| 模型推理服务     | Hugging Face TEI、vLLM                     | 将 Embedding 模型部署成服务，适合生产 |
-| LlamaIndex 集成  | `HuggingFaceEmbedding`、OpenAI Embeddings  | 直接接入 LlamaIndex RAG               |
-| LangChain 集成   | `HuggingFaceEmbeddings`、OpenAI Embeddings | 直接接入 LangChain                    |
-| 稀疏向量         | BM25、SPLADE                               | 更擅长关键词匹配，可与向量检索混合    |
+| 方式             | 代表方案                                                     | 特点                                  |
+| ---------------- | ------------------------------------------------------------ | ------------------------------------- |
+| 本地 Python 模型 | Sentence Transformers + Hugging Face<br />`from sentence_transformers import SentenceTransformer`<br />`EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "multi-qa-MiniLM-L6-cos-v1")`<br />`model = SentenceTransformer(EMBEDDING_MODEL)` | 本地运行，适合学习和隐私数据          |
+| 云端 API         | OpenAI、Cohere、Jina、Gemini 等                              | 使用简单，效果稳定，但需要联网和付费  |
+| 本地模型服务     | Ollama                                                       | 通过本地 HTTP API 提供 Embedding      |
+| 模型推理服务     | Hugging Face TEI、vLLM                                       | 将 Embedding 模型部署成服务，适合生产 |
+| LlamaIndex 集成  | `HuggingFaceEmbedding`、OpenAI Embeddings                    | 直接接入 LlamaIndex RAG               |
+| LangChain 集成   | `HuggingFaceEmbeddings`、OpenAI Embeddings                   | 直接接入 LangChain                    |
+| 稀疏向量         | BM25、SPLADE                                                 | 更擅长关键词匹配，可与向量检索混合    |
 
 文档和用户问题必须使用：
 
